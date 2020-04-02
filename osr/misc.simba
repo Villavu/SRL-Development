@@ -1,0 +1,177 @@
+{$DEFINE SRL_MISC_INCLUDED}
+{$IFNDEF OSRS}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  ERSClickType = (RS_CLICK_RED, RS_CLICK_YELLOW);
+
+function TSRL.IsLoggedIn: Boolean; overload;
+begin
+  Result := ChatButtons.IsOpen();
+end;
+
+function TSRL.IsLoggedIn(WaitTime: Int32): Boolean; overload;
+var
+  T: UInt64;
+begin
+  T := GetTickCount() + WaitTime;
+  while (T > GetTickCount()) do
+  begin
+    if Self.IsLoggedIn() then
+      Exit(True);
+
+    Wait(100, 200);
+  end;
+end;
+
+function TSRL.DidClick(ClickType: ERSClickType): Boolean;
+var
+  BMP: TMufasaBitmap;
+  B: TBox;
+  X, Y, W, H: Int32;
+  Yellow, Red: Int32;
+begin
+  if Mouse.GetPosition() in GetClientBounds() then
+  begin
+    with Mouse.GetPosition() do
+      B := [X - 8, Y - 8, X + 8, Y + 8];
+
+    B.LimitTo(GetClientBounds());
+
+    BMP := GetMufasaBitmap(BitmapFromClient(B));
+    W := BMP.GetWidth() - 1;
+    H := BMP.GetHeight() - 1;
+
+    for Y := 1 to H - 1 do
+      for X := 1 to W - 1 do
+      begin
+        if SimilarColors(BMP.GetPixel(X, Y), $00FFFF, 5) and (
+           SimilarColors(BMP.GetPixel(X - 1, Y), $000000, 5) or
+           SimilarColors(BMP.GetPixel(X + 1, Y), $000000, 5) or
+           SimilarColors(BMP.GetPixel(X, Y - 1), $000000, 5) or
+           SimilarColors(BMP.GetPixel(X, Y + 1), $000000, 5)) then
+          Inc(Yellow);
+
+        if SimilarColors(BMP.GetPixel(X, Y), $0000FF, 5) and (
+           SimilarColors(BMP.GetPixel(X - 1, Y), $000000, 5) or
+           SimilarColors(BMP.GetPixel(X + 1, Y), $000000, 5) or
+           SimilarColors(BMP.GetPixel(X, Y - 1), $000000, 5) or
+           SimilarColors(BMP.GetPixel(X, Y + 1), $000000, 5)) then
+          Inc(Red);
+      end;
+
+    case ClickType of
+      RS_CLICK_RED:
+        Result := (Red > Yellow) and (Red > 20);
+
+      RS_CLICK_YELLOW:
+        Result := (Yellow > Red) and (Yellow > 20);
+    end;
+
+    BMP.Free();
+  end;
+end;
+
+(*
+SRL.GetXPAtLevel
+~~~~~~~~~~~~~~~~
+.. pascal:: function TSRL.GetXPAtLevel(level:Int32): Int32;
+
+Given a level it returns the minimum XP needed for it.
+*)
+function TSRL.GetXPAtLevel(level:Int32): Int32;
+var
+  total:Double;
+  i:Int32;
+begin
+  for i:=1 to level-1 do
+    total += Floor(i + 300 * 2 ** (i / 7));
+  Result := Floor(total / 4);
+end;
+
+(*
+SRL.GetLevelAtXP
+~~~~~~~~~~~~~~~~
+.. pascal:: function TSRL.GetLevelAtXP(XP:UInt32): Int32;
+
+Given some XP, it returns what level that is.
+*)
+function TSRL.GetLevelAtXP(XP:UInt32): Int32;
+var 
+  total:Double;
+begin
+  while (total < XP*4+1) do
+  begin  
+    Inc(Result);
+    total += Floor(Result + 300 * 2 ** (Result / 7));
+  end;
+end;
+
+(*
+SRL.GetItemAmount
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TSRL.GetItemAmount(Area: TBox): Int32;
+
+For use with items in like bankscreen, inventory, shops and so on to
+get the number of stacked items there are.
+*)
+function TSRL.GetItemAmount(Area: TBox): Int32;
+const
+  TEXT_COLORS: TIntegerArray = [$00FFFF, $00FEFE, $FFFFFF, $80FF00]; // Million = white | Billion = green etc.
+var
+  I: Integer;
+  Text: String;
+  TPA: TPointArray;
+begin
+  for I := 0 to High(TEXT_COLORS) do
+    if SRL.FindColors(TPA, CTS0(TEXT_COLORS[I]), Area) then
+    begin
+      Text := OCR.Recognize(TPA, RS_FONTSET_PLAIN_11);
+      Result := StrToIntDef(ExtractFromStr(Text, Numbers), 0);
+
+      if Pos('K', Text) > 0 then
+        Result := Result * 1000;
+      if Pos('M', Text) > 0 then
+        Result := Result * 1000000;
+
+      Exit;
+    end;
+end;
+
+(*
+SRL.AvgBrightness
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TSRL.AvgBrightness(B: TBox): Int32;
+
+Returns the average brightness of a area on the screen. 
+Returns a value between ``0`` and ``100``, ``0`` being black.
+*)
+function TSRL.AvgBrightness(B: TBox): Int32;
+var
+  BMP: TMufasaBitmap;
+begin
+  BMP.FromClient(B);
+  Result := BMP.AvgBrightness();
+  BMP.Free();
+end;
+
+(*
+SRL.PeakBrightness
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TSRL.PeakBrightness(B: TBox): Int32;
+
+Returns the peak brightness of a area on the screen. 
+Returns a value between ``0`` and ``100``, ``0`` being black.
+*)
+function TSRL.PeakBrightness(B: TBox): Int32;
+var
+  BMP: TMufasaBitmap;
+begin
+  BMP.FromClient(B);
+  Result := BMP.PeakBrightness();
+  BMP.Free();
+end;
+
+
+

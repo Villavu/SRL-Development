@@ -1,0 +1,24 @@
+type
+  TIntArray = TIntegerArray;
+  TExtArray = TExtendedArray;
+
+  {$IFDEF SIMBAMAJOR1200}
+  EComparator = (__EQ__, __NE__, __LT__, __GT__);
+  {$ENDIF}
+
+
+{$include_once types/Other.simba}
+{$include_once types/TRectangle.simba}
+{$include_once types/TCircle.simba}
+{$include_once types/TPoint.simba}
+{$include_once types/TBox.simba}
+{$include_once types/String.simba}
+{$include_once types/TIntegerArray.simba}
+{$include_once types/TExtendedArray.simba}
+{$include_once types/TBoolArray.simba}
+{$include_once types/TBoxArray.simba}
+{$include_once types/TPointArray.simba}
+{$include_once types/TStringArray.simba}
+{$include_once types/T2DIntArray.simba}
+{$include_once types/T2DExtArray.simba}
+{$include_once types/T2DPointArray.simba}

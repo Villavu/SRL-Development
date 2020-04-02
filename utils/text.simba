@@ -1,0 +1,176 @@
+(*
+Text (shared)
+=============
+Text related methods
+*)
+type
+  ENumberFormat = (formatRS, formatSI);
+  
+
+(*
+srl.FindText
+~~~~~~~~~~~~~
+.. pascal::
+  function TSRL.FindText(out p: TPoint; Text, Font: String; SearchBox: TBox): Boolean;  constref;
+  function TSRL.FindText(out Matches: TPointArray; Text, Font: String; Color, Tolerance: Integer; SearchBox: TBox): Boolean; constref; overload;
+  function TSRL.FindText(out p: TPoint; Text, Font: String; Color, Tolerance: Integer; SearchBox: TBox): Boolean; constref; overload;
+
+
+Searches for the given text, using the given font, in the specified search area.
+
+* First implementation returns the first coordinate where it was found in `p`.
+
+* Second implementation returns a list of all locations the text was found, and takes a specific Color & Tolerance.
+
+* Third implementation returns the first coordinate where it was found in `p`, and takes a specific Color & Tolerance.
+*)
+function TSRL.FindText(out p: TPoint; Text, Font: String; SearchBox: TBox): Boolean;  constref;
+var
+  img: Integer;
+begin
+  p := [-1, -1];
+
+  try
+    img := BitmapFromText(Text, Font);
+    Result := FindBitmapMaskTolerance(img, p, SearchBox, 30, 30);
+  finally
+    FreeBitmap(img);
+  end;
+end;
+
+function TSRL.FindText(out Matches: TPointArray; Text, Font: String; Color, Tolerance: Integer; SearchBox: TBox): Boolean; constref; overload;
+var
+  TPA, TPAText: TPointArray;
+  w, h: Integer;
+begin
+  if (not FindColorsTolerance(TPA, Color, SearchBox, Tolerance)) then
+    Exit(False);
+
+  SetLength(Matches, 0);
+  TPAText := TPAFromText(Text, Font, w, h);
+  Result := FindTextTPAinTPA(h - 1, TPAText, TPA, Matches);
+end;
+
+function TSRL.FindText(out p: TPoint; Text, Font: String; Color, Tolerance: Integer; SearchBox: TBox): Boolean; constref; overload;
+var
+  tmp: TPointArray;
+begin
+  Result := Self.FindText(tmp, Text, Font, Color, Tolerance, SearchBox);
+  if (Result) then
+    p := tmp[0];
+end;
+
+
+(*
+srl.MouseText
+~~~~~~~~~~~~~
+.. pascal::
+  function TSRL.MouseText(Text, Font: String; SearchBox: TBox; MouseAction: Integer = mouse_Move): Boolean; constref;
+  function TSRL.MouseText(Text, Font: String; Color, Tolerance: Integer; SearchBox: TBox; MouseAction: Integer = mouse_Move): Boolean; constref; overload;
+  
+Moves the mouse to the place the text was found, if it wasn't found it just returns False.
+*)
+function TSRL.MouseText(Text, Font: String; SearchBox: TBox; MouseAction: Integer = mouse_Move): Boolean; constref;
+var
+  TPA: TPointArray;
+  p: TPoint;
+begin
+  Result := FindText(p, Text, Font, SearchBox);
+
+  if (Result) then
+  begin
+    TPA := TPAFromText(Text, Font);
+    OffsetTPA(TPA, p);
+
+    Mouse.Move(GetTPABounds(TPA));
+    if (MouseAction <> mouse_Move) then
+      Mouse.Click(mouseAction);
+  end;
+end;
+
+function TSRL.MouseText(Text, Font: String; Color, Tolerance: Integer; SearchBox: TBox; MouseAction: Integer = mouse_Move): Boolean; constref; overload;
+var
+  TPA, TPA2: TPointArray;
+  p: TPoint;
+begin
+  Result := FindText(TPA2, Text, Font, Color, Tolerance, SearchBox);
+
+  if (Result) then
+  begin
+    p := TPA2[0];
+    TPA := TPAFromText(Text, Font);
+    OffsetTPA(TPA, p);
+
+    Mouse.Move(GetTPABounds(TPA));
+    if (MouseAction <> mouse_Move) then
+      Mouse.Click(mouseAction);
+  end;
+end;
+
+(*
+srl.MouseText
+~~~~~~~~~~~~~
+.. pascal::
+  function TSRL.GetTextFromTPA(TPA: TPointArray; MinVSpacing, MaxVSpacing, HSpacing: Integer; Font: String): String; constref;
+  
+Given a TPA that represents text, this function will run it though the OCR engine and return back a string.
+*)
+function TSRL.GetTextFromTPA(TPA: TPointArray; MinVSpacing, MaxVSpacing, HSpacing: Integer; Font: String): String; constref;
+var
+  ATPA: T2DPointArray;
+  b: TBox;
+begin
+  if (Length(TPA) < 1) then
+    Exit('');
+
+  ATPA := ClusterTPAEx(TPA, MinVSpacing, HSpacing);
+  b := GetTPABounds(TPA);
+
+  SortATPAFromFirstPointX(ATPA, Point(b.X1, b.Y1));
+  Result := GetTextATPA(ATPA, MaxVSpacing, Font);
+end;
+
+(*
+SRL.FormatNumber
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.FormatNumber(n:Extended; dec:Byte=3; mode:ENumberFormat=formatRS): String; constref;
+
+Adds a single character-suffix to shorten numbers, and turn them into a string.
+Two modes are defined, one for RS and one using the SI prefix.
+
+* abbrRS: '', 'K', 'M', 'B', 'T'
+
+* abbrSI: '', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'
+
+The RS prefix is default, since SRL mainly focuses on RS.
+*)
+function TSRL.FormatNumber(n:Extended; dec:Byte=3; mode:ENumberFormat=formatRS): String; constref;
+var
+  i:Int32;
+  f:Extended := n;
+begin
+  while (Abs(f) >= 1000) do
+  begin
+    Inc(i);
+    f := f / 1000;
+  end;
+
+  if (mode = formatRS) and (i > 4) then
+    RaiseException('SRL.FormatNumber: mode `formatRS` does not support number beyond trillion.');
+
+  if (mode = formatRS) then
+    Result := FloatToStr(Round(f,dec)) + (['','K','M','B','T'])[i]
+  else
+    Result := FloatToStr(Round(f,dec)) + (['','K','M','G','T','P','E','Z','Y'])[i];
+end;
+
+// Added for backwards compatibility.
+function TSRL.FormatInt(n:Int64; dec:Byte=3; mode:ENumberFormat=formatRS): String; constref;
+begin
+  Result := Self.FormatNumber(n,dec,mode);
+end;
+
+
+

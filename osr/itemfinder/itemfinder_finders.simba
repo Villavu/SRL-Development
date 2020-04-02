@@ -1,0 +1,130 @@
+{$DEFINE SRL_ITEMFINDER_FINDERS_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; overload;
+var
+  Identifer: String;
+begin
+  if Self.Open() then
+    for Identifer in Identifers do
+      Result += ItemFinder.Find(Identifer, Self.GetSlotBoxes());
+end;
+
+function TRSInventory.FindAll(Identifer: String): TIntegerArray; overload;
+begin
+  if Self.Open() then
+    Result := Self.FindAll([Identifer]);
+end;
+
+function TRSInventory.Find(Identifers: TStringArray): Int32; overload;
+var
+  Identifer: String;
+  Matches: TIntegerArray;
+begin
+  for Identifer in Identifers do
+  begin
+    Matches := Self.FindAll(Identifer);
+    if Length(Matches) > 0 then
+      Exit(Matches[0]);
+  end;
+
+  Exit(-1);
+end;
+
+function TRSInventory.Find(Identifer: String): Int32; overload;
+begin
+  Result := Self.Find([Identifer]);
+end;
+
+function TRSInventory.Count(Identifers: TStringArray): Int32; overload;
+var
+  Identifer: String;
+begin
+  if Self.Open() then
+  begin
+    for Identifer in Identifers do
+      Result += Length(Self.FindAll(Identifer));
+  end;
+end;
+
+function TRSInventory.Count(Identifer: String): Int32; overload;
+begin
+  Result := Self.Count([Identifer]);
+end;
+
+function TRSInventory.CountStack(Identifer: String): Int32;
+var
+  Slot: Int32;
+begin
+  Slot := Self.Find(Identifer);
+  if (Slot > -1) then
+    Result := SRL.GetItemAmount(Self.GetSlotBox(Slot));
+end;
+
+function TRSInventory.Click(Identifers: TStringArray; Option: String = ''): Boolean; overload;
+var
+  Slot: Int32;
+begin
+  Slot := Self.Find(Identifers);
+
+  if (Slot > -1) then
+  begin
+    Mouse.Move(Self.GetSlotBox(Slot));
+
+    if (Option = '') then
+    begin
+      Mouse.Click(MOUSE_LEFT);
+
+      Exit(True);
+    end else
+    begin
+      if ChooseOption.Select(Option) then
+        Exit(False);
+    end;
+  end;
+end;
+
+function TRSInventory.Click(Identifer: String; Option: String = ''): Boolean; overload;
+begin
+  Result := Self.Click([Identifer], Option);
+end;
+
+function TRSBankScreen.WithdrawItem(Identifier: String; Amount: Int32): Boolean; overload;
+var
+  Items: TBoxArray;
+  Matches: TIntegerArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Items := Self.FindItems();
+
+  Matches := ItemFinder.Find(Identifier, Items);
+  if Length(Matches) > 0 then
+    Result := Self.WithdrawItem(Items[Matches[0]], Amount);
+end;
+
+function TRSBankScreen.Count(Identifer: String): Int32;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := Length(ItemFinder.Find(Identifer, Self.FindItems()));
+end;
+
+function TRSBankScreen.CountStack(Identifer: String): Int32;
+var
+  Items: TBoxArray;
+  Matches: TIntegerArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Items := Self.FindItems();
+
+  Matches := ItemFinder.Find(Identifer, Items);
+  if Length(Matches) > 0 then
+    Result := SRL.GetItemAmount(Items[Matches[0]]);
+end;

@@ -1,0 +1,46 @@
+{$DEFINE SRL_ROOT_INTERFACE_INCLUDED}
+{$IFNDEF OSRS}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSRootInterface = type TRSInterface;
+
+function TRSRootInterface.X1: Int32; constref; override;
+begin
+  Result := 0;
+end;
+
+function TRSRootInterface.Y1: Int32; constref; override;
+begin
+  Result := 0;
+end;
+
+function TRSRootInterface.X2: Int32; constref; override;
+var
+  ClientWidth, ClientHeight: Int32;
+begin
+  GetClientDimensions(ClientWidth, ClientHeight);
+
+  Result := ClientWidth - 1;
+end;
+
+function TRSRootInterface.Y2: Int32; constref; override;
+var
+  ClientWidth, ClientHeight: Int32;
+begin
+  GetClientDimensions(ClientWidth, ClientHeight);
+
+  Result := ClientHeight - 1;
+end;
+
+var
+  RootInterface: TRSRootInterface;
+
+begin
+  RootInterface.Name := 'Root Interface';
+  RootInterface.Alignment.Left := [@RootInterface.X1];
+  RootInterface.Alignment.Top := [@RootInterface.Y1];
+  RootInterface.Alignment.Right := [@RootInterface.X2];
+  RootInterface.Alignment.Bottom := [@RootInterface.Y2];
+end;

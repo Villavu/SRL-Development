@@ -1,0 +1,123 @@
+(*
+TPoint
+=============
+TPoint related methods
+*)
+function TPoint.InRect(Rect: TRectangle): Boolean; constref;
+begin
+  if srl.PointInTriangle(Self, Rect.Top,Rect.Btm,Rect.Right) then Exit(True);
+  if srl.PointInTriangle(Self, Rect.Top,Rect.Left,Rect.Btm)  then Exit(True);
+end;
+
+function TPoint.InBox(Box: TBox): Boolean; constref;
+begin
+  Result := PointInBox(Self, Box);
+end;
+
+function TPoint.InCircle(Mid: TPoint; Radius: Double): Boolean; constref;
+begin
+  Result := Hypot(Self.x-Mid.x, Self.y-Mid.y) <= Radius;
+end;
+
+function TPoint.DistanceTo(Other:TPoint): Double; constref;
+begin
+  Result := Hypot(Self.x-other.x, Self.y-other.y);
+end;
+
+function TPoint.Rotate(Angle: Double; Mid: TPoint): TPoint; constref;
+begin
+  Result := RotatePoint(Self, Angle, Mid.X, Mid.Y);
+end;
+
+function TPoint.Magnitude(): Double; constref;
+begin
+  Result := Sqrt(Sqr(Self.x) + Sqr(Self.y));
+end;
+
+function TPoint.Equals(Other: TPoint): Boolean; constref; {deprecated;}
+begin
+  Result := (self.X = other.X) and (self.Y = other.Y);
+end;
+
+function TPoint.AngleBetween(Other: TPoint): Double; constref; overload;
+begin
+  Result := srl.Modulo(Degrees(ArcTan2(other.Y - self.Y, other.X - self.X)) - 90, 360);
+end;
+
+procedure TPoint.Offset(p: TPoint);
+begin
+  Self.X += p.X;
+  Self.Y += p.Y;
+end;
+
+function TPoint.Random(Min, Max: Integer; Gauss: Boolean = False): TPoint; constref;
+begin
+  if (Gauss) then
+  begin
+    Result.X := Self.X + srl.NormalRange(Min, Max);
+    Result.Y := Self.Y + srl.NormalRange(Min, Max);
+  end else 
+  begin
+    Result.X := Self.X + System.Random(Min, Max);
+    Result.Y := Self.Y + System.Random(Min, Max);
+  end;
+end;
+
+function TPoint.Random(XMin, XMax: Integer; YMin, YMax: Integer; Gauss: Boolean = False): TPoint; constref; overload;
+begin
+  if (Gauss) then
+  begin
+    Result.X := Self.X + srl.NormalRange(XMin, XMax);
+    Result.Y := Self.Y + srl.NormalRange(YMin, YMax);
+  end else 
+  begin
+    Result.X := Self.X + System.Random(XMin, XMax);
+    Result.Y := Self.Y + System.Random(YMin, YMax);
+  end;
+end;
+
+// -----------------------------------------------------------------
+// Operator overloads
+operator + (L, R: TPoint): TPoint;
+begin
+  Result.X := L.X + R.X;
+  Result.Y := L.Y + R.Y;
+end;
+
+operator += (var L: TPoint; R: TPoint): TPoint;
+begin
+  L.X += R.X;
+  L.Y += R.Y;
+  Result := L;
+end;
+
+operator - (L, R:TPoint): TPoint;
+begin
+  Result.X := L.X - R.X;
+  Result.Y := L.Y - R.Y;
+end;
+
+operator -= (var L: TPoint; R: TPoint): TPoint;
+begin
+  L.X -= R.X;
+  L.Y -= R.Y;
+  Result := L;
+end;
+
+operator * (L: TPoint; R: Double): TPoint;
+begin
+  Result.X := Round(L.X * R);
+  Result.Y := Round(L.Y * R);
+end;
+
+operator *= (var L: TPoint; R: Double): TPoint;
+begin
+  L.X := Round(L.X * R);
+  L.Y := Round(L.Y * R);
+  Result := L;
+end;
+
+operator in(Left: TPoint; Right: TBox): Boolean;
+begin
+  Result := Left.InBox(Right);
+end;

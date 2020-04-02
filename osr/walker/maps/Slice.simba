@@ -1,0 +1,44 @@
+program new;
+
+const
+  INPUT  = IncludePath + 'RSWalker1300/maps/world.png'; // input image
+  OUTPUT = IncludePath + 'RSWalker1300/maps/world/';    // output folder
+  WIDTH  = 768;
+  HEIGHT = 768;
+
+procedure CreateSlices();
+var
+  x,y,yi,xi: Int32;
+  map, slice: TMufasaBitmap;
+  w,h: Int32;
+begin
+  map.Init(client.GetMBitmaps);
+  map.LoadFromFile(INPUT);
+  GetBitmapSize(map.GetIndex, W,H);
+  
+  if not DirectoryExists(OUTPUT) then
+    CreateDirectory(OUTPUT);
+  
+  while y < H do
+  begin
+    x  := 0;
+    xi := 0;
+    while x < W do
+    begin
+      slice := map.Copy(x,y,Min(W-1,x+WIDTH-1), Min(H-1,y+HEIGHT-1));
+      slice.SaveToFile(Format(OUTPUT+'[%d_%d].png', [yi,xi]));
+
+      slice.Free();
+      x  += WIDTH;
+      xi += 1;
+    end;
+    y  += HEIGHT;
+    yi += 1;
+  end;
+
+  map.Free();
+end;
+
+begin
+  CreateSlices;
+end.

@@ -1,0 +1,46 @@
+{$DEFINE SRL_INTERFACEAREA_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSInterfaceArea = type TRSInterface;
+
+procedure TRSInterfaceArea.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'Interface Area';
+
+  case ClientMode of
+    RS_CLIENT_FIXED:
+      begin
+        Self.Alignment.Left := [@MainScreen.X1];
+        Self.Alignment.Right := [@MainScreen.X2];
+        Self.Alignment.Top := [@MainScreen.Y1];
+        Self.Alignment.Bottom := [@MainScreen.Y2];
+      end;
+
+    RS_CLIENT_RESIZABLE_CLASSIC:
+      begin
+        Self.Alignment.Left := [@MainScreen.X1];
+        Self.Alignment.Right := [@GameTabs.X1, -10];
+        Self.Alignment.Top := [@MainScreen.Y1];
+        Self.Alignment.Bottom := [@ChatBox.Y1];
+      end;
+
+    RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        Self.Alignment.Left := [@MainScreen.X1];
+        Self.Alignment.Right := [@GameTabs.X1, 15];
+        Self.Alignment.Top := [@MainScreen.Y1];
+        Self.Alignment.Bottom := [@ChatBox.Y1];
+      end;
+  end;
+end;
+
+var
+  InterfaceArea: TRSInterfaceArea;
+
+begin
+  SRL.AddSetupMethod(@InterfaceArea.Setup);
+  SRL.AddDebugMethod(@InterfaceArea.Debug);
+end;

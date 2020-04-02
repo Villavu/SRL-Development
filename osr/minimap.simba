@@ -1,0 +1,467 @@
+{$DEFINE SRL_MINIMAP_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  EMinimapDotType = (MINIMAP_DOT_PLAYER, MINIMAP_DOT_NPC, MINIMAP_DOT_ITEM);
+  EMinimapDotTypes = set of EMinimapDotType;
+
+type
+  TRSMinimap = record(TRSInterface)
+    CompassCircleOffset: TPoint;
+    HitpointsCircleOffset: TPoint;
+    PrayerCircleOffset: TPoint;
+    RunCircleOffset: TPoint;
+    PolygonOffset: TPointArray;
+    FlagBitmap: Int32;
+  end;
+
+function TRSMinimap.GetCompassCircle: TCircle;
+begin
+  Result := [Self.X1 + Self.CompassCircleOffset.X, Self.Y1 + Self.CompassCircleOffset.Y, 17];
+end;
+
+function TRSMinimap.GetRunCircle: TCircle;
+begin
+  Result := [Self.X1 + Self.RunCircleOffset.X, Self.Y1 + Self.RunCircleOffset.Y, 12];
+end;
+
+function TRSMinimap.GetPrayerCircle: TCircle;
+begin
+  Result := [Self.X1 + Self.PrayerCircleOffset.X, Self.Y1 + Self.PrayerCircleOffset.Y, 12];
+end;
+
+function TRSMinimap.GetHPCircle: TCircle;
+begin
+  Result := [Self.X1 + Self.HitpointsCircleOffset.X, Self.Y1 + Self.HitpointsCircleOffset.Y, 12];
+end;
+
+function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
+var
+  B: TBox;
+  BMP: TMufasaBitmap;
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  Text: String;
+begin
+  Result := -1;
+
+  with Orb do
+    B := [X-35, Y, X-15, Y+10];
+
+  BMP.FromClient(B);
+
+  if BMP.FindColors(TPA, 0) then
+    ATPA += TPA;
+  if BMP.FindColors(TPA, 4938344) then
+    ATPA += TPA;
+
+  if Length(ATPA) = 2 then
+  begin
+    Text := OCR.Recognize(ATPA.Merge().Invert(), RS_FONTSET_PLAIN_11);
+    Text := Text.Replace('O', '0'); // Share same character
+
+    try
+      Result := StrToInt(Text);
+    except
+    end;
+  end;
+
+  BMP.Free();
+end;
+
+function TRSMinimap.GetRunEnergy: Int32;
+begin
+  Result := Self.GetOrbLevel(GetRunCircle());
+end;
+
+function TRSMinimap.GetPolygon: TPointArray;
+begin
+  Result := Copy(Self.PolygonOffset);
+  Result.Offset(Self.Center);
+end;
+
+function TRSMinimap.GetCompassAngle(AsDegrees: Boolean = True): Double;
+const
+  COMPASS_NORTH_COLOR = 1911089;
+  COMPASS_SOUTH_COLOR = 920735;
+var
+  TPA: TPointArray;
+  North, South: TPoint;
+begin
+  with GetCompassCircle() do
+  begin
+    if FindColors(TPA, COMPASS_NORTH_COLOR, Bounds()) then
+    begin
+      North := TPA.Mean();
+
+      if FindColors(TPA, COMPASS_SOUTH_COLOR, Bounds) then
+      begin
+        TPA := TPA.FilterDist(Radius div 2, Radius, X, Y);
+        TPA.Sort(North);
+
+        South := TPA[High(TPA)];
+
+        Result := FixRad(ArcTan2(South.Y - Y, South.X - X) - (PI / 2));
+        if (Result <> 0) then
+	        Result += 0.0333; // compass dial is floored.. this makes us more accurate.
+      end else
+        SRL.WriteLn('Compass dot not found');
+    end else
+      SRL.WriteLn('Compass north not found');
+  end;
+
+  if AsDegrees then
+    Result := Degrees(Result);
+end;
+
+procedure TRSMinimap.SetCompassAngle(Degrees: Double; Accuracy: Double = 5);
+const
+  DEG_PER_PIXEL = 2.83;
+var
+  Available: TBox;
+  Remaining: Int32;
+  LeftToRight: Boolean;
+  Destination: TPoint;
+  MousePosition: TPoint;
+  Pixels: Int32;
+  T: UInt64;
+begin
+  T := GetTickCount() + Round(SRL.TruncatedGauss(6000, 8000));
+
+  Available := GetClientBounds().Expand(-10);
+  Degrees := FixD(Degrees);
+  Remaining := Round(Self.GetCompassAngle() - Degrees);
+
+  while (Abs(Remaining) > Accuracy) do
+  begin
+    if (GetTickCount() > T) then
+    begin
+      WriteLn('Minimap.SetCompassAngle timed out');
+      Exit;
+    end;
+
+    Pixels := Round(Abs(SRL.DeltaAngle(Self.GetCompassAngle(), Degrees)) * DEG_PER_PIXEL);
+    LeftToRight := ((Remaining > 0) and (Abs(Remaining) <= 180)) or ((Remaining < 0) and (Abs(Remaining) > 180));
+
+    MousePosition := Mouse.GetPosition();
+
+    if LeftToRight then
+    begin
+      if (not Available.Contains(MousePosition)) or ((MousePosition.Y + 200 > Available.Y2) or (MousePosition.X + Pixels > Available.X2)) then
+      begin
+        Mouse.Move([Available.X1, Available.Y1, Available.X1 + 200, Available.Y1 + 200]);
+
+        MousePosition := Mouse.GetPosition();
+      end;
+
+      Destination.X := MousePosition.X + Pixels;
+      Destination.Y := Random(MousePosition.Y + 100, Available.Y2);
+    end else
+    begin
+      if (not Available.Contains(MousePosition)) or ((MousePosition.Y + 200 > Available.Y2) or (MousePosition.X - Pixels < Available.X1)) then
+      begin
+        Mouse.Move([Available.X2 - 200, Available.Y1, Available.X2, Available.Y1 + 200]);
+
+        MousePosition := Mouse.GetPosition();
+      end;
+
+      Destination.X := MousePosition.X - Pixels;
+      Destination.Y := Random(MousePosition.Y + 200, Available.Y2);
+    end;
+
+    Mouse.Hold(MOUSE_MIDDLE);
+    Mouse.Move(Destination);
+    Mouse.Release(MOUSE_MIDDLE);
+
+    Wait(100, 1000, wdLeft);
+
+    Remaining := Round(Self.GetCompassAngle() - Degrees);
+  end;
+end;
+
+procedure TRSMinimap.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  with Self.GetCompassCircle() do
+    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+  with Self.GetRunCircle() do
+    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+  with Self.GetHPCircle() do
+    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+  with Self.GetPrayerCircle() do
+    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+
+  Bitmap.DrawPoly(Self.GetPolygon(), $0000FF);
+  Bitmap.DrawTPA(Self.GetPolygon(), $00FF00);
+  Bitmap.SetPixel(Self.Center.X, Self.Center.Y, $0000FF);
+end;
+
+procedure TRSMinimap.Free;
+begin
+  FreeBitmap(Self.FlagBitmap);
+end;
+
+procedure TRSMinimap.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'Minimap';
+  Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
+
+  case ClientMode of
+    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        Self.Alignment.Left := [@RootInterface.X2, -157];
+        Self.Alignment.Right := [@RootInterface.X2, -6];
+        Self.Alignment.Top := [@RootInterface.Y1, 8];
+        Self.Alignment.Bottom := [@RootInterface.Y1, 159];
+
+        Self.CompassCircleOffset := [-2, 14];
+        self.RunCircleOffset := [-3, 121];
+        Self.PrayerCircleOffset := [-13, 90];
+        Self.HitpointsCircleOffset := [-13, 55];
+        Self.PolygonOffset := [
+           [0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [52, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
+      end;
+
+    RS_CLIENT_FIXED:
+      begin
+        Self.Alignment.Left := [@RootInterface.X2, -195];
+        Self.Alignment.Right := [@RootInterface.X2,-50];
+        Self.Alignment.Top := [@RootInterface.Y1, 8];
+        Self.Alignment.Bottom := [@RootInterface.Y1, 159];
+
+        Self.CompassCircleOffset := [-8, 13];
+        Self.HitpointsCircleOffset := [-13, 49];
+        Self.PrayerCircleOffset := [-13, 84];
+        Self.RunCircleOffset := [-3, 116];
+        Self.PolygonOffset := [[21, -71], [39, -62], [55, -49], [67, -32], [70, 0], [66, 19], [57, 32], [41, 43], [20, 58], [12, 71], [0, 74], [-11, 72], [-24, 55], [-47, 39], [-60, 31], [-66, 22], [-71, 0], [-72, -14], [-67, -32], [-55, -49], [-39, -62], [-21, -71], [0, -74]];
+      end;
+  end;
+
+  AddOnTerminate(@Self.Free);
+end;
+
+function TRSMinimap.IsPointOn(P: TPoint): Boolean;
+begin
+  Result := SRL.PointInPoly(P, Self.GetPolygon());
+end;
+
+function TRSMinimap.IsRunEnabled: Boolean;
+begin
+  Result := SRL.CountColor(CTS2(4211520, 6, 2.84, 0.14), Self.GetRunCircle().Bounds) = 0;
+end;
+
+function TRSMinimap.EnableRun: Boolean;
+var
+  T: UInt64;
+begin
+  if not Self.IsRunEnabled() then
+  begin
+    with Self.GetRunCircle() do
+      Mouse.Click(Mean(), Radius, MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if Self.IsRunEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+function TRSMinimap.DisableRun: Boolean;
+var
+  T: UInt64;
+begin
+  if Self.IsRunEnabled() then
+  begin
+    with Self.GetRunCircle() do
+      Mouse.Click(Mean(), Radius, MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if not Self.IsRunEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+function TRSMinimap.FindFlag(out P: TPoint): Boolean;
+begin
+  Result := FindBitmapTolerance(Self.FlagBitmap, P.X, P.Y, 5);
+end;
+
+function TRSMinimap.HasFlag: Boolean; overload;
+var
+  P: TPoint;
+begin
+  Result := FindFlag(P);
+end;
+
+function TRSMinimap.HasFlag(WaitTime: Int32): Boolean; overload;
+var
+  P: TPoint;
+  T: UInt64;
+begin
+  T := GetTickCount() + WaitTime;
+
+  while (T > WaitTime) do
+  begin
+    if FindFlag(P) then
+      Exit(True);
+
+    Wait(0, 1000, wdLeft);
+  end;
+end;
+
+procedure TRSMinimap.WaitFlag(UntilDistance: Int32 = 0);
+var
+  Current: TPoint;
+  Previous: TPoint;
+  Timeout: TCountDown;
+begin
+  Timeout.Init(Round(SRL.TruncatedGauss(4000, 6000)));
+
+  while Self.FindFlag(Current) and (not Timeout.IsFinished()) do
+  begin
+    if Distance(Self.Center, Current) <= UntilDistance then
+      Exit;
+
+    if Current <> Previous then
+    begin
+      Previous := Current;
+
+      Timeout.Restart();
+    end;
+
+    Wait(0, 1000, wdLeft);
+  end;
+
+  if Timeout.IsFinished() then
+    SRL.WriteLn('Minimap.WaitFlag: Timed out; Flag hasn''t moved.');
+end;
+
+function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: EMinimapDotTypes): TPointArray;
+var
+  Blacks: TPointArray;
+
+  function FindDots(Blacks: TPointArray; Color, T: Int32): TPointArray;
+  var
+    i: Int32;
+    p: TPoint;
+    left, right: Boolean;
+  begin
+    for i:=0 to High(Blacks)-1 do
+    begin
+      left := ((BMP.GetPixel(Blacks[i].x+3,Blacks[i].y+0) = 65536) and (BMP.GetPixel(Blacks[i].x+1,Blacks[i].y-1) <> 65536)) or
+              ((BMP.GetPixel(Blacks[i].x+2,Blacks[i].y+1) = 65536) and (BMP.GetPixel(Blacks[i].x+1,Blacks[i].y+0) <> 65536));
+
+      right := False;
+      if not left then
+        right := ((BMP.GetPixel(Blacks[i].x-2,Blacks[i].y+1) = 65536) and (BMP.GetPixel(Blacks[i].x-1,Blacks[i].y+0) <> 65536));
+
+      if left or right then
+      begin
+        p := Blacks[i];
+        if right then p.x -= 3;
+        p.y -= 3;
+
+        if Result.Find(p) > -1 then
+          Continue;
+
+        if Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+0), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+0), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+1), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+1), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+1), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+3,p.y+1), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+2), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+2), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+2), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+3,p.y+2), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+3), t)) +
+           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+3), t)) >= 8 then
+        begin
+          Result += p;
+        end;
+      end;
+    end;
+  end;
+
+begin
+  try
+    BMP.FindColors(Blacks, 65536);
+    Blacks := Blacks.FilterBox(Box(2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1));
+
+    if MINIMAP_DOT_PLAYER in Dots then
+    begin
+      SetColorToleranceSpeed(2);
+      SetToleranceSpeed2Modifiers(0.001, 0.001);
+      Result += FindDots(Blacks, $FFFFFF, 30);
+    end;
+
+    if MINIMAP_DOT_NPC in Dots then
+    begin
+      SetColorToleranceSpeed(2);
+      SetToleranceSpeed2Modifiers(0.05, 1);
+      Result += FindDots(Blacks, $00FFFF, 30);
+    end;
+
+    if MINIMAP_DOT_ITEM in Dots then
+    begin
+      SetColorToleranceSpeed(2);
+      SetToleranceSpeed2Modifiers(0.05, 1);
+      Result += FindDots(Blacks, $0000FF, 30);
+    end;
+  finally
+    SetColorToleranceSpeed(1);
+    SetToleranceSpeed2Modifiers(0.2, 0.2);
+  end;
+end;
+
+function TRSMinimap.GetDots(Dots: EMinimapDotTypes): TPointArray; overload;
+var
+  BMP: TMufasaBitmap;
+begin
+  BMP.FromClient(Self.Bounds());
+
+  Result := GetDotsBitmap(BMP, Dots);
+  Result.Offset([Self.X1, Self.Y1]);
+
+  BMP.Free();
+end;
+
+function TRSMinimap.GetDots(Dot: EMinimapDotType): TPointArray; overload;
+begin
+  Result := GetDots([Dot]);
+end;
+
+function TRSMinimap.IsPlayerMoving(MinShift: Integer = 500): Boolean;
+begin
+  with Self.Center do
+    Result := SRL.GetPixelShift([X - 40, Y - 40, X + 40, Y + 40], 300) >= MinShift;
+end;
+
+procedure TRSMinimap.WaitPlayerMoving(MinShift: Integer = 500; Timeout: Int32 = 20000);
+var
+  T: UInt64;
+begin
+  T := GetTickCount + TimeOut;
+  while (T > GetTickCount()) and Self.IsPlayerMoving(MinShift) do
+    ;
+end;
+
+var
+  Minimap: TRSMinimap;
+
+begin
+  SRL.AddSetupMethod(@Minimap.Setup);
+  SRL.AddDebugMethod(@Minimap.Debug);
+end;

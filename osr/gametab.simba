@@ -1,0 +1,39 @@
+{$DEFINE SRL_GAMETAB_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSGameTab = type TRSInterface;
+
+procedure TRSGameTab.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'GameTab';
+
+  case ClientMode of
+    RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC:
+      begin
+        Self.Alignment.Left := [@GameTabs.X1, 28];
+        Self.Alignment.Right := [@GameTabs.X2, -29];
+        Self.Alignment.Top := [@GameTabs.Y1, 36];
+        Self.Alignment.Bottom := [@GameTabs.Y2, -37];
+      end;
+
+    RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        Self.Alignment.Left := [@GameTabs.X1, 37];
+        Self.Alignment.Right := [@GameTabs.X2, -10];
+        Self.Alignment.Top := [@GameTabs.Y1, 6];
+        Self.Alignment.Bottom := [@GameTabs.Y2, -78];
+      end;
+  end;
+end;
+
+var
+  GameTab: TRSGameTab;
+
+begin
+  SRL.AddSetupMethod(@GameTab.Setup);
+  SRL.AddDebugMethod(@GameTab.Debug);
+end;
+

@@ -1,0 +1,289 @@
+(*
+TExtendedArray
+==============
+TExtendedArray related methods
+*)
+
+procedure TExtendedArray.Append(const Value: Extended);
+var top:Int32;
+begin
+  top := Length(Self);
+  SetLength(self, top+1);
+  Self[top] := Value;
+end;
+
+procedure TExtendedArray.Insert(const Value: Extended; Index: Integer);
+var
+  l: UInt32;
+begin
+  l := Length(Self);
+  if (l <= Index) then
+  begin
+    Self.Append(Value);
+    Exit();
+  end;
+
+  SetLength(Self, l + 1);
+  MemMove(Self[Index], self[Index + 1], (L - Index) * SizeOf(self[0]));
+  Self[Index] := Value;
+end;
+
+procedure TExtendedArray.Del(const Index: Integer; const Count: Integer = 1);
+begin
+  Delete(Self, Index, Count);
+end;
+
+function TExtendedArray.Len(): Integer;
+begin
+  Result := Length(Self);
+end;
+
+procedure TExtendedArray.Remove(const Value: Extended; const All: Boolean = False);
+var
+  i: Int32;
+  lst: TIntegerArray;
+begin
+  if (not All) then
+  begin
+    i := Self.Find(Value);
+    if i >= 0 then Self.Del(i);
+    Exit;
+  end;
+  
+  lst := Self.FindAll(Value);
+  for i:=High(lst) downto 0 do
+    Self.Del(lst[i]);
+end;
+
+function TExtendedArray.Pop(): Extended;
+var
+  h: Integer;
+begin
+  h := High(Self);
+  Result := Self[h];
+  SetLength(Self, h);
+end;
+
+procedure TExtendedArray.Extend(Arr:TExtendedArray);
+var L:Int32;
+begin
+  if Length(arr) > 0 then
+  begin
+    L := Length(Self);
+    SetLength(Self, Length(Arr) + L);
+    MemMove(Arr[0],Self[L],Length(Arr)*SizeOf(Extended));
+  end;
+end; 
+
+function TExtendedArray.Find(const Value: Extended): Integer; constref;
+begin
+  for Result := 0 to High(Self) do
+    if (Value = Self[Result]) then
+      Exit;
+
+  Result := -1;
+end;
+
+function TExtendedArray.FindAll(const Value: Extended): TIntegerArray; constref;
+var
+  i,top: UInt32;
+begin
+  for i := 0 to High(Self) do
+    if (Self[i] = Value) then
+    begin
+      SetLength(Result, top+1);
+      Result[Inc(top)-1] := i;
+    end;
+end;
+
+procedure TExtendedArray.Reverse();
+var
+  tmp:Extended;
+  lo,hi:^Extended;
+begin
+  if (Length(Self) = 0) then
+    Exit();
+
+  lo := @Self[0];
+  hi := @Self[High(self)];
+  while (PtrUInt(lo)<PtrUInt(hi)) do
+  begin
+    tmp := hi^;
+    hi^ := lo^;
+    lo^ := tmp;
+    dec(hi);
+    inc(lo);
+  end;
+end;
+
+function TExtendedArray.Reversed(): TExtendedArray
+var
+  lo:PtrUInt;
+  p,r:^Extended;
+begin
+  if (Length(Self) = 0) then
+    Exit();
+
+  SetLength(Result,length(self));
+  p := @Self[high(self)];
+  r := @Result[0];
+
+  lo := PtrUInt(@Self[0]);
+  while (lo<=PtrUInt(p)) do
+  begin
+    r^ := p^;
+    dec(p);
+    inc(r);
+  end;
+end;
+
+procedure TExtendedArray.__Sort(iLo, iHi: Int32);
+var
+  Lo, Hi:Int32;
+  Pivot, T: Extended;
+begin
+  Lo := iLo;
+  Hi := iHi;
+  Pivot := Self[(Lo + Hi) div 2];
+  repeat
+    while Self[Lo] < Pivot do Inc(Lo);
+    while Self[Hi] > Pivot do Dec(Hi);
+    if Lo <= Hi then
+    begin
+      T := Self[Lo];
+      Self[Lo] := Self[Hi];
+      Self[Hi] := T;
+      Inc(Lo);
+      Dec(Hi);
+    end;
+  until Lo > Hi;
+
+  if Hi > iLo then Self.__Sort(iLo, Hi);
+  if Lo < iHi then Self.__Sort(Lo, iHi);
+end;
+
+procedure TExtendedArray.Sort();
+begin
+  Self.__Sort(0, High(Self));
+end;
+
+function TExtendedArray.Sorted(): TExtendedArray;
+begin
+  Result := Copy(Self);
+  Result.__Sort(0, High(Result));
+end;
+
+function TExtendedArray.Combine(Other: TExtendedArray): TExtendedArray; constref;
+begin
+  SetLength(Result, Length(Self) + Length(Other));
+  if Length(self) > 0 then
+    MemMove(self[0], result[0], Length(self)*SizeOf(self[0]));
+  if Length(Other) > 0 then
+    MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
+end; 
+
+function TExtendedArray.Equals(Other:TExtendedArray): Boolean; constref;
+begin
+  if (Length(Self) <> Length(Other)) then Exit(False);
+  if (Length(Self) = 0) then Exit(True);
+  Result := CompareMem(Self[0], Other[0], length(self)*SizeOf(self[0]));     
+end;
+
+
+
+// ----------------------------------------------------------------------------
+// Type specific methods bellow
+
+function TExtendedArray.Sum(): Extended; constref;
+var i:Int32;
+begin
+  for i:=0 to High(Self) do
+    Result += Self[i];
+end;
+
+function TExtendedArray.Mean(): Extended; constref;
+begin
+  Result := Self.Sum() / Length(self);
+end;
+
+function TExtendedArray.Min(): Extended; constref;
+var i:Int32;
+begin
+  if Length(self) = 0 then Exit(0);
+  Result := Self[0];
+  for i:=1 to High(Self) do
+    if Self[i] < Result then
+      Result := Self[i];
+end;
+
+function TExtendedArray.Max(): Extended; constref;
+var i:Int32;
+begin
+  if Length(self) = 0 then Exit(0);
+  Result := Self[0];
+  for i:=1 to High(Self) do
+    if Self[i] > Result then
+      Result := Self[i];
+end;
+
+// ---------------------------------------
+// Returns the standard deviation of the array
+function TExtendedArray.Stdev(): Extended;
+var
+  i: Int32;
+  avg: Extended;
+  square: TExtendedArray;
+begin
+  avg := Self.Mean();
+  SetLength(square,Length(Self));
+  for i:=0 to High(self) do Square[i] := Sqr(Self[i] - avg);
+  Result := Sqrt(square.Mean());
+end;
+
+// ---------------------------------------
+// Returns the sample variance.
+// Variance is a measure of the variability (spread or dispersion) of the array.
+// A large variance indicates that the data is spread out; a small variance
+// indicates it is clustered closely around the mean.
+function TExtendedArray.Variance(): Extended;
+var
+  avg: Extended;
+  i: Int32;
+begin
+  avg := Self.Mean();
+  for i:=0 to High(Self) do
+    Result += Sqr(Self[i] - avg);
+  Result := Result / Length(self);
+end;
+
+// ----------------------------------------
+// Returns the sample mode of the array, which is the most frequently occurring value in the array.
+// When there are multiple values occurring equally frequently, mode returns the smallest of those values.
+// Takes an extra parameter `Eps`, can be used to allow tolerance in the floating point comparison.
+function TExtendedArray.Mode(Eps:Extended=0.00000001): Double;
+var
+  arr: TExtendedArray;
+  i,hits,best: Int32;
+  cur: Extended;
+begin
+  arr := self.Sorted();
+  cur := self[0];
+  hits := 1;
+  best := 0;
+  for i:=1 to High(self) do
+  begin
+    if (self[i]-cur > eps) then
+    begin
+      if (hits > best) then
+      begin
+        best := hits;
+        Result := cur;
+      end;
+      hits := 0;
+      cur := self[I];
+    end;
+    Inc(hits);
+  end;
+  if (hits > best) then
+    Result := cur;
+end;

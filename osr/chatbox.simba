@@ -1,0 +1,107 @@
+{$DEFINE SRL_CHATBOX_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+const
+  CHATBOX_MESSAGE_LINES = [0..7];
+  CHATBOX_INPUT_LINE = 8;
+
+type
+  TRSChatBox = type TRSInterface;
+
+var
+  Chatbox: TRSChatBox;
+
+procedure TRSChatBox.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'Chatbox';
+
+  if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
+  begin
+    Alignment.Left := [@RootInterface.X1];
+    Alignment.Right := [@ChatButtons.X2];
+    Alignment.Top := [@ChatButtons.Y1, -142];
+    Alignment.Bottom := [@ChatButtons.Y1, -1];
+  end;
+end;
+
+procedure TRSChatbox.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  Bitmap.DrawBoxes(Self.GetLineBoxes(), False, $00FFFF);
+end;
+
+function TRSChatBox.IsOpen: Boolean;
+begin
+  Result := SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000;
+end;
+
+function TRSChatBox.GetLineBoxes: TBoxArray;
+begin
+  Result := Grid(1, 9, Width - 35, 14, [0, 0], [Self.X1 + 10, Self.Y1 + 7]);
+  Result[8].Y1 += 2;
+  Result[8].Y2 += 2;
+end;
+
+function TRSChatBox.GetQuery: String;
+begin
+  Result := OCR.Recognize(0, 0, Chatbox.Bounds(), RS_FONTSET_BOLD_12_SHADOW);
+end;
+
+function TRSChatbox.GetQueryAnswer: String;
+begin
+  Result := OCR.Recognize(8388608, 0, Chatbox.Bounds(), RS_FONTSET_BOLD_12_SHADOW);
+end;
+
+function TRSChatbox.WaitQuery(Query: String; WaitTime: Int32): Boolean;
+var
+  T: UInt64;
+begin
+  T := GetTickCount() + WaitTime;
+  while (T > GetTickCount()) do
+  begin
+    if Query in GetQuery() then
+      Exit(True);
+
+    Wait(0, 1000, wdLeft);
+  end;
+end;
+
+function TRSChatbox.AnswerQuery(Query, Answer: String; WaitTime: Int32): Boolean;
+begin
+  if Self.WaitQuery(Query, WaitTime) then
+  begin
+    if Self.GetQueryAnswer() <> Answer then
+      while Self.GetQueryAnswer() <> '*' do
+        Keyboard.PressKey(VK_BACK);
+
+    Keyboard.Send(Answer, VK_ENTER);
+
+    Exit(True);
+  end;
+end;
+
+function TRSChatbox.HasLevelUp: Boolean;
+begin
+  with Chatbox.Bounds() do
+    Result := FindTextColor('Congratulations', RS_FONT_QUILL_8, 8388608, 0, X1, Y1, X2, Y2, 1);
+end;
+
+function TRSChatbox.GetDisplayName: String;
+var
+  Text: String;
+begin
+  Text := OCR.Recognize($000000, 0, Chatbox.GetLineBoxes[CHATBOX_INPUT_LINE], RS_FONTSET_PLAIN_12);
+  if Text.EndsWith(':') then
+    Result := Copy(Text, 1, Length(Text) - 1);
+end;
+
+begin
+  SRL.AddSetupMethod(@Chatbox.Setup);
+  SRL.AddDebugMethod(@Chatbox.Debug);
+end;

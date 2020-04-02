@@ -1,0 +1,208 @@
+{$DEFINE SRL_CHOOSEOPTION_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSChooseOption_Option = record
+    Text: String;
+    Bounds: TBox;
+  end;
+
+  TRSChooseOption_OptionArray = array of TRSChooseOption_Option;
+
+  TRSChooseOption = record
+    Bitmap: Int32;
+    BitmapWidth: Int32;
+    BitmapHeight: Int32;
+
+    Bounds: TBox;
+  end;
+
+function TRSChooseOption.Find: Boolean;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  P: TPoint;
+  B: TBox;
+begin
+  B := GetClientBounds();
+
+  if FindBitmap(Self.Bitmap, P.X, P.Y) then
+  begin
+    P.Y += Self.BitmapHeight;
+
+    if FindColors(TPA, 0, P.X, P.Y, B.X2, B.Y2) then
+    begin
+      ATPA := TPA.Cluster(1, 1);
+      ATPA.SortByIndex(P, 0);
+
+      Self.Bounds := ATPA[0].Bounds().Expand(-1);
+
+      Exit(True);
+    end;
+  end;
+end;
+
+function TRSChooseOption.IsOpen: Boolean; overload;
+begin
+  Result := Self.Find();
+end;
+
+function TRSChooseOption.IsOpen(WaitTime: Int32): Boolean; overload;
+var
+  T: UInt64;
+begin
+  T := GetTickCount() + WaitTime;
+  while (T > GetTickCount()) do
+  begin
+    if Self.IsOpen() then
+      Exit(True);
+
+    Wait(0, 1000, wdLeft);
+  end;
+end;
+
+function TRSChooseOption.Open: Boolean;
+begin
+  Result := Self.IsOpen();
+
+  if not Result then
+  begin
+    Mouse.Click(MOUSE_RIGHT);
+
+    Result := Self.IsOpen();
+  end;
+end;
+
+procedure TRSChooseOption.Free;
+begin
+  FreeBitmap(Self.Bitmap);
+end;
+
+procedure TRSChooseOption.Setup;
+begin
+  Self.Bitmap := BitmapFromString(20, 18, 'meJxzD4l1pwAxkAsGj15Mv+DyGpogXBmyemL04lEzgHqxhgPxehkwwoEkN9NCLwMRcYRHL5rvSNVLPBhAvWQjAO6IcGE=');
+
+  GetBitmapSize(Self.Bitmap, Self.BitmapWidth, Self.BitmapHeight);
+
+  AddOnTerminate(@Self.Free);
+end;
+
+function TRSChooseOption.GetOptions: TRSChooseOption_OptionArray;
+var
+  I: Int32;
+  Boxes: TBoxArray;
+  BMP: TMufasaBitmap;
+begin
+  if Self.Open() then
+  begin
+    if Bounds.Height < 15 then
+      Exit;
+
+    Boxes := Self.Bounds.Partition(Bounds.Height() div 15, 1, 1);
+
+    SetLength(Result, Length(Boxes));
+
+    for I := 0 to High(Result) do
+    begin
+      BMP.FromClient(Boxes[I]);
+      BMP.ReplaceColor(4674653, 0);
+      BMP.ThresholdAdaptive(0, 255, False, TM_Mean, -1);
+
+      Result[I].Bounds := Boxes[I];
+      Result[I].Text := OCR.Recognize(BMP.ToMatrix(), [255, 1], RS_FONTSET_BOLD_12_SHADOW);
+
+      BMP.Free();
+      BMP := nil;
+    end;
+  end;
+end;
+
+function TRSChooseOption.Close: Boolean;
+var
+  Boxes: TBoxArray;
+  Space: TBox;
+  T: UInt64;
+begin
+  if not Self.IsOpen() then
+    Exit(True);
+
+  Space := Self.Bounds.Expand(100);
+  Space.LimitTo(GetClientBounds());
+
+  Boxes := Self.Bounds.Expand(50).Invert(Space);
+  if Length(Boxes) = 0 then
+    raise 'No space found to move mouse';
+
+  Mouse.Move(Boxes[Random(Length(Boxes))], False, rndRandom);
+
+  T := GetTickCount() + 1000;
+  while (T > GetTickCount()) do
+  begin
+    if not Self.IsOpen() then
+      Exit(True);
+
+    Wait(0, 100, wdLeft);
+  end;
+end;
+
+procedure TRSChooseOption.Select(Option: TRSChooseOption_Option; MouseAction: Int32 = MOUSE_LEFT);
+var
+  From: TPoint;
+  B: TBox;
+  CustomMouse: TMouse;
+begin
+  B := Option.Bounds;
+  B := B.Expand(-1);
+
+  From.X := B.X1;
+  From.Y := B.Y1 + (B.Height div 3);
+
+  // Use a slightly slower mouse
+  CustomMouse := Mouse;
+  CustomMouse.Speed -= Max(8, Random(2, 10));
+  CustomMouse.Move(SRL.RandomPointEx(From, B));
+
+  if MouseAction <> MOUSE_MOVE then
+    CustomMouse.Click(MouseAction);
+end;
+
+function TRSChooseOption.Select(Text: TStringArray; MouseAction: Int32 = MOUSE_LEFT; CaseSensitive: Boolean = True; CloseIfNotFound: Boolean = True): Boolean; overload;
+var
+  Choices: TRSChooseOption_OptionArray;
+  I, J: Int32;
+begin
+  if Self.Open() then
+  begin
+    Choices := GetOptions();
+
+    for I := 0 to High(Choices) do
+      for J := 0 to High(Text) do
+        if (CaseSensitive and (Text[J] in Choices[I].Text)) or ((not CaseSensitive) and (Lowercase(Text[J]) in Lowercase(Choices[I].Text))) then
+        begin
+          Self.Select(Choices[I], MouseAction);
+
+          Exit(True);
+        end;
+
+    if CloseIfNotFound then
+    begin
+      WaitEx(500, 250);
+
+      Self.Close();
+    end;
+  end;
+end;
+
+function TRSChooseOption.Select(Text: String; MouseAction: Int32 = MOUSE_LEFT; CaseSensitive: Boolean = True; CloseIfNotFound: Boolean = True): Boolean; overload;
+begin
+  Result := Select([Text], MouseAction, CaseSensitive, CloseIfNotFound);
+end;
+
+var
+  ChooseOption: TRSChooseOption;
+
+begin
+  ChooseOption.Setup();
+end;

@@ -1,0 +1,337 @@
+(*
+TIntegerArray
+=============
+TIntegerArray related methods
+*)
+
+procedure TIntegerArray.Append(const Value: Integer);
+var top:Int32;
+begin
+  top := Length(Self);
+  SetLength(self, top+1);
+  Self[top] := Value;
+end;
+
+procedure TIntegerArray.Insert(const Value, Index: Integer);
+var
+  l: UInt32;
+begin
+  l := Length(Self);
+  if (l <= Index) then
+  begin
+    Self.Append(Value);
+    Exit();
+  end;
+
+  SetLength(Self, l + 1);
+  MemMove(Self[Index], self[Index + 1], (L-Index) * SizeOf(Integer));
+  Self[Index] := Value;
+end;
+
+procedure TIntegerArray.Del(const Index: Integer; const Count: Integer = 1);
+begin
+  Delete(Self, Index, Count);
+end;
+
+function TIntegerArray.Len(): Integer;
+begin
+  Result := Length(Self);
+end;
+
+procedure TIntegerArray.Remove(const Value: Integer; const All: Boolean = False);
+var
+  i: Int32;
+  lst: TIntegerArray;
+begin
+  if (not All) then
+  begin
+    i := Self.Find(Value);
+    if i >= 0 then Self.Del(i);
+    Exit;
+  end;
+
+  lst := Self.FindAll(Value);
+  for i:=High(lst) downto 0 do
+    Self.Del(lst[i]);
+end;
+
+function TIntegerArray.Pop(): Integer;
+var
+  h: Integer;
+begin
+  h := High(Self);
+  Result := Self[h];
+  SetLength(Self, h);
+end;
+
+procedure TIntegerArray.Extend(Arr:TIntegerArray);
+var L:Int32;
+begin
+  if Length(arr) > 0 then
+  begin
+    L := Length(Self);
+    SetLength(Self, Length(Arr) + L);
+    MemMove(Arr[0],Self[L],Length(Arr)*SizeOf(Integer));
+  end;
+end;
+
+function TIntegerArray.Find(const Value: Integer): Integer; constref;
+begin
+  for Result := 0 to High(Self) do
+    if (Value = Self[Result]) then
+      Exit;
+
+  Result := -1;
+end;
+
+function TIntegerArray.FindAll(const Value: Integer): TIntegerArray; constref;
+var
+  i,top: UInt32;
+begin
+  for i:=0 to High(Self) do
+    if (Self[i] = Value) then
+    begin
+      SetLength(Result, top+1);
+      Result[Inc(top)-1] := i;
+    end;
+end;
+
+procedure TIntegerArray.Reverse();
+var
+  tmp:Integer;
+  lo,hi:^Integer;
+begin
+  if (Length(Self) = 0) then
+    Exit();
+
+  lo := @Self[0];
+  hi := @Self[High(self)];
+  while (PtrUInt(lo)<PtrUInt(hi)) do
+  begin
+    tmp := hi^;
+    hi^ := lo^;
+    lo^ := tmp;
+    dec(hi);
+    inc(lo);
+  end;
+end;
+
+function TIntegerArray.Reversed(): TIntegerArray;
+var
+  lo:PtrUInt;
+  p,r:^Integer;
+begin
+  if (Length(Self) = 0) then
+    Exit();
+
+  SetLength(Result,length(self));
+  p := @Self[high(self)];
+  r := @Result[0];
+
+  lo := PtrUInt(@Self[0]);
+  while (lo<=PtrUInt(p)) do
+  begin
+    r^ := p^;
+    dec(p);
+    inc(r);
+  end;
+end;
+
+procedure TIntegerArray.Sort();
+begin
+  if Length(Self) > 0 then
+    Quicksort(Self);
+end;
+
+function TIntegerArray.Sorted(): TIntegerArray;
+begin
+  Result := Copy(Self);
+  if Length(Result) > 0 then
+    Quicksort(Result);
+end;
+
+function TIntegerArray.Combine(Other: TIntegerArray): TIntegerArray; constref;
+begin
+  SetLength(Result, Length(Self) + Length(Other));
+  if Length(self) > 0 then
+    MemMove(self[0], result[0], Length(self)*SizeOf(self[0]));
+  if Length(Other) > 0 then
+    MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
+end;
+
+
+function TIntegerArray.Equals(Other:TIntegerArray): Boolean; constref;
+begin
+  if (Length(Self) <> Length(Other)) then Exit(False);
+  if (Length(Self) = 0) then Exit(True);
+  Result := CompareMem(Self[0], Other[0], Length(Self)*SizeOf(self[0]));
+end;
+
+
+procedure TIntegerArray.SortWeighted(Weights: TIntegerArray; iLo, iHi: Int32; SortUp: Boolean);
+var
+  lo, hi, mid: Int32;
+begin
+  if (Length(weights) <> Length(self)) then Exit;
+  lo := iLo;
+  hi := iHi;
+  Mid := weights[(lo + hi) shr 1];
+  repeat
+    if SortUp then
+    begin
+      while (weights[lo] < mid) do Inc(lo);
+      while (weights[hi] > mid) do Dec(hi);
+    end else
+    begin
+      while (weights[Lo] > mid) do Inc(Lo);
+      while (weights[Hi] < mid) do Dec(Hi);
+    end;
+    if (lo <= hi) then
+    begin
+      Swap(weights[lo], weights[hi]);
+      Swap(self[lo], self[hi]);
+      Inc(lo);
+      Dec(hi);
+    end;
+  until Lo > Hi;
+  if (hi > iLo) then self.SortWeighted(weights, iLo, hi, SortUp);
+  if (lo < iHi) then self.SortWeighted(weights, lo, iHi, SortUp);
+end;
+
+procedure TIntegerArray.SortFrom(X: Int32);
+var
+  I, L: Int32;
+  Weights: TIntegerArray;
+begin
+  L := High(Self);
+  if (L <= 0) then Exit;
+  SetLength(weights, L + 1);
+  for i := 0 To L do Weights[i] := Round(Abs(X - Self[i]));
+  Self.SortWeighted(weights, 0, L, True);
+end;
+
+
+
+
+// ----------------------------------------------------------------------------
+// Type specific methods bellow
+
+function TIntegerArray.Sum(): Int64; constref;
+var i:Int32;
+begin
+  for i:=0 to High(Self) do
+    Result += Self[i];
+end;
+
+function TIntegerArray.Mean(): Double; constref;
+begin
+  Result := Self.Sum() / Length(self);
+end;
+
+function TIntegerArray.Min(): Int32; constref;
+begin
+  Result := MinA(Self);
+end;
+
+function TIntegerArray.Max(): Int32; constref;
+begin
+  Result := MaxA(Self);
+end;
+
+
+// ---------------------------------------
+// Returns the standard deviation of the array
+function TIntegerArray.Stdev(): Double;
+var
+  i: Int32;
+  avg: Double;
+  square: TExtendedArray;
+begin
+  avg := Self.Mean();
+  SetLength(square,Length(Self));
+  for i:=0 to High(self) do Square[i] := Sqr(Self[i] - avg);
+  Result := Sqrt(square.Mean());
+end;
+
+// ---------------------------------------
+// Returns the sample variance.
+// Variance is a measure of the variability (spread or dispersion) of the array.
+// A large variance indicates that the data is spread out; a small variance
+// indicates it is clustered closely around the mean.
+function TIntegerArray.Variance(): Double;
+var
+  avg: Double;
+  i: Int32;
+begin
+  avg := Self.Mean();
+  for i:=0 to High(Self) do
+    Result += Sqr(Self[i] - avg);
+  Result := Result / Length(self);
+end;
+
+// ----------------------------------------
+// Returns the sample mode of the array, which is the most frequently occurring value in the array.
+// When there are multiple values occurring equally frequently, mode returns the smallest of those values.
+function TIntegerArray.Mode(): Int32;
+var
+  arr: TIntegerArray;
+  i,hits,best: Int32;
+  cur: Int32;
+begin
+  if Length(Self) > 0 then
+  begin
+    arr := self.Sorted();
+    cur := self[0];
+    hits := 1;
+    best := 0;
+    for i:=1 to High(self) do
+    begin
+      if (self[i] <> cur) then
+      begin
+        if (hits > best) then
+        begin
+          best := hits;
+          Result := cur;
+        end;
+        hits := 0;
+        cur := self[I];
+      end;
+      Inc(hits);
+    end;
+    if (hits > best) then
+      Result := cur;
+  end;
+end;
+
+function TIntegerArray.UniqueCount: Int32;
+var
+  Arr: TIntegerArray;
+begin
+  Arr := Copy(Self);
+  ClearSameIntegers(Arr);
+  Result := Length(Arr);
+end;
+
+procedure TIntegerArray.ClearDuplicates;
+begin
+  ClearSameIntegers(Self);
+end;
+
+operator in(Left: Int32; constref Right: TIntegerArray): Boolean;
+var
+  i: Int32;
+begin
+  for i := 0 to High(Right) do
+    if Right[i] = Left then
+      Exit(True);
+end;
+
+operator in(Left: Double; constref Right: TIntegerArray): Boolean;
+var
+  i: Int32;
+begin
+  for i := 0 to High(Right) do
+    if Right[i] = Round(Left) then
+      Exit(True);
+end;
+

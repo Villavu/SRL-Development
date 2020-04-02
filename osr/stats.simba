@@ -1,0 +1,191 @@
+{$DEFINE SRL_STATS_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  ERSSkill = (
+    SKILL_ATTACK,
+    SKILL_HITPOINTS,
+    SKILL_MINING,
+    SKILL_STRENGTH,
+    SKILL_AGILITY,
+    SKILL_SMITHING,
+    SKILL_DEFENCE,
+    SKILL_HERBLORE,
+    SKILL_FISHING,
+    SKILL_RANGE,
+    SKILL_THIEVING,
+    SKILL_COOKING,
+    SKILL_PRAYER,
+    SKILL_CRAFTING,
+    SKILL_FIREMAKING,
+    SKILL_MAGIC,
+    SKILL_FLETCHING,
+    SKILL_WOODCUTTING,
+    SKILL_RUNECRAFTING,
+    SKILL_SLAYER,
+    SKILL_FARMING,
+    SKILL_CONSTRUCTION,
+    SKILL_HUNTER,
+    SKILL_TOTAL
+  );
+
+const
+  SKILLNAMES = [
+   'Attack',
+   'Hitpoints',
+   'Mining',
+   'Strength',
+   'Agility',
+   'Smithing',
+   'Defence',
+   'Herblore',
+   'Fishing',
+   'Range',
+   'Thieving',
+   'Cooking',
+   'Prayer',
+   'Crafting',
+   'Firemaking',
+   'Magic',
+   'Fletching',
+   'Woodcutting',
+   'Runecraft',
+   'Slayer',
+   'Farming',
+   'Construction',
+   'Hunter',
+   'Total'
+  ];
+
+type
+  TRSSkillInfo = record
+    Level:     Int32;
+    XP:        Int32;
+    Next:      Int32;
+    Remainder: Int32;
+  end;
+
+type
+  TRSStats = type TRSInterface;
+
+procedure TRSStats.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'Inventory';
+
+  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
+  begin
+    Self.Alignment.Left := [@GameTab.X1];
+    Self.Alignment.Right := [@GameTab.X2];
+    Self.Alignment.Top := [@GameTab.Y1];
+    Self.Alignment.Bottom := [@GameTab.Y2];
+  end;
+end;
+
+function TRSStats.GetSkillBoxes: TBoxArray;
+begin
+  Result := Grid(3, 8, 53, 23, [10, 9], [Self.X1 + 2, Self.Y1 + 6]);
+end;
+
+function TRSStats.GetSkillBox(Skill: ERSSkill): TBox;
+begin
+  Result := Self.GetSkillBoxes()[Ord(Skill)];
+end;
+
+function TRSStats.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = TAB_STATS);
+end;
+
+function TRSStats.Open: Boolean;
+begin
+  Result := GameTabs.Open(TAB_STATS);
+end;
+
+function TRSStats.MouseOver(Skill: ERSSkill): Boolean;
+begin
+  Result := Self.Open();
+
+  Mouse.Move(Self.GetSkillBox(Skill));
+end;
+
+function TRSStats.GetSkillInfo(Skill: ERSSkill; WaitTime: Int32=400): TRSSkillInfo;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  B: TBox;
+  TBA: TBoxArray;
+  T: UInt64;
+  text: String;
+begin
+  if not Self.MouseOver(Skill) then
+    Exit();
+
+  T := GetTickCount() + WaitTime;
+  repeat
+    if SRL.FindColors(TPA, CTS0($A0FFFF), Self.Bounds) then
+    begin
+      ATPA := SplitTPAEx(TPA, 1,1);
+      SortATPASize(ATPA,True);
+      B := GetTPABounds(ATPA[0]);
+
+      TBA := [[B.x1,B.y1,B.x2,B.y2], [B.x1,B.y1+12,B.x2,B.y2]];
+      Text := OCR.Recognize($000000, 0, TBA[0], RS_FONTSET_PLAIN_12);
+
+      if Pos(SKILLNAMES[skill], text) = 0 then
+        Continue;
+
+      Result.XP := StrToIntDef(ExtractFromStr(text, Numbers),0);
+
+      if skill <> SKILL_TOTAL then
+      begin
+        Text := OCR.Recognize($000000, 0, TBA[1], RS_FONTSET_PLAIN_12);
+        Result.Next := StrToIntDef(ExtractFromStr(Text, Numbers),0);
+
+        if Result.XP <> -1 then
+        begin
+          Result.Level := SRL.GetLevelAtXP(Result.XP);
+          Result.Remainder := Result.Next - Result.XP;
+        end;
+      end;
+
+      Break;
+    end;
+    Wait(Random(20,50));
+  until GetTickCount() >= T;
+end;
+
+function TRSStats.GetCurrentLevel(Skill: ERSSkill): Int32;
+var
+  Text: String;
+  B: TBox;
+begin
+  if not Self.Open() then
+    Exit(-1);
+
+  B := Self.GetSkillBox(Skill);
+  B.Y2 := B.Y1 + (B.Height div 2);
+
+  Text := OCR.Recognize(65535, 0, B, RS_FONTSET_PLAIN_11);
+  Result := StrToIntDef(ExtractFromStr(Text, Numbers), -1);
+end;
+
+procedure TRSStats.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  Bitmap.DrawBoxes(Self.GetSkillBoxes(), False, $00FFFF);
+end;
+
+var
+  Stats: TRSStats;
+
+begin
+  SRL.AddSetupMethod(@Stats.Setup);
+  SRL.AddDebugMethod(@Stats.Debug);
+end;
+

@@ -1,0 +1,46 @@
+{$DEFINE SRL_LOBBYSCREEN_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+const
+  LOBBY_BUTTON_PLAY := TRSInterfaceButton.Create('CLICK HERE TO PLAY', RS_FONTSET_BOLD_12, $FFFFFF);
+
+type
+  TRSLobbyScreen = type TRSInterface;
+
+function TRSLobbyScreen.IsOpen: Boolean;
+begin
+  Result := Self.FindButton(LOBBY_BUTTON_PLAY);
+end;
+
+procedure TRSLobbyScreen.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+end;
+
+procedure TRSLobbyScreen.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'Login Screen';
+  Self.Buttons := [LOBBY_BUTTON_PLAY];
+
+  if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
+  begin
+    Self.Alignment.Left := [@RootInterface.X1];
+    Self.Alignment.Right := [@RootInterface.X2];
+    Self.Alignment.Top := [@RootInterface.Y1];
+    Self.Alignment.Bottom := [@RootInterface.Y1, 502];
+    Self.Alignment.Center := [764, 0];
+  end;
+end;
+
+var
+  LobbyScreen: TRSLobbyScreen;
+
+begin
+  SRL.AddSetupMethod(@LobbyScreen.Setup);
+  SRL.AddDebugMethod(@LobbyScreen.Debug);
+end;

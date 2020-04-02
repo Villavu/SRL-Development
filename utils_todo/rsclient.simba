@@ -1,0 +1,249 @@
+{$DEFINE RSCLIENT_AUTOFOCUS} // Automatic gain focus on mouse and key input.
+{$DEFINE RSCLIENT_RETARGET} // Automatic retarget the client if RS changes handles.
+
+{$i srl/utils/rsclient_winapi.simba}
+
+var
+  RS_CLIENT_TITLES: TStringArray = ['RuneScape', 'OSBuddy', 'RuneLite', 'SMART'];
+  RS_CLIENT_LOSE_FOCUS_WINDOWS: TStringArray = ['Simba - '];
+  RS_CLIENT_CANVAS_CLASS: String = 'SunAwtCanvas';
+
+type
+  TRSClient = record
+    FWindow: HWND;
+    FChild: HWND;
+    FUpdating: Boolean;
+  end;
+
+var
+  RSClient: TRSClient;
+
+function TRSClient.Find(Target: Boolean = True): Boolean;
+
+  function IsRSTitle(Handle: HWND): Boolean;
+  var
+    i: Int32;
+    Title: WideString;
+  begin
+    Title := GetWindowTitle(Handle);
+
+    for i := 0 to High(RS_CLIENT_TITLES) do
+      if Pos(RS_CLIENT_TITLES[i], Title) > 0 then
+        Exit(True);
+  end;
+
+  function IsRS(Handle: HWND): Boolean;
+  begin
+    SetTarget(Handle);
+
+    Result := srl.IsClientReady();
+  end;
+
+var
+  Window, Child: HWND;
+begin
+  Window := GetTopWindow(0);
+
+  while Window > 0 do
+  begin
+    if IsRSTitle(Window) then
+    begin
+      Child := GetNextWindow(Window, GW_CHILD);
+
+      while Child > 0 do
+      begin
+        if GetWindowClass(Child) = RS_CLIENT_CANVAS_CLASS then
+        begin
+          if IsRS(Child) then
+          begin
+            Self.FWindow := Window;
+            Self.FChild := Child;
+
+            Exit(True);
+          end;
+        end;
+
+        Child := GetNextWindow(Child, GW_CHILD);
+      end;
+    end;
+
+    Window := GetNextWindow(Window, GW_HWNDNEXT);
+  end;
+end;
+
+procedure TRSClient.Target;
+begin
+  SetTarget(Self.FChild);
+
+  srl.WriteLn('[RSCLIENT]: Target set to ' + IntToStr(Self.FChild));
+end;
+
+function TRSClient.RequireUpdate: Boolean;
+begin
+  Result := (not FUpdating) and (Self.FChild > 0) and (not IsWindow(Self.FChild));
+end;
+
+procedure TRSClient.Update;
+var
+  T: UInt64;
+begin
+  FUpdating := True;
+
+  try
+    srl.WriteLn('[RSCLIENT]: Client requires update');
+
+    T := GetTickCount() + 5000;
+    while (T > GetTickCount()) do
+    begin
+      if Self.Find() then
+      begin
+        Self.Target();
+
+        Exit;
+      end;
+
+      Wait(50);
+    end;
+  finally
+    FUpdating := False;
+  end;
+
+  srl.WriteLn('[RSCLIENT]: Failed to update client', dtFatal);
+end;
+
+function TRSClient.Setup(Launcher: String = ''): Boolean;
+
+  function GetJavaExecutable: String;
+  var
+    Java, Directory: String;
+  begin
+    for Java in ['C:\Program Files\Java\', 'C:\Program Files (x86)\Java\'] do
+      for Directory in GetDirectories(Java) do
+        if (Copy(Directory, 1, 3) = 'jre') and IsStrInArr('java.exe', False, GetFiles(Java + Directory + '\bin\', 'exe')) then
+          Exit(Java + Directory + '\bin\java.exe');
+  end;
+
+var
+  T: UInt64;
+  Process: TProcess;
+begin
+  if Self.Find() then
+  begin
+    Self.Target();
+
+    Exit(True);
+  end;
+
+  if FileExists(Launcher) then
+  begin
+    Process.Init(nil);
+
+    if 'jar' in Launcher then
+      Process.SetCommandLine(Format('"%s" -jar "%s"', [GetJavaExecutable(), Launcher]))
+    else
+      Process.SetCommandLine(Launcher);
+
+    Process.Execute();
+    Process.Free();
+
+    T := GetTickCount() + (5 * 60000);
+    while (T > GetTickCount()) do
+    begin
+      if Self.Find() then
+      begin
+        Self.Target();
+
+        Exit(True);
+      end;
+
+      Wait(1000);
+    end;
+  end;
+
+  srl.WriteLn('[RSCLIENT]: No client found');
+end;
+
+procedure TRSClient.SetFocus;
+begin
+  System.SetFocus(Self.FWindow);
+end;
+
+procedure TRSClient.MouseOff;
+var
+  R: TRect;
+  P: TPoint;
+begin
+  GetWindowRect(Self.FWindow, @R);
+
+  repeat
+    P.X := Random(GetSystemMetrics(SM_CXSCREEN));
+    P.Y := Random(GetSystemMetrics(SM_CYSCREEN));
+  until (not PointInBox(P, [R.Left, R.Top, R.Right, R.Bottom]));
+
+  // client to screen
+  P.X -= R.Left;
+  P.Y -= R.Top;
+
+  Mouse.Move(P);
+end;
+
+// Mouses off the client and gives Simba focus
+procedure TRSClient.LoseFocus; overload;
+
+  function IsLoseFocusWindow(Handle: HWND): Boolean;
+  var
+    i: Int32;
+    Title: String;
+  begin
+    Title := GetWindowTitle(Handle);
+
+    for i := 0 to High(RS_CLIENT_LOSE_FOCUS_WINDOWS) do
+      if Pos(RS_CLIENT_LOSE_FOCUS_WINDOWS[i], Title) > 0 then
+        Exit(True);
+  end;
+
+var
+  Window: HWND;
+begin
+  Window := GetTopWindow(0);
+
+  while Window > 0 do
+  begin
+    if IsLoseFocusWindow(Window) then
+    begin
+      if Random(100) <> 0 then
+        Self.MouseOff();
+
+      System.SetFocus(Window);
+
+      Break;
+    end;
+
+    Window := GetNextWindow(Window, GW_HWNDNEXT);
+  end;
+end;
+
+procedure TRSClient.Close;
+begin
+  KillProcess(Self.FWindow); // kill the process to avoid any close dialogs.
+end;
+
+procedure TSRL.LoseFocus(); override;
+begin
+  RSClient.LoseFocus();
+end;
+
+procedure TSRL.SetFocus(); override;
+begin
+  RSClient.SetFocus();
+end;
+
+procedure TSRL.SetupForClient(Launcher: String = ''; Options: ESRLOptionSet = SRL_DEFAULT_OPTIONS);
+begin
+  if (not RSClient.Setup(Launcher)) then
+    Self.WriteLn('Failed to setup RSClient', dtFatal);
+
+  Self.Setup(Options);
+end;
+
+{$include_once rsclient_overrides.simba}

@@ -1,0 +1,342 @@
+{$DEFINE SRL_ANTIBAN_INCLUDED}
+
+{$IFNDEF OSRS}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  PAntibanTask = ^TAntibanTask;
+  TAntibanMethod = procedure of object;
+  TAntibanCondition = function: Boolean of object;
+  TAntibanTask = record
+    Method: TAntibanMethod;
+    Interval: Double;
+    StdVar: Double;
+    Condition: TAntibanCondition;
+    NextAtTime: Double;
+  end;
+
+  PBreakTask = ^TBreakTask;
+  TBreakTask = record
+    Interval: Double;
+    Length: Double;
+    LogoutChance: Double;
+    StdVar: Double;
+    NextAtTime, PrevAtTime: Double;
+  end;
+
+  TAntiban = record
+    Debugging: Boolean;
+    DebugRandoms: Boolean;
+
+    Breaks: array of TBreakTask;
+    Tasks: array of TAntibanTask;
+
+    OnStartBreak: procedure(Task: PBreakTask);
+    OnFinishBreak: procedure(Task: PBreakTask);
+
+    OnStartTask: procedure(Task: PAntibanTask);
+    OnFinishTask: procedure(Task: PAntibanTask);
+  end;
+
+procedure TAntiban.Debug(Message: String);
+begin
+  if Self.Debugging then
+    SRL.WriteLn('[Antiban]: ' + Message);
+end;
+
+function TAntiban.AddBreak(Interval, Length: Double; Randomness: Double = 0.2; LogoutChance: Double = 0.50): Boolean;
+var
+  Task: TBreakTask;
+begin
+  Task.Interval := Interval;
+  Task.Length := Length;
+  Task.StdVar := Randomness;
+  Task.LogoutChance := LogoutChance;
+  Task.NextAtTime := GetTimeRunning() + Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar));
+
+  Self.Breaks += Task;
+end;
+
+procedure TAntiban.TakeBreak(var Task: TBreakTask);
+var
+  Countdown: TCountDown;
+  I: Int32;
+begin
+  Countdown.Init(Abs(Round(SRL.GaussRand(Task.Length, Task.Length * Task.StdVar))));
+
+  Self.Debug('Taking a break for ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+
+  if (@Self.OnStartBreak <> nil) then
+    Self.OnStartBreak(@Task);
+
+  if Random() < Task.LogoutChance then
+  begin
+    Self.Debug('Logging out');
+
+    Logout.ClickLogout();
+  end;
+
+  if Random() < 0.50 then
+    Self.LoseFocus();
+
+  while not Countdown.IsFinished() do
+  begin
+    Self.Debug('Break time remaining: ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+
+    Wait(Min(Countdown.TimeRemaining(), 60000));
+  end;
+
+  Self.Debug('Break finished');
+
+  if (@Self.OnFinishBreak <> nil) then
+    Self.OnFinishBreak(@Task);
+
+  if InRange(CurrentPlayer, Low(Players), High(Players)) then
+    Players[CurrentPlayer].Login();
+
+  // Offset all tasks
+  for I := 0 to High(Self.Breaks) do
+    Self.Breaks[I].NextAtTime += GetTickCount() - (Countdown.Timeout - Countdown.Length);
+
+  for I := 0 to High(Self.Tasks) do
+    Self.Tasks[I].NextAtTime += GetTickCount() - (Countdown.Timeout - Countdown.Length);
+
+  // Setup next time this break happens
+  Task.NextAtTime := GetTimeRunning() + Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar));
+end;
+
+procedure TAntiban.AddTask(Interval: Double; Method: TAntibanMethod; Condition: TAntibanCondition; Randomness: Double = 0.2); overload;
+var
+  Task: TAntibanTask;
+begin
+  Task.Interval := Interval;
+  Task.Method := @Method;
+  Task.Condition := @Condition;
+  Task.StdVar := Randomness;
+  Task.NextAtTime := GetTimeRunning() + Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar));
+
+  Self.Tasks += Task;
+end;
+
+procedure TAntiban.AddTask(Interval: Double; Method: TAntibanMethod; Randomness: Double = 0.2); overload;
+var
+  Task: TAntibanTask;
+begin
+  Task.Interval := Interval;
+  Task.Method := @Method;
+  Task.StdVar := Randomness;
+  Task.NextAtTime := GetTimeRunning() + Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar));
+
+  Self.Tasks += Task;
+end;
+
+function TAntiban.DoBreak: Boolean;
+var
+  I: Int32;
+begin
+  for I := 0 to High(Self.Breaks) do
+    if GetTimeRunning() > Self.Breaks[I].NextAtTime then
+    begin
+      Self.TakeBreak(Self.Breaks[I]);
+
+      Result := True;
+    end;
+end;
+
+function TAntiban.DoAntiban(CheckBreaks: Boolean = True): Boolean;
+var
+  I: Int32;
+  Task: PAntibanTask;
+begin
+  for I := 0 to High(Self.Tasks) do
+    if GetTimeRunning() > Self.Tasks[I].NextAtTime then
+    begin
+      Task := @Self.Tasks[I];
+
+      if (@Task^.Condition <> nil) and (not Task^.Condition()) then
+        Continue;
+
+      if (@Self.OnStartTask <> nil) then
+        Self.OnStartTask(Task);
+
+      Task^.Method();
+      Task^.NextAtTime := GetTimeRunning() + SRL.GaussRand(Task^.Interval, Task^.Interval * Task^.StdVar);
+
+      if (@Self.OnFinishTask <> nil) then
+        Self.OnFinishTask(Task);
+      
+      Result := True;
+
+      I := -1; // Restart loop
+    end;
+
+  if Self.DoBreak() then
+    Exit(True);
+end;
+
+procedure TAntiban.RandomMouse;
+var
+  CustomMouse: TMouse;
+begin
+  Self.Debug('Random Mouse');
+
+  CustomMouse := Mouse;
+  CustomMouse.Speed += 5;
+
+  for 1 to Round(SRL.TruncatedGauss(1, 6)) do
+  begin
+    if Random() < 0.30 then
+      CustomMouse.Move(GetClientBounds().Expand(150), True, rndGauss)
+    else
+      CustomMouse.Move(GetClientBounds().Expand(150), True, rndRandom);
+
+    if Random() < 0.50 then
+      Wait(0, 1000, wdLeft);
+  end;
+end;
+
+procedure TAntiban.RandomRotate;
+begin
+  Self.Debug('Random Rotate');
+
+  case Random() > 0.50 of
+    True:  Minimap.SetCompassAngle(Minimap.GetCompassAngle() - SRL.TruncatedGauss(30, 360, 3));
+    False: Minimap.SetCompassAngle(Minimap.GetCompassAngle() + SRL.TruncatedGauss(30, 360, 3));
+  end;
+end;
+
+procedure TAntiban.HoverSkill(Skill: ERSSkill; HoverTime: Int32; ReturnToCurrentTab: Boolean);
+var
+  Tab: ERSGameTab;
+begin
+  Self.Debug('Hover skill: ' + ToString(Skill));
+
+  Tab := GameTabs.GetCurrentTab();
+
+  if Stats.MouseOver(Skill) then
+  begin
+    Wait(HoverTime);
+    if ReturnToCurrentTab then
+      GameTabs.Open(Tab);
+  end;
+end;
+
+procedure TAntiban.HoverRandomSkills(ReturnToCurrentTab: Boolean);
+var
+  Tab: ERSGameTab;
+  Skill: ERSSkill;
+begin
+  Self.Debug('Hover random skills');
+
+  Tab := GameTabs.GetCurrentTab();
+
+  for 0 to Round(SRL.TruncatedGauss(0, 4)) do
+  begin
+    Skill := ERSSkill(Random(Ord(Low(ERSSkill)), Ord(High(ERSSkill))));
+
+    Self.HoverSkill(Skill, Random(4000), False);
+  end;
+
+  if ReturnToCurrentTab then
+    GameTabs.Open(Tab);
+end;
+
+procedure TAntiban.LoseFocus; overload;
+var
+  Space: TBoxArray;
+begin
+  Self.Debug('Lose focus');
+
+  Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(500));
+  if Length(Space) > 0 then
+    Mouse.Move(Space[Random(Length(Space))]);
+end;
+
+procedure TAntiban.RandomTab;
+begin
+  Self.Debug('Random Tab');
+
+  if Random() < 0.80 then
+  begin
+    if Random() < 0.50 then
+    begin
+      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(TAB_COMBAT), Ord(TAB_MAGIC), 6.0)));
+
+      Wait(300, 3000, wdLeft);
+    end;
+
+    GameTabs.Open(ERSGameTab(Random(Ord(TAB_COMBAT), Ord(TAB_MAGIC))));
+  end else
+  begin
+    if Random() < 0.50 then
+    begin
+      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(TAB_CLAN), Ord(TAB_MUSIC), 6.0)));
+
+      Wait(0, 2500, wdLeft);
+    end;
+
+    GameTabs.Open(ERSGameTab(Random(Ord(TAB_CLAN), Ord(TAB_MUSIC))));
+  end;
+
+  Wait(0, 8000, wdLeft);
+end;
+
+procedure TAntiban.RandomRightClick;
+begin
+  Self.Debug('Random Right Click');
+
+  Mouse.Move(GetClientBounds(), True, rndRandom);
+
+  if ChooseOption.Open() then
+  begin
+    if Random() < 0.50 then
+      Mouse.Move(ChooseOption.Bounds);
+
+    Wait(0, 8000, wdLeft);
+
+    ChooseOption.Close();
+  end;
+end;
+
+function TAntiban.DismissRandom: Boolean;
+var
+  Name: String;
+  Number: Int32;
+  B: TBox;
+begin
+  Name := Chatbox.GetDisplayName();
+
+  if (Name <> '') then
+  begin
+    B := Box(MainScreen.Center, 250, 100);
+
+    if FindTextColor(Name, RS_FONT_BOLD_12, $00FFFF, 0, B.X1, B.Y1, B.X2, B.Y2, 0.85) then
+    begin
+      if Self.DebugRandoms then
+      begin
+        CreateDirectory('randoms');
+
+        Number := Length(GetFiles('randoms/', 'png'));
+        if Number > 1000 then
+          TerminateScript('Lots of randoms debugged');
+
+        SaveScreenshot('randoms/' + IntToStr(Number) + '.png');
+
+        Wait(5000);
+      end;
+    end;
+  end;
+end;
+
+function TAntiban.TimeUntilBreak(Task: TBreakTask): String;
+begin
+  Result := SRL.MsToTime(Max(0, Round(Task.NextAtTime - GetTimeRunning())), TIME_BARE);
+end;
+
+var
+  Antiban: TAntiban;
+
+begin
+  Antiban.Debugging := True;
+end;

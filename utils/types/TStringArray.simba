@@ -1,0 +1,175 @@
+(*
+TStringArray
+=============
+TStringArray related methods
+*)
+
+procedure TStringArray.Append(const Value: String);
+var top:Int32;
+begin
+  top := Length(Self);
+  SetLength(self, top+1);
+  Self[top] := Value;
+end;
+
+procedure TStringArray.Insert(const Value: String; Index: Integer);
+var
+  l: UInt32;
+begin
+  l := Length(Self);
+  if (l <= Index) then
+  begin
+    Self.Append(Value);
+    Exit();
+  end;
+
+  SetLength(Self, l + 1);
+  MemMove(Self[Index], self[Index + 1], (L - Index) * SizeOf(Pointer));
+  Self[Index] := Value;
+end;
+
+procedure TStringArray.Del(const Index: Integer; const Count: Integer = 1);
+begin
+  Delete(Self, Index, Count);
+end;
+
+function TStringArray.Len(): Integer;
+begin
+  Result := Length(Self);
+end;
+
+procedure TStringArray.Remove(const Value: String; const All: Boolean = False);
+var
+  i: Int32;
+  lst: TIntegerArray;
+begin
+  if (not All) then
+  begin
+    i := Self.Find(Value);
+    if i >= 0 then Self.Del(i);
+    Exit;
+  end;
+  
+  lst := Self.FindAll(Value);
+  for i:=High(lst) downto 0 do
+    Self.Del(lst[i]);
+end;
+
+function TStringArray.Pop(): String;
+var
+  h: Integer;
+begin
+  h := High(Self);
+  Result := Self[h];
+  SetLength(Self, h);
+end;
+
+procedure TStringArray.Extend(const Arr: TStringArray);
+var i,len:Int32;
+begin
+  len := Length(Self);
+  SetLength(Self, len+Length(Arr));
+  for i:=0 to High(Arr) do
+    Self[len+i] := Arr[i];
+end; 
+
+function TStringArray.Find(const Value: String): Integer; constref;
+begin
+  for Result := 0 to High(Self) do
+    if (Value = Self[Result]) then
+      Exit;
+
+  Result := -1;
+end;
+
+function TStringArray.FindAll(const Value: String): TIntegerArray; constref;
+var
+  i: UInt32;
+begin
+  for i:=0 to High(Self) do
+    if (Self[i] = Value) then
+      Result += i;
+end;
+
+function TStringArray.Reversed(): TStringArray;
+var
+  lo:PtrUInt;
+  p,r:^String;
+begin
+  if (Length(Self) = 0) then
+    Exit();
+
+  SetLength(Result,length(self));
+  p := @Self[high(self)];
+  r := @Result[0];
+
+  lo := PtrUInt(@Self[0]);
+  while (lo<=PtrUInt(p)) do
+  begin
+    r^ := p^;
+    dec(p);
+    inc(r);
+  end;
+end;
+
+procedure TStringArray.Reverse();
+var
+  tmp:String;
+  lo,hi:^String;
+begin
+  if (Length(Self) = 0) then
+    Exit();
+
+  lo := @Self[0];
+  hi := @Self[High(self)];
+  while (PtrUInt(lo)<PtrUInt(hi)) do
+  begin
+    tmp := hi^;
+    hi^ := lo^;
+    lo^ := tmp;
+    dec(hi);
+    inc(lo);
+  end;
+end;
+
+function TStringArray.Combine(const Arr2: TStringArray): TStringArray; constref;
+var
+  i,j: Int32;
+begin
+  if (Length(Arr2) = 0) then
+    Exit(Copy(Self));
+
+  Result := Self;
+  SetLength(Result, Length(Self) + Length(Arr2));
+
+  j := 0;
+  for i := Length(Self) to High(Arr2) + Length(Self) do
+  begin
+    Result[i] := Arr2[j];
+    Inc(j);
+  end;
+end;
+
+function TStringArray.Equals(Other:TStringArray): Boolean; constref;
+var i:Int32;
+begin
+  if (Length(Self) <> Length(Other)) then Exit(False);
+  if (Length(Self) = 0) then Exit(True);
+  
+  for i:=0 to High(self) do
+    if (self[i] <> Other[i]) then
+      Exit(False);
+  Result := True;      
+end;
+
+function TStringArray.Merge(glue:String=''): String; constref;
+var
+  i:Int32;
+begin
+  if Length(Self) = 0 then
+    Exit();
+
+  Result := Self[0];
+  for i:=1 to High(Self) do
+    Result += glue + Self[i];
+end;

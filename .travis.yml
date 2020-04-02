@@ -1,0 +1,28 @@
+language: minimal
+
+addons:
+  apt:
+    update: true
+
+if:
+  type = push
+
+install:
+  - sudo apt install python3 python-pip
+  - sudo pip install docutils==0.14
+  - sudo pip install sphinx sphinx_rtd_theme
+
+script:
+  - cd docgen/
+  - python docgen.py ../
+  - make html
+  - cd ../
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: false
+  local-dir: docgen/build/html
+  on:
+    branch: master

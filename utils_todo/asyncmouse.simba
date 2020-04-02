@@ -1,0 +1,5 @@
+{$IFDEF SIMBAMAJOR1200}
+  {$ERROR -> ASyncMouse requires at least Simba 1.3 <-}
+{$ELSE}
+  {$loadlib asyncmouse/libasyncmouse}
+{$ENDIF}

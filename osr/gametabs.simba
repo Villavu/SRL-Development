@@ -1,0 +1,145 @@
+{$DEFINE SRL_GAMETABS_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSGameTabs = type TRSInterface;
+
+  ERSGameTab = (
+    TAB_COMBAT,
+    TAB_STATS,
+    TAB_QUESTS,
+    TAB_INVENTORY,
+    TAB_EQUIPMENT,
+    TAB_PRAYER,
+    TAB_MAGIC,
+    TAB_CLAN,
+    TAB_FRIENDS,
+    TAB_ACCOUNT,
+    TAB_LOGOUT,
+    TAB_OPTIONS,
+    TAB_EMOTES,
+    TAB_MUSIC,
+    TAB_UNKNOWN
+  );
+
+const
+  TAB_IGNORE = TAB_FRIENDS;
+
+function TRSGameTabs.GetTabBoxes: TBoxArray;
+var
+  I: Int32;
+begin
+  case SRL.ClientMode of
+    RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC:
+      begin
+        Result := Grid(7, 2, 30, 33, [3, 265], [Self.X1 + 6, Self.Y1 + 1]);
+      end;
+
+    RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        // One row
+        if (RootInterface.Width >= 948) then
+        begin
+          Result := Grid(14, 1, 30, 33, [3, 0], [Self.X1 -197, Self.Y1 + 312]);
+
+          for I := Ord(TAB_MUSIC) downto Ord(TAB_FRIENDS) do
+            Result[I] := Result[I-1];
+        end else
+        // Two rows
+          Result := Grid(7, 2, 30, 33, [3, 2], [Self.X1 + 0, Self.Y1 + 276]);
+
+        // Logout button is moved to top right corner
+        Result[7] := Result[10];
+        Result[10] := [RootInterface.X2 - 19, RootInterface.Y1 + 9, RootInterface.X2 - 10, RootInterface.Y1 + 18];
+      end;
+  end;
+end;
+
+function TRSGameTabs.GetTabBox(Tab: ERSGameTab): TBox;
+begin
+  Result := Self.GetTabBoxes[Ord(Tab)];
+end;
+
+function TRSGameTabs.GetCurrentTab: ERSGametab;
+var
+  Boxes: TBoxArray;
+  i: Int32;
+begin
+  Boxes := Self.GetTabBoxes();
+
+  for i := 0 to High(Boxes) do
+    if (SRL.CountColor(CTS1(1778534, 22), Boxes[i]) > 50) or
+       ((SRL.ClientMode = RS_CLIENT_RESIZABLE_BOTTOM) and (SRL.CountColor(CTS0(8639715), Boxes[i]) > 50)) then
+      Exit(ERSGameTab(i));
+end;
+
+function TRSGameTabs.Open(Tab: ERSGameTab): Boolean;
+var
+  T: UInt64;
+begin
+  if GetCurrentTab() = Tab then
+    Exit(True);
+
+  for 1 to 3 do
+  begin
+    Mouse.Click(GetTabBox(Tab), MOUSE_LEFT, SRL.Dice(50), rndRowp);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(2000, 6000));
+    while (T > GetTickCount) do
+    begin
+      if Self.GetCurrentTab() = Tab then
+        Exit(True);
+
+      Wait(100, 1000, wdLeft);
+    end;
+  end;
+end;
+
+procedure TRSGameTabs.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited();
+
+  Bitmap.DrawBoxes(GetTabBoxes(), False, $00FFFF);
+end;
+
+procedure TRSGameTabs.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'GameTabs';
+
+  case ClientMode of
+    RS_CLIENT_FIXED:
+      begin
+        Self.Alignment.Left := [@RootInterface.X2, -242];
+        Self.Alignment.Right := [@RootInterface.X2, -2];
+        Self.Alignment.Top := [@RootInterface.Y2, -334];
+        Self.Alignment.Bottom := [@RootInterface.Y2];
+      end;
+
+    RS_CLIENT_RESIZABLE_CLASSIC:
+      begin
+        Self.Alignment.Left := [@RootInterface.X2, -240];
+        Self.Alignment.Right := [@RootInterface.X2];
+        Self.Alignment.Top := [@RootInterface.Y2, -334];
+        Self.Alignment.Bottom := [@RootInterface.Y2];
+      end;
+
+    RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        Self.Alignment.Left := [@RootInterface.X2, -230];
+        Self.Alignment.Right := [@RootInterface.X2];
+        Self.Alignment.Top := [@RootInterface.Y2, -346];
+        Self.Alignment.Bottom := [@RootInterface.Y2];
+      end;
+  end;
+end;
+
+var
+  GameTabs: TRSGameTabs;
+
+begin
+  SRL.AddSetupMethod(@GameTabs.Setup);
+  SRL.AddDebugMethod(@GameTabs.Debug);
+end;
+

@@ -1,0 +1,90 @@
+{$IFNDECL HWND}
+  type HWND = type PtrUInt;
+{$ENDIF}
+
+{$IFNDECL WINAPI_CC}
+  {$IFDEF CPU386}
+    const WINAPI_CC = ' ffi_stdcall';
+  {$ELSE}
+    const WINAPI_CC = ' ffi_win64';
+  {$ENDIF}
+{$ENDIF}
+
+const
+  GW_HWNDFIRST = 0;
+  GW_HWNDLAST = 1;
+  GW_HWNDNEXT = 2;
+  GW_HWNDPREV = 3;
+  GW_OWNER = 4;
+  GW_CHILD = 5;
+
+const
+  SW_SHOW = 5;
+
+const
+  SM_CXSCREEN = 0;
+  SM_CYSCREEN = 1;
+
+function GetTopWindow(Handle: HWND):HWND; external 'GetTopWindow@user32.dll' + WINAPI_CC;
+function GetNextWindow(Handle: HWND; CMD: UInt32): HWND; external 'GetWindow@user32.dll' + WINAPI_CC;
+function GetWindowThreadProcessID(Handle: HWND; var PID: UInt32): UInt32; external 'GetWindowThreadProcessId@user32.dll'+WINAPI_CC;
+function GetForegroundWindow: HWND; external 'GetForegroundWindow@user32.dll'+WINAPI_CC;
+function AttachThreadInput(AttachFrom, AttachTo: UInt32; Attach: LongBool): LongBool; external 'AttachThreadInput@user32.dll'+WINAPI_CC;
+function ShowWindow(Handle: HWND; ShowType: Int32): LongBool; external 'ShowWindow@user32.dll'+WINAPI_CC;
+function BringWindowToTop(Handle: HWND): LongBool; external 'BringWindowToTop@user32.dll'+WINAPI_CC;
+function GetSystemMetrics(Index: Int32): Int32; external 'GetSystemMetrics@user32.dll'+WINAPI_CC;
+function GetWindowRect(Handle: HWND; Rect: ^TRect): LongBool; external 'GetWindowRect@user32.dll'+WINAPI_CC;
+function IsWindow(Handle: HWND): LongBool; static; external 'IsWindow@user32.dll' + WINAPI_CC;
+function GetWindowTextW(Handle: HWND; Buffer: ^WideChar; MaxCount: Int32): Int32; external 'GetWindowTextW@user32.dll' + WINAPI_CC;
+function GetWindowTextLengthW(Handle: HWND): Int32; external 'GetWindowTextLengthW@user32.dll'+ WINAPI_CC;
+function GetClassNameW(Handle: HWND; Buffer: ^WideChar; MaxCount: Int32): Int32; external 'GetClassNameW@user32.dll' + WINAPI_CC;
+function TerminateProcess(Process: PtrUInt; ExitCode: UInt32): LongBool; static; external 'TerminateProcess@kernel32.dll'+WINAPI_CC;
+function OpenProcess(DesiredAccess: DWord; InheritHandle: LongBool; PID: DWord): PtrUInt; static; external 'OpenProcess@kernel32.dll'+WINAPI_CC;
+function CloseHandle(Handle: PtrUInt): LongBool; static; external 'CloseHandle@kernel32.dll'+WINAPI_CC;
+
+function GetWindowTitle(Handle: HWND): WideString;
+begin
+  SetLength(Result, GetWindowTextLengthW(Handle) + 1);
+  if Length(Result) > 0 then
+    GetWindowTextW(Handle, @Result[1], Length(Result));
+end;
+
+function GetWindowClass(Handle: HWND): WideString;
+begin
+  SetLength(Result, 256);
+  SetLength(Result, GetClassNameW(Handle, @Result[1], Length(Result)));
+end;
+
+procedure SetFocus(Handle: HWND);
+const
+  SW_SHOW = 5;
+var
+  Current, Thread, PID: UInt32;
+begin
+  if GetForegroundWindow() <> Handle then
+  begin
+    Current := GetWindowThreadProcessID(GetForegroundWindow(), PID);
+    Thread := GetCurrThreadID();
+
+    if (Current <> Thread) then
+      AttachThreadInput(Current, Thread, True);
+
+    BringWindowToTop(Handle);
+    ShowWindow(Handle, SW_SHOW);
+
+    if (Current <> Thread) then
+      AttachThreadInput(Current, Thread, False);
+  end;
+end;
+
+procedure KillProcess(Handle: HWND);
+var
+  Process: PtrUInt;
+  PID: UInt32;
+begin
+  GetWindowThreadProcessID(Handle, PID);
+
+  Process := OpenProcess($1F0FFF, False, PID);
+  TerminateProcess(Process, 0);
+  CloseHandle(Process);
+end;

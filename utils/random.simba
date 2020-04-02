@@ -1,0 +1,319 @@
+(*
+Random
+=======
+Random related methods
+*)
+type
+  EWaitDir = (wdLeft,wdMean,wdRight);
+
+var
+  SRL_GAUSS_CUTOFF: Double = 4.0;
+
+//none-zero random
+function nzRandom(): Extended;
+begin
+  if SizeOf(Extended) = 10 then
+    Result := Max(Random(), 1.0e-4900) //10^-4900 seems to be our safe limit
+  else
+    Result := Max(Random(), 1.0e-320);
+end;
+
+(*
+srl.GaussRand
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.GaussRand(Mean, Dev: Double): Double;
+
+Generates a random gaussian/normal number.
+*)
+function TSRL.GaussRand(Mean, Dev: Double): Double; static;
+var 
+  len: Double;
+begin
+  len := Dev * Sqrt(-2 * Ln(nzRandom()));
+  Result := Mean + len * Cos(2 * PI * Random());
+end;
+
+
+(*
+srl.TruncatedGauss
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.TruncatedGauss(Left:Double=0; Right:Double=1): Double;
+
+Generates a random gaussian/normal number which is truncated and mapped within then 
+given range ``[left..right]`` weighted towards ``left``
+*)
+function TSRL.TruncatedGauss(Left:Double=0; Right:Double=1; CUTOFF:Single=0): Double; static;
+begin
+  if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
+
+  Result := CUTOFF+1;
+  while Result >= CUTOFF do
+    Result := Abs(Sqrt(-2 * Ln(nzRandom())) * Cos(2 * PI * Random()));
+  Result := Result / CUTOFF * (right-left) + left;
+end;
+
+
+(*
+srl.SkewedRand
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.SkewedRand(Mode, Lo, Hi: Double): Double; static;
+
+Random skewed distribution generation. `Mode` is a number between `Lo` and `Hi` which is 
+where the most of the generated numbers will land.
+*)
+function TSRL.SkewedRand(Mode, Lo, Hi: Double; CUTOFF:Single=0): Double; static;
+var top: Double;
+begin
+  if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
+
+  top := Lo;
+  if Random()*(Hi-Lo) > Mode-Lo then top := Hi;
+  Result := CUTOFF+1;
+  while Result >= CUTOFF do
+    Result := Abs(Sqrt(-2 * Ln(nzRandom())) * Cos(2 * PI * Random()));
+  Result := Result / CUTOFF * (top-Mode) + Mode;
+end;
+
+
+(*
+srl.NormalRange
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.NormalRange(min, max: Int64): Int64;
+
+Generates a random integer in the given range, weighted towards the mean.
+*)
+function TSRL.NormalRange(Min, Max: Int64; CUTOFF:Single=0): Int64; constref;
+begin
+  if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
+  case Random(0,1) of
+    0: Result := Round((Max+Min)/2.0 + TruncatedGauss(0, (Max-Min)/2, CUTOFF));
+    1: Result := Round((Max+Min)/2.0 - TruncatedGauss(0, (Max-Min)/2, CUTOFF));
+  end;
+end;
+
+
+(*
+srl.NormalRange
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.NormalRange(Min, Max: Double): Double;
+
+Generates a random float in the given range, weighted towards the mean.
+*)
+function TSRL.NormalRange(Min, Max: Double; CUTOFF:Single=0): Double; constref; overload;
+begin
+  if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
+  case Random(0,1) of
+    0: Result := (Max+Min)/2.0 + TruncatedGauss(0, (Max-Min)/2, CUTOFF);
+    1: Result := (Max+Min)/2.0 - TruncatedGauss(0, (Max-Min)/2, CUTOFF);
+  end;
+end;
+
+
+(*
+srl.RandomPoint
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.RandomPoint(Mean: TPoint; MaxRad: Int32): TPoint;
+
+Generates a random TPoint which weights around ``Mean``, with a max distance 
+from mean defined by ``MaxRad``.
+*)
+function TSRL.RandomPoint(Mean: TPoint; MaxRad: Int32): TPoint; constref;
+begin
+  Result.X := NormalRange(Mean.x-maxRad, Mean.x+MaxRad);
+  Result.Y := NormalRange(Mean.y-maxRad, Mean.y+MaxRad);
+end;
+
+
+(*
+srl.RandomPoint (overload)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.RandomPoint(Bounds: TBox): TPoint; overload;
+
+Generates a random TPoint in the bounds of the given box ``Bounds``, 
+the point weights towards the middle of the box.
+*)
+function TSRL.RandomPoint(Bounds: TBox): TPoint; constref; overload;
+begin
+  Result.X := NormalRange(Bounds.x1, Bounds.x2);
+  Result.Y := NormalRange(Bounds.y1, Bounds.y2);
+end;
+
+(*
+srl.RandomPoint (overload)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.RandomPoint(Rect: TRectangle): TPoint; overload;
+
+Generates a random TPoint in the given rectangle ``Rect``,
+The point weights towards the middle of the rectangle.
+*)
+function TSRL.RandomPoint(Rect: TRectangle): TPoint; constref; overload;
+var
+  a,x,y,x1,y1,x2,y2: Double;
+begin
+  with Rect do
+  begin
+    a := ArcTan2(Left.Y-Top.Y, Left.X-Top.X);
+    X := (Top.X + Right.X + Btm.X + Left.X) / 4;
+    Y := (Top.Y + Right.Y + Btm.Y + Left.Y) / 4;
+    x1 := x-Hypot(Left.y-Top.y, Left.x-Top.x) / 2;
+    y1 := y-Hypot(Left.y-Btm.y, Left.x-Btm.x) / 2;
+    x2 := x+Hypot(Left.y-Top.y, Left.x-Top.x) / 2;
+    y2 := y+Hypot(Left.y-Btm.y, Left.x-Btm.x) / 2;
+  end;
+
+  Result.X := Round(srl.NormalRange(x1+1, x2-1));
+  Result.Y := Round(srl.NormalRange(y1+1, y2-1));
+  Result := RotatePoint(Result, a, (X2+X1)/2+Random()-0.5, (Y2+Y1)/2+Random()-0.5);
+end;
+
+
+(*
+srl.RandonPointEx
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.RandonPointEx(From: TPoint; B: TBox; Force: Double=0.35): TPoint; constref;
+
+Generates a random point within the bounds of the given box `B`, the point generated is skewed towards towards the `From`-point.
+The last parameter `Force` defines how much the generated point is to be skewed towards or away from `From` - Expects value in the range 0..2
+
+* Force = 0: Result weighs heavily towrads the edge closest to `From`
+* Force = 1: Result in the middle of box is most common
+* Force = 2: Result weighs heavily towrads the edge furthest away from `From`
+*)
+function TSRL.RandomPointEx(From: TPoint; B: TBox; Force: Double=0.35): TPoint; constref;
+var
+  p,c: TPoint;
+  x,r: Double;
+begin
+  p := From;
+  if p.x < B.x1 then p.x := B.x1 else if p.x > B.x2 then p.x := B.x2;
+  if p.y < B.y1 then p.y := B.y1 else if p.y > B.y2 then p.y := B.y2;
+  c :=  Point((B.X2 + B.X1) div 2, (B.Y2 + B.Y1) div 2);
+  r := Hypot(p.x-c.x, p.y-c.y) * Force;
+  x := ArcTan2(c.y-p.y, c.x-p.x);
+  p.x += Round(Cos(x) * r);
+  p.y += Round(Sin(x) * r);
+  Result.x := Round(SkewedRand(p.x, B.x1, B.x2, SRL_GAUSS_CUTOFF));
+  Result.y := Round(SkewedRand(p.y, B.y1, B.y2, SRL_GAUSS_CUTOFF));
+end;
+
+
+(*
+srl.rowp
+~~~~~~~~~
+.. code-block:: pascal
+
+  function TSRL.rowp(From: TPoint; Rect: TRectangle; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint;
+  function TSRL.rowp(From: TPoint; Box: TBox; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint;
+
+rowp, short for `Random Olly Weighted Point`. Generates a random point based on
+a rough formula that Olly came up with for weighting points towards "From" point.
+Final implementation and math done by slacky.
+
+Force ranges from -1 (close to) to 1 (away from), where 0 is mean, but with a bit of a skewiness...
+*)
+function TSRL.rowp(From: TPoint; Rect: TRectangle; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint; static; overload;
+var
+  p,e: TPoint;
+  t, dist: Double;
+
+  function NearestEdgeTo(P: TPoint): TPoint;
+  var
+    best,dist: Double;
+    x: TPoint;
+  begin
+    best := srl.DistToLineEx(p, Rect.Top,  Rect.Left, Result);
+    if (dist := srl.DistToLineEx(p, Rect.Left, Rect.Btm,  x)) < best then begin Result := x; Best := dist; end;
+    if (dist := srl.DistToLineEx(p, Rect.Btm,  Rect.Right,x)) < best then begin Result := x; Best := dist; end;
+    if (dist := srl.DistToLineEx(p, Rect.Right,Rect.Top,  x)) < best then begin Result := x; Best := dist; end;
+  end;
+begin
+  p := srl.RandomPoint(rect);
+  e := NearestEdgeTo(P);
+
+  dist := Hypot(p.X - e.X, p.Y - e.Y);
+  t := ArcTan2(p.Y-From.Y, p.X-From.X) + (Random()-0.5)*Smoothness;
+  Result.X := Round(p.x + Cos(t) * srl.SkewedRand(dist * force, 0, dist));
+  Result.Y := Round(p.y + Sin(t) * srl.SkewedRand(dist * force, 0, dist));
+end;
+
+function TSRL.rowp(From: TPoint; Box: TBox; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint; static; overload;
+begin
+  Result := TSRL.rowp(From, Box.ToRectangle(), Force, Smoothness);
+end;
+
+(*
+srl.Dice
+~~~~~~~~~
+.. pascal:: function TSRL.Dice(ChancePercent: Double): Boolean; static;
+
+Generates a random number and returns ``True`` whenever the value generated is within the chance (in percentage).
+
+**Example:**
+
+pascal:: 
+  if srl.Dice(10.5) then
+    WriteLn('This has a 10.5 percent chance of writing')
+  else
+    WriteLn('No dice');
+*)
+function TSRL.Dice(ChancePercent: Double): Boolean; static;
+begin
+  Result := System.Random() <= ChancePercent / 100;
+end;
+
+
+// ----------------------------------------------------------------------------
+
+(*
+Wait (overload)
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+  procedure Wait(Min, Max: Double; Weight: EWaitDir=wdMean); overload;
+
+Waits ... Weighted towards the mean of `Min` and `Max`
+*)
+procedure Wait(Min, Max:Double; Weight:EWaitDir=wdMean); overload;
+begin
+  case Weight of
+    wdLeft:  System.Wait(Round(srl.TruncatedGauss(Min, Max)));
+    wdMean:  System.Wait(Round(srl.NormalRange(Min, Max)));
+    wdRight: System.Wait(Round(srl.TruncatedGauss(Max, Min)));
+  end;
+end;
+
+(*
+WaitEx
+~~~~~~~
+.. code-block:: pascal
+
+  procedure WaitEx(Mean, Dev: Double);
+
+Waits ... Regular gauss random
+*)
+procedure WaitEx(Mean, Dev: Double);
+begin
+  Wait(Abs(Trunc(srl.GaussRand(Mean, Dev))));
+end;
+
+begin
+  Randomize();
+end;

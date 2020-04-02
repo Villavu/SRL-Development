@@ -1,0 +1,95 @@
+{$DEFINE SRL_MAINSCREEN_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSMainScreen = record(TRSInterface)
+    UpTextArea: TBox;
+    UpTextFilter: TCompareRules;
+  end;
+
+var
+  MainScreen: TRSMainScreen;
+
+procedure TRSMainScreen.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'MainScreen';
+
+  case ClientMode of
+    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        Self.Alignment.Left := [@RootInterface.X1];
+        Self.Alignment.Right := [@RootInterface.X2];
+        Self.Alignment.Top := [@RootInterface.Y1];
+        Self.Alignment.Bottom := [@RootInterface.Y2];
+
+        Self.UpTextArea := [3, 3, 500, 21];
+      end;
+
+    RS_CLIENT_FIXED:
+      begin
+        Self.Alignment.Left := [@RootInterface.X1, 4];
+        Self.Alignment.Right := [@RootInterface.X1, 515];
+        Self.Alignment.Top := [@RootInterface.Y1, 4];
+        Self.Alignment.Bottom := [@RootInterface.Y1, 337];
+
+        Self.UpTextArea := [7, 7, 500, 25];
+      end;
+  end;
+
+  Self.UpTextFilter := [-1, 85, True, 85];
+end;
+
+function TRSMainScreen.GetUpText(): String;
+begin
+  Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONTSET_BOLD_12_SHADOW);
+
+  {$IFDEF UPTEXT_DEBUG}
+  SRL.WriteLn('UpText: ' + Result);
+  {$ENDIF}
+end;
+
+function TRSMainScreen.IsUpText(Text: TStringArray; Timeout: Int32 = -1): Boolean; overload;
+
+  function IsUpText: Boolean;
+  var
+    I: Int32;
+    UpText: String;
+  begin
+    UpText := Self.GetUpText();
+
+    for I := 0 to High(Text) do
+      if (Text[I] in UpText) or (Text[I] = UpText) then
+        Exit(True);
+  end;
+
+var
+  T: UInt64;
+begin
+  if (Timeout = -1) then
+    T := GetTickCount() + Round(SRL.SkewedRand(100, 85, 250))
+  else
+    T := GetTickCount() + Timeout;
+
+  repeat
+    if IsUpText() then
+    begin
+      Wait(50); // Uptext is delayed at least a frame. wait 50ms for confirmation.
+      if IsUpText() then
+        Exit(True);
+    end;
+
+    Wait(25);
+  until (GetTickCount() >= T);
+end;
+
+function TRSMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean; overload;
+begin
+  Result := Self.IsUpText([Text], Timeout);
+end;
+
+begin
+  SRL.AddSetupMethod(@MainScreen.Setup);
+  SRL.AddDebugMethod(@MainScreen.Debug);
+end;

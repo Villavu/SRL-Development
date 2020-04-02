@@ -1,0 +1,154 @@
+(*
+Slacky's Antiban Mixture
+========================
+Overrides various internal methods for fancy antiban mistakes, timing offsets
+and various other effects, for example new mouse behaviour.
+
+Most stuff here uses your username to generate unique patterns. Other stuff
+only adds more AB related functionallity
+
+Remebmer to call ``SlackAB.Init();``
+*)
+type
+  TSlackAB = record
+    Antiban: TAntiban;
+    IsSetup: Boolean;
+    Hash: Double;
+    PPI, MouseArea, MouseOff: Double;
+    MaxSpeed, MinSpeed: Int32;
+  end;
+
+var
+  SlackAB: TSlackAB;
+
+
+procedure TSlackAB.Init(YourAntiban: TAntiban);
+begin
+  Self.Antiban := YourAntiban;
+  Self.Hash := Self.Antiban.BioHash;
+
+  Self.PPI       := (100.0 + (100/3*2) * Self.Hash);
+  Self.MouseArea := (500 + 600 * Cos(Self.Hash*PI/2));
+  Self.MouseOff  := Random(0.0, Self.MouseArea);
+  Self.MaxSpeed  := Ceil(22 * (0.75 + 0.5 * Cos(Self.Hash*PI/2)));
+  Self.MinSpeed  := Trunc(08 * (0.50 + 0.5 * Sin(Self.Hash*PI/1)));
+
+  Self.IsSetup := True;
+end;
+
+procedure TSlackAB.ScaleArea(AreaScale: Double);
+begin
+  Self.MouseArea *= AreaScale;
+end;
+
+procedure TSlackAB.ScalePPI(PPIScale: Double);
+begin
+  Self.PPI *= PPIScale;
+end;
+
+procedure Wait(min, max: Double; weight: EWaitDir=wdMean); override;
+var t:Double := GetTickCount();
+begin
+  inherited(min, max, weight);
+  if SlackAB.IsSetup then
+    SlackAB.Antiban.WaitFatigue(GetTickCount() - t);
+end;
+
+procedure WaitEx(mean, dev: Double); override;
+var t:Double := GetTickCount();
+begin
+  inherited(mean, dev);
+  if SlackAB.IsSetup then
+    SlackAB.Antiban.WaitFatigue(GetTickCount() - t);
+end;
+
+procedure TMouse.Move(P: TPoint); override;
+var
+  dist, minSpeed, maxSpeed: Double;
+  q: TPoint;
+begin
+  if not SlackAB.IsSetup then
+  begin
+    inherited(P);
+    Exit;
+  end;
+
+  maxSpeed := Trunc(srl.SkewedRand(SlackAB.MaxSpeed, 14, SlackAB.MaxSpeed));
+  minSpeed := Trunc(srl.SkewedRand(SlackAB.MinSpeed, SlackAB.MinSpeed, 14));
+  maxSpeed := maxSpeed * (0.8 + SlackAB.Antiban.EnergyLevel / 500);
+
+  q := Self.GetPosition;
+  dist := Hypot(q.x-p.x, q.y-p.y);
+  self.Speed := Trunc(minSpeed + (maxSpeed-minSpeed) * Power(dist / 1024, 1/2));
+  inherited;
+end;
+
+procedure TMouse.Move(P: TPoint); override;
+var
+  Here,P2: TPoint;
+  t,v: Double;
+begin
+  if not SlackAB.IsSetup then
+  begin
+    inherited(P);
+    Exit;
+  end;
+
+  if (Random() < 0.15) or (SlackAB.MouseOff > SlackAB.MouseArea) then
+    SlackAB.MouseOff := Random() * SlackAB.PPI;
+
+  Here := Mouse.GetPosition();
+  if (Here.DistanceTo(P)*srl.GaussRand(1.3,0.5) > SlackAB.MouseArea - SlackAB.MouseOff) then
+  begin
+    v := Here.DistanceTo(P);
+    t := (SlackAB.MouseArea - SlackAB.MouseOff) / Here.DistanceTo(P);
+    t := srl.SkewedRand(0.9, t, 1.15);
+    P2.x := Trunc((1-t)*Here.x + t*P.x);
+    P2.y := Trunc((1-t)*Here.y + t*P.y);
+
+    inherited(P2.Random(-Trunc(Power(v,0.66)), Trunc(Power(v,0.66)), True));
+    Wait(Trunc(srl.SkewedRand(45, 0, 700)));
+    SlackAB.MouseOff := Random() * SlackAB.PPI * 2;
+  end;
+
+  v := Mouse.GetPosition().DistanceTo(P);
+  inherited(P);
+  SlackAB.MouseOff += Random(v, v*1.5);
+end;
+
+function TRSGametab.Open(Tab: EGametab; Tries: Int32=2): Boolean; override;
+begin
+  if Self.IsOpen(Tab) then
+    Exit(True);
+
+  if (SlackAB.IsSetup) and (Random() < 0.01 + 0.1 * SlackAB.Hash) then
+  begin
+    if Gametabs.UpperTabs.Contains(Gametabs.Tabs[Ord(Tab)]) then
+      inherited(EGametab(SRL.NormalRange(Ord(tabCombat), Ord(tabMagic), 6.0)), 1)
+    else
+      inherited(EGametab(SRL.NormalRange(Ord(tabClan), Ord(tabMusic), 6.0)), 1);
+    Wait(30, 500, wdLeft);
+  end;
+
+  Result := inherited(Tab, Tries);
+end;
+
+procedure TMouse.MoveNear(P: TPoint; Rad: Int32; Force: Double = 1.0);
+  function RndLocBetween(p: TPoint; qb: TBox; Force: Double = 1.0): TBox;
+  var
+    r: Double;
+    q: TPoint;
+  begin
+    r := SRL.SkewedRand(Force, 0, 1.1);
+    q := SRL.RandomPointEx(p, qb);
+    q := Point(Round(p.X+(q.X-p.X)*r), Round(p.Y+(q.Y-p.Y)*r));
+    Result := Box(
+      Round(q.x-(qb.width div 2)*r), Round(q.y-(qb.height div 2)*r),
+      Round(q.x+(qb.width div 2)*r), Round(q.y+(qb.height div 2)*r)
+    );
+  end;
+begin
+  Mouse.Move(RndLocBetween(Mouse.GetPosition, Box(P, Rad, Rad), Force));
+end;
+
+

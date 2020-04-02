@@ -1,0 +1,239 @@
+{$DEFINE SRL_INVENTORY_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+const
+  //Column wise and "reversed" column wise - normal pattern
+  DROP_PATTERN_REGULAR: TIntegerArray = [0..27];
+  DROP_PATTERN_REGULAR_R: TIntegerArray = [3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12, 19,18,17,16, 23,22,21,20, 27,26,25,24];
+
+  //Column wise snake and "reversed" version
+  DROP_PATTERN_SNAKE: TIntegerArray  = [0,1,2,3, 7,6,5,4, 8,9,10,11, 15,14,13,12, 16,17,18,19, 23,22,21,20, 24,25,26,27];
+  DROP_PATTERN_SNAKE_R: TIntegerArray = [3,2,1,0, 4,5,6,7, 11,10,9,8, 12,13,14,15, 19,18,17,16, 20,21,22,23, 27,26,25,24];
+
+  //by row (and "reversed")
+  DROP_PATTERN_TOPDOWN: TIntegerArray = [0,4,8,12,16,20,24,  1,5,9,13,17,21,25,  2,6,10,14,18,22,26, 3,7,11,15,19,23,27];
+  DROP_PATTERN_TOPDOWN_R: TIntegerArray = [3,7,11,15,19,23,27, 2,6,10,14,18,22,26, 1,5,9,13,17,21,25,  0,4,8,12,16,20,24];
+
+  //Spiral pattern: Starts in slot 0(top left corner of invy) and circles in a clockwise spiral
+  DROP_PATTERN_SPIRAL: TIntegerArray   = [0,1,2,3, 7,11,15,19,23, 27,26,25,24, 20,16,12,8,4, 5, 6,10,14,18,22, 21,17,13,9];
+
+type
+  TRSInventory = record(TRSInterface)
+    LOW_SLOT: Int32;
+    HIGH_SLOT: Int32;
+  end;
+
+procedure TRSInventory.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'Inventory';
+
+  Self.LOW_SLOT := 0;
+  Self.HIGH_SLOT := 27;
+
+  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
+  begin
+    Self.Alignment.Left := [@GameTab.X1];
+    Self.Alignment.Right := [@GameTab.X2];
+    Self.Alignment.Top := [@GameTab.Y1];
+    Self.Alignment.Bottom := [@GameTab.Y2];
+  end;
+end;
+
+function TRSInventory.GetSlotBoxes: TBoxArray;
+begin
+  Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
+end;
+
+function TRSInventory.GetSlotBox(Slot: Int32): TBox;
+begin
+  Result := Self.GetSlotBoxes()[Slot];
+end;
+
+function TRSInventory.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = TAB_INVENTORY) or BankScreen.IsOpen();
+end;
+
+function TRSInventory.Open: Boolean;
+begin
+  Result := GameTabs.Open(TAB_INVENTORY);
+end;
+
+function TRSInventory.IsSlotUsed(Slot: Int32): Boolean;
+begin
+  if not Self.Open() then
+    Exit(False);
+
+  Result := SRL.CountColor(CTS0($10000), Self.GetSlotBox(Slot)) > 0;
+end;
+
+function TRSInventory.IsSlotActive(Slot: Int32): Boolean;
+begin
+  if not Self.Open() then
+    Exit(False);
+
+  Result := SRL.CountColor(CTS0($FFFFFF), Self.GetSlotBox(Slot)) > 0;
+end;
+
+function TRSInventory.IsFull: Boolean;
+var
+  I: Int32;
+begin
+  Result := True;
+
+  if not Self.Open() then
+    Exit(False);
+
+  for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+    if not IsSlotUsed(I) then
+      Exit(False);
+end;
+
+function TRSInventory.GetActiveSlot: Int32;
+var
+  I: Int32;
+begin
+  Result := -1;
+
+  if Self.Open() then
+  begin
+    for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+      if IsSlotActive(I) then
+        Exit(I);
+  end;
+end;
+
+procedure TRSInventory.ClearActiveSlot();
+var
+  I: Int32;
+begin
+  if Self.Open() then
+  begin
+    for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+      if IsSlotActive(I) then
+      begin
+        Mouse.Click(Self.GetSlotBox(I), MOUSE_LEFT);
+
+        Break;
+      end;
+  end;
+end;
+
+function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
+var i,j,h,k,tmp: Int32;
+begin
+  Result := Copy(Pattern);
+  h := High(Pattern);
+  i := 1;
+  while i < h do
+  begin
+    if Random(100) < ErrorChance then
+    begin
+      case Random(0,2) of
+        0:begin
+            tmp := Result[i];
+            for j:=i+1 to h do Result[j-1] := Result[j];
+            Result[h] := tmp;
+          end;
+        1:begin
+            Swap(Result[i+1],Result[i]);
+          end;
+        2:begin
+            tmp := Result[i];
+            k := Random(i+1,h);
+            for j:=i+1 to k do Result[j-1] := Result[j];
+            Result[k] := tmp;
+          end;
+      end;
+    end;
+    Inc(i);
+  end;
+end;
+
+function TRSInventory.ShiftDrop(Slots: TIntegerArray): Boolean;
+var
+  Boxes: TBoxArray;
+  I, Attempts: Int32;
+  Active: Int32;
+begin
+  IsKeyDown(VK_SHIFT); // Clear cache
+
+  Boxes := Self.GetSlotBoxes();
+
+  try
+    for Attempts := 1 to 5 do
+    begin
+      I := 0;
+
+      while (I < Length(Slots)) do
+      begin
+        Active := Self.GetActiveSlot();
+
+        if Active > -1 then
+        begin
+          Mouse.Move(Self.GetSlotBox(Active));
+          Mouse.Click(MOUSE_LEFT);
+
+          Break;
+        end;
+
+        if Self.IsSlotUsed(Slots[I]) then
+        begin
+          if not IsKeyDown(VK_SHIFT) then
+            KeyDown(VK_SHIFT);
+
+          Mouse.Click(Self.GetSlotBox(Slots[I]), MOUSE_LEFT);
+
+          // Spam click a little
+          for 1 to Round(SRL.TruncatedGauss(0, 3)) do
+          begin
+            Mouse.Move(Mouse.GetPosition(), 5, SRL.Dice(25));
+            Mouse.Click(MOUSE_LEFT);
+          end;
+
+          Wait(0, 250, wdLeft);
+        end;
+
+        Inc(I);
+      end;
+
+      if (I = Length(Slots)) then
+        Exit;
+    end;
+  finally
+    if IsKeyDown(VK_SHIFT) then
+      KeyUp(VK_SHIFT);
+  end;
+
+  Result := Attempts <= 5;
+end;
+
+procedure TRSInventory.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
+end;
+
+function TRSInventory.Count: Int32;
+var
+  I: Int32;
+begin
+  for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+    if Self.IsSlotUsed(I) then
+      Inc(Result);
+end;
+
+var
+  Inventory: TRSInventory;
+
+begin
+  SRL.AddSetupMethod(@Inventory.Setup);
+  SRL.AddDebugMethod(@Inventory.Debug);
+end;
+

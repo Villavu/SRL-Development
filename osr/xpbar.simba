@@ -1,0 +1,69 @@
+{$DEFINE SRL_XPBAR_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSXPBar = record(TRSInterface)
+    ButtonOffset: TPoint;
+  end;
+
+procedure TRSXPBar.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'XPBar';
+
+  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
+  begin
+    Self.Alignment.Left := [@InterfaceArea.X2, -120];
+    Self.Alignment.Right := [@InterfaceArea.X2, -2];
+    Self.Alignment.Top := [@InterfaceArea.Y1, 2];
+    Self.Alignment.Bottom := [@InterfaceArea.Y1, 30];
+  end;
+
+  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
+    Self.ButtonOffset := [173, 38]
+  else
+    Self.ButtonOffset := [134, 28];
+end;
+
+function TRSXPBar.GetButtonCircle: TCircle;
+begin
+  Result := [Self.X1 + ButtonOffset.X, Self.Y1 + ButtonOffset.Y, 11];
+end;
+
+function TRSXPBar.IsOpen: Boolean;
+var
+  TPA: TPointArray;
+begin
+  if FindColors(TPA, 11592943, GetButtonCircle().Bounds()) then
+    Result := Length(GetButtonCircle().Filter(TPA)) > 50;
+end;
+
+procedure TRSXPBar.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  with Self.GetButtonCircle() do
+    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+
+  inherited;
+end;
+
+function TRSXPBar.Read: Int32;
+var
+  Text: String;
+begin
+  Text := OCR.Recognize($FFFFFF, 0, Self.Bounds, RS_FONTSET_PLAIN_11);
+  Text := Text.Replace('O', '0'); // Characters share same glpyh. Loading order can be different between systems.
+
+  Result := StrToIntDef(ExtractFromStr(Text, Numbers), -1);
+end;
+
+var
+  XPBar: TRSXPBar;
+
+begin
+  SRL.AddSetupMethod(@XPBar.Setup);
+  SRL.AddDebugMethod(@XPBar.Debug);
+end;

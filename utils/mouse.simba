@@ -1,0 +1,349 @@
+(*
+Mouse
+=======
+The Mouse file holds functions and procedures that are related to mouse-stuffz.
+*)
+
+(*
+Moving the mouse
+~~~~~~~~~~~~~~~~
+
+Move the mouse to a x, y coord.
+``Mouse.Move(100, 100);``
+
+Move the mouse to a point.
+``Mouse.Move(Point(100, 100));``
+
+Move the mouse to a random (gauss) point in a box.
+``Mouse.Move(IntToBox(0, 0, 100, 100));``
+
+Move the mouse to a random (gauss) point in a circle.
+``Mouse.Move(Point(100, 100), 50);``
+
+
+Clicking the mouse
+~~~~~~~~~~~~~~~~~~
+
+Vaild click types: mouse_Left, mouse_Right, mouse_Middle.
+
+Click the mouse at the current position.
+``Mouse.Click(mouse_Left);``
+
+Move and click the mouse to a x, y coord.
+``Mouse.Click(100, 100, mouse_Left);``
+
+Move and click the mouse to a point.
+``Mouse.Click(Point(100, 100), mouse_Right);``
+
+Move and click the mouse to a random (gauss) point in a box.
+``Mouse.Click(IntToBox(0, 0, 100, 100), mouse_Left);``
+
+Move and click the mouse to a random (gauss) point in a circle.
+``Mouse.Click(Point(100, 100), 50, mouse_Right);``
+*)
+
+type
+  ERandomStyle = (rndRandom, rndGauss, rndSkewed, rndRowp);
+
+  TMouseMovingEvent = procedure(Sender: Pointer; var X, Y: Double; var Done: Boolean);
+  TMouseMovedEvent = procedure(Sender: Pointer; X, Y: Int32);
+
+  TMouse = record
+    Speed: Int32;
+    Gravity, Wind: Double;
+    OnMoving: TMouseMovingEvent;
+    OnMoved: TMouseMovedEvent;
+  end;
+
+procedure TMouse.Setup;
+begin
+  Speed := 16;
+  Gravity := Random(8, 8.5);
+  Wind := Random(4.0, 4.5);
+end;
+
+procedure TMouse.SetPosition(P: TPoint);
+begin
+  if (@OnMoved <> nil) then
+    OnMoved(@Self, P.X, P.Y);
+
+  MoveMouse(P.X, P.Y);
+end;
+
+function TMouse.GetPosition: TPoint;
+begin
+  GetMousePos(Result.X, Result.Y);
+end;
+
+procedure TMouse.Hold(Button: Int32);
+var
+  P: TPoint;
+begin
+  if (not Button in [mouse_Left, mouse_Right, mouse_Middle]) then
+    RaiseException('Invalid mouse button');
+
+  P := Self.GetPosition();
+  HoldMouse(P.X, P.Y, Button);
+end;
+
+procedure TMouse.Release(Button: Int32);
+var
+  P: TPoint;
+begin
+  if (not Button in [mouse_Left, mouse_Right, mouse_Middle]) then
+    RaiseException('Invalid mouse button');
+
+  P := Self.GetPosition();
+  ReleaseMouse(P.X, P.Y, Button);
+end;
+
+procedure TMouse.WindMouse(xs, ys, xe, ye, gravity, wind, minWait, maxWait, maxStep, targetArea: Double);
+var
+  veloX, veloY, windX, windY, veloMag, dist, randomDist, step, maxStepStart: Double;
+  lastX, lastY: Int32;
+  sqrt2, sqrt3, sqrt5: Double;
+  T: UInt64;
+  Done: Boolean;
+begin
+  maxStepStart := maxStep;
+
+  sqrt2 := sqrt(2);
+  sqrt3 := sqrt(3);
+  sqrt5 := sqrt(5);
+
+  T := GetTickCount() + 15000;
+  while Hypot(xs - xe, ys - ye) > 1 do
+  begin
+    if (GetTickCount() > T) then
+      RaiseException('Mouse timed out');
+
+    if (@OnMoving <> nil) then
+    begin
+      OnMoving(@Self, xe, ye, Done);
+      if Done then
+        Exit;
+
+      dist := Hypot(xs - xe, ys - ye);
+      if (dist <= 1) then
+        Break;
+
+      if (dist > maxStepStart / 2) then
+        maxStep := maxStepStart;
+    end else
+      dist := Hypot(xs - xe, ys - ye);
+
+    wind := Min(wind, dist);
+
+    if dist >= targetArea then
+    begin
+      windX := windX / sqrt3 + (Random(Round(wind) * 2 + 1) - wind) / sqrt5;
+      windY := windY / sqrt3 + (Random(Round(wind) * 2 + 1) - wind) / sqrt5;
+    end else
+    begin
+      windX := windX / sqrt2;
+      windY := windY / sqrt2;
+      if (maxStep < 3) then
+        maxStep := Random(3) + 3.0
+      else
+        maxStep := maxStep / sqrt5;
+    end;
+    veloX := veloX + windX;
+    veloY := veloY + windY;
+    veloX := veloX + gravity * (xe - xs) / dist;
+    veloY := veloY + gravity * (ye - ys) / dist;
+    if (Hypot(veloX, veloY) > maxStep) then
+    begin
+      randomDist := maxStep / 2.0 + Random(round(maxStep) div 2);
+      veloMag := sqrt(veloX * veloX + veloY * veloY);
+      veloX := (veloX / veloMag) * randomDist;
+      veloY := (veloY / veloMag) * randomDist;
+    end;
+    lastX := Round(xs);
+    lastY := Round(ys);
+    xs := xs + veloX;
+    ys := ys + veloY;
+
+    if (lastX <> Round(xs)) or (lastY <> Round(ys)) then
+      Self.SetPosition(Point(Round(xs), Round(ys)));
+
+    step := Hypot(xs - lastX, ys - lastY);
+
+    Wait(Round((maxWait - minWait) * (step / maxStep) + minWait));
+  end;
+
+  Self.SetPosition(Point(Round(xe), Round(ye)));
+end;
+
+procedure TMouse.Move(P: TPoint);
+var
+  randSpeed: Double;
+begin
+  randSpeed := (Random(Self.Speed) / 2.0 + Self.Speed) / 10.0;
+
+  Self.WindMouse(Self.GetPosition().X, Self.GetPosition().Y, P.X, P.Y, Self.Gravity, Self.Wind,
+                 10.0 / randSpeed, 15.0 / randSpeed, 10.0 * randSpeed, 10.0 * randSpeed);
+end;
+
+procedure TMouse.Move(X, Y: Int32); overload;
+begin
+  Self.Move(Point(X, Y));
+end;
+
+procedure TMouse.Move(Box: TBox; ForcedMove: Boolean = False; RandomStyle: ERandomStyle = rndGauss); overload;
+begin
+  if PointInBox(Self.GetPosition(), Box) and (not ForcedMove) then
+    Exit;
+
+  case RandomStyle of
+    rndRandom: Self.Move(Point(Random(Box.X1, Box.X2), Random(Box.Y1, Box.Y2)));
+    rndGauss:  Self.Move(SRL.RandomPoint(Box));
+    rndSkewed: Self.Move(SRL.RandomPointEx(Self.GetPosition(), Box));
+    rndRowp:   Self.Move(SRL.Rowp(Self.GetPosition(), Box));
+  end;
+end;
+
+procedure TMouse.Move(Middle: TPoint; Radius: Int32; ForcedMove: Boolean = False); overload;
+var
+  P: TPoint;
+begin
+  if (not ForcedMove) then
+  begin
+    P := Self.GetPosition();
+    if Sqr(P.X - Middle.X) + Sqr(P.Y - Middle.Y) <= Sqr(Radius) then
+      Exit;
+  end;
+
+  Self.Move(srl.RandomPoint(Middle, Radius));
+end;
+
+procedure TMouse.Move(Rect: TRectangle; ForcedMove: Boolean = False); overload;
+begin
+  if (not ForcedMove) and Rect.Contains(Self.GetPosition()) then
+    Exit();
+
+  Self.Move(srl.RandomPoint(Rect));
+end;
+
+procedure TMouse.Click(Button: Integer);
+begin
+  Self.Hold(Button);
+  Wait(Trunc(srl.SkewedRand(60,45,350)));
+  Self.Release(Button);
+end;
+
+procedure TMouse.Click(P: TPoint; Button: Int32); overload;
+begin
+  if (Self.GetPosition() <> P) then
+  begin
+    Self.Move(P.X, P.Y);
+    Wait(Trunc(srl.SkewedRand(50,10,250)));
+  end;
+  Self.Click(Button);
+end;
+
+procedure TMouse.Click(X, Y: Integer;  Button: Integer); overload;
+begin
+  Self.Click(Point(X, Y), Button);
+end;
+
+procedure TMouse.Click(Box: TBox; Button: Integer; ForcedMove: Boolean = False; RandomStyle: ERandomStyle = rndGauss); overload;
+begin
+  Self.Move(Box, ForcedMove, RandomStyle);
+  Self.Click(Button);
+end;
+
+procedure TMouse.Click(Middle: TPoint; Radius, Button: Int32); overload;
+begin
+  Self.Click(srl.RandomPoint(Middle, Radius), Button);
+end;
+
+procedure TMouse.Click(Rect: TRectangle; Button: Integer; ForcedMove: Boolean = False); overload;
+begin
+  Self.Move(Rect, ForcedMove);
+  Self.Click(Button);
+end;
+
+procedure TMouse.Miss(P: TPoint; Correct: Boolean = False; CorrectDelay: Int32 = 0);
+var
+  mp: Int32;
+begin
+  mp := Round(Distance(Self.GetPosition().X, Self.GetPosition().Y, P.X, P.Y) / 150);
+  if (mp < 0) then
+    mp := 1;
+
+  Self.Move(Random(P.X - (Self.Speed * mp), P.X + (Self.Speed * mp)),
+            Random(P.Y - (Self.Speed * mp), P.Y + (Self.Speed * mp)));
+
+  if (Correct) then
+  begin
+    Wait(CorrectDelay);
+
+    Self.Move(P);
+  end;
+end;
+
+procedure TMouse.DragTo(P: TPoint; Button: Integer = mouse_Left);
+begin
+  Self.Hold(Button);
+  Wait(80, 120);
+  Self.Move(P);
+  Wait(80, 120);
+  Self.Release(Button);
+end;
+
+procedure TMouse.Scroll(Scrolls: Int32; Down: Boolean);
+var
+  i, step, k: Int32 = 1;
+  P: TPoint;
+  downInt, upInt: Int32;
+begin
+  {$IFDEF LINUX}
+    downInt := 1; upInt := -1;
+  {$ENDIF}
+  {$IFDEF WINDOWS}
+    downInt := -1; upInt := 1;
+  {$ENDIF}
+  {$IFDEF SMART}
+    downInt := 1; upInt := -1;
+  {$ENDIF}
+
+  P := Self.GetPosition();
+  step := Round(srl.GaussRand(6.0,0.6));
+  for i := 1 to Scrolls do
+  begin
+    if Down then
+      ScrollMouse(P.X, P.Y, downInt)
+    else
+      ScrollMouse(P.X, P.Y, upInt);
+
+    if k mod step = 0 then
+    begin
+      step := Round(srl.GaussRand(6.0,0.6));
+      Wait(215, 410);
+      k := 0;
+    end else
+      Wait(25, 46);
+
+    Inc(k);
+  end;
+end;
+
+procedure TMouse.Scroll(Target: TPoint; Scrolls: Int32; Down: Boolean); overload;
+begin
+  Self.Move(Target);
+  Self.Scroll(Scrolls, Down);
+end;
+
+procedure TMouse.Scroll(Box: TBox; Scrolls: Int32; Down: Boolean); overload;
+begin
+  Self.Move(Box);
+  Self.Scroll(Scrolls, Down);
+end;
+
+var
+  Mouse: TMouse;
+
+begin
+  Mouse.Setup();
+end;
+

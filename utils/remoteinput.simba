@@ -1,0 +1,31 @@
+{$loadlib ../plugins/libremoteinput}
+
+const
+  REMOTE_INPUT_LIB = {$macro CURRENT_DIRECTORY} + '/../plugins/libremoteinput' + {$IFDEF CPU64}'64'{$ELSE}'32'{$ENDIF} + '.' + SharedSuffix;
+
+type
+  TRemoteInput = record
+    EIOS: Pointer;
+  end;
+
+procedure TRemoteInput.Setup;
+var
+  Target: TOSWindow;
+  PID: UInt32;
+begin
+  Target := TOSWindow(GetNativeWindow());
+  PID := Target.GetPID();
+
+  RIInject(PID);
+
+  try
+    SetEIOSTarget(REMOTE_INPUT_LIB, IntToStr(PID));
+  except
+    TerminateScript('OSRS is not targeted');
+  end;
+
+  Self.EIOS := EIOS_PairClient(PID);
+end;
+
+var
+  RemoteInput: TRemoteInput;

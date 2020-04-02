@@ -1,0 +1,208 @@
+(*
+Slackdebug
+==========
+Slacky's little drawing util pack. 
+*)
+{$H-}
+(*
+.. pascal::
+   const
+     clProgRed    = $1F2164;
+     clProgBlue   = $783F37;
+     clProgGreen  = $26B58A;
+     clProgGreen2 = $12A20D;
+     clProgBrown  = $76ADB8;
+     clProgLBlue  = $B49946;
+     clProgOrange = $1493E2;
+     clProgPink   = $A869C9;
+     clProgYellow = $16D4F4;
+     clProgGray   = $B4BCBE;
+*)
+
+const
+  clProgRed    = $1F2164;
+  clProgBlue   = $783F37;
+  clProgGreen  = $26B58A;
+  clProgGreen2 = $12A20D;
+  clProgBrown  = $76ADB8;
+  clProgLBlue  = $B49946;
+  clProgOrange = $1493E2;
+  clProgPink   = $A869C9;
+  clProgYellow = $16D4F4;
+  clProgGray   = $B4BCBE;
+
+
+function TFont.Create(name:String; size:Int32; fs:TFontStyles; fq:TFontQuality): TFont; static;
+begin
+  Result.Init();
+  Result.SetName(name);
+  Result.SetSize(size);
+  Result.SetStyle(fs);
+  Result.SetQuality(fq);
+  Result.SetColor($FFFFFF);
+end;
+
+
+var
+  PROGGY_FONT := TFont.Create('Tahoma', 7, [fsBold], fqCleartype);
+
+
+procedure TMufasaBitmap.DrawText(txt:String; pt:TPoint; font:TFont;
+  color:Int32; align:Int32=0; shadow:Boolean=False; shadowDir:Byte=0); overload;
+var
+  bit:TBitmap;
+  muf,flipMuf:TMufasaBitmap;
+  W,H:Int32;
+begin
+  bit.Init();
+  bit.GetCanvas().SetFont(font);
+  bit.GetCanvas().GetBrush().SetStyle(bsClear);
+
+  W := bit.GetCanvas().TextWidth(txt);
+  H := bit.GetCanvas().TextHeight(txt);
+  bit.SetWidth(W+1);
+  bit.SetHeight(H+1);
+
+  if align then
+    pt := Point(pt.x-W, pt.y);
+
+  muf := self.Copy(pt.x,pt.y,pt.x+W,pt.y+H);
+  muf.DrawToCanvas(0,0,bit.getCanvas());
+
+  if Shadow then
+  begin
+    bit.getCanvas().getFont().setColor(1);
+    case ShadowDir of
+      0:bit.GetCanvas().TextOut(0,0,txt);
+      1:bit.GetCanvas().TextOut(1,0,txt);
+      2:bit.GetCanvas().TextOut(2,0,txt);
+      3:bit.GetCanvas().TextOut(2,1,txt);
+      4:bit.GetCanvas().TextOut(2,2,txt);
+      5:bit.GetCanvas().TextOut(1,2,txt);
+      6:bit.GetCanvas().TextOut(0,2,txt);
+      7:bit.GetCanvas().TextOut(0,1,txt);
+    end;
+    bit.GetCanvas().GetFont().SetColor(color);
+    bit.GetCanvas().TextOut(1,1,txt);
+  end else
+  begin
+    bit.GetCanvas().GetFont().SetColor(color);
+    bit.GetCanvas().TextOut(0,0,txt);
+  end;
+
+  muf.LoadFromTBitmap(bit);
+  muf.DrawTransparent(pt.x,pt.y,self);
+
+  muf.Free();
+  bit.Free();
+end;
+
+procedure TMufasaBitmap.DrawTextNL(txt:TStringArray; pos:TPoint; font:TFont;
+          color:Int32; align:Int32=0; shadow:Boolean=False; shadowDir:Byte=0);
+var
+  i,hei:Int32;
+begin
+  hei := Round(1.2 * abs(font.GetHeight()));
+  for i:=0 to High(txt) do
+  begin
+    Self.DrawText(txt[i],pos,font,color,align,shadow,shadowDir);
+    inc(pos.y,hei);
+  end;
+end;
+
+procedure TMufasaBitmap.DrawPrecentBar(pt:TPoint; w,h,percent:Int32; BgColor, BarColor:Int32; lText, rText:String);
+var
+  B:TBox;
+  tx,ty:Int32;
+begin
+  B := [pt.x,pt.y,pt.x+w-1,pt.y+h-1];
+  Self.DrawTPA(TPAFromBox(B), BgColor);
+  B.Expand(-2);
+  B.x2 := B.x1 + round(B.Width() * (percent*0.01));
+  Self.DrawTPA(TPAFromBox(B), BarColor);
+
+  tx := B.x1 + (W div 2) - 8;
+  ty := B.y1 + (H div 2) - Abs(PROGGY_FONT.GetHeight()) + 1;
+  Self.DrawText(ToStr(percent)+'%', Point(tx,ty), PROGGY_FONT, $FFFFFF);
+  Self.DrawText(lText,Point(b.x1+4,ty),   PROGGY_FONT, $FFFFFF, 0, True, 4);
+  Self.DrawText(rText,Point(pt.x+w-5,ty), PROGGY_FONT, $FFFFFF, 1, True, 4);
+end;
+
+(*
+TMufasaBitmap.DrawSkillReport
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: 
+  function TMufasaBitmap.DrawSkillReport(At: TPoint; Color:Int32; CurrentXP, GainedXP, Objectives: Int32; Skill:String=''): TBox;
+
+Draws a skill report at the given location. Color can be just about any color, it will be adjusted
+automatically to look as good as possible.
+ 
+You have to track your XP, gained XP, and how many "objects" you have complted yourself in your script. 
+This is only for debugging that.
+*)
+function TMufasaBitmap.DrawSkillReport(At: TPoint; Color:Int32; CurrentXP, GainedXP, Objectives: Int32; Skill:String=''): TBox;
+var
+  w,h,z,currLvl,atNextLvl,atCurrLvl,rem,percent: Int32;
+  runtime: UInt32;
+  txt1,txt2: TStringArray;
+  buffer: TMufasaBitmap;
+  Hue,S,L:Extended;
+
+  function Light(Color: TColor): Double;
+  begin
+    Result := (0.12 * (Color and $FF) + 0.58 * (Color shr 8  and $FF) + 0.30 * (Color shr 16 and $FF)) / 3;
+  end;
+begin
+  if Skill <> '' then z := 6;
+  Result := [At.X, At.Y, At.X+215, At.Y+50+z];
+  W := Result.Width;
+  H := Result.Height;
+
+  ColorToHSL(Color, Hue,S,L);
+
+  runtime := GetTimeRunning();
+  currLvl   := srl.GetLevelAtXP(CurrentXP);
+  atCurrLvl := srl.GetXPAtLevel(currLvl);
+  atNextLvl := srl.GetXPAtLevel(currLvl+1);
+  rem       := atNextLvl - CurrentXP;
+  percent   := 100 - Round(rem / (atNextLvl - atCurrLvl) * 100);
+
+  try
+    buffer.Init(client.GetMBitmaps);
+    buffer.SetSize(W,H);
+
+    buffer.DrawBox(Box(0,z,W-1,H-1), True, HSLToColor(Hue, S*0.5, Min(24,L*0.7)));
+    buffer.DrawTPA([[0,z],[W-1,z],[0,H-1],[W-1,H-1]], 0);
+
+    buffer.DrawPrecentBar(
+      [3,3+z], 210, 20, percent,    //pos, w,h, percent
+      HSLToColor(Hue, S*0.6, Min(15,Light(Color)*0.25)), Color, //colors
+      'Lvl: '+ToStr(CurrLvl),          //left-text
+      'Lvl: '+ToStr(CurrLvl+1)         //right-text
+    );
+
+    txt1 := ['Uptime: '     + srl.MsToTime(runtime, Time_Bare),
+             'Exp Gained: ' + srl.FormatNumber(GainedXP, 1)];
+    txt2 := ['Exp/Hour: '   + srl.FormatNumber(GainedXP / (runtime / ONE_HOUR), 1),
+             'Count: '      + ToStr(Objectives)];
+
+    buffer.DrawTextNL(txt1, Point(3,  24+z), PROGGY_FONT, $FFFFFF, 0, True, 4);
+    buffer.DrawTextNL(txt2, Point(115,24+z), PROGGY_FONT, $FFFFFF, 0, True, 4);
+
+    if Skill <> '' then
+      buffer.DrawText(Skill, Point(5,0), PROGGY_FONT, $FFFFFF);
+
+    buffer.DrawTransparent(At.X,At.Y, Self);
+  except
+    WriteLn('Error: DrawSkillReport -> Something went wrong');
+  finally
+    buffer.Free();
+  end;
+end;
+
+
+begin
+  AddOnTerminate(@PROGGY_FONT.Free);
+end;
+
+{$IFDEF !HAD_HINTS}{$H+}{$ENDIF}

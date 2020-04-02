@@ -1,0 +1,53 @@
+const
+  mouse_Move = 3;
+  
+const
+  VK_ENTER = VK_RETURN;
+
+const
+  clBlack      = TColor($000000);
+  clMaroon     = TColor($000080);
+  clGreen      = TColor($008000);
+  clOlive      = TColor($008080);
+  clNavy       = TColor($800000);
+  clPurple     = TColor($800080);
+  clTeal       = TColor($808000);
+  clRed        = TColor($0000FF);
+  clLime       = TColor($00FF00);
+  clYellow     = TColor($00FFFF);
+  clBlue       = TColor($FF0000);
+  clFuchsia    = TColor($FF00FF);
+  clAqua       = TColor($FFFF00);
+  clGray       = TColor($808080);
+  clSilver     = TColor($C0C0C0);
+  clLtGray     = TColor($C0C0C0);
+  clMedGray    = TColor($A4A0A0);
+  clDkGray     = TColor($808080);
+  clWhite      = TColor($FFFFFF);
+  clMoneyGreen = TColor($65BB85);
+  clSkyBlue    = TColor($F0CAA6);
+  clCream      = TColor($F0FBFF);
+  clPink       = TColor($B3A2EA);
+  clOrange     = TColor($0099FF);
+
+{$ifndecl LineEnding}
+const
+  LineEnding = #13#10;
+{$endif}
+
+
+// ---------------------------------------------------------------------------------------------
+// Some types may need to be declared early on so that they can be used throughout the include
+// You may do so bellow
+type
+  TRectangle = record 
+    Top, Right, Btm, Left: TPoint; 
+  end; 
+  TRectArray = array of TRectangle;
+  
+  TCircle = record 
+    X,Y:Int32; 
+    Radius: Int32; 
+  end;
+  TCircleArray = array of TCircle;
+

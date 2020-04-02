@@ -1,0 +1,52 @@
+(*
+Slacktree
+==========
+Slacktree offers a KD-tree like tree-structure speicalized for TPointArrays (2D Points). 
+
+Adds fast alteratives to the most popular functions found in the AND_TPA.dll ``FilterTPADistTPA``. 
+The library loaded may not work properly on Linux distors.
+*)
+{$loadlib ../Includes/SRL/utils/slacktree/libslacktree}
+
+(*
+TPointArray.PointsInRangeOf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: 
+  function TPointArray.PointsInRangeOf(Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref;
+
+Returns all the points from `self` that are within range of any point in `other`.
+The parameters `mindist` and `maxdist` determine what "within range" means.
+*)
+function TPointArray.PointsInRangeOf(Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref;
+var
+  tree: TSlackTree;
+  pt: TPoint;
+begin
+  if (Length(Self) > 0) and (Length(Other) > 0) then
+  begin
+    tree.Init(Copy(Self));
+    for pt in Other do
+      Result += tree.RangeQueryEx(pt, minDist,minDist, maxDist,maxDist, True);
+  end;
+end;
+
+(*
+TPointArray.PointsInRangeOf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: 
+  function TPointArray.PointsInRangeOf(Other: TPointArray; minDx, minDy, maxDx, maxDy: Int32): TPointArray; constref; overload;
+
+Same as the above but lets you specify X- and Y-wise min & max distance separately.
+*)
+function TPointArray.PointsInRangeOf(Other: TPointArray; minDx, minDy, maxDx, maxDy: Int32): TPointArray; constref; overload;
+var
+  tree: TSlackTree;
+  pt: TPoint;
+begin
+  if (Length(Self) > 0) and (Length(Other) > 0) then
+  begin
+    tree.Init(Copy(Self));
+    for pt in Other do
+      Result += tree.RangeQueryEx(pt, minDx, minDy, maxDx, maxDy, True);
+  end;
+end;

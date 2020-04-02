@@ -1,0 +1,7 @@
+{$DEFINE REMOTEINPUT}
+{$I SRL/osr.simba}
+
+begin
+  SRL.Setup(RS_CLIENT_RESIZABLE_CLASSIC);
+  SRL.Debug();
+end.

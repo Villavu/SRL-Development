@@ -1,0 +1,46 @@
+{$DEFINE SRL_OCR_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+{$loadlib ../plugins/libsimpleocr}
+
+const
+  RS_FONT_PATH = {$macro CURRENT_DIRECTORY} + '/../fonts/';
+
+const
+  RS_FONT_PLAIN_11 = 'Plain 11';
+  RS_FONT_PLAIN_12 = 'Plain 12';
+  RS_FONT_BOLD_12 = 'Bold 12';
+  RS_FONT_BOLD_12_SHADOW = 'Bold 12 Shadow';
+  RS_FONT_QUILL_8 = 'Quill 8';
+  RS_FONT_QUILL = 'Quill';
+
+var
+  RS_FONTSET_PLAIN_11: TFontSet;
+  RS_FONTSET_PLAIN_12: TFontSet;
+  RS_FONTSET_BOLD_12: TFontSet;
+  RS_FONTSET_BOLD_12_SHADOW: TFontSet;
+  RS_FONTSET_QUILL_8: TFontSet;
+  RS_FONTSET_QUILL: TFontSet;
+
+var
+  OCR: TSimpleOCR;
+
+begin
+  // Simba OCR
+  LoadFont(RS_FONT_PATH + RS_FONT_PLAIN_11, False);
+  LoadFont(RS_FONT_PATH + RS_FONT_PLAIN_12, False);
+  LoadFont(RS_FONT_PATH + RS_FONT_BOLD_12, False);
+  LoadFont(RS_FONT_PATH + RS_FONT_BOLD_12_SHADOW, False);
+  LoadFont(RS_FONT_PATH + RS_FONT_QUILL_8, False);
+  LoadFont(RS_FONT_PATH + RS_FONT_QUILL, False);
+
+  // SimpleOCR
+  RS_FONTSET_PLAIN_11.Load(RS_FONT_PATH + RS_FONT_PLAIN_11);
+  RS_FONTSET_PLAIN_12.Load(RS_FONT_PATH + RS_FONT_PLAIN_12);
+  RS_FONTSET_BOLD_12.Load(RS_FONT_PATH + RS_FONT_BOLD_12);
+  RS_FONTSET_BOLD_12_SHADOW.Load(RS_FONT_PATH + RS_FONT_BOLD_12_SHADOW);
+  RS_FONTSET_QUILL_8.Load(RS_FONT_PATH + RS_FONT_QUILL_8);
+  RS_FONTSET_QUILL.Load(RS_FONT_PATH + RS_FONT_QUILL);
+end;

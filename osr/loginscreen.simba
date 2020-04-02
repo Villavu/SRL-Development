@@ -1,0 +1,290 @@
+{$DEFINE SRL_LOGINSCREEN_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+const
+  LOGIN_BUTTON_WORLD_SWITCHER := TRSInterfaceButton.Create('Click to switch', RS_FONTSET_PLAIN_11, $FFFFFF);
+  LOGIN_BUTTON_WORLD_SWITCHER_CLOSE := TRSInterfaceButton.Create('Cancel', RS_FONTSET_PLAIN_11, $FFFFFF);
+  LOGIN_BUTTON_EXISTING_USER := TRSInterfaceButton.Create('Existing User', RS_FONTSET_BOLD_12, $FFFFFF);
+  LOGIN_BUTTON_LOGIN := TRSInterfaceButton.Create('Login ', RS_FONTSET_BOLD_12, $FFFFFF);
+  LOGIN_BUTTON_LOGIN_FIELD := TRSInterfaceButton.Create('Login:', RS_FONTSET_BOLD_12, $FFFFFF);
+  LOGIN_BUTTON_PASSWORD_FIELD := TRSInterfaceButton.Create('Password:', RS_FONTSET_BOLD_12, $FFFFFF);
+  LOGIN_BUTTON_OK := TRSInterfaceButton.Create(' Ok ', RS_FONTSET_BOLD_12, $FFFFFF);
+  LOGIN_BUTTON_TRY_AGAIN := TRSInterfaceButton.Create('Try again', RS_FONTSET_PLAIN_12, $FFFFFF);
+
+  LOGIN_BUTTON_WORLD_SWITCHER_NEXT := TRSInterfaceButton.Create('worldswitcher_next_page.png');
+
+type
+  TRSLoginScreen = type TRSInterface;
+
+  ERSLoginMessage = (
+    LOGIN_MESSAGE_NONE,
+    LOGIN_MESSAGE_CONNECTING,
+    LOGIN_MESSAGE_INVALID_CREDENTIALS,
+    LOGIN_MESSAGE_NEED_SKILL_TOTAL,
+    LOGIN_MESSAGE_INVALID_USER_PASS,
+    LOGIN_MESSAGE_ERROR_CONNECTING,
+    LOGIN_MESSAGE_ACCOUNT_NOT_LOGGED_OUT,
+    LOGIN_MESSAGE_LOGIN_SERVER_OFFLINE,
+    LOGIN_MESSAGE_ERROR_LOADING_PROFILE,
+    LOGIN_MESSAGE_CONNECTION_TIMED_OUT,
+    LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED,
+    LOGIN_MESSAGE_WORLD_FULL,
+    LOGIN_MESSAGE_ACCOUNT_DISABLED,
+    LOGIN_MESSAGE_MEMBERS,
+    LOGIN_MESSAGE_IN_MEMBERS_AREA
+  );
+
+  TRSLoginMessageStrings = array[ERSLoginMessage] of String;
+
+const
+  LOGIN_MESSAGE_STRINGS: TRSLoginMessageStrings = [
+    '',
+    'Connecting to server...',
+    'Invalid credentials',
+    'You need a skill total of',
+    'Please enter your username/email address.',
+    'Error connecting to server.',
+    'Your account has not logged out',
+    'Login server offline.',
+    'Error loading your profile.',
+    'Connection timed out.',
+    'Login limit exceeded',
+    'This world is full',
+    'Your account has been disabled',
+    'You need a members account',
+    'You are standing in a members-only area'
+  ];
+
+function TRSLoginScreen.IsWorldSwitcherOpen: Boolean; overload;
+begin
+  Result := Self.FindButton(LOGIN_BUTTON_WORLD_SWITCHER_CLOSE);
+end;
+
+function TRSLoginScreen.IsWorldSwitcherOpen(WaitTime: Int32): Boolean; overload;
+var
+  T: UInt64;
+begin
+  T := GetTickCount() + WaitTime;
+
+  while (T > GetTickCount()) do
+  begin
+    if Self.IsWorldSwitcherOpen() then
+      Exit(True);
+
+    Wait(0, 1000, wdLeft);
+  end;
+end;
+
+function TRSLoginScreen.OpenWorldSwitcher: Boolean;
+begin
+  Result := Self.ClickButton(LOGIN_BUTTON_WORLD_SWITCHER, MOUSE_LEFT) and Self.IsWorldSwitcherOpen(10000);
+end;
+
+function TRSLoginScreen.CloseWorldSwitcher: Boolean;
+begin
+  Result := Self.ClickButton(LOGIN_BUTTON_WORLD_SWITCHER_CLOSE, MOUSE_LEFT);
+end;
+
+function TRSLoginScreen.SwitchToWorld(World: Int32): Boolean;
+var
+  B: TBox;
+begin
+  if not Self.OpenWorldSwitcher() then
+    Exit;
+
+  try
+    repeat
+      Wait(300, 3000, wdLeft);
+
+      with Self.Bounds() do
+      begin
+        if FindTextColor(IntToStr(World), RS_FONT_BOLD_12, $000000, 0, X1, Y1, X2, Y2, B) = 1 then
+        begin
+          Mouse.Click(B, MOUSE_LEFT);
+
+          Exit(True);
+        end;
+      end;
+    until not Self.ClickButton(LOGIN_BUTTON_WORLD_SWITCHER_NEXT, MOUSE_LEFT);
+  finally
+    Self.CloseWorldSwitcher();
+  end;
+end;
+
+procedure TRSLoginScreen.CloseDialogs;
+begin
+  if Self.ClickButton(LOGIN_BUTTON_ok, MOUSE_LEFT) then
+    Self.Debug('"Ok" dialog closed');
+  if Self.ClickButton(LOGIN_BUTTON_TRY_AGAIN, MOUSE_LEFT) then
+    Self.Debug('"Try again" dialog closed');
+end;
+
+function TRSLoginScreen.IsOpen: Boolean;
+begin
+  Self.CloseWorldSwitcher();
+  Self.CloseDialogs();
+
+  Result := Self.FindButton(LOGIN_BUTTON_WORLD_SWITCHER);
+end;
+
+function TRSLoginScreen.EnterLogin(S: String): Boolean;
+var
+  Field: TBox;
+  T: UInt64;
+begin
+  if Self.FindButton(LOGIN_BUTTON_EXISTING_USER) and (not Self.ClickButton(LOGIN_BUTTON_EXISTING_USER, MOUSE_LEFT)) then
+    Exit(False);
+
+  if Self.FindButton(LOGIN_BUTTON_LOGIN_FIELD, Field) then
+  begin
+    Field.X1 := Field.X2;
+    Field.X2 += 250;
+
+    if FindTextColor(S + ' ', RS_FONT_BOLD_12, $FFFFFF, 0, Field.X1, Field.Y1, Field.X2, Field.Y2, 1) then
+      Exit(True);
+
+    Field.Y1 += 2;
+    Field.Y2 -= 2;
+
+    while Self.IsOpen() do
+    begin
+      T := GetTickCount() + Round(SRL.TruncatedGauss(600, 1200));
+      while (T > GetTickCount()) do
+      begin
+        if SRL.CountColor(CTS0($00FFFF), Field) > 0 then
+          Break(2);
+
+        Wait(0, 1000, wdLeft);
+      end;
+
+      Keyboard.PressKey(VK_TAB);
+    end;
+
+    while SRL.CountColor(CTS0($FFFFFF), Field) > 0 do
+      Keyboard.PressKey(VK_BACK);
+
+    Keyboard.Send(S);
+  end;
+end;
+
+function TRSLoginScreen.EnterPassword(S: String): Boolean;
+var
+  Field: TBox;
+  T: UInt64;
+begin
+  if Self.FindButton(LOGIN_BUTTON_EXISTING_USER) and (not Self.ClickButton(LOGIN_BUTTON_EXISTING_USER, MOUSE_LEFT)) then
+    Exit(False);
+
+  if Self.FindButton(LOGIN_BUTTON_PASSWORD_FIELD, Field) then
+  begin
+    Field.X1 := Field.X2;
+    Field.X2 += 250;
+    Field.Y1 += 2;
+    Field.Y2 -= 2;
+
+    while Self.IsOpen() do
+    begin
+      T := GetTickCount() + Round(SRL.TruncatedGauss(600, 1200));
+      while (T > GetTickCount()) do
+      begin
+        if SRL.CountColor(CTS0($00FFFF), Field) > 0 then
+          Break(2);
+
+        Wait(0, 1000, wdLeft);
+      end;
+
+      Keyboard.PressKey(VK_TAB);
+    end;
+
+    while SRL.CountColor(CTS0($FFFFFF), Field) > 0 do
+      Keyboard.PressKey(VK_BACK);
+
+    Keyboard.Send(S);
+  end;
+end;
+
+function TRSLoginScreen.FindLoginMessage(Message: ERSLoginMessage): Boolean;
+begin
+  with Self.Bounds() do
+    Result := FindTextColor(LOGIN_MESSAGE_STRINGS[Message], RS_FONT_BOLD_12, $00FFFF, 0, X1, Y1, X2, Y2, 1);
+end;
+
+function TRSLoginScreen.Login: ERSLoginMessage;
+var
+  I: Int32;
+  Message: ERSLoginMessage;
+begin
+  Keyboard.PressKey(VK_ENTER);
+
+  // Wait for connecting message
+  while (not Self.FindLoginMessage(LOGIN_MESSAGE_CONNECTING)) do
+    Sleep(100);
+
+  while Self.IsOpen() do
+  begin
+    // No connecting message, something happened
+    if not Self.FindLoginMessage(LOGIN_MESSAGE_CONNECTING) then
+    begin
+      for I := Ord(LOGIN_MESSAGE_CONNECTING) + 1 to High(LOGIN_MESSAGE_STRINGS) do
+      begin
+        Message := ERSLoginMessage(I);
+
+        if Self.FindLoginMessage(Message) then
+          Exit(Message);
+      end;
+
+      SaveScreenshot('unknown_login_response.png');
+
+      raise '[LOGIN]: Unknown login response';
+    end;
+
+    Wait(100, 1000, wdLeft);
+  end;
+end;
+
+function TRSLoginScreen.GetCurrentWorld: Int32;
+var
+  B: TBox;
+begin
+  Result := -1;
+
+  with Self.Bounds() do
+    if FindText('World', RS_FONT_BOLD_12, X1, Y1, X2, Y2, B) = 1 then
+    begin
+      B.X2 += 40;
+
+      Result := StrToIntDef(ExtractFromStr(OCR.Recognize($FFFFFF, 0, B, RS_FONTSET_BOLD_12), Numbers), -1);
+    end;
+end;
+
+procedure TRSLoginScreen.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+end;
+
+procedure TRSLoginScreen.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'Login Screen';
+
+  if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
+  begin
+    Self.Alignment.Left := [@RootInterface.X1];
+    Self.Alignment.Right := [@RootInterface.X2];
+    Self.Alignment.Top := [@RootInterface.Y1];
+    Self.Alignment.Bottom := [@RootInterface.Y1, 502];
+    Self.Alignment.Center := [764, 0];
+  end;
+end;
+
+var
+  LoginScreen: TRSLoginScreen;
+
+begin
+  SRL.AddSetupMethod(@LoginScreen.Setup);
+  SRL.AddDebugMethod(@LoginScreen.Debug);
+end;

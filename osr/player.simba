@@ -1,0 +1,145 @@
+{$DEFINE SRL_PLAYER_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  PRSPlayer = ^TRSPlayer;
+
+  TRSPlayer_OnLoginEvent = procedure(Player: PRSPlayer);
+
+  TRSPlayer = record
+    LoginName: String;
+    Password: String;
+    Member: Boolean;
+    Worlds: TIntegerArray;
+
+    // User Data
+    Data: Pointer;
+    Variants: TVariantArray;
+
+    OnLogin: TRSPlayer_OnLoginEvent;
+  end;
+
+  TRSPlayerArray = array of TRSPlayer;
+
+var
+  Players: TRSPlayerArray;
+
+var
+  CurrentPlayer: Int32;
+
+procedure TRSPlayerArray.Add(LoginName: String; Password: String; Member: Boolean; Worlds: TIntegerArray = []);
+var
+  Player: TRSPlayer;
+begin
+  Player.LoginName := LoginName;
+  Player.Password := Password;
+  Player.Member := Member;
+  Player.Worlds := Worlds;
+
+  SetLength(Player.Variants, 100);
+
+  Self := Self + Player;
+end;
+
+procedure TRSPlayerArray.AddLoginHandler(Handler: TRSPlayer_OnLoginEvent);
+var
+  I: Int32;
+begin
+  for I := 0 to High(Self) do
+    Self[I].OnLogin := @Handler;
+end;
+
+procedure TRSPlayerArray.SwitchTo(Index: Int32);
+begin
+  CurrentPlayer := Index;
+  if not InRange(CurrentPlayer, Low(Self), High(Self)) then
+    raise 'Invalid player index: ' + ToString(CurrentPlayer);
+end;
+
+function TRSPlayer.Login: Boolean;
+var
+  Player: TRSPlayer;
+  Response: ERSLoginMessage;
+  World: Int32;
+  Attempts: Int32;
+begin
+  if SRL.IsLoggedIn() then
+    Exit(True);
+
+  SRL.WriteLn('[Login]: Logging in player');
+
+  while not SRL.IsLoggedIn() do
+  begin
+    if LobbyScreen.IsOpen() and LobbyScreen.ClickButton(LOBBY_BUTTON_PLAY, MOUSE_LEFT) and SRL.IsLoggedIn(5000) then
+      Break;
+
+    if LoginScreen.IsOpen() then
+    begin
+      if (Length(Player.Worlds) > 0) and (not (LoginScreen.GetCurrentWorld() in Player.Worlds)) then
+      begin
+        World := Player.Worlds[Random(Length(Player.Worlds))];
+        if not LoginScreen.SwitchToWorld(World) then
+          raise 'Unable to switch to world ' + ToString(World);
+      end;
+
+      LoginScreen.EnterLogin(Self.LoginName);
+      LoginScreen.EnterPassword(Self.Password);
+
+      Response := LoginScreen.Login();
+
+      if (Response <> LOGIN_MESSAGE_NONE) then
+      begin
+        SRL.WriteLn('[Login]: Handling login response: ' + ToString(Response));
+
+        case Response of
+          // Retry
+          LOGIN_MESSAGE_INVALID_CREDENTIALS,
+          LOGIN_MESSAGE_INVALID_USER_PASS:
+            ;
+
+          // Cannot recover
+          LOGIN_MESSAGE_MEMBERS,
+          LOGIN_MESSAGE_IN_MEMBERS_AREA,
+          LOGIN_MESSAGE_NEED_SKILL_TOTAL,
+          LOGIN_MESSAGE_ACCOUNT_DISABLED:
+            Exit(False);
+
+          // Wait a little before retrying
+          LOGIN_MESSAGE_ERROR_CONNECTING,
+          LOGIN_MESSAGE_ACCOUNT_NOT_LOGGED_OUT,
+          LOGIN_MESSAGE_LOGIN_SERVER_OFFLINE,
+          LOGIN_MESSAGE_ERROR_LOADING_PROFILE,
+          LOGIN_MESSAGE_CONNECTION_TIMED_OUT,
+          LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED,
+          LOGIN_MESSAGE_WORLD_FULL:
+            Wait(10000, 20000);
+
+          // Unhandled
+          else
+            raise '[Login]: No handler for response';
+        end;
+      end;
+    end;
+
+    Inc(Attempts);
+
+    if Attempts >= 10 then
+    begin
+      SRL.WriteLn('[Login]: Too many attempts, exiting');
+
+      Break;
+    end;
+
+    Wait(500);
+  end;
+
+  if SRL.IsLoggedIn() then
+  begin
+    if (@Self.OnLogin <> nil) then
+      Self.OnLogin(@Self);
+
+    Exit(True);
+  end;
+end;

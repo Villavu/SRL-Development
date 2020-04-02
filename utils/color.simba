@@ -1,0 +1,181 @@
+(*
+Color
+======
+Color finding related methods
+*)
+type
+  TCTS0Color = record
+    Color: Int32;
+    Tolerance: Int32;
+  end;
+
+  TCTS1Color = record
+    Color: Int32;
+    Tolerance: Int32;
+    _: Int32; // Needed so CTS0 and CTS1 aren't equal
+  end;
+
+  TCTS2Color = record
+    Color: Int32;
+    Tolerance: Int32;
+    HueMod: Extended;
+    SatMod: Extended;
+  end;
+
+(*
+CTS0, CTS1, CTS2
+~~~~~~~~~~~~~~~~
+.. pascal::
+  function CTS0(Color, Tolerance: Int32): TCTSColor;
+  function CTS1(Color, Tolerance: Int32): TCTS1Color;
+  function CTS2(Color, Tolerance: Int32; HueMod:Extended=0.2; SatMod:Extended=0.2): TCTS2Color;
+  
+Used for declaring colors using the different CTS settings.
+*)
+function CTS0(Color: Int32; Tolerance: Int32 = 0): TCTS0Color;
+begin
+  Result := [Color, Tolerance];
+end;
+
+function CTS1(Color, Tolerance: Int32): TCTS1Color;
+begin
+  Result := [Color, Tolerance];
+end;
+
+function CTS2(Color, Tolerance: Int32; HueMod: Extended = 0.2; SatMod: Extended = 0.2): TCTS2Color;
+begin
+  Result := [Color, Tolerance, HueMod, SatMod];
+end;
+
+// -----------------------------------------------------------------------------
+// Find Colors
+
+function TSRL.FindColorsHelper(out TPA: TPointArray; Area: TBox; Color, Tol, CTS: Integer; Hue, Sat: Extended = 0.2): Int32; constref;
+type
+  TCTSContainer = record CTS: Int32; Hue, Sat: Extended; end;
+var
+  Old: TCTSContainer;
+begin
+  Old.CTS := GetToleranceSpeed();
+  if (Old.CTS = 2) then
+    GetToleranceSpeed2Modifiers(Old.Hue, Old.Sat);
+
+  SetColorToleranceSpeed(CTS);
+  SetToleranceSpeed2Modifiers(Hue, Sat);
+
+  if FindColorsTolerance(TPA, Color, Area.X1, Area.Y1, Area.X2, Area.Y2, Tol) then
+    Result := Length(TPA);
+
+  SetColorToleranceSpeed(Old.CTS);
+  if (Old.CTS = 2) then
+    SetToleranceSpeed2Modifiers(Old.Hue, Old.Sat);
+end;
+
+(*
+srl.FindColors
+~~~~~~~~~~~~~~~
+.. pascal::
+  function TSRL.FindColors(out TPA: TPointArray; Color: TCTSColor;  Area: TBox): UInt32; constref;
+  function TSRL.FindColors(out TPA: TPointArray; Color: TCTS1Color; Area: TBox): UInt32; constref;
+  function TSRL.FindColors(out TPA: TPointArray; Color: TCTS2Color; Area: TBox): UInt32; constref;
+
+Searches for the given Color, returns the resulting points in the TPA.
+*)
+function TSRL.FindColors(out TPA: TPointArray; Color: TCTS0Color; Area: TBox): Int32; constref; overload;
+begin
+  Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 0);
+end;
+
+function TSRL.FindColors(out TPA: TPointArray; Color: TCTS1Color; Area: TBox): Int32; constref; overload;
+begin
+  Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 1);
+end;
+
+function TSRL.FindColors(out TPA: TPointArray; Color: TCTS2Color; Area: TBox): Int32; constref; overload;
+begin
+  Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 2, Color.HueMod, Color.SatMod);
+end;
+
+function TSRL.FindColorsArray(out TPA: TPointArray; Colors: array of TCTS0Color; Area: TBox): Int32; constref; overload;
+var
+  ATPA: T2DPointArray;
+  i: Int32;
+begin
+  SetLength(ATPA, Length(Colors));
+
+  for i := 0 to High(Colors) do
+    Result := Result + Self.FindColorsHelper(ATPA[i], Area, Colors[i].Color, Colors[i].Tolerance, 0);
+
+  TPA := ATPA.Merge();
+end;
+
+function TSRL.FindColorsArray(out TPA: TPointArray; Colors: array of TCTS1Color; Area: TBox): Int32; constref; overload;
+var
+  ATPA: T2DPointArray;
+  i: Int32;
+begin
+  SetLength(ATPA, Length(Colors));
+
+  for i := 0 to High(Colors) do
+    Result := Result + Self.FindColorsHelper(ATPA[i], Area, Colors[i].Color, Colors[i].Tolerance, 1);
+
+  TPA := ATPA.Merge();
+end;
+
+function TSRL.FindColorsArray(out TPA: TPointArray; Colors: array of TCTS2Color; Area: TBox): Int32; constref; overload;
+var
+  ATPA: T2DPointArray;
+  i: Int32;
+begin
+  SetLength(ATPA, Length(Colors));
+
+  for i := 0 to High(Colors) do
+    Result := Result + Self.FindColorsHelper(ATPA[i], Area, Colors[i].Color, Colors[i].Tolerance, 2, Colors[i].HueMod, Colors[i].SatMod);
+
+  TPA := ATPA.Merge();
+end;
+
+function TSRL.CountColor(Color: TCTS0Color; Area: TBox): Int32; overload;
+var
+  TPA: TPointArray;
+begin
+  Result := Self.FindColors(TPA, Color, Area);
+end;
+
+function TSRL.CountColor(Color: TCTS1Color; Area: TBox): Int32; overload;
+var
+  TPA: TPointArray;
+begin
+  Result := Self.FindColors(TPA, Color, Area);
+end;
+
+function TSRL.CountColor(Color: TCTS2Color; Area: TBox): Int32; overload;
+var
+  TPA: TPointArray;
+begin
+  Result := Self.FindColors(TPA, Color, Area);
+end;
+
+function TSRL.WaitDTM(DTM: Integer; out pt: TPoint; Area: TBox; WaitTime: Integer): Boolean; constref;
+var
+  t: UInt64;
+begin
+  t := GetTickCount() + WaitTime;
+  repeat
+    if FindDTM(DTM, pt.x, pt.y, Area.X1, Area.Y1, Area.X2, Area.Y2) then
+      Exit(True);
+    Wait(Random(50, 100));
+  until (GetTickCount() > t);
+end;
+
+function TSRL.WaitBitmap(BMP, Tolerance: Integer; out pt: TPoint; Area: TBox; WaitTime: Integer): Boolean; constref;
+var
+  t: UInt64;
+begin
+  t := GetTickCount() + WaitTime;
+  repeat
+    if (FindBitmapToleranceIn(BMP, pt.x, pt.y, Area.X1, Area.Y1, Area.X2, Area.Y2, Tolerance)) then
+      Exit(True);
+    Wait(Random(50, 100));
+  until (GetTickCount() > t);
+end;

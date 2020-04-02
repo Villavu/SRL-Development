@@ -1,0 +1,226 @@
+{$DEFINE SRL_OPTIONS_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+const
+  OPTIONS_BUTTON_DISPLAY_OFF := TRSInterfaceButton.Create('options_display_off.png');
+  OPTIONS_BUTTON_DISPLAY_HOVER_OFF := TRSInterfaceButton.Create('options_display_off_hover.png');
+  OPTIONS_BUTTON_DISPLAY_ON := TRSInterfaceButton.Create('options_display_on.png');
+  OPTIONS_BUTTON_DISPLAY_HOVER_ON := TRSInterfaceButton.Create('options_display_on_hover.png');
+
+  OPTIONS_BUTTON_AUDIO_OFF := TRSInterfaceButton.Create('options_audio_off.png');
+  OPTIONS_BUTTON_AUDIO_HOVER_OFF := TRSInterfaceButton.Create('options_audio_off_hover.png');
+  OPTIONS_BUTTON_AUDIO_ON := TRSInterfaceButton.Create('options_audio_on.png');
+  OPTIONS_BUTTON_AUDIO_HOVER_ON := TRSInterfaceButton.Create('options_audio_on_hover.png');
+
+  OPTIONS_BUTTON_CHAT_OFF := TRSInterfaceButton.Create('options_chat_off.png');
+  OPTIONS_BUTTON_CHAT_HOVER_OFF := TRSInterfaceButton.Create('options_chat_off_hover.png');
+  OPTIONS_BUTTON_CHAT_ON := TRSInterfaceButton.Create('options_chat_on.png');
+  OPTIONS_BUTTON_CHAT_HOVER_ON := TRSInterfaceButton.Create('options_chat_on_hover.png');
+
+  OPTIONS_BUTTON_CONTROLS_OFF := TRSInterfaceButton.Create('options_controls_off.png');
+  OPTIONS_BUTTON_CONTROLS_HOVER_OFF := TRSInterfaceButton.Create('options_controls_off_hover.png');
+  OPTIONS_BUTTON_CONTROLS_ON := TRSInterfaceButton.Create('options_controls_on.png');
+  OPTIONS_BUTTON_CONTROLS_HOVER_ON := TRSInterfaceButton.Create('options_controls_on_hover.png');
+
+  OPTIONS_BUTTON_SHIFT_DROP_ON := TRSInterfaceButton.Create('options_shift_drop_on.png');
+  OPTIONS_BUTTON_SHIFT_DROP_OFF := TRSInterfaceButton.Create('options_shift_drop_off.png');
+
+type
+  TRSOptions = type TRSInterface;
+
+  ERSOptionsTab = (OPTIONS_TAB_DISPLAY, OPTIONS_TAB_AUDIO, OPTIONS_TAB_CHAT, OPTIONS_TAB_CONTROLS);
+
+procedure TRSOptions.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'Options';
+  Self.Buttons := [
+    OPTIONS_BUTTON_DISPLAY_ON, OPTIONS_BUTTON_DISPLAY_HOVER_OFF,
+    OPTIONS_BUTTON_DISPLAY_ON, OPTIONS_BUTTON_DISPLAY_HOVER_ON,
+
+    OPTIONS_BUTTON_AUDIO_ON, OPTIONS_BUTTON_AUDIO_HOVER_OFF,
+    OPTIONS_BUTTON_AUDIO_ON, OPTIONS_BUTTON_AUDIO_HOVER_ON,
+
+    OPTIONS_BUTTON_CHAT_ON, OPTIONS_BUTTON_CHAT_HOVER_OFF,
+    OPTIONS_BUTTON_CHAT_ON, OPTIONS_BUTTON_CHAT_HOVER_ON,
+
+    OPTIONS_BUTTON_CONTROLS_ON, OPTIONS_BUTTON_CONTROLS_HOVER_OFF,
+    OPTIONS_BUTTON_CONTROLS_ON, OPTIONS_BUTTON_CONTROLS_HOVER_ON,
+
+    OPTIONS_BUTTON_SHIFT_DROP_ON, OPTIONS_BUTTON_SHIFT_DROP_OFF
+  ];
+
+  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
+  begin
+    Self.Alignment.Left := [@GameTab.X1];
+    Self.Alignment.Right := [@GameTab.X2];
+    Self.Alignment.Top := [@GameTab.Y1];
+    Self.Alignment.Bottom := [@GameTab.Y2];
+  end;
+end;
+
+function TRSOptions.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = TAB_OPTIONS);
+end;
+
+function TRSOptions.Open: Boolean;
+begin
+  Result := GameTabs.Open(TAB_OPTIONS);
+end;
+
+function TRSOptions.GetZoomSliderBounds: TBox;
+begin
+  Result.X1 := Self.X1 + 58;
+  Result.Y1 := Self.Y1 + 65;
+  Result.X2 := Result.X1 + 96;
+  Result.Y2 := Result.Y1 + 8;
+end;
+
+function TRSOptions.FindZoomSlider(var P: TPoint): Boolean;
+var
+  TPA: TPointArray;
+begin
+  if (not Self.Open()) or (not Self.OpenTab(OPTIONS_TAB_DISPLAY)) then
+    Exit;
+
+  Result := SRL.FindColors(TPA, CTS0(2106152), Self.GetZoomSliderBounds().Expand(10)) > 0;
+  if Result then
+    P := TPA.Mean();
+end;
+
+function TRSOptions.GetZoomLevel: Int32;
+var
+  Slider: TPoint;
+  B: TBox;
+begin
+  Result := -1;
+
+  B := Self.GetZoomSliderBounds();
+  if Self.FindZoomSlider(Slider) then
+    Result := Round((Slider.X - B.X1) * 100 / (B.Width - 1));
+end;
+
+function TRSOptions.SetZoomLevel(Level: Int32): Boolean;
+var
+  Slider: TPoint;
+  SliderBounds: TBox;
+  Destination: TPoint;
+  Boxes: TBoxArray;
+  T: UInt64;
+begin
+  if Self.GetZoomLevel() = Level then
+    Exit(True);
+
+  SliderBounds := Self.GetZoomSliderBounds();
+
+  if Self.FindZoomSlider(Slider) then
+  begin
+    Destination.X := SliderBounds.X1 + Round((Level * (SliderBounds.Width - 1) / 100)) + 1;
+    Destination.Y := Random(SliderBounds.Y1, SliderBounds.Y2);
+
+    // Move slider away so we can click on destination
+    if Distance(Slider, Destination) <= 12 then
+    begin
+      Boxes := Box(Slider.X - 12, Slider.Y - 12, Slider.X + 12, Slider.Y + 12).Invert(SliderBounds);
+      Mouse.Click(Boxes[Random(Length(Boxes))], MOUSE_LEFT, False, rndRowp);
+      Wait(0, 1000, wdLeft);
+    end;
+
+    Mouse.Click(Destination, MOUSE_LEFT);
+  end;
+
+  T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+  while (T > GetTickCount()) do
+  begin
+    if Self.GetZoomLevel() = Level then
+      Exit(True);
+
+    Wait(0, 1000, wdLeft);
+  end;
+end;
+
+function TRSOptions.GetTab: ERSOptionsTab;
+begin
+  if Self.FindButton([OPTIONS_BUTTON_DISPLAY_ON, OPTIONS_BUTTON_DISPLAY_HOVER_ON]) then
+    Exit(OPTIONS_TAB_DISPLAY);
+
+  if Self.FindButton([OPTIONS_BUTTON_AUDIO_ON, OPTIONS_BUTTON_AUDIO_HOVER_ON]) then
+    Exit(OPTIONS_TAB_AUDIO);
+
+  if Self.FindButton([OPTIONS_BUTTON_CHAT_ON, OPTIONS_BUTTON_CHAT_HOVER_ON]) then
+    Exit(OPTIONS_TAB_CHAT);
+
+  if Self.FindButton([OPTIONS_BUTTON_CONTROLS_ON, OPTIONS_BUTTON_CONTROLS_HOVER_ON]) then
+    Exit(OPTIONS_TAB_CONTROLS);
+end;
+
+function TRSOptions.OpenTab(Tab: ERSOptionsTab): Boolean;
+var
+  T: UInt64;
+begin
+  if not Self.Open() then
+    Exit;
+
+  if Self.GetTab() = Tab then
+    Exit(True);
+
+  for 1 to 3 do
+  begin
+    case Tab of
+      OPTIONS_TAB_DISPLAY:  Self.ClickButton([OPTIONS_BUTTON_DISPLAY_OFF, OPTIONS_BUTTON_DISPLAY_HOVER_OFF], MOUSE_LEFT);
+      OPTIONS_TAB_AUDIO:    Self.ClickButton([OPTIONS_BUTTON_AUDIO_OFF, OPTIONS_BUTTON_AUDIO_HOVER_OFF], MOUSE_LEFT);
+      OPTIONS_TAB_CHAT:     Self.ClickButton([OPTIONS_BUTTON_CHAT_OFF, OPTIONS_BUTTON_CHAT_HOVER_OFF], MOUSE_LEFT);
+      OPTIONS_TAB_CONTROLS: Self.ClickButton([OPTIONS_BUTTON_CONTROLS_OFF, OPTIONS_BUTTON_CONTROLS_HOVER_OFF], MOUSE_LEFT);
+    end;
+
+    T := GetTickCount() + Random(1500, 2500);
+    while (T > GetTickCount()) do
+    begin
+      if Self.GetTab() = Tab then
+      begin
+        Wait(100, 500, wdLeft);
+
+        Exit(True);
+      end;
+
+      Wait(100, 1000, wdLeft);
+    end;
+  end;
+end;
+
+function TRSOptions.EnableShiftDrop: Boolean;
+begin
+  if (not Self.Open()) or (not Self.OpenTab(OPTIONS_TAB_CONTROLS)) then
+    Exit;
+
+  Result := Self.FindButton(OPTIONS_BUTTON_SHIFT_DROP_ON) or Self.ClickButton(OPTIONS_BUTTON_SHIFT_DROP_OFF, MOUSE_LEFT);
+end;
+
+function TRSOptions.DisableShiftDrop: Boolean;
+begin
+  if (not Self.Open()) or (not Self.OpenTab(OPTIONS_TAB_CONTROLS)) then
+    Exit;
+
+   Result := Self.FindButton(OPTIONS_BUTTON_SHIFT_DROP_OFF) or Self.ClickButton(OPTIONS_BUTTON_SHIFT_DROP_ON, MOUSE_LEFT);         ;
+end;
+
+procedure TRSOptions.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  if (Self.GetTab = OPTIONS_TAB_DISPLAY) then
+    Bitmap.DrawBox(Self.GetZoomSliderBounds(), False, $00FFFF);
+end;
+
+var
+  Options: TRSOptions;
+
+begin
+  SRL.AddSetupMethod(@Options.Setup);
+  SRL.AddDebugMethod(@Options.Debug);
+end;

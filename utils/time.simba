@@ -1,0 +1,384 @@
+(*
+Time
+=======
+Time related methods
+*)
+
+(*
+TTimeFormat
+~~~~~~~~~~~~
+.. pascal::
+  type TTimeFormat = (Time_Formal, Time_Short, Time_Abbrev, Time_Bare, Time_FStop, Time_Formal_Long);
+
+Formats used when converting time to string.
+*)
+type
+  TTimeFormat = (Time_Formal, Time_Short, Time_Abbrev, Time_Bare, Time_FStop, Time_Formal_Long);
+
+const
+  ONE_SECOND     = 1000;
+  ONE_MINUTE     = ONE_SECOND * 60;
+  FIVE_MINUTES   = ONE_MINUTE * 5;
+  THIRTY_MINUTES = ONE_MINUTE * 30;
+  ONE_HOUR       = ONE_MINUTE * 60;
+  ONE_DAY        = ONE_HOUR   * 24;
+  
+  
+(*
+srl.MsToTime
+~~~~~~~~~~~~~
+.. pascal::
+  function TSRL.MsToTime(const MS: UInt64; const Format: TTimeFormat): String; constref;
+
+Converts milliseconds to a string following the given time-format.
+*)
+function TSRL.MsToTime(const MS: UInt64; const Format: TTimeFormat): String; constref;
+var
+  STA: array [0..5] of TVariantArray;
+  Time: TIntegerArray;
+  i, t, tl: Integer;
+begin
+  Result := '';
+
+  if (Format = TIME_FORMAL_LONG) then
+  begin
+    tl := 7;
+    t := 6;
+    SetLength(Time, tl);
+    ConvertTime64(MS, Time[0], Time[1], Time[2], Time[3], Time[4], Time[5], Time[6]);
+  end else begin
+    tl := 3;
+    t := 2;
+    SetLength(Time, tl);
+    ConvertTime(MS, Time[0], Time[1], Time[2]);
+  end;
+
+  STA[Ord(Time_Formal)] := [' Hours, ', ' Minutes and ', ' Seconds', False, 0];
+  STA[Ord(Time_Short)]  := ['h ', 'm ', 's', False, 2];
+  STA[Ord(Time_Abbrev)] := [' hr ', ' min ', ' sec', False, 0];
+  STA[Ord(Time_Bare)]   := [':', ':', '', True, 2];
+  STA[Ord(Time_FStop)]  := ['.', '.', '', True, 2];
+  STA[Ord(Time_Formal_Long)] := [' Years, ', ' Months, ', ' Weeks, ', ' Days, ', ' Hours, ', ' Minutes and ', ' Seconds', False, 0];
+
+  for i := 0 to t do
+    if (Time[i] > 0) or (STA[Ord(Format)][tl]) or (i = t) then
+      Result += PadZ(IntToStr(Time[i]), STA[Ord(Format)][tl+1]) + STA[Ord(Format)][i];
+end;
+
+  
+(*
+srl.TimeRunning
+~~~~~~~~~~~~~~~~
+.. pascal::
+  function TSRL.TimeRunning(TheType: TTimeFormat = Time_Formal_Long): String; constref;
+
+Returns time the script has been running as a string with the given time-format.
+*)
+function TSRL.TimeRunning(TheType: TTimeFormat = Time_Formal_Long): String; constref;
+begin
+  Result := MsToTime(GetTimeRunning(), TheType);
+end;
+
+function TSRL.TimeStamp: String;
+var
+  Time: Int64;
+  Hours, Mins, Secs, Millis: Int32;
+begin
+  Time := GetTimeRunning();
+
+  Hours  := Time div 3600000;
+  Time   := Time mod 3600000;
+  Mins   := Time div 60000;
+  Time   := Time mod 60000;
+  Secs   := Time div 1000;
+  Millis := Time mod 1000;
+
+  Result := Format('[%.2d:%.2d:%.2d:%.3d]', [Hours, Mins, Secs, Millis]);
+end;
+
+(*
+srl.WaitFunc
+~~~~~~~~~~~~~
+.. pascal::
+  function TSRL.WaitFunc(Func: function: Boolean; WaitPerLoop, MaxTime: Integer): Boolean; constref;
+
+Waits till the given function returns ``True``, or otherwise time out defineds by ``MaxTime``.
+*)
+function TSRL.WaitFunc(Func: function: Boolean; WaitPerLoop, MaxTime: Integer): Boolean; constref;
+var
+  t: UInt64;
+begin
+  Result := False;
+  t := GetTickCount() + MaxTime;
+
+  while (GetTickCount() < t) do
+  begin
+    if (Func()) then
+      Exit(True);
+    Wait(WaitPerLoop);
+  end;
+end;
+
+(*
+srl.WaitTypeFunc
+~~~~~~~~~~~~~~~~~
+.. pascal::
+  function TSRL.WaitTypeFunc(Func: function: Boolean of object; WaitPerLoop, MaxTime: Integer): Boolean; constref;
+
+Waits till the given function returns ``True``, or otherwise time out defineds by ``MaxTime``.
+*)
+function TSRL.WaitTypeFunc(Func: function: Boolean of object; WaitPerLoop, MaxTime: Integer): Boolean; constref;
+var
+  t: UInt64;
+begin
+  Result := False;
+  t := GetTickCount() + MaxTime;
+
+  while (GetTickCount() < t) do
+  begin
+    if (Func()) then
+      Exit(True);
+    Wait(WaitPerLoop);
+  end;
+end;
+
+(*
+TTimeMarker
+~~~~~~~~~~~
+.. code-block:: pascal
+
+    type TTimeMarker = record
+        time, startTime: LongWord;
+        paused: Boolean;
+    end;
+
+Timer type which is useful for loops, timing and writing progress reports.
+
+.. note::
+
+    - by Bart de Boer
+*)
+type
+  TTimeMarker = record
+    FTime, FStartTime, FPrevMark: UInt64;
+    FPaused: Boolean;
+  end;
+
+(*
+TTimeMarker.Start
+~~~~~~~~~~~~~~~~~
+.. code-block pascal
+
+    procedure TTimeMarker.Start();
+
+Starts the timer. Can also be used when paused to continue where it left.
+
+.. note::
+
+    - by Bart de Boer
+
+Example:
+
+.. code-block:: pascal
+
+    myTimer.Start();
+*)
+procedure TTimeMarker.Start();
+begin
+  Self.FPrevMark := GetTickCount(); // used for adding time after a pause
+
+  if (not Self.FPaused) and (Self.FStartTime = 0) then
+  begin
+    Self.FStartTime := GetTickCount();
+    Self.FTime := 0;
+  end;
+
+  Self.FPaused := False;
+end;
+
+(*
+TTimeMarker.Reset
+~~~~~~~~~~~~~~~~~
+.. code-block pascal
+
+    procedure TTimeMarker.Reset();
+
+Stops the timer and resets it to zero.
+
+.. note::
+
+    - by Bart de Boer
+
+Example:
+
+.. code-block:: pascal
+
+    myTimer.Reset();
+*)
+procedure TTimeMarker.Reset();
+begin
+  Self.FPaused := False;
+  Self.FTime := 0;
+  Self.FStartTime := 0;
+  Self.FPrevMark := 0;
+end;
+
+(*
+TTimeMarker.Pause
+~~~~~~~~~~~~~~~~~
+.. code-block pascal
+
+    procedure TTimeMarker.Pause();
+
+Pauses the timer. It can be continued with start().
+
+.. note::
+
+    - by Bart de Boer
+
+Example:
+
+.. code-block:: pascal
+
+    myTimer.Pause();
+    TakeABreak(90000);
+    myTimer.Start();
+*)
+procedure TTimeMarker.Pause();
+begin
+  Self.FTime := Self.FTime + (GetTickCount() - Self.FPrevMark);
+  Self.FPaused := True;
+end;
+
+(*
+TTimeMarker.GetTime
+~~~~~~~~~~~~~~~~~~~
+.. code-block pascal
+
+    function TTimeMarker.GetTime(): UInt64;
+
+Gets the time from the timer. Returns zero if the timer was not set.
+
+.. note::
+
+    - by Bart de Boer
+
+Example:
+
+.. code-block:: pascal
+
+    myTimer.start();
+    repeat
+      DoStuff;
+    until(myTimer.GetTime() > 60000);
+
+*)
+function TTimeMarker.GetTime(): UInt64;
+begin
+  if not Self.FPaused then
+    Result := Self.FTime + (GetTickCount() - Self.FPrevMark)
+  else
+    Result := Self.FTime;
+end;
+
+(*
+TTimeMarker.GetTotalTime
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block pascal
+
+    function TTimeMarker.GetTotalTime(): UInt64;
+
+Gets the time from the timer including the time it was paused. Returns zero if
+the timer was not set.
+
+.. note::
+
+    - by Bart de Boer
+
+Example:
+
+.. code-block:: pascal
+
+    BreakTime := MyTimer.GetTotalTime() - MyTimer.GetTime();
+
+*)
+function TTimeMarker.GetTotalTime(): UInt64;
+begin
+  if (Self.FStartTime > 0) then
+    Result := GetTickCount() - Self.FStartTime;
+end;
+
+
+
+(*
+TCountDown
+~~~~~~~~~~~~~~~~~~~
+A neat and simple timer type.
+
+Example:
+
+.. code-block:: pascal
+
+  myTimer.Init(3000); //3000ms
+  while not myTimer.IsFinished() do
+    {do something};
+  
+  myTimer.Restart(Random(-200,200)); //3000 +/- 200ms
+  while not myTimer.IsFinished() do
+    {do something};
+*)
+type
+  TCountDown = record
+    Length: UInt64;
+    Timeout: UInt64;
+  end;
+
+  
+procedure TCountDown.Init(Time: UInt32);
+begin
+  Self.Length  := Time;
+  Self.Timeout := GetTickCount() + Time;
+end;
+
+procedure TCountDown.Restart(Rand:Int32=0);
+begin
+  Self.Timeout := GetTickCount() + (Length + Rand);
+end;  
+
+function TCountDown.TimeRemaining(): UInt32;
+begin
+  if not Self.IsFinished() then
+    Result := Max(Self.Timeout - GetTickCount(), 0);
+end;
+
+function TCountDown.IsFinished(): Boolean;
+begin
+  Result := GetTickCount() >= Self.Timeout;
+end;
+
+
+
+{$IFDEF WINDOWS}
+function PerformanceTimer(): Double;
+var
+  frequency,counter: ^UInt64;
+  function QPF(F: ^UInt64): LongBool; static; external 'QueryPerformanceFrequency@Kernel32.dll '+{$IFDEF CPU386}'stdcall'{$ELSE}'win64'{$ENDIF};
+  function QPC(C: ^UInt64): LongBool; static; external 'QueryPerformanceCounter@Kernel32.dll '+{$IFDEF CPU386}'stdcall'{$ELSE}'win64'{$ENDIF};
+begin
+  frequency := GetMem(SizeOf(UInt64)); // at least qword aligned
+  counter   := GetMem(SizeOf(UInt64)); // ...
+
+  if QPF(frequency) and QPC(counter) then
+    Result := counter^ / frequency^ * 1000
+  else
+    Result := GetTickCount();
+
+  FreeMem(frequency);
+  FreeMem(counter);
+end;
+{$ELSE}
+function PerformanceTimer(): Double;
+begin
+  Result := GetTickCount();
+end;
+{$ENDIF}

@@ -1,0 +1,703 @@
+{$DEFINE SRL_WALKER_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+{$I webgraph.simba}
+{$I world.graph}
+
+const
+  RSW_WORLD_MAP_PATH = {$MACRO CURRENT_DIRECTORY} + '/maps/';
+
+type
+  TRSWalker = record
+    World: TMufasaBitmap;
+    WorldSample: TMufasaBitmap;
+    Web: TWebGraph;
+
+    EnableRunAtEnergy: Int32;
+
+    Speed: Int32;
+    Similarity: Single;
+    ScreenWalk: Boolean;
+    Cache: record
+      Similarity: Single;
+      Position: TPoint;
+      CompassAngle: Single;
+      CompassOffset: Single;
+      Size: Int32;
+      Enabled: Boolean;
+      Used: Boolean;
+    end;
+  end;
+
+procedure TRSWalker.Free;
+begin
+  Self.WorldSample.Free();
+  Self.World.Free();
+end;
+
+procedure TRSWalker.Setup(Map: String; Speed: Int32 = 6); overload;
+begin
+  Self.Speed := Speed;
+  Self.Cache.Size := 200;
+  Self.Cache.Enabled := True;
+
+  if (not FileExists(Map)) then
+  begin
+    if (not FileExists(RSW_WORLD_MAP_PATH + Map)) then
+      raise 'Map "' + Map + '" does not exist';
+
+    Map := RSW_WORLD_MAP_PATH + Map;
+  end;
+
+  Self.WorldSample.Init(Client.GetMBitmaps());
+
+  Self.World.Init(Client.GetMBitmaps());
+  Self.World.LoadFromFile(Map);
+  Self.World.Downsample(Self.Speed, Self.WorldSample);
+end;
+
+procedure TRSWalker.Setup(Speed: Int32 = 6); overload;
+begin
+  Setup('world.png', Speed);
+
+  Self.Web := WorldGraph;
+end;
+
+procedure TRSWalker.ClearDots(Bitmap: TMufasaBitmap);
+const
+  Template: TPointArray =
+    [        [1, 0], [2, 0],
+     [0, 1], [1, 1], [2, 1], [3, 1],
+     [0, 2], [1, 2], [2, 2], [3, 2],
+     [0, 3], [1, 3], [2, 3], [3, 3],
+             [1, 4], [2, 4]
+    ];
+var
+  Dots: TPointArray;
+  ATPA: T2DPointArray;
+  Corners: array[0..3] of TPoint;
+  I, J: Int32;
+  Colors: TIntegerArray;
+begin
+  Dots := Minimap.GetDotsBitmap(Bitmap, [MINIMAP_DOT_NPC, MINIMAP_DOT_ITEM, MINIMAP_DOT_PLAYER]);
+
+  SetLength(ATPA, Length(Dots));
+
+  for I := 0 to High(Dots) do
+  begin
+    ATPA[I] := Copy(Template);
+    ATPA[I].Offset(Dots[I]);
+
+    Bitmap.DrawTPA(ATPA[I], clFuchsia);
+  end;
+
+  for I := 0 to High(Dots) do
+  begin
+    Corners[0] := [ATPA[I][0].X - 1, ATPA[I][0].Y];
+    Corners[1] := [ATPA[I][1].X + 1, ATPA[I][1].Y];
+    Corners[2] := [ATPA[I][14].X - 1, ATPA[I][14].Y];
+    Corners[3] := [ATPA[I][15].X + 1, ATPA[I][15].Y];
+
+    Colors := Bitmap.GetPixels(Corners);
+    for J := 0 to High(Colors) do
+      if Colors[J] <> clFuchsia then
+      begin
+        Bitmap.DrawTPA(ATPA[I], Colors[j]);
+
+        Break;
+      end;
+  end;
+end;
+
+function TRSWalker.GetMinimap(out CenterOffset: TPoint; out Crop: TBox): TMufasaBitmap;
+var
+  Bounds: TBox;
+  Raw, Templ: TMufasaBitmap;
+  Poly: TPointArray;
+  Angle: Double;
+  B: TBox;
+  I: Int32;
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  Column: TBox;
+begin
+  Angle := Minimap.GetCompassAngle(False);
+  Bounds := Minimap.Bounds();
+
+  Poly := TPAFromPolygon(Minimap.GetPolygon());
+  Poly := Poly.Invert(Bounds);
+  Poly.Offset([-Bounds.X1, -Bounds.Y1]);
+
+  Result.Init(Client.GetMBitmaps());
+
+  Raw := GetMufasaBitmap(BitmapFromClient(Bounds));
+  ClearDots(Raw);
+  Raw.RotateBitmapEx(Angle, False, True, Result);
+
+  Templ.Init();
+  Templ.SetSize(Raw.GetWidth(), Raw.GetHeight());
+  Templ.DrawClear(clFuchsia);
+
+  Raw.DrawTPA(Poly, clFuchsia);
+  Raw.RotateBitmapEx(Angle, False, False, Templ);
+
+  // Expand top left until box hits fushsia
+  B.X1 := (Raw.GetWidth() div 2) - 30;
+  B.Y1 := (Raw.GetHeight() div 2) - 30;
+
+  while (Templ.GetPixel(B.X1, B.Y1) <> clFuchsia) do
+  begin
+    B.X1 -= 1;
+    B.Y1 -= 1;
+  end;
+
+  // Expand bottom right until box hits fushsia
+  B.X2 := (Raw.GetWidth() div 2) + 30;
+  B.Y2 := (Raw.GetHeight() div 2) + 30;
+
+  while (Templ.GetPixel(B.X2, B.Y2) <> clFuchsia) do
+  begin
+    B.X2 += 1;
+    B.Y2 += 1;
+  end;
+
+  // Expand all corners until corner hits fushsia
+  // Top Left
+  while Templ.GetPixel(B.X1, B.Y1) <> clFuchsia do
+  begin
+    B.X1 -= 1;
+    B.Y1 -= 1;
+  end;
+
+  // Top Right
+  while Templ.GetPixel(B.X2, B.Y1) <> clFuchsia do
+  begin
+    B.X2 += 1;
+    B.Y1 -= 1;
+  end;
+
+  // Bottom Left
+  while Templ.GetPixel(B.X1, B.Y2) <> clFuchsia do
+  begin
+    B.X1 -= 1;
+    B.Y2 += 1;
+  end;
+
+  // Bottom Right
+  while Templ.GetPixel(B.X2, B.Y2) <> clFuchsia do
+  begin
+    B.X2 += 1;
+    B.Y2 += 1;
+  end;
+
+  B := B.Expand(5);
+
+  Templ.FindColors(TPA, clFuchsia);
+
+  // Fix corners, replace fuchica with nearest color in columns
+  // Top corners
+  ATPA := FindTPAColumns(TPA.FilterBox(B.Partition(2, 1)[0]));
+  for I := 0 to High(ATPA) do
+  begin
+    Column := GetTPABounds(ATPA[I]);
+
+    Result.Rectangle(Column, Templ.GetPixel(Column.X1, Column.Y2 + 1));
+  end;
+
+  // Bottom corners
+  ATPA := FindTPAColumns(TPA.FilterBox(B.Partition(2, 1)[1]));
+  for I := 0 to High(ATPA) do
+  begin
+    Column := GetTPABounds(ATPA[I]);
+
+    Result.Rectangle(Column, Templ.GetPixel(Column.X1, Column.Y1 - 1));
+  end;
+
+  Crop := B.Expand(-1);
+  Result.Crop(B.X1 + 1, B.Y1 + 1, B.X2 - 1, B.Y2 - 1);
+
+  Templ.Free();
+  Raw.Free();
+
+  CenterOffset.X := Bounds.Middle.X - (Bounds.X1 + B.Middle.X);
+  CenterOffset.Y := Bounds.Middle.Y - (Bounds.Y1 + B.Middle.Y);
+end;
+
+procedure TRSWalker.ClearCache;
+begin
+  Self.Cache.Position := [];
+  Self.Cache.CompassAngle := -1;
+  Self.Cache.CompassOffset := -1;
+  Self.Cache.Similarity := -1;
+end;
+
+function TRSWalker.FindImageNear(p:TPoint; Large, Sub: TMufasaBitmap; Area:Int32; Offsets: TSingleArray; out match: Single; out Offset: Single): TPoint;
+var
+  W,H: Int32;
+  Slice: TMufasaBitmap;
+  B: TBox;
+  Matrix: TSingleMatrix;
+  tmp: TMufasaBitmap;
+  Test: Single;
+  Best: TPoint;
+begin
+  Match := 0;
+
+  W := Large.GetWidth - 1;
+  H := Large.GetHeight - 1;
+
+  B := [p.x, p.y, p.x + Sub.GetWidth(), p.y + Sub.GetHeight()];
+  B := [B.x1-Area, B.y1-Area, B.x2+Area, B.y2+Area];
+  B := [max(0,B.x1),max(0,B.y1),min(W,B.x2),min(H,B.y2)];
+
+  Slice := Large.Copy(B.x1, B.y1, B.x2, B.y2);
+  client.getMBitmaps.AddBMP(Slice);
+  Tmp.init(Client.getMBitmaps());
+
+  for Test in Offsets do
+  begin
+    Slice.RotateBitmapEx(Radians(Test), False, True, tmp);
+    Matrix := Tmp.MatchTemplate(Sub, TM_CCOEFF_NORMED);
+    Best := Matrix.ArgMax;
+    if Matrix[Best.Y, Best.X] > Match then
+    begin
+      Match := Matrix[Best.Y, Best.X];
+      Result := [Best.x-Area+p.x, Best.y-Area+p.y];
+      Offset := Test;
+    end;
+  end;
+
+  Slice.Free();
+  Tmp.Free();
+end;
+
+function TRSWalker.GetMyPos: TPoint;
+var
+  MinimapSample, MinimapBitmap, CacheSample: TMufasaBitmap;
+  Matrix: TSingleMatrix;
+  Offset: TPoint;
+  P: TPoint;
+  Offsets: TSingleArray;
+  Compass: Single;
+  B: TBox;
+  I: Int32;
+  TPA: TPointArray;
+  Best: Single;
+  Match: TPoint;
+begin
+  MinimapSample.Init(Client.GetMBitmaps());
+
+  MinimapBitmap := GetMinimap(Offset, B);
+  MinimapBitmap.Downsample(Self.Speed, MinimapSample);
+
+  try
+    // If available scan around where our last known position was
+    if Self.Cache.Enabled and (Self.Cache.Position <> []) then
+    begin
+      P.X := Self.Cache.Position.X div Self.Speed;
+      P.Y := Self.Cache.Position.Y div Self.Speed;
+
+      CacheSample := WorldSample.Copy(
+        P.X - (Self.Cache.Size div Self.Speed),
+        P.Y - (Self.Cache.Size div Self.Speed),
+        P.X + (Self.Cache.Size div Self.Speed),
+        P.Y + (Self.Cache.Size div Self.Speed)
+      );
+
+      Matrix := CacheSample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
+      Match   := Matrix.ArgMax() * self.speed;
+      Match.x += self.Cache.Position.x-Self.Cache.Size;
+      Match.y += self.Cache.Position.y-Self.Cache.Size;
+
+      Compass := System.Minimap.GetCompassAngle();
+
+      if Compass <> Self.Cache.CompassAngle then
+        Offsets := [-4.5, -1.5, -3, 0, 1.5, 3, 4.5]
+      else
+        Offsets := [Self.Cache.CompassOffset];
+
+      Result   := Self.FindImageNear(Match, Self.World, MinimapBitmap, 20, Offsets, Self.Similarity, Self.Cache.CompassOffset);
+      Result   += Offset;
+      Result.X += MinimapBitmap.getWidth() div 2;
+      Result.Y += MinimapBitmap.getHeight() div 2;
+
+      Self.Cache.CompassAngle := Compass;
+      Self.Cache.Used := Self.Similarity > 0.40;
+
+      if Self.Cache.Used then
+      begin
+        Self.Cache.Similarity := Self.Similarity;
+        Self.Cache.Position := Result;
+
+        Exit;
+      end else
+      begin
+        Writeln(Format('Performing full scan. (%f)', [Self.Similarity]));
+
+        Self.ClearCache();
+      end;
+    end;
+
+    // If couldn't cache, perform a full scan.
+    Matrix := WorldSample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
+
+    TPA := Matrix.Indices(Matrix.Max() - 0.05, __GT__);
+    TPA := TPA.Cluster(5).Means();
+
+    for I := 0 to Min(High(TPA), 5) do
+    begin
+      Match   := Self.FindImageNear(TPA[I] * Self.Speed, Self.World, MinimapBitmap, 20,[-2.25, 0, 2.25], Self.Similarity, Self.cache.CompassOffset);
+      Match   += Offset;
+      Match.X += MinimapBitmap.getWidth() div 2;
+      Match.Y += MinimapBitmap.getHeight() div 2;
+
+      if Self.Similarity > Best then
+      begin
+        Best := Self.Similarity;
+
+        Result := Match;
+      end;
+    end;
+
+    Self.Cache.Similarity := Self.Similarity;
+    Self.Cache.Position := Result;
+  finally
+    if CacheSample <> nil then
+      CacheSample.Free();
+    if MinimapBitmap <> nil then
+      MinimapBitmap.Free();
+    if MinimapSample <> nil then
+      MinimapSample.Free();
+  end;
+end;
+
+function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint; overload;
+begin
+  Result := WorldPoint - PlayerPoint + Minimap.Center;
+  Result := Result.Rotate(Radians, Minimap.Center);
+end;
+
+function TRSWalker.WorldToMM(WorldPoint: TPoint): TPoint; overload;
+begin
+  Result := Self.WorldToMM(Self.GetMyPos(), WorldPoint, Minimap.GetCompassAngle(False));
+end;
+
+function TRSWalker.WalkStep(PlayerPoint, WorldPoint: TPoint; ClickRandomness: Int32 = 0; WaitUntilDistance: Int32 = -1): Boolean; overload;
+var
+  MinimapPoint: TPoint;
+  Countdown, Timeout: TCountDown;
+  Position: record
+    Current, Previous: TPoint;
+  end;
+  P: TPoint;
+begin
+  MinimapPoint := Self.WorldToMM(PlayerPoint, WorldPoint, Minimap.GetCompassAngle(False));
+
+  if WaitUntilDistance = -1 then
+  begin
+    WaitUntilDistance := Distance(Minimap.Center, MinimapPoint);
+
+    // 50% chance for clicking again near instantly.
+    // 45% change for value weighted towards mean
+    // 5% chance for wait until player has stopped moving.
+
+    if Random() < 0.50 then
+      WaitUntilDistance := Round(SRL.TruncatedGauss(WaitUntilDistance - 10, WaitUntilDistance + 20))
+    else
+    if Random() < 0.05 then
+      WaitUntilDistance := Round(SRL.TruncatedGauss(0, 15))
+    else
+      WaitUntilDistance := Round(SRL.SkewedRand(WaitUntilDistance div 2, 0, WaitUntilDistance));
+  end;
+
+  if Self.ScreenWalk then
+  begin
+    Mouse.Move(Minimap.PointToMsRect(MinimapPoint));
+
+    if MainScreen.IsUpText('Walk here', Random(100)) then
+      Mouse.Click(MOUSE_LEFT)
+    else
+      ChooseOption.Select('Walk here');
+  end else
+  begin
+    repeat
+      P := [Random(MinimapPoint.X - ClickRandomness, MinimapPoint.X + ClickRandomness), Random(MinimapPoint.Y - ClickRandomness, MinimapPoint.Y + ClickRandomness)];
+    until Minimap.IsPointOn(P);
+
+    Mouse.Click(P, MOUSE_LEFT);
+  end;
+
+  Timeout.Init(Round(SRL.TruncatedGauss(20000, 25000)));
+
+  Countdown.Init(Round(SRL.TruncatedGauss(400, 1000)));
+  Countdown.Timeout := GetTickCount() + Round(SRL.TruncatedGauss(2500, 3500));
+
+  // Break from the loop if:
+  // - Haven't moved for 2.5 seconds
+  // - Been walking for over 20 seconds
+  // - Within `WaitUntilDistance` to the destination
+  repeat
+    if (not Minimap.IsRunEnabled()) and (Minimap.GetRunEnergy() > Self.EnableRunAtEnergy) then
+    begin
+      Minimap.EnableRun();
+
+      Self.EnableRunAtEnergy := Round(SRL.SkewedRand(35, 0, 100));
+    end;
+
+    Position.Previous := Position.Current;
+    Position.Current := Self.GetMyPos();
+    if Position.Current <> Position.Previous then
+      Countdown.Restart();
+
+    Wait(100);
+  until Timeout.IsFinished() or Countdown.IsFinished() or (Position.Current.DistanceTo(WorldPoint) <= WaitUntilDistance);
+
+  Exit(True);
+end;
+
+function TRSWalker.IsWalkable(WorldPoint: TPoint; PlayerPoint: TPoint; Angle: Double): Boolean; overload;
+var
+  MinimapPoint: TPoint;
+  R: TRectangle;
+  B: TBox;
+begin
+  MinimapPoint := Self.WorldToMM(PlayerPoint, WorldPoint, Angle);
+
+  case Self.ScreenWalk of
+    True:
+      begin
+        R := Minimap.PointToMSRect(MinimapPoint, Angle);
+
+        if InterfaceArea.Bounds().Contains(R) then
+        begin
+          B := R.Bounds;
+          B.LimitTo(InterfaceArea.Bounds());
+
+          // Client doesn't render far tiles when zoomed out
+          if (CountColor($000000, B) = 0) then
+            Exit(True);
+        end;
+      end;
+
+    False:
+      begin
+        Result := Minimap.IsPointOn(MinimapPoint);
+      end;
+  end;
+end;
+
+function TRSWalker.GetFurthestWalkable(PlayerPoint: TPoint; Path: TPointArray; var Index: Int32): Boolean;
+var
+  Angle: Double;
+  i, Dist, Nearest, Previous: Int32;
+begin
+  Previous := Index;
+
+  Nearest := $FFFFFF;
+
+  for i := 0 to High(Path) do
+  begin
+    Dist := Distance(Path[i].X, Path[i].Y, PlayerPoint.X, PlayerPoint.Y);
+
+    if Dist < Nearest then
+    begin
+      Nearest := Dist;
+      Index := i;
+    end;
+  end;
+
+  Angle := Minimap.GetCompassAngle(False);
+
+  for Index := Index to High(Path) - 1 do
+  begin
+    // Some randomness so we don't always click the furthest point
+    if (Random() < 0.10) and (Index > Previous) and (PlayerPoint.DistanceTo(Path[Index]) > 20) then
+      Break;
+
+    if (not Self.IsWalkable(Path[Index + 1], PlayerPoint, Angle)) then
+      Break;
+  end;
+
+  Result := Index > Previous;
+end;
+
+function TRSWalker.WalkPath(Path: TPointArray; ClickRandomness: Int32 = 2; FinalCorrection: Boolean = False): Boolean;
+
+  function BuildPath(TPA: TPointArray; minStep,maxStep:Int32): TPointArray; static; overload;
+  var
+    i,j: Int32;
+    tmp: TPointArray;
+  begin
+    for i:=1 to High(TPA) do
+    begin
+      tmp := TPAFromLine(TPA[i-1].x,TPA[i-1].y, TPA[i].x,TPA[i].y);
+      j := 0;
+      while j < High(tmp) do
+      begin
+        Result += tmp[j];
+        Inc(j, Random(minStep, maxStep));
+      end;
+    end;
+    Result += TPA[High(TPA)];
+  end;
+
+var
+  PlayerPoint: TPoint;
+  Index: Int32;
+  Attempts: Int32;
+begin
+  Path := BuildPath([Self.GetMyPos()] + Path, 4, 12);
+
+  while (Attempts < 20) do
+  begin
+    PlayerPoint := Self.GetMyPos();
+
+    if Self.GetFurthestWalkable(PlayerPoint, Path, Index) then
+      Attempts := 0
+    else
+    begin
+      Attempts := Attempts + 1;
+      if (Attempts mod 2 = 0) then
+        Minimap.WaitFlag();
+    end;
+
+    if Index = High(Path) then
+    begin
+      if Self.WalkStep(PlayerPoint, Path[Index], 0, 0) then
+      begin
+        if FinalCorrection then
+          Self.WalkStep(Self.GetMyPos(), Path[Index], 0, 0);
+
+        Exit(True);
+      end;
+    end else
+      Self.WalkStep(PlayerPoint, Path[Index], ClickRandomness);
+  end;
+
+  if Attempts >= 20 then
+    SRL.WriteLn('Failed to progress path');
+end;
+
+function TRSWalker.WalkBlind(Destination: TPoint; ClickRandomness: Int32 = 4; FinalCorrection: Boolean = False): Boolean;
+begin
+  Result := WalkPath([Destination], ClickRandomness, FinalCorrection);
+end;
+
+function TRSWalker.WebWalk(Destination: TPoint; ClickRnd:Int32=4; PathRnd:Double=0; FinalCorrection:Boolean = False): Boolean;
+var
+  path: TPointArray;
+begin
+  if (PathRnd > 1) or (PathRnd < 0) then
+    RaiseException(erException, 'TRSWalker.WebWalk -> PathRnd should be in the range `0..1` where `1` is max');
+
+  path   := Self.Web.PathBetween(Self.GetMyPos, Destination, PathRnd);
+  Result := Self.WalkPath(path, ClickRnd, FinalCorrection);
+end;
+
+function TRSWalker.WebWalk(Destination: String; ClickRnd:Int32=4; PathRnd:Double=0; FinalCorrection:Boolean=False): Boolean; overload;
+var
+  dstNode: Int32;
+begin
+  dstNode := Self.Web.FindNode(Destination);
+  if dstNode = -1 then
+    Self.Web.InvalidNode(Destination);
+
+  Result := Self.WebWalk(Self.Web.Nodes[dstNode], ClickRnd, PathRnd, FinalCorrection);
+end;
+
+procedure TRSWalker.Debug;
+var
+  mx,my,x1,y1,x2,y2: Int32;
+  BMP, BMP1: TMufasaBitmap;
+  timeUsed: Double;
+  glob: TPoint;
+  P: tpOINT;
+  I: Int32;
+  Lines: TStringArray;
+  B: TBox;
+begin
+
+    timeUsed := PerformanceTimer;
+    glob := Self.GetMyPos();
+    timeUsed := PerformanceTimer - timeUsed;
+
+  x1 := Max(0, glob.x-200);
+  y1 := Max(0, glob.y-200);
+  x2 := Min(x1+400, Self.World.GetWidth()-1);
+  y2 := Min(y1+400, Self.World.GetHeight()-1);
+
+  mx := glob.x - x1;
+  my := glob.y - y1;
+
+  BMP1 := Self.World.Copy(x1,y1,x2,y2);
+  client.getMBitmaps().AddBMP(BMP1);
+  BMP1.LineTo(Point(0,my), Point(x2-x1,my), $00FF00);
+  BMP1.LineTo(Point(mx,0), Point(mx,y2-y1), $00FF00);
+  BMP1.DrawBox(Box(mx-2,my-2,mx+2,my+2), False, $FFFFFF);
+
+  BMP.Init(client.GetMBitmaps);
+  BMP.SetSize(620,420);
+  BMP.DrawClear($403027);
+  BMP1.DrawTransparent(10,10, BMP);
+  BMP1.Free();
+
+  BMP.DrawSystemText(
+    '('+ToStr(glob.x)+', '+ToStr(glob.y)+')',
+    'Consolas', 12,
+    Point(422,16),
+    True, $FFFFFF);
+
+  BMP1 := GetMinimap(p, B);
+  BMP1.DrawTransparent(426,40, BMP);
+  BMP1.Free();
+
+  Lines := ['Cache: '          + ToStr(Self.Cache.Used),
+            'Compass Offset: ' + ToStr(Round(Self.Cache.CompassOffset, 2)),
+            'Acc '             + ToStr(Round(Self.Similarity, 3)),
+            'Used '            + ToStr(Round(timeUsed))+' ms'
+            ];
+
+  for I := 0 to High(Lines) do
+    BMP.DrawSystemText(Lines[I], 'Consolas', 12, Point(422, 410 - (Length(Lines) - I) * 20), True, $FFFFFF);
+
+  DisplayDebugImgWindow(BMP.GetWidth(), BMP.GetHeight());
+  DrawBitmapDebugImg(BMP.GetIndex());
+  BMP.Free();
+end;
+
+(*
+  Returns the tile position on the mainscreen as a rectangle
+*)
+function TRSWalker.GetTileMSEx(Me, Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+var
+  angle: Double;
+begin
+  Loc   := Minimap.Center + (Loc - Me);
+  angle := Minimap.GetCompassAngle(False);
+  Loc   := Loc.Rotate(angle, Minimap.Center);
+  Result := Minimap.VecToMSRect(Vec3(Loc.x - offx, Loc.y - offy, Height), angle);
+end;
+
+(*
+  Same as the above, only you dont have to pass "MyPos" to it.
+*)
+function TRSWalker.GetTileMS(Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+begin
+  Result := GetTileMSEx(Self.GetMyPos(), Loc, Height, Offx, Offy);
+end;
+
+function TRSWalker.MSToWorldEx(Me, Loc: TPoint; Height: Int32 = 0; Accuracy: Double = 0.2): TPoint;
+begin
+  Result := Me + (MainScreen.PointToMM(Loc, Height, Accuracy).ToPoint() - Minimap.Center);
+  Result := Result.Rotate(-Minimap.GetCompassAngle(False), Me);
+end;
+
+function TRSWalker.MSToWorld(Loc: TPoint; Height: Int32=0; Accuracy:Double=0.2): TPoint;
+begin
+  Result := Self.MSToWorldEx(Self.GetMyPos(), Loc, Height, Accuracy);
+end;
+
+
+

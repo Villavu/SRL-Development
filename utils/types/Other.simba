@@ -1,0 +1,601 @@
+(*
+Other datatypes
+===============
+Defines methods for some other datatypes
+*)
+
+type
+  TMatrix4 = packed record
+    M11,M12,M13,M14,
+    M21,M22,M23,M24,
+    M31,M32,M33,M34,
+    M41,M42,M43,M44: Single;
+  end;
+
+  Vector2 = packed record X,Y: Single; end;
+  Vector3 = packed record X,Y,Z: Single; end;
+  Vector4 = packed record X,Y,Z,W: Single; end;
+
+  Vector2Array = array of Vector2;
+  Vector3Array = array of Vector3;
+
+
+function Vec3(X,Y,Z: Single = 0): Vector3;
+begin
+  Result := [x,y,z];
+end;
+
+function Vec2(X,Y: Single = 0): Vector2;
+begin
+  Result := [x,y];
+end;
+
+
+// ---------------------------------------------------------------------------
+// VECTOR 2
+function Vector2.ToPoint(): TPoint; constref;
+begin
+  Result.X := Trunc(X);
+  Result.Y := Trunc(Y);
+end;
+
+function Vector2.ToVec3(): Vector3; constref;
+begin
+  Result.X := X;
+  Result.Y := Y;
+  Result.Z := 0;
+end;
+
+function Vector2.Magnitude(): Single; constref;
+begin
+  Result := Sqrt(Sqr(Self.X) + Sqr(Self.Y));
+end;
+
+function Vector2.Distance(Other: Vector2): Single; constref;
+begin
+  Result := Sqrt(Sqr(Self.X-Other.X) + Sqr(self.Y-Other.Y));
+end;
+
+function Vector2.SqDistance(Other: Vector2): Single; constref;
+begin
+  Result := Sqr(Self.X-Other.X) + Sqr(Self.Y-Other.Y);
+end;
+
+function Vector2.Cross(Other: Vector2): Single; constref;
+begin
+  Result := (Self.X * Other.Y) - (Self.Y * Other.X);
+end;
+
+function Vector2.Dot(Other: Vector2): Single; constref;
+begin
+  Result := (Self.X * Other.X) + (Self.Y * Other.Y);
+end;
+
+function Vector2.Normalize(): Vector2; constref;
+var len,inv: Single;
+begin
+  Result := Self;
+  len := Sqrt(X*X + Y*Y);
+  if len <> 0 then
+  begin
+    inv := 1.0 / len;
+    Result.X := Result.X * inv;
+    Result.Y := Result.Y * inv;
+  end;
+end;
+
+function Vector2.Rotate(Angle:Single; Mx,My:Single): Vector2; constref;
+begin
+  Result.X := Mx + Cos(Angle) * (Self.x - Mx) - Sin(Angle) * (Self.y - My);
+  Result.Y := My + Sin(Angle) * (Self.x - Mx) + Cos(Angle) * (Self.y - My);
+end;
+
+
+// -----------------------------------------------------------------------------
+// VECTOR2 operators
+operator * (Left, Right: Vector2): Vector2;
+begin
+  Result.x := left.X * right.X;
+  Result.y := left.Y * right.Y;
+end;
+
+operator * (Left: Vector2; Right: Single): Vector2;
+begin
+  Result.x := left.X * right;
+  Result.y := left.Y * right;
+end;
+
+operator + (Left, Right: Vector2): Vector2;
+begin
+  Result.x := left.X + right.X;
+  Result.y := left.Y + right.Y;
+end;
+
+operator + (Left: Vector2; Right: Single): Vector2;
+begin
+  Result.x := left.X + right;
+  Result.y := left.Y + right;
+end;
+
+operator - (Left, Right: Vector2): Vector2;
+begin
+  Result.x := left.X - right.X;
+  Result.y := left.Y - right.Y;
+end;
+
+operator - (Left: Vector2; Right: Single): Vector2;
+begin
+  Result.x := left.X - right;
+  Result.y := left.Y - right;
+end;
+
+operator - (Left: Single; Right: Vector2): Vector2;
+begin
+  Result.x := left - right.X;
+  Result.y := left - right.Y;
+end;
+
+operator / (Left, Right: Vector2): Vector2;
+begin
+  Result.x := left.X / right.X;
+  Result.y := left.Y / right.Y;
+end;
+
+operator / (Left: Vector2; Right: Single): Vector2;
+begin
+  Result.x := left.X / right;
+  Result.y := left.Y / right;
+end;
+
+operator / (Left: Single; Right: Vector2): Vector2;
+begin
+  Result.x := left / right.X;
+  Result.y := left / right.Y;
+end;
+
+
+// ---------------------------------------------------------------------------
+// VECTOR 3
+const
+  Vector3_UnitX: Vector3 = [1,0,0];
+  Vector3_UnitY: Vector3 = [0,1,0];
+  Vector3_UnitZ: Vector3 = [0,0,1];
+
+function Vector3.ToVec2(): Vector2; constref;
+begin
+  Result.X := Self.X;
+  Result.Y := Self.Y;
+end;
+
+function Vector3.ToPoint(): TPoint; constref;
+begin
+  Result.X := Trunc(X);
+  Result.Y := Trunc(Y);
+end;
+
+function Vector3.Abs(): Vector3; constref;
+begin
+  Result.X := System.Abs(Self.X);
+  Result.Y := System.Abs(Self.Y);
+  Result.Z := System.Abs(Self.Y);
+end;
+
+function Vector3.Cross(Other: Vector3): Vector3; constref;
+begin
+  Result.x := (Self.Y * Other.Z) - (Self.Z * Other.Y);
+  Result.y := (Self.Z * Other.X) - (Self.X * Other.Z);
+  Result.z := (Self.X * Other.Y) - (Self.Y * Other.X);
+end;
+
+function Vector3.Dot(Other: Vector3): Single; constref;
+begin
+  Result := (Self.X * Other.X) + (Self.Y * Other.Y) + (Self.Z * Other.Z);
+end;
+
+function Vector3.Magnitude(): Single; constref;
+begin
+  Result := Sqrt(Sqr(self.X) + Sqr(self.Y) + Sqr(self.Z));
+end;
+
+function Vector3.Distance(Other: Vector3): Single; constref;
+begin
+  Result := Sqrt(Sqr(self.X-Other.X) + Sqr(self.Y-Other.Y) + Sqr(self.Z-Other.Z));
+end;
+
+function Vector3.SqDistance(Other: Vector3): Single; constref;
+begin
+  Result := Sqr(self.X-Other.X) + Sqr(self.Y-Other.Y) + Sqr(self.Z-Other.Z);
+end;
+
+function Vector3.Normalize(): Vector3; constref;
+var len,inv: Single;
+begin
+  Result := Self;
+  len := Sqrt(X*X + Y*Y + Z*Z);
+  if len <> 0 then
+  begin
+    inv := 1.0 / len;
+    Result.X := Result.X * inv;
+    Result.Y := Result.Y * inv;
+    Result.Z := Result.Z * inv;
+  end;
+end;
+
+function Vector3.RotateXY(Angle: Single; Mx,My: Single): Vector3; constref;
+begin
+  Result.X := Mx + Cos(angle) * (Self.x - Mx) - Sin(angle) * (Self.y - My);
+  Result.Y := My + Sin(angle) * (Self.x - Mx) + Cos(angle) * (Self.y - My);
+  Result.Z := Self.Z;
+end;
+
+function Vector3.TransformCoordinate(Coordinate: Vector3; Transform: TMatrix4): Vector3; static;
+var vec: Vector4;
+begin
+  vec.X := (coordinate.X * transform.M11) + (coordinate.Y * transform.M21) + (coordinate.Z * transform.M31) + transform.M41;
+  vec.Y := (coordinate.X * transform.M12) + (coordinate.Y * transform.M22) + (coordinate.Z * transform.M32) + transform.M42;
+  vec.Z := (coordinate.X * transform.M13) + (coordinate.Y * transform.M23) + (coordinate.Z * transform.M33) + transform.M43;
+  vec.W := 1.0 / ((coordinate.X * transform.M14) + (coordinate.Y * transform.M24) + (coordinate.Z * transform.M34) + transform.M44);
+  
+  Result.x := vec.X * vec.W;
+  Result.y := vec.Y * vec.W;
+  Result.z := vec.Z * vec.W;
+end;
+
+// -----------------------------------------------------------------------------
+// VECTOR3 operators
+operator * (Left, Right: Vector3): Vector3;
+begin
+  Result.x := left.X * right.X;
+  Result.y := left.Y * right.Y;
+  Result.z := left.Z * right.Z;
+end;
+
+operator * (Left: Vector3; Right: Single): Vector3;
+begin
+  Result.x := left.X * right;
+  Result.y := left.Y * right;
+  Result.z := left.Z * right;
+end;
+
+operator + (Left, Right: Vector3): Vector3;
+begin
+  Result.x := left.X + right.X;
+  Result.y := left.Y + right.Y;
+  Result.z := left.Z + right.Z;
+end;
+
+operator + (Left: Vector3; Right: Single): Vector3;
+begin
+  Result.x := left.X + right;
+  Result.y := left.Y + right;
+  Result.z := left.Z + right;
+end;
+
+operator - (Left, Right: Vector3): Vector3;
+begin
+  Result.x := left.X - right.X;
+  Result.y := left.Y - right.Y;
+  Result.z := left.Z - right.Z;
+end;
+
+operator - (Left: Vector3; Right: Single): Vector3;
+begin
+  Result.x := left.X - right;
+  Result.y := left.Y - right;
+  Result.z := left.Z - right;
+end;
+
+operator - (Left: Single; Right: Vector3): Vector3;
+begin
+  Result.x := left - right.X;
+  Result.y := left - right.Y;
+  Result.z := left - right.Z;
+end;
+
+operator / (Left, Right: Vector3): Vector3;
+begin
+  Result.x := left.X / right.X;
+  Result.y := left.Y / right.Y;
+  Result.z := left.Z / right.Z;
+end;
+
+operator / (Left: Vector3; Right: Single): Vector3;
+begin
+  Result.x := left.X / right;
+  Result.y := left.Y / right;
+  Result.z := left.Z / right;
+end;
+
+operator / (Left: Single; Right: Vector3): Vector3;
+begin
+  Result.x := left / right.X;
+  Result.y := left / right.Y;
+  Result.z := left / right.Z;
+end;
+
+operator < (Left: Vector3; Right: Single): Boolean;
+begin
+  Result := (left.X < right) or (left.Y < right) or (left.Z < right);
+end;
+
+operator > (Left: Vector3; Right: Single): Boolean;
+begin
+  Result := (left.X > right) or (left.Y > right) or (left.Z > right);
+end;
+
+// ---------------------------------------------------------------------------
+// Vector3Array
+procedure Vector3Array.FromTPA(TPA: TPointArray);
+var
+  i: Int32;
+begin
+  SetLength(Self, Length(TPA));
+  for i:=0 to High(TPA) do
+  begin
+    Self[i].x := TPA[i].x;
+    Self[i].y := TPA[i].y;
+  end;
+end;
+
+function TPAToV3A(TPA: TPointArray): Vector3Array;
+begin
+  Result.FromTPA(TPA);
+end;
+
+function Vector3Array.ToTPA(): TPointArray;
+var
+  i: Int32;
+begin
+  SetLength(Result, Length(Self));
+  for i:=0 to High(Self) do
+  begin
+    Result[i].x := Round(Self[i].x);
+    Result[i].y := Round(Self[i].y);
+  end;
+end;
+
+procedure Vector3Array.Offset(Vec: Vector3);
+var
+  i: Int32;
+begin
+  for i:=0 to High(Self) do
+  begin
+    Self[i].x := Self[i].x + Vec.x;
+    Self[i].y := Self[i].y + Vec.y;
+    Self[i].z := Self[i].z + Vec.z;
+  end;
+end;
+
+function Vector3Array.Mean(): Vector3;
+var
+  i: Int32;
+begin
+  for i:=0 to High(Self) do
+  begin
+    Result.x += Self[i].x;
+    Result.y += Self[i].y;
+    Result.z += Self[i].z;
+  end;
+  Result.x := Result.x / Length(Self);
+  Result.y := Result.y / Length(Self);
+  Result.z := Result.z / Length(Self);
+end;
+
+
+
+// ---------------------------------------------------------------------------
+// TMatrix4
+const 
+  Matrix_Identity: TMatrix4 = [1.0, 0.0, 0.0, 0.0,
+                               0.0, 1.0, 0.0, 0.0,
+                               0.0, 0.0, 1.0, 0.0, 
+                               0.0, 0.0, 0.0, 1.0];
+
+  
+function TMatrix4.RotationX(Angle: Single): TMatrix4; static;
+var tcos, tsin: Single;
+begin
+  tcos := Cos(Angle);
+  tsin := Sin(Angle);
+
+  Result := Matrix_Identity;
+  Result.M22 := tcos;
+  Result.M23 := tsin;
+  Result.M32 := -tsin;
+  Result.M33 := tcos;
+end;
+
+function TMatrix4.RotationY(Angle: Single): TMatrix4; static;
+var tcos, tsin: Single;
+begin
+  tcos := Cos(Angle);
+  tsin := Sin(Angle);
+
+  Result := Matrix_Identity;
+  Result.M11 := tcos;
+  Result.M13 := tsin;
+  Result.M31 := -tsin;
+  Result.M33 := tcos;
+end;
+
+function TMatrix4.RotationZ(Angle: Single): TMatrix4; static;
+var tcos, tsin: Single;
+begin
+  tcos := Cos(Angle);
+  tsin := Sin(Angle);
+
+  Result := Matrix_Identity;
+  Result.M11 := tcos;
+  Result.M12 := tsin;
+  Result.M21 := -tsin;
+  Result.M22 := tcos;
+end;
+  
+function TMatrix4.Translation(value: Vector3): TMatrix4; static;
+begin
+  result := Matrix_Identity;
+  result.M41 := value.x;
+  result.M42 := value.y;
+  result.M43 := value.z;
+end;
+  
+function TMatrix4.LookAtLH(eye, target, up: Vector3): TMatrix4; static;
+var
+  xaxis,yaxis,zaxis: Vector3;
+begin
+  zaxis := (target - eye).Normalize();
+  xaxis := up.Cross(zaxis).Normalize();
+  yaxis := zaxis.Cross(xaxis);
+
+  Result := Matrix_Identity;
+  Result.M11 := xaxis.X; result.M21 := xaxis.Y; result.M31 := xaxis.Z;
+  Result.M12 := yaxis.X; result.M22 := yaxis.Y; result.M32 := yaxis.Z;
+  Result.M13 := zaxis.X; result.M23 := zaxis.Y; result.M33 := zaxis.Z;
+
+  Result.M41 := xaxis.Dot(eye);
+  Result.M42 := yaxis.Dot(eye);
+  Result.M43 := zaxis.Dot(eye);
+
+  Result.M41 := -Result.M41;
+  Result.M42 := -Result.M42;
+  Result.M43 := -Result.M43;
+end;
+
+function TMatrix4.LookAtRH(eye, target, up: Vector3): TMatrix4; static;
+var
+  xaxis,yaxis,zaxis: Vector3;
+begin
+  zaxis := (eye - target).Normalize();
+  xaxis := up.Cross(zaxis).Normalize();
+  yaxis := zaxis.Cross(xaxis);
+
+  Result := Matrix_Identity;
+  Result.M11 := xaxis.X; Result.M21 := xaxis.Y; Result.M31 := xaxis.Z;
+  Result.M12 := yaxis.X; Result.M22 := yaxis.Y; Result.M32 := yaxis.Z;
+  Result.M13 := zaxis.X; Result.M23 := zaxis.Y; Result.M33 := zaxis.Z;
+
+  Result.M41 := xaxis.Dot(eye);
+  Result.M42 := yaxis.Dot(eye);
+  Result.M43 := zaxis.Dot(eye);
+ 
+  Result.M41 := -Result.M41;
+  Result.M42 := -Result.M42;
+  Result.M43 := -Result.M43;
+end;
+
+function TMatrix4.PerspectiveFovLH(fov, aspect, znear, zfar: Single): TMatrix4; static;
+var yScale, q: Single;
+begin
+  yScale := (1.0 / Tan(fov * 0.5));
+  q := zfar / (zfar - znear);
+  
+  Result.M11 := yScale / aspect;
+  Result.M22 := yScale;
+  Result.M33 := q;
+  Result.M34 := 1.0;
+  Result.M43 := -q * znear;
+end;
+
+function TMatrix4.PerspectiveFovRH(fov, aspect, znear, zfar: Single): TMatrix4; static;
+var yScale, q: Single;
+begin
+  yScale := (1.0 / Tan(fov * 0.5));
+  q := zfar / (znear - zfar);
+
+  Result.M11 := yScale / aspect;
+  Result.M22 := yScale;
+  Result.M33 := q;
+  Result.M34 := -1.0;
+  Result.M43 := q * znear;
+end;
+
+function TMatrix4.RotationQuaternion(rotation: Vector4): TMatrix4; static;
+var
+  xx,yy,zz,xy,zw,zx,yw,yz,xw: Single;
+begin
+  xx := rotation.X * rotation.X;
+  yy := rotation.Y * rotation.Y;
+  zz := rotation.Z * rotation.Z;
+  xy := rotation.X * rotation.Y;
+  zw := rotation.Z * rotation.W;
+  zx := rotation.Z * rotation.X;
+  yw := rotation.Y * rotation.W;
+  yz := rotation.Y * rotation.Z;
+  xw := rotation.X * rotation.W;
+
+  Result := Matrix_Identity;
+  Result.M11 := 1.0 - (2.0 * (yy + zz));
+  Result.M12 := 2.0 * (xy + zw);
+  Result.M13 := 2.0 * (zx - yw);
+  Result.M21 := 2.0 * (xy - zw);
+  Result.M22 := 1.0 - (2.0 * (zz + xx));
+  Result.M23 := 2.0 * (yz + xw);
+  Result.M31 := 2.0 * (zx + yw);
+  Result.M32 := 2.0 * (yz - xw);
+  Result.M33 := 1.0 - (2.0 * (yy + xx));
+end;
+
+function TMatrix4.RotationYawPitchRoll(yaw, pitch, roll: Single): TMatrix4; static;
+var 
+  quat: Vector4;
+  halfRoll, halfPitch, halfYaw: Single;
+  sinRoll, cosRoll, sinPitch, cosPitch, sinYaw, cosYaw: Single;
+begin
+  halfRoll  := roll  * 0.5;
+  halfPitch := pitch * 0.5;
+  halfYaw   := yaw   * 0.5;
+
+  sinRoll  := Sin(halfRoll);
+  cosRoll  := Cos(halfRoll);
+  sinPitch := Sin(halfPitch);
+  cosPitch := Cos(halfPitch);
+  sinYaw   := Sin(halfYaw);
+  cosYaw   := Cos(halfYaw);
+
+  quat.X := (cosYaw * sinPitch * cosRoll) + (sinYaw * cosPitch * sinRoll);
+  quat.Y := (sinYaw * cosPitch * cosRoll) - (cosYaw * sinPitch * sinRoll);
+  quat.Z := (cosYaw * cosPitch * sinRoll) - (sinYaw * sinPitch * cosRoll);
+  quat.W := (cosYaw * cosPitch * cosRoll) + (sinYaw * sinPitch * sinRoll);
+  
+  Result := TMatrix4.RotationQuaternion(quat);
+end;
+
+operator * (left, right: TMatrix4): TMatrix4;
+begin
+  Result.M11 := (left.M11 * right.M11) + (left.M12 * right.M21) + (left.M13 * right.M31) + (left.M14 * right.M41);
+  Result.M12 := (left.M11 * right.M12) + (left.M12 * right.M22) + (left.M13 * right.M32) + (left.M14 * right.M42);
+  Result.M13 := (left.M11 * right.M13) + (left.M12 * right.M23) + (left.M13 * right.M33) + (left.M14 * right.M43);
+  Result.M14 := (left.M11 * right.M14) + (left.M12 * right.M24) + (left.M13 * right.M34) + (left.M14 * right.M44);
+  Result.M21 := (left.M21 * right.M11) + (left.M22 * right.M21) + (left.M23 * right.M31) + (left.M24 * right.M41);
+  Result.M22 := (left.M21 * right.M12) + (left.M22 * right.M22) + (left.M23 * right.M32) + (left.M24 * right.M42);
+  Result.M23 := (left.M21 * right.M13) + (left.M22 * right.M23) + (left.M23 * right.M33) + (left.M24 * right.M43);
+  Result.M24 := (left.M21 * right.M14) + (left.M22 * right.M24) + (left.M23 * right.M34) + (left.M24 * right.M44);
+  Result.M31 := (left.M31 * right.M11) + (left.M32 * right.M21) + (left.M33 * right.M31) + (left.M34 * right.M41);
+  Result.M32 := (left.M31 * right.M12) + (left.M32 * right.M22) + (left.M33 * right.M32) + (left.M34 * right.M42);
+  Result.M33 := (left.M31 * right.M13) + (left.M32 * right.M23) + (left.M33 * right.M33) + (left.M34 * right.M43);
+  Result.M34 := (left.M31 * right.M14) + (left.M32 * right.M24) + (left.M33 * right.M34) + (left.M34 * right.M44);
+  Result.M41 := (left.M41 * right.M11) + (left.M42 * right.M21) + (left.M43 * right.M31) + (left.M44 * right.M41);
+  Result.M42 := (left.M41 * right.M12) + (left.M42 * right.M22) + (left.M43 * right.M32) + (left.M44 * right.M42);
+  Result.M43 := (left.M41 * right.M13) + (left.M42 * right.M23) + (left.M43 * right.M33) + (left.M44 * right.M43);
+  Result.M44 := (left.M41 * right.M14) + (left.M42 * right.M24) + (left.M43 * right.M34) + (left.M44 * right.M44);
+end;
+
+operator * (left: TMatrix4; right: Single): TMatrix4;
+begin
+  Result.M11 := left.M11 * right;
+  Result.M12 := left.M12 * right;
+  Result.M13 := left.M13 * right;
+  Result.M14 := left.M14 * right;
+  Result.M21 := left.M21 * right;
+  Result.M22 := left.M22 * right;
+  Result.M23 := left.M23 * right;
+  Result.M24 := left.M24 * right;
+  Result.M31 := left.M31 * right;
+  Result.M32 := left.M32 * right;
+  Result.M33 := left.M33 * right;
+  Result.M34 := left.M34 * right;
+  Result.M41 := left.M41 * right;
+  Result.M42 := left.M42 * right;
+  Result.M43 := left.M43 * right;
+  Result.M44 := left.M44 * right;
+end;
