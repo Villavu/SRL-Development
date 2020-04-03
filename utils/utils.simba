@@ -19,11 +19,10 @@ var
 {$include_once mouse.simba}
 {$include_once keyboard.simba}
 {$include_once time.simba}
-{$include_once text.simba}
 {$include_once color.simba}
 {$include_once types.simba}
 {$include_once drawing.simba}
-{$include_once misc.simba}
+{$include_once slacktree.simba}
 
 {$IFDEF REMOTEINPUT}
   {$include_once remoteinput.simba}

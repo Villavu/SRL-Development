@@ -3,56 +3,57 @@
   {$include_once SRL/osr.simba}
 {$ENDIF}
 
-const
-  BANK_BUTTON_REARRANGE_SWAP_OFF := TRSInterfaceButton.Create('bank_rearrange_swap_off.png');
-  BANK_BUTTON_REARRANGE_SWAP_ON := TRSInterfaceButton.Create('bank_rearrange_swap_on.png');
-
-  BANK_BUTTON_REARRANGE_INSERT_OFF := TRSInterfaceButton.Create('bank_rearrange_insert_off.png');
-  BANK_BUTTON_REARRANGE_INSERT_ON := TRSInterfaceButton.Create('bank_rearrange_insert_on.png');
-
-  BANK_BUTTON_WITHDRAW_ITEM_OFF := TRSInterfaceButton.Create('bank_withdraw_item_off.png');
-  BANK_BUTTON_WITHDRAW_ITEM_ON := TRSInterfaceButton.Create('bank_withdraw_item_on.png');
-
-  BANK_BUTTON_WITHDRAW_NOTE_OFF := TRSInterfaceButton.Create('bank_withdraw_note_off.png');
-  BANK_BUTTON_WITHDRAW_NOTE_ON := TRSInterfaceButton.Create('bank_withdraw_note_on.png');
-
-  BANK_BUTTON_QUANTITY_1_OFF := TRSInterfaceButton.Create('bank_quantity_1_off.png');
-  BANK_BUTTON_QUANTITY_1_ON := TRSInterfaceButton.Create('bank_quantity_1_on.png');
-
-  BANK_BUTTON_QUANTITY_5_OFF := TRSInterfaceButton.Create('bank_quantity_5_off.png');
-  BANK_BUTTON_QUANTITY_5_ON := TRSInterfaceButton.Create('bank_quantity_5_on.png');
-
-  BANK_BUTTON_QUANTITY_10_OFF := TRSInterfaceButton.Create('bank_quantity_10_off.png');
-  BANK_BUTTON_QUANTITY_10_ON := TRSInterfaceButton.Create('bank_quantity_10_on.png');
-
-  BANK_BUTTON_QUANTITY_CUSTOM_OFF := TRSInterfaceButton.Create('bank_quantity_custom_off.png');
-  BANK_BUTTON_QUANTITY_CUSTOM_ON := TRSInterfaceButton.Create('bank_quantity_custom_on.png');
-
-  BANK_BUTTON_QUANTITY_ALL_OFF := TRSInterfaceButton.Create('bank_quantity_all_off.png');
-  BANK_BUTTON_QUANTITY_ALL_ON := TRSInterfaceButton.Create('bank_quantity_all_on.png');
-
-  BANK_BUTTON_DEPOSIT_INVENTORY := TRSInterfaceButton.Create('bank_deposit_inventory.png');
-  BANK_BUTTON_DEPOSIT_INVENTORY_HOVER := TRSInterfaceButton.Create('bank_deposit_inventory_hover.png');
-
-  BANK_BUTTON_DEPOSIT_EQUIPMENT := TRSInterfaceButton.Create('bank_deposit_equipment.png');
-  BANK_BUTTON_DEPOSIT_EQUIPMENT_HOVER := TRSInterfaceButton.Create('bank_deposit_equipment_hover.png');
-
-  BANK_BUTTON_PLACEHOLDERS := TRSInterfaceButton.Create('bank_placeholders.png');
-  BANK_BUTTON_PLACEHOLDERS_HOVER := TRSInterfaceButton.Create('bank_placeholders_hover.png');
-
-  BANK_BUTTON_SEARCH_OFF := TRSInterfaceButton.Create('bank_search_off.png');
-  BANK_BUTTON_SEARCH_OFF_HOVER := TRSInterfaceButton.Create('bank_search_off_hover.png');
-  BANK_BUTTON_SEARCH_ON := TRSInterfaceButton.Create('bank_search_on.png');
-  BANK_BUTTON_SEARCH_ON_HOVER := TRSInterfaceButton.Create('bank_search_on_hover.png');
-
-  BANK_BUTTON_CLOSE := TRSInterfaceButton.Create('bank_close.png');
-  BANK_BUTTON_CLOSE_HOVER := TRSInterfaceButton.Create('bank_close_hover.png');
-
-  BANK_BUTTON_SCROLL := TRSInterfaceButton.Create('bank_scroll.png');
-  BANK_BUTTON_SCROLLED_TOP := TRSInterfaceButton.Create('bank_scrolled_top.png');
-
 type
-  TRSBankScreen = type TRSInterface;
+  ERSBankLocation = (BANK_LOCATION_CASTLE_WARS,
+                     BANK_LOCATION_CLAN_WARS);
+
+  TRSBankScreen = record(TRSInterface)
+    BUTTON_REARRANGE_SWAP_OFF: TRSInterfaceButton;
+    BUTTON_REARRANGE_SWAP_ON: TRSInterfaceButton;
+
+    BUTTON_REARRANGE_INSERT_OFF: TRSInterfaceButton;
+    BUTTON_REARRANGE_INSERT_ON: TRSInterfaceButton;
+
+    BUTTON_WITHDRAW_ITEM_OFF: TRSInterfaceButton;
+    BUTTON_WITHDRAW_ITEM_ON: TRSInterfaceButton;
+
+    BUTTON_WITHDRAW_NOTE_OFF: TRSInterfaceButton;
+    BUTTON_WITHDRAW_NOTE_ON: TRSInterfaceButton;
+
+    BUTTON_QUANTITY_1_OFF: TRSInterfaceButton;
+    BUTTON_QUANTITY_1_ON: TRSInterfaceButton;
+
+    BUTTON_QUANTITY_5_OFF: TRSInterfaceButton;
+    BUTTON_QUANTITY_5_ON: TRSInterfaceButton;
+
+    BUTTON_QUANTITY_10_OFF: TRSInterfaceButton;
+    BUTTON_QUANTITY_10_ON: TRSInterfaceButton;
+
+    BUTTON_QUANTITY_CUSTOM_OFF: TRSInterfaceButton;
+    BUTTON_QUANTITY_CUSTOM_ON: TRSInterfaceButton;
+
+    BUTTON_QUANTITY_ALL_OFF: TRSInterfaceButton;
+    BUTTON_QUANTITY_ALL_ON: TRSInterfaceButton;
+
+    BUTTON_DEPOSIT_INVENTORY: TRSInterfaceButton;
+    BUTTON_DEPOSIT_INVENTORY_HOVER: TRSInterfaceButton;
+
+    BUTTON_DEPOSIT_EQUIPMENT: TRSInterfaceButton;
+    BUTTON_DEPOSIT_EQUIPMENT_HOVER: TRSInterfaceButton;
+
+    BUTTON_PLACEHOLDERS: TRSInterfaceButton;
+    BUTTON_PLACEHOLDERS_HOVER: TRSInterfaceButton;
+
+    BUTTON_SEARCH_OFF: TRSInterfaceButton;
+    BUTTON_SEARCH_OFF_HOVER: TRSInterfaceButton;
+    BUTTON_SEARCH_ON: TRSInterfaceButton;
+    BUTTON_SEARCH_ON_HOVER: TRSInterfaceButton;
+
+    BUTTON_CLOSE: TRSInterfaceButton;
+    BUTTON_CLOSE_HOVER: TRSInterfaceButton;
+
+    BUTTON_SCROLLED_TOP: TRSInterfaceButton;
+  end;
 
 function TRSBankScreen.GetSlotBoxes: TBoxArray; constref;
 var
@@ -63,14 +64,29 @@ begin
   Result := Grid(8, Rows, 31, 31, [17, 5], [Self.X1 + 57, Self.Y1 + 77]);
 end;
 
-function TRSBankScreen.GetTabBoxes: TBoxArray;
+function TRSBankScreen.GetTabBoxes: TBoxArray; constref;
 begin
   Result := Grid(10, 1, 36, 30, [4, 0], [Self.X1 + 46, Self.Y1 + 42]);
 end;
 
-function TRSBankScreen.IsOpen: Boolean;
+function TRSBankScreen.IsOpen: Boolean; overload;
 begin
-  Result := Self.FindButton([BANK_BUTTON_REARRANGE_SWAP_ON, BANK_BUTTON_REARRANGE_SWAP_OFF]);
+  Result := Self.FindButton([Self.BUTTON_REARRANGE_SWAP_ON, Self.BUTTON_REARRANGE_SWAP_OFF]);
+end;
+
+function TRSBankScreen.IsOpen(WaitTime: Int32): Boolean; overload;
+var
+  T: UInt64;
+begin
+  T := GetTickCount() + WaitTime;
+
+  while (T > GetTickCount()) do
+  begin
+     if Self.IsOpen() then
+       Exit(True);
+
+     Wait(0, 1000, wdLeft);
+  end;
 end;
 
 procedure TRSBankScreen.Debug(Bitmap: TMufasaBitmap); override;
@@ -87,24 +103,52 @@ end;
 procedure TRSBankScreen.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'BankScreen';
-  Self.Buttons := [
-    BANK_BUTTON_REARRANGE_SWAP_OFF,BANK_BUTTON_REARRANGE_SWAP_ON,
-    BANK_BUTTON_REARRANGE_INSERT_OFF, BANK_BUTTON_REARRANGE_INSERT_ON,
-    BANK_BUTTON_WITHDRAW_ITEM_OFF, BANK_BUTTON_WITHDRAW_ITEM_ON,
-    BANK_BUTTON_WITHDRAW_NOTE_OFF, BANK_BUTTON_WITHDRAW_NOTE_ON,
-    BANK_BUTTON_QUANTITY_1_OFF, BANK_BUTTON_QUANTITY_1_ON,
-    BANK_BUTTON_QUANTITY_5_OFF, BANK_BUTTON_QUANTITY_5_ON,
-    BANK_BUTTON_QUANTITY_10_OFF, BANK_BUTTON_QUANTITY_10_ON,
-    BANK_BUTTON_QUANTITY_CUSTOM_OFF, BANK_BUTTON_QUANTITY_CUSTOM_ON,
-    BANK_BUTTON_QUANTITY_ALL_OFF, BANK_BUTTON_QUANTITY_ALL_ON,
-    BANK_BUTTON_DEPOSIT_INVENTORY, BANK_BUTTON_DEPOSIT_INVENTORY_HOVER,
-    BANK_BUTTON_DEPOSIT_EQUIPMENT, BANK_BUTTON_DEPOSIT_EQUIPMENT_HOVER,
-    BANK_BUTTON_PLACEHOLDERS, BANK_BUTTON_PLACEHOLDERS_HOVER,
-    BANK_BUTTON_SEARCH_OFF, BANK_BUTTON_SEARCH_OFF_HOVER,
-    BANK_BUTTON_SEARCH_ON, BANK_BUTTON_SEARCH_ON_HOVER,
-    BANK_BUTTON_CLOSE,BANK_BUTTON_CLOSE_HOVER,
-    BANK_BUTTON_SCROLL, BANK_BUTTON_SCROLLED_TOP
-  ];
+
+  Self.BUTTON_REARRANGE_SWAP_OFF := Self.AddBitmapButton('bank_rearrange_swap_off.png');
+  Self.BUTTON_REARRANGE_SWAP_ON := Self.AddBitmapButton('bank_rearrange_swap_on.png');
+
+  Self.BUTTON_REARRANGE_INSERT_OFF := Self.AddBitmapButton('bank_rearrange_insert_off.png');
+  Self.BUTTON_REARRANGE_INSERT_ON := Self.AddBitmapButton('bank_rearrange_insert_on.png');
+
+  Self.BUTTON_WITHDRAW_ITEM_OFF := Self.AddBitmapButton('bank_withdraw_item_off.png');
+  Self.BUTTON_WITHDRAW_ITEM_ON := Self.AddBitmapButton('bank_withdraw_item_on.png');
+
+  Self.BUTTON_WITHDRAW_NOTE_OFF := Self.AddBitmapButton('bank_withdraw_note_off.png');
+  Self.BUTTON_WITHDRAW_NOTE_ON := Self.AddBitmapButton('bank_withdraw_note_on.png');
+
+  Self.BUTTON_QUANTITY_1_OFF := Self.AddBitmapButton('bank_quantity_1_off.png');
+  Self.BUTTON_QUANTITY_1_ON := Self.AddBitmapButton('bank_quantity_1_on.png');
+
+  Self.BUTTON_QUANTITY_5_OFF := Self.AddBitmapButton('bank_quantity_5_off.png');
+  Self.BUTTON_QUANTITY_5_ON := Self.AddBitmapButton('bank_quantity_5_on.png');
+
+  Self.BUTTON_QUANTITY_10_OFF := Self.AddBitmapButton('bank_quantity_10_off.png');
+  Self.BUTTON_QUANTITY_10_ON := Self.AddBitmapButton('bank_quantity_10_on.png');
+
+  Self.BUTTON_QUANTITY_CUSTOM_OFF := Self.AddBitmapButton('bank_quantity_custom_off.png');
+  Self.BUTTON_QUANTITY_CUSTOM_ON := Self.AddBitmapButton('bank_quantity_custom_on.png');
+
+  Self.BUTTON_QUANTITY_ALL_OFF := Self.AddBitmapButton('bank_quantity_all_off.png');
+  Self.BUTTON_QUANTITY_ALL_ON := Self.AddBitmapButton('bank_quantity_all_on.png');
+
+  Self.BUTTON_DEPOSIT_INVENTORY := Self.AddBitmapButton('bank_deposit_inventory.png');
+  Self.BUTTON_DEPOSIT_INVENTORY_HOVER := Self.AddBitmapButton('bank_deposit_inventory_hover.png');
+
+  Self.BUTTON_DEPOSIT_EQUIPMENT := Self.AddBitmapButton('bank_deposit_equipment.png');
+  Self.BUTTON_DEPOSIT_EQUIPMENT_HOVER := Self.AddBitmapButton('bank_deposit_equipment_hover.png');
+
+  Self.BUTTON_PLACEHOLDERS := Self.AddBitmapButton('bank_placeholders.png');
+  Self.BUTTON_PLACEHOLDERS_HOVER := Self.AddBitmapButton('bank_placeholders_hover.png');
+
+  Self.BUTTON_SEARCH_OFF := Self.AddBitmapButton('bank_search_off.png');
+  Self.BUTTON_SEARCH_OFF_HOVER := Self.AddBitmapButton('bank_search_off_hover.png');
+  Self.BUTTON_SEARCH_ON := Self.AddBitmapButton('bank_search_on.png');
+  Self.BUTTON_SEARCH_ON_HOVER := Self.AddBitmapButton('bank_search_on_hover.png');
+
+  Self.BUTTON_CLOSE := Self.AddBitmapButton('bank_close.png');
+  Self.BUTTON_CLOSE_HOVER := Self.AddBitmapButton('bank_close_hover.png');
+
+  Self.BUTTON_SCROLLED_TOP := Self.AddBitmapButton('bank_scrolled_top.png');
 
   if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
   begin
@@ -165,10 +209,10 @@ begin
     Exit(True);
 
   // Clear current search
-  if Self.IsTitle('Showing items:') and (not Self.ClickButton(BANK_BUTTON_SEARCH_OFF, MOUSE_LEFT)) then
+  if Self.IsTitle('Showing items:') and (not Self.ClickButton(Self.BUTTON_SEARCH_OFF, MOUSE_LEFT)) then
     Exit(False);
 
-  if Self.ClickButton(BANK_BUTTON_SEARCH_ON, MOUSE_LEFT) and Chatbox.AnswerQuery('Show items', Item, Random(2000, 2500)) then
+  if Self.ClickButton(Self.BUTTON_SEARCH_ON, MOUSE_LEFT) and Chatbox.AnswerQuery('Show items', Item, Random(2000, 2500)) then
     Result := Self.IsTitle('Showing items: ' + LowerCase(Item), Random(2000, 2500));
 end;
 
@@ -213,7 +257,7 @@ begin
   if not Self.IsOpen() then
     Exit;
 
-  while not Self.FindButton(BANK_BUTTON_SCROLLED_TOP) do
+  while not Self.FindButton(Self.BUTTON_SCROLLED_TOP) do
     Mouse.Scroll(Self.GetSlotBoxes().Merge(), Random(1, 3), False);
 end;
 
@@ -236,15 +280,93 @@ begin
   end;
 end;
 
-function TRSBankScreen.WithdrawItem(Slot, Amount: Int32): Boolean; overload;
-begin
-  Self.ScrollToTop();
-
-  Result := Self.WithdrawItem(Self.GetSlotBoxes[Slot], Amount);
-end;
-
 // function TRSBankScreen.WithdrawNote
 // function TRSBankScreen.WithdrawQuantity
+
+function TRSBankScreen._Open(P: TPoint): Boolean;
+begin
+  Mouse.Move(P);
+
+  if MainScreen.IsUpText(['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker']) then
+  begin
+    // Right click
+    if ('Banker' in MainScreen.GetUpText()) or (Random() < 0.10) then
+    begin
+      if (not ChooseOption.Select(['Use Bank', 'Bank Bank'])) then
+        Exit(False);
+    end else
+    // Left click
+    begin
+      Mouse.Click(MOUSE_LEFT);
+
+      if (not SRL.DidClick(RS_CLICK_RED)) then
+        Exit(False);
+    end;
+
+    if Minimap.HasFlag(Random(400, 800)) then
+      Minimap.WaitFlag();
+
+    Result := Self.IsOpen(Random(2000, 4000));
+  end;
+end;
+
+function TRSBankScreen._OpenChest(FrameColor, TextureColor: TCTS2Color): Boolean;
+var
+  FrameTPA, TextureTPA, TPA: TPointArray;
+  ATPA: T2DPointArray;
+  Magic: Int32;
+  I: Int32;
+  P: TPoint;
+begin
+  // This gives us a constant distance regardless of the zoom level
+  Magic := Distance(Minimap.VecToMS([Minimap.Center.X, Minimap.Center.Y]),
+                    Minimap.VecToMS([Minimap.Center.X + 1.2, Minimap.Center.Y]));
+
+  if (Magic > 0) then
+  begin
+    SRL.FindColors(FrameTPA, FrameColor, MainScreen.Bounds);
+    SRL.FindColors(TextureTPA, TextureColor, MainScreen.Bounds);
+
+    // Get points where the frame and texture are close to eachother
+    TPA := TextureTPA.PointsInRangeOf(FrameTPA, 0, Magic);
+
+    // Remove noise by removing the TPA edge a few times
+    for 1 to Magic div 4 do
+      TPA := ClearTPAFromTPA(TPA, TPA.Edges());
+
+    if Length(TPA) > 0 then
+    begin
+      // Split our matches into groups
+      ATPA := TPA.Cluster(Magic div 4);
+      ATPA.SortBySize();
+
+      // Loop though the three largest groups
+      for I := 0 to Min(High(ATPA), 3) do
+      begin
+        TPA := ATPA[I];
+
+        P := TPA[Random(Length(TPA))];
+        P.X += Random(-2, 2);
+        P.Y += Random(-2, 2);
+
+        if Self._Open(P) then
+          Exit(True);
+      end;
+    end;
+  end;
+end;
+
+function TRSBankScreen.Open(Location: ERSBankLocation): Boolean;
+begin
+  if Self.IsOpen() then
+    Exit(True);
+
+  case Location of
+    BANK_LOCATION_CLAN_WARS,
+    BANK_LOCATION_CASTLE_WARS:
+      Result := Self._OpenChest(CTS2(5526875, 15, 0.19, 0.06), CTS2(2503237, 20, 0.10, 0.14));
+  end;
+end;
 
 
 var

@@ -3,23 +3,24 @@
   {$include_once SRL/osr.simba}
 {$ENDIF}
 
-const
-  LOGOUT_BUTTON_LOGOUT := TRSInterfaceButton.Create('Click here to logout', RS_FONTSET_BOLD_12, -1);
-  LOGOUT_BUTTON_WORLD_SWITCHER := TRSInterfaceButton.Create('World Switcher', RS_FONTSET_BOLD_12, -1);
-
-  LOGOUT_BUTTON_WORLD_SWITCHER_CLOSE := TRSInterfaceButton.Create('logout_worldswitcher_close.png');
-  LOGOUT_BUTTON_WORLD_SWITCHER_CLOSE_HOVER := TRSInterfaceButton.Create('logout_worldswitcher_close_hover.png');
-
 type
-  TRSLogout = type TRSInterface;
+  TRSLogout = record(TRSInterface)
+    BUTTON_LOGOUT: TRSInterfaceButton;
+    BUTTON_WORLD_SWITCHER: TRSInterfaceButton;
+
+    BUTTON_WORLD_SWITCHER_CLOSE: TRSInterfaceButton;
+    BUTTON_WORLD_SWITCHER_CLOSE_HOVER: TRSInterfaceButton;
+  end;
 
 procedure TRSLogout.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'Options';
-  Self.Buttons := [
-    LOGOUT_BUTTON_LOGOUT, LOGOUT_BUTTON_WORLD_SWITCHER,
-    LOGOUT_BUTTON_WORLD_SWITCHER_CLOSE, LOGOUT_BUTTON_WORLD_SWITCHER_CLOSE_HOVER
-  ];
+
+  Self.BUTTON_LOGOUT := Self.AddOCRButton('Click here to logout', RS_FONTSET_BOLD_12, -1);
+  Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('World Switcher', RS_FONTSET_BOLD_12, -1);
+
+  Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddBitmapButton('logout_worldswitcher_close.png');
+  Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER := Self.AddBitmapButton('logout_worldswitcher_close_hover.png');
 
   if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
   begin
@@ -42,7 +43,7 @@ end;
 
 function TRSLogout.IsWorldSwitcherOpen: Boolean;
 begin
-  Result := Self.IsOpen() and Self.FindButton([LOGOUT_BUTTON_WORLD_SWITCHER_CLOSE, LOGOUT_BUTTON_WORLD_SWITCHER_CLOSE_HOVER]);
+  Result := Self.IsOpen() and Self.FindButton([Self.BUTTON_WORLD_SWITCHER_CLOSE, Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER]);
 end;
 
 function TRSLogout.CloseWorldSwitcher: Boolean;
@@ -51,7 +52,7 @@ var
 begin
   if Self.IsWorldSwitcherOpen() then
   begin
-    if Self.ClickButton([LOGOUT_BUTTON_WORLD_SWITCHER_CLOSE, LOGOUT_BUTTON_WORLD_SWITCHER_CLOSE_HOVER], MOUSE_LEFT) then
+    if Self.ClickButton([Self.BUTTON_WORLD_SWITCHER_CLOSE, Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER], MOUSE_LEFT) then
     begin
       T := GetTickCount() + 2500;
 
@@ -79,7 +80,7 @@ begin
 
   for 1 to Attempts do
   begin
-    if Self.ClickButton(LOGOUT_BUTTON_LOGOUT, MOUSE_LEFT) then
+    if Self.ClickButton(Self.BUTTON_LOGOUT, MOUSE_LEFT) then
     begin
       T := GetTickCount() + Interval + SRL.NormalRange(-2000, 2000);
       while (T > GetTickCount()) do

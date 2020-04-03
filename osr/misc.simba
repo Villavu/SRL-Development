@@ -6,12 +6,12 @@
 type
   ERSClickType = (RS_CLICK_RED, RS_CLICK_YELLOW);
 
-function TSRL.IsLoggedIn: Boolean; overload;
+function TSRL.IsLoggedIn: Boolean; constref; overload;
 begin
   Result := ChatButtons.IsOpen();
 end;
 
-function TSRL.IsLoggedIn(WaitTime: Int32): Boolean; overload;
+function TSRL.IsLoggedIn(WaitTime: Int32): Boolean; constref; overload;
 var
   T: UInt64;
 begin
@@ -25,7 +25,7 @@ begin
   end;
 end;
 
-function TSRL.DidClick(ClickType: ERSClickType): Boolean;
+function TSRL.DidClick(ClickType: ERSClickType): Boolean; constref;
 var
   BMP: TMufasaBitmap;
   B: TBox;
@@ -80,7 +80,7 @@ SRL.GetXPAtLevel
 
 Given a level it returns the minimum XP needed for it.
 *)
-function TSRL.GetXPAtLevel(level:Int32): Int32;
+function TSRL.GetXPAtLevel(level:Int32): Int32; constref;
 var
   total:Double;
   i:Int32;
@@ -97,7 +97,7 @@ SRL.GetLevelAtXP
 
 Given some XP, it returns what level that is.
 *)
-function TSRL.GetLevelAtXP(XP:UInt32): Int32;
+function TSRL.GetLevelAtXP(XP:UInt32): Int32; constref;
 var 
   total:Double;
 begin
@@ -116,7 +116,7 @@ SRL.GetItemAmount
 For use with items in like bankscreen, inventory, shops and so on to
 get the number of stacked items there are.
 *)
-function TSRL.GetItemAmount(Area: TBox): Int32;
+function TSRL.GetItemAmount(Area: TBox): Int32; constref;
 const
   TEXT_COLORS: TIntegerArray = [$00FFFF, $00FEFE, $FFFFFF, $80FF00]; // Million = white | Billion = green etc.
 var
@@ -147,7 +147,7 @@ SRL.AvgBrightness
 Returns the average brightness of a area on the screen. 
 Returns a value between ``0`` and ``100``, ``0`` being black.
 *)
-function TSRL.AvgBrightness(B: TBox): Int32;
+function TSRL.AvgBrightness(B: TBox): Int32; constref;
 var
   BMP: TMufasaBitmap;
 begin
@@ -164,13 +164,27 @@ SRL.PeakBrightness
 Returns the peak brightness of a area on the screen. 
 Returns a value between ``0`` and ``100``, ``0`` being black.
 *)
-function TSRL.PeakBrightness(B: TBox): Int32;
+function TSRL.PeakBrightness(B: TBox): Int32; constref;
 var
   BMP: TMufasaBitmap;
 begin
   BMP.FromClient(B);
   Result := BMP.PeakBrightness();
   BMP.Free();
+end;
+
+function TSRL.FormatNumber(n:Extended; dec:Byte = 3): String; constref;
+var
+  i: Int32;
+  f: Extended := n;
+begin
+  while (Abs(f) >= 1000) do
+  begin
+    Inc(i);
+    f := f / 1000;
+  end;
+
+  Result := FloatToStr(Round(f,dec)) + (['','K','M','B','T'])[i]
 end;
 
 

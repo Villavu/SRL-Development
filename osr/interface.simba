@@ -18,8 +18,6 @@ type
     Color: Int32;
   end;
 
-  TRSInterfaceButtonArray = array of TRSInterfaceButton;
-
   TRSInterfaceAlignment = record
     Method: function: Int32 of object;
     Offset: Int32;
@@ -28,7 +26,7 @@ type
   TRSInterface = record
     Name: String;
 
-    Buttons: TRSInterfaceButtonArray;
+    Buttons: array of TRSInterfaceButton;
 
     Alignment: record
       Left, Right, Top, Bottom: TRSInterfaceAlignment;
@@ -39,20 +37,35 @@ type
     end;
   end;
 
-function TRSInterfaceButton.Create(Bitmap: String): TRSInterfaceButton; static; overload;
+procedure TRSInterface.FreeButtons;
+var
+  I: Int32;
+begin
+  for I := 0 to High(Self.Buttons) do
+    if (Self.Buttons[I].Bitmap <> nil) then
+      Self.Buttons[I].Bitmap.Free();
+end;
+
+function TRSInterface.AddBitmapButton(Bitmap: String): TRSInterfaceButton;
 begin
   Result.Bitmap.Init(Client.GetMBitmaps());
   Result.Bitmap.LoadFromFile(RS_INTERFACE_BITMAP_PATH + Bitmap);
   Result.Bitmap.SetName(Bitmap);
 
-  RS_INTERFACE_BITMAPS += Result.Bitmap;
+  Self.Buttons := Self.Buttons + Result;
+  if Length(Self.Buttons) = 1 then
+    AddOnTerminate(@Self.FreeButtons);
 end;
 
-function TRSInterfaceButton.Create(Text: String; Font: TFontSet; Color: Int32): TRSInterfaceButton; static; overload;
+function TRSInterface.AddOCRButton(Text: String; Font: TFontSet; Color: Int32): TRSInterfaceButton;
 begin
   Result.Text := Text;
   Result.Font := Font;
   Result.Color := Color;
+
+  Self.Buttons := Self.Buttons + Result;
+  if Length(Self.Buttons) = 1 then
+    AddOnTerminate(@Self.FreeButtons);
 end;
 
 procedure TRSInterface.Fatal(Message: String); constref;
@@ -62,7 +75,7 @@ end;
 
 procedure TRSInterface.Debug(Message: String); constref; overload;
 begin
-  WriteLn('[' + Self.Name + ']: ' + Message);
+  WriteLn(SRL.TimeStamp() + ' [' + Self.Name + ']: ' + Message);
 end;
 
 function TRSInterface.X1: Int32; constref;
@@ -198,7 +211,7 @@ begin
   end;
 end;
 
-function TRSInterface.FindButton(Buttons: TRSInterfaceButtonArray; out Bounds: TBox): Boolean; overload;
+function TRSInterface.FindButton(Buttons: array of TRSInterfaceButton; out Bounds: TBox): Boolean; overload;
 var
   I: Int32;
 begin
@@ -215,7 +228,7 @@ begin
   Result := FindButton(Button, Bounds);
 end;
 
-function TRSInterface.FindButton(Buttons: TRSInterfaceButtonArray): Boolean; overload;
+function TRSInterface.FindButton(Buttons: array of TRSInterfaceButton): Boolean; overload;
 var
   I: Int32;
 begin
@@ -245,7 +258,7 @@ begin
     Mouse.Click(SRL.rowp(Mouse.GetPosition(), Bounds), Action);
 end;
 
-function TRSInterface.ClickButton(Buttons: TRSInterfaceButtonArray; Action: Int32): Boolean; overload;
+function TRSInterface.ClickButton(Buttons: array of TRSInterfaceButton; Action: Int32): Boolean; overload;
 var
   I: Int32;
 begin

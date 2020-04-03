@@ -42,7 +42,7 @@ type
 procedure TAntiban.Debug(Message: String);
 begin
   if Self.Debugging then
-    SRL.WriteLn('[Antiban]: ' + Message);
+    WriteLn(SRL.TimeStamp() + ' [Antiban]: ' + Message);
 end;
 
 function TAntiban.AddBreak(Interval, Length: Double; Randomness: Double = 0.2; LogoutChance: Double = 0.50): Boolean;
@@ -171,8 +171,8 @@ begin
       I := -1; // Restart loop
     end;
 
-  if Self.DoBreak() then
-    Exit(True);
+  if CheckBreaks and Self.DoBreak() then
+    Result := True;
 end;
 
 procedure TAntiban.RandomMouse;

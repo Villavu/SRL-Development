@@ -139,13 +139,7 @@ var
   P: TPoint;
 begin
   if Self.ZOOM = -1 then
-  begin
-    SRL.WriteLn('[MM2MS]: Unknown zoom. Reading from options');
-    SRL.WriteLn('[MM2MS]: Zoom level: ' + IntToStr(Level := Options.GetZoomLevel()));
-
-    if Level > -1 then
-      Self.SetZoomLevel(Level);
-  end;
+    Self.SetZoomLevel(Options.GetZoomLevel());
 
   P := Minimap.Center;
   for i := 0 to High(Arr) do

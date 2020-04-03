@@ -6,7 +6,7 @@ Slacktree offers a KD-tree like tree-structure speicalized for TPointArrays (2D 
 Adds fast alteratives to the most popular functions found in the AND_TPA.dll ``FilterTPADistTPA``. 
 The library loaded may not work properly on Linux distors.
 *)
-{$loadlib ../Includes/SRL/utils/slacktree/libslacktree}
+{$loadlib ../plugins/libslacktree}
 
 (*
 TPointArray.PointsInRangeOf

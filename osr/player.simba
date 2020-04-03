@@ -6,7 +6,7 @@
 type
   PRSPlayer = ^TRSPlayer;
 
-  TRSPlayer_OnLoginEvent = procedure(Player: PRSPlayer);
+  TRSPlayerLoginEvent = procedure(Player: PRSPlayer);
 
   TRSPlayer = record
     LoginName: String;
@@ -14,11 +14,13 @@ type
     Member: Boolean;
     Worlds: TIntegerArray;
 
+    CurrentWorld: Int32;
+
     // User Data
     Data: Pointer;
     Variants: TVariantArray;
 
-    OnLogin: TRSPlayer_OnLoginEvent;
+    OnLogin: TRSPlayerLoginEvent;
   end;
 
   TRSPlayerArray = array of TRSPlayer;
@@ -43,7 +45,7 @@ begin
   Self := Self + Player;
 end;
 
-procedure TRSPlayerArray.AddLoginHandler(Handler: TRSPlayer_OnLoginEvent);
+procedure TRSPlayerArray.AddLoginHandler(Handler: TRSPlayerLoginEvent);
 var
   I: Int32;
 begin
@@ -51,91 +53,25 @@ begin
     Self[I].OnLogin := @Handler;
 end;
 
-procedure TRSPlayerArray.SwitchTo(Index: Int32);
-begin
-  CurrentPlayer := Index;
-  if not InRange(CurrentPlayer, Low(Self), High(Self)) then
-    raise 'Invalid player index: ' + ToString(CurrentPlayer);
-end;
-
 function TRSPlayer.Login: Boolean;
-var
-  Player: TRSPlayer;
-  Response: ERSLoginMessage;
-  World: Int32;
-  Attempts: Int32;
 begin
   if SRL.IsLoggedIn() then
     Exit(True);
 
-  SRL.WriteLn('[Login]: Logging in player');
-
-  while not SRL.IsLoggedIn() do
+  if LoginScreen.IsOpen() then
   begin
-    if LobbyScreen.IsOpen() and LobbyScreen.ClickButton(LOBBY_BUTTON_PLAY, MOUSE_LEFT) and SRL.IsLoggedIn(5000) then
-      Break;
-
-    if LoginScreen.IsOpen() then
+    if Self.Worlds <> [] then
     begin
-      if (Length(Player.Worlds) > 0) and (not (LoginScreen.GetCurrentWorld() in Player.Worlds)) then
-      begin
-        World := Player.Worlds[Random(Length(Player.Worlds))];
-        if not LoginScreen.SwitchToWorld(World) then
-          raise 'Unable to switch to world ' + ToString(World);
-      end;
-
-      LoginScreen.EnterLogin(Self.LoginName);
-      LoginScreen.EnterPassword(Self.Password);
-
-      Response := LoginScreen.Login();
-
-      if (Response <> LOGIN_MESSAGE_NONE) then
-      begin
-        SRL.WriteLn('[Login]: Handling login response: ' + ToString(Response));
-
-        case Response of
-          // Retry
-          LOGIN_MESSAGE_INVALID_CREDENTIALS,
-          LOGIN_MESSAGE_INVALID_USER_PASS:
-            ;
-
-          // Cannot recover
-          LOGIN_MESSAGE_MEMBERS,
-          LOGIN_MESSAGE_IN_MEMBERS_AREA,
-          LOGIN_MESSAGE_NEED_SKILL_TOTAL,
-          LOGIN_MESSAGE_ACCOUNT_DISABLED:
-            Exit(False);
-
-          // Wait a little before retrying
-          LOGIN_MESSAGE_ERROR_CONNECTING,
-          LOGIN_MESSAGE_ACCOUNT_NOT_LOGGED_OUT,
-          LOGIN_MESSAGE_LOGIN_SERVER_OFFLINE,
-          LOGIN_MESSAGE_ERROR_LOADING_PROFILE,
-          LOGIN_MESSAGE_CONNECTION_TIMED_OUT,
-          LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED,
-          LOGIN_MESSAGE_WORLD_FULL:
-            Wait(10000, 20000);
-
-          // Unhandled
-          else
-            raise '[Login]: No handler for response';
-        end;
-      end;
+      Self.CurrentWorld := Self.Worlds[Random(Length(Self.Worlds))];
+      if (LoginScreen.GetCurrentWorld() <> Self.CurrentWorld) and (not LoginScreen.SwitchToWorld(Self.CurrentWorld)) then
+        Exit(False);
     end;
 
-    Inc(Attempts);
+    Result := LoginScreen.Login(Self.LoginName, Self.Password);
+  end else
+    Result := LobbyScreen.Play();
 
-    if Attempts >= 10 then
-    begin
-      SRL.WriteLn('[Login]: Too many attempts, exiting');
-
-      Break;
-    end;
-
-    Wait(500);
-  end;
-
-  if SRL.IsLoggedIn() then
+  if Result then
   begin
     if (@Self.OnLogin <> nil) then
       Self.OnLogin(@Self);

@@ -12,16 +12,13 @@
 
       SetupMethods: array of TSRLSetupMethod;
       DebugMethods: array of TSRLDebugMethod;
+
     end;
 
   var
     SRL: TSRL;
 
   {$INCLUDE utils/utils.simba}
-
-  procedure TSRL.WriteLn(S: String);
-  begin
-  end;
 
   procedure TSRL.AddSetupMethod(Method: TSRLSetupMethod);
   begin
@@ -72,22 +69,22 @@
   {$IFNDEF SRL_INTERFACE_INCLUDED}          {$INCLUDE osr/interface.simba}
   {$IFNDEF SRL_ROOT_INTERFACE_INCLUDED}     {$INCLUDE osr/rootinterface.simba}
   {$IFNDEF SRL_CHATBUTTONS_INCLUDED}        {$INCLUDE osr/chatbuttons.simba}
+  {$IFNDEF SRL_MISC_INCLUDED}               {$INCLUDE osr/misc.simba}
   {$IFNDEF SRL_LOBBYSCREEN_INCLUDED}        {$INCLUDE osr/lobbyscreen.simba}
   {$IFNDEF SRL_LOGINSCREEN_INCLUDED}        {$INCLUDE osr/loginscreen.simba}
-  {$IFNDEF SRL_MISC_INCLUDED}               {$INCLUDE osr/misc.simba}
   {$IFNDEF SRL_CHOOSEOPTION_INCLUDED}       {$INCLUDE osr/chooseoption.simba}
   {$IFNDEF SRL_MAINSCREEN_INCLUDED}         {$INCLUDE osr/mainscreen.simba}
   {$IFNDEF SRL_CHATBOX_INCLUDED}            {$INCLUDE osr/chatbox.simba}
   {$IFNDEF SRL_GAMETABS_INCLUDED}           {$INCLUDE osr/gametabs.simba}
   {$IFNDEF SRL_GAMETAB_INCLUDED}            {$INCLUDE osr/gametab.simba}
   {$IFNDEF SRL_INTERFACEAREA_INCLUDED}      {$INCLUDE osr/interfacearea.simba}
-  {$IFNDEF SRL_BANKSCREEN_INCLUDED}         {$INCLUDE osr/bankscreen.simba}
   {$IFNDEF SRL_XPBAR_INCLUDED}              {$INCLUDE osr/xpbar.simba}
-  {$IFNDEF SRL_INVENTORY_INCLUDED}          {$INCLUDE osr/inventory.simba}
   {$IFNDEF SRL_OPTIONS_INCLUDED}            {$INCLUDE osr/options.simba}
   {$IFNDEF SRL_LOGOUT_INCLUDED}             {$INCLUDE osr/logout.simba}
   {$IFNDEF SRL_MINIMAP_INCLUDED}            {$INCLUDE osr/minimap.simba}
   {$IFNDEF SRL_MINIMAP_TO_MS_INCLUDED}      {$INCLUDE osr/minimaptoms.simba}
+  {$IFNDEF SRL_BANKSCREEN_INCLUDED}         {$INCLUDE osr/bankscreen.simba}
+  {$IFNDEF SRL_INVENTORY_INCLUDED}          {$INCLUDE osr/inventory.simba}
   {$IFNDEF SRL_ITEMFINDER_INCLUDED}         {$INCLUDE osr/itemfinder/itemfinder.simba}
   {$IFNDEF SRL_ITEMFINDER_FINDERS_INCLUDED} {$INCLUDE osr/itemfinder/itemfinder_finders.simba}
   {$IFNDEF SRL_WALKER_INCLUDED}             {$INCLUDE osr/walker/walker.simba}

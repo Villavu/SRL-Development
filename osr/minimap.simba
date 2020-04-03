@@ -106,10 +106,8 @@ begin
         Result := FixRad(ArcTan2(South.Y - Y, South.X - X) - (PI / 2));
         if (Result <> 0) then
 	        Result += 0.0333; // compass dial is floored.. this makes us more accurate.
-      end else
-        SRL.WriteLn('Compass dot not found');
-    end else
-      SRL.WriteLn('Compass north not found');
+      end;
+    end;
   end;
 
   if AsDegrees then
@@ -343,9 +341,6 @@ begin
 
     Wait(0, 1000, wdLeft);
   end;
-
-  if Timeout.IsFinished() then
-    SRL.WriteLn('Minimap.WaitFlag: Timed out; Flag hasn''t moved.');
 end;
 
 function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: EMinimapDotTypes): TPointArray;

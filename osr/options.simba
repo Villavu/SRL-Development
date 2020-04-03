@@ -3,53 +3,60 @@
   {$include_once SRL/osr.simba}
 {$ENDIF}
 
-const
-  OPTIONS_BUTTON_DISPLAY_OFF := TRSInterfaceButton.Create('options_display_off.png');
-  OPTIONS_BUTTON_DISPLAY_HOVER_OFF := TRSInterfaceButton.Create('options_display_off_hover.png');
-  OPTIONS_BUTTON_DISPLAY_ON := TRSInterfaceButton.Create('options_display_on.png');
-  OPTIONS_BUTTON_DISPLAY_HOVER_ON := TRSInterfaceButton.Create('options_display_on_hover.png');
-
-  OPTIONS_BUTTON_AUDIO_OFF := TRSInterfaceButton.Create('options_audio_off.png');
-  OPTIONS_BUTTON_AUDIO_HOVER_OFF := TRSInterfaceButton.Create('options_audio_off_hover.png');
-  OPTIONS_BUTTON_AUDIO_ON := TRSInterfaceButton.Create('options_audio_on.png');
-  OPTIONS_BUTTON_AUDIO_HOVER_ON := TRSInterfaceButton.Create('options_audio_on_hover.png');
-
-  OPTIONS_BUTTON_CHAT_OFF := TRSInterfaceButton.Create('options_chat_off.png');
-  OPTIONS_BUTTON_CHAT_HOVER_OFF := TRSInterfaceButton.Create('options_chat_off_hover.png');
-  OPTIONS_BUTTON_CHAT_ON := TRSInterfaceButton.Create('options_chat_on.png');
-  OPTIONS_BUTTON_CHAT_HOVER_ON := TRSInterfaceButton.Create('options_chat_on_hover.png');
-
-  OPTIONS_BUTTON_CONTROLS_OFF := TRSInterfaceButton.Create('options_controls_off.png');
-  OPTIONS_BUTTON_CONTROLS_HOVER_OFF := TRSInterfaceButton.Create('options_controls_off_hover.png');
-  OPTIONS_BUTTON_CONTROLS_ON := TRSInterfaceButton.Create('options_controls_on.png');
-  OPTIONS_BUTTON_CONTROLS_HOVER_ON := TRSInterfaceButton.Create('options_controls_on_hover.png');
-
-  OPTIONS_BUTTON_SHIFT_DROP_ON := TRSInterfaceButton.Create('options_shift_drop_on.png');
-  OPTIONS_BUTTON_SHIFT_DROP_OFF := TRSInterfaceButton.Create('options_shift_drop_off.png');
-
 type
-  TRSOptions = type TRSInterface;
+  TRSOptions = record(TRSInterface)
+    BUTTON_DISPLAY_OFF: TRSInterfaceButton;
+    BUTTON_DISPLAY_HOVER_OFF: TRSInterfaceButton;
+    BUTTON_DISPLAY_ON: TRSInterfaceButton;
+    BUTTON_DISPLAY_HOVER_ON: TRSInterfaceButton;
+
+    BUTTON_AUDIO_OFF: TRSInterfaceButton;
+    BUTTON_AUDIO_HOVER_OFF: TRSInterfaceButton;
+    BUTTON_AUDIO_ON: TRSInterfaceButton;
+    BUTTON_AUDIO_HOVER_ON: TRSInterfaceButton;
+
+    BUTTON_CHAT_OFF: TRSInterfaceButton;
+    BUTTON_CHAT_HOVER_OFF: TRSInterfaceButton;
+    BUTTON_CHAT_ON: TRSInterfaceButton;
+    BUTTON_CHAT_HOVER_ON: TRSInterfaceButton;
+
+    BUTTON_CONTROLS_OFF: TRSInterfaceButton;
+    BUTTON_CONTROLS_HOVER_OFF: TRSInterfaceButton;
+    BUTTON_CONTROLS_ON: TRSInterfaceButton;
+    BUTTON_CONTROLS_HOVER_ON: TRSInterfaceButton;
+
+    BUTTON_SHIFT_DROP_ON: TRSInterfaceButton;
+    BUTTON_SHIFT_DROP_OFF: TRSInterfaceButton;
+  end;
 
   ERSOptionsTab = (OPTIONS_TAB_DISPLAY, OPTIONS_TAB_AUDIO, OPTIONS_TAB_CHAT, OPTIONS_TAB_CONTROLS);
 
 procedure TRSOptions.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'Options';
-  Self.Buttons := [
-    OPTIONS_BUTTON_DISPLAY_ON, OPTIONS_BUTTON_DISPLAY_HOVER_OFF,
-    OPTIONS_BUTTON_DISPLAY_ON, OPTIONS_BUTTON_DISPLAY_HOVER_ON,
 
-    OPTIONS_BUTTON_AUDIO_ON, OPTIONS_BUTTON_AUDIO_HOVER_OFF,
-    OPTIONS_BUTTON_AUDIO_ON, OPTIONS_BUTTON_AUDIO_HOVER_ON,
+  Self.BUTTON_DISPLAY_OFF := Self.AddBitmapButton('options_display_off.png');
+  Self.BUTTON_DISPLAY_HOVER_OFF := Self.AddBitmapButton('options_display_off_hover.png');
+  Self.BUTTON_DISPLAY_ON := Self.AddBitmapButton('options_display_on.png');
+  Self.BUTTON_DISPLAY_HOVER_ON := Self.AddBitmapButton('options_display_on_hover.png');
 
-    OPTIONS_BUTTON_CHAT_ON, OPTIONS_BUTTON_CHAT_HOVER_OFF,
-    OPTIONS_BUTTON_CHAT_ON, OPTIONS_BUTTON_CHAT_HOVER_ON,
+  Self.BUTTON_AUDIO_OFF := Self.AddBitmapButton('options_audio_off.png');
+  Self.BUTTON_AUDIO_HOVER_OFF := Self.AddBitmapButton('options_audio_off_hover.png');
+  Self.BUTTON_AUDIO_ON := Self.AddBitmapButton('options_audio_on.png');
+  Self.BUTTON_AUDIO_HOVER_ON := Self.AddBitmapButton('options_audio_on_hover.png');
 
-    OPTIONS_BUTTON_CONTROLS_ON, OPTIONS_BUTTON_CONTROLS_HOVER_OFF,
-    OPTIONS_BUTTON_CONTROLS_ON, OPTIONS_BUTTON_CONTROLS_HOVER_ON,
+  Self.BUTTON_CHAT_OFF := Self.AddBitmapButton('options_chat_off.png');
+  Self.BUTTON_CHAT_HOVER_OFF := Self.AddBitmapButton('options_chat_off_hover.png');
+  Self.BUTTON_CHAT_ON := Self.AddBitmapButton('options_chat_on.png');
+  Self.BUTTON_CHAT_HOVER_ON := Self.AddBitmapButton('options_chat_on_hover.png');
 
-    OPTIONS_BUTTON_SHIFT_DROP_ON, OPTIONS_BUTTON_SHIFT_DROP_OFF
-  ];
+  Self.BUTTON_CONTROLS_OFF := Self.AddBitmapButton('options_controls_off.png');
+  Self.BUTTON_CONTROLS_HOVER_OFF := Self.AddBitmapButton('options_controls_off_hover.png');
+  Self.BUTTON_CONTROLS_ON := Self.AddBitmapButton('options_controls_on.png');
+  Self.BUTTON_CONTROLS_HOVER_ON := Self.AddBitmapButton('options_controls_on_hover.png');
+
+  Self.BUTTON_SHIFT_DROP_ON := Self.AddBitmapButton('options_shift_drop_on.png');
+  Self.BUTTON_SHIFT_DROP_OFF := Self.AddBitmapButton('options_shift_drop_off.png');
 
   if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
   begin
@@ -143,16 +150,16 @@ end;
 
 function TRSOptions.GetTab: ERSOptionsTab;
 begin
-  if Self.FindButton([OPTIONS_BUTTON_DISPLAY_ON, OPTIONS_BUTTON_DISPLAY_HOVER_ON]) then
+  if Self.FindButton([Self.BUTTON_DISPLAY_ON, Self.BUTTON_DISPLAY_HOVER_ON]) then
     Exit(OPTIONS_TAB_DISPLAY);
 
-  if Self.FindButton([OPTIONS_BUTTON_AUDIO_ON, OPTIONS_BUTTON_AUDIO_HOVER_ON]) then
+  if Self.FindButton([Self.BUTTON_AUDIO_ON, Self.BUTTON_AUDIO_HOVER_ON]) then
     Exit(OPTIONS_TAB_AUDIO);
 
-  if Self.FindButton([OPTIONS_BUTTON_CHAT_ON, OPTIONS_BUTTON_CHAT_HOVER_ON]) then
+  if Self.FindButton([Self.BUTTON_CHAT_ON, Self.BUTTON_CHAT_HOVER_ON]) then
     Exit(OPTIONS_TAB_CHAT);
 
-  if Self.FindButton([OPTIONS_BUTTON_CONTROLS_ON, OPTIONS_BUTTON_CONTROLS_HOVER_ON]) then
+  if Self.FindButton([Self.BUTTON_CONTROLS_ON, Self.BUTTON_CONTROLS_HOVER_ON]) then
     Exit(OPTIONS_TAB_CONTROLS);
 end;
 
@@ -169,10 +176,10 @@ begin
   for 1 to 3 do
   begin
     case Tab of
-      OPTIONS_TAB_DISPLAY:  Self.ClickButton([OPTIONS_BUTTON_DISPLAY_OFF, OPTIONS_BUTTON_DISPLAY_HOVER_OFF], MOUSE_LEFT);
-      OPTIONS_TAB_AUDIO:    Self.ClickButton([OPTIONS_BUTTON_AUDIO_OFF, OPTIONS_BUTTON_AUDIO_HOVER_OFF], MOUSE_LEFT);
-      OPTIONS_TAB_CHAT:     Self.ClickButton([OPTIONS_BUTTON_CHAT_OFF, OPTIONS_BUTTON_CHAT_HOVER_OFF], MOUSE_LEFT);
-      OPTIONS_TAB_CONTROLS: Self.ClickButton([OPTIONS_BUTTON_CONTROLS_OFF, OPTIONS_BUTTON_CONTROLS_HOVER_OFF], MOUSE_LEFT);
+      OPTIONS_TAB_DISPLAY:  Self.ClickButton([Self.BUTTON_DISPLAY_OFF, Self.BUTTON_DISPLAY_HOVER_OFF], MOUSE_LEFT);
+      OPTIONS_TAB_AUDIO:    Self.ClickButton([Self.BUTTON_AUDIO_OFF, Self.BUTTON_AUDIO_HOVER_OFF], MOUSE_LEFT);
+      OPTIONS_TAB_CHAT:     Self.ClickButton([Self.BUTTON_CHAT_OFF, Self.BUTTON_CHAT_HOVER_OFF], MOUSE_LEFT);
+      OPTIONS_TAB_CONTROLS: Self.ClickButton([Self.BUTTON_CONTROLS_OFF, Self.BUTTON_CONTROLS_HOVER_OFF], MOUSE_LEFT);
     end;
 
     T := GetTickCount() + Random(1500, 2500);
@@ -195,7 +202,7 @@ begin
   if (not Self.Open()) or (not Self.OpenTab(OPTIONS_TAB_CONTROLS)) then
     Exit;
 
-  Result := Self.FindButton(OPTIONS_BUTTON_SHIFT_DROP_ON) or Self.ClickButton(OPTIONS_BUTTON_SHIFT_DROP_OFF, MOUSE_LEFT);
+  Result := Self.FindButton(Self.BUTTON_SHIFT_DROP_ON) or Self.ClickButton(Self.BUTTON_SHIFT_DROP_OFF, MOUSE_LEFT);
 end;
 
 function TRSOptions.DisableShiftDrop: Boolean;
@@ -203,7 +210,7 @@ begin
   if (not Self.Open()) or (not Self.OpenTab(OPTIONS_TAB_CONTROLS)) then
     Exit;
 
-   Result := Self.FindButton(OPTIONS_BUTTON_SHIFT_DROP_OFF) or Self.ClickButton(OPTIONS_BUTTON_SHIFT_DROP_ON, MOUSE_LEFT);         ;
+   Result := Self.FindButton(Self.BUTTON_SHIFT_DROP_OFF) or Self.ClickButton(Self.BUTTON_SHIFT_DROP_ON, MOUSE_LEFT);         ;
 end;
 
 procedure TRSOptions.Debug(Bitmap: TMufasaBitmap); override;
@@ -213,7 +220,7 @@ begin
 
   inherited();
 
-  if (Self.GetTab = OPTIONS_TAB_DISPLAY) then
+  if (Self.GetTab() = OPTIONS_TAB_DISPLAY) then
     Bitmap.DrawBox(Self.GetZoomSliderBounds(), False, $00FFFF);
 end;
 

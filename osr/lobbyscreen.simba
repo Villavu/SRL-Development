@@ -3,15 +3,14 @@
   {$include_once SRL/osr.simba}
 {$ENDIF}
 
-const
-  LOBBY_BUTTON_PLAY := TRSInterfaceButton.Create('CLICK HERE TO PLAY', RS_FONTSET_BOLD_12, $FFFFFF);
-
 type
-  TRSLobbyScreen = type TRSInterface;
+  TRSLobbyScreen = record(TRSInterface)
+    BUTTON_PLAY: TRSInterfaceButton;
+  end;
 
 function TRSLobbyScreen.IsOpen: Boolean;
 begin
-  Result := Self.FindButton(LOBBY_BUTTON_PLAY);
+  Result := Self.FindButton(Self.BUTTON_PLAY);
 end;
 
 procedure TRSLobbyScreen.Debug(Bitmap: TMufasaBitmap); override;
@@ -25,7 +24,7 @@ end;
 procedure TRSLobbyScreen.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'Login Screen';
-  Self.Buttons := [LOBBY_BUTTON_PLAY];
+  Self.BUTTON_PLAY := Self.AddOCRButton('CLICK HERE TO PLAY', RS_FONTSET_BOLD_12, $FFFFFF);
 
   if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
   begin
@@ -35,6 +34,12 @@ begin
     Self.Alignment.Bottom := [@RootInterface.Y1, 502];
     Self.Alignment.Center := [764, 0];
   end;
+end;
+
+function TRSLobbyScreen.Play: Boolean;
+begin
+  if Self.IsOpen() and Self.ClickButton(Self.BUTTON_PLAY, MOUSE_LEFT) then
+    Result := SRL.IsLoggedIn(5000);
 end;
 
 var

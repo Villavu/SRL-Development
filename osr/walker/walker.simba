@@ -575,9 +575,6 @@ begin
     end else
       Self.WalkStep(PlayerPoint, Path[Index], ClickRandomness);
   end;
-
-  if Attempts >= 20 then
-    SRL.WriteLn('Failed to progress path');
 end;
 
 function TRSWalker.WalkBlind(Destination: TPoint; ClickRandomness: Int32 = 4; FinalCorrection: Boolean = False): Boolean;

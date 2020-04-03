@@ -3,24 +3,23 @@
   {$include_once SRL/osr.simba}
 {$ENDIF}
 
-const
-  CHAT_BUTTON_ALL := TRSInterfaceButton.Create('All', RS_FONTSET_PLAIN_11, $FFFFFF);
-  CHAT_BUTTON_GAME := TRSInterfaceButton.Create('Game', RS_FONTSET_PLAIN_11, $FFFFFF);
-  CHAT_BUTTON_PUBLIC := TRSInterfaceButton.Create('Public', RS_FONTSET_PLAIN_11, $FFFFFF);
-  CHAT_BUTTON_PRIVATE := TRSInterfaceButton.Create('Private', RS_FONTSET_PLAIN_11, $FFFFFF);
-  CHAT_BUTTON_CLAN := TRSInterfaceButton.Create('Clan', RS_FONTSET_PLAIN_11, $FFFFFF);
-  CHAT_BUTTON_TRADE := TRSInterfaceButton.Create('Trade', RS_FONTSET_PLAIN_11, $FFFFFF);
-  CHAT_BUTTON_REPORT := TRSInterfaceButton.Create('Report', RS_FONTSET_PLAIN_11, $FFFFFF);
-
 type
-  TRSChatButtons = type TRSInterface;
+  TRSChatButtons = record(TRSInterface)
+    BUTTON_ALL: TRSInterfaceButton;
+    BUTTON_GAME: TRSInterfaceButton;
+    BUTTON_PUBLIC: TRSInterfaceButton;
+    BUTTON_PRIVATE: TRSInterfaceButton;
+    BUTTON_CLAN: TRSInterfaceButton;
+    BUTTON_TRADE: TRSInterfaceButton;
+    BUTTON_REPORT: TRSInterfaceButton;
+  end;
 
 var
   ChatButtons: TRSChatButtons;
 
 function TRSChatButtons.IsOpen: Boolean;
 begin
-  Result := Self.FindButton(CHAT_BUTTON_ALL);
+  Result := Self.FindButton(Self.BUTTON_ALL);
 end;
 
 procedure TRSChatButtons.Debug(Bitmap: TMufasaBitmap); override;
@@ -34,10 +33,14 @@ end;
 procedure TRSChatButtons.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'Chat Buttons';
-  Self.Buttons := [
-    CHAT_BUTTON_ALL, CHAT_BUTTON_GAME, CHAT_BUTTON_PUBLIC, CHAT_BUTTON_PRIVATE,
-    CHAT_BUTTON_CLAN, CHAT_BUTTON_TRADE, CHAT_BUTTON_REPORT
-  ];
+
+  Self.BUTTON_ALL := Self.AddOCRButton('All', RS_FONTSET_PLAIN_11, $FFFFFF);
+  Self.BUTTON_GAME := Self.AddOCRButton('Game', RS_FONTSET_PLAIN_11, $FFFFFF);
+  Self.BUTTON_PUBLIC := Self.AddOCRButton('Public', RS_FONTSET_PLAIN_11, $FFFFFF);
+  Self.BUTTON_PRIVATE := Self.AddOCRButton('Private', RS_FONTSET_PLAIN_11, $FFFFFF);
+  Self.BUTTON_CLAN := Self.AddOCRButton('Clan', RS_FONTSET_PLAIN_11, $FFFFFF);
+  Self.BUTTON_TRADE := Self.AddOCRButton('Trade', RS_FONTSET_PLAIN_11, $FFFFFF);
+  Self.BUTTON_REPORT := Self.AddOCRButton('Report', RS_FONTSET_PLAIN_11, $FFFFFF);
 
   if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
   begin
