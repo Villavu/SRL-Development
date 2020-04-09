@@ -71,7 +71,7 @@ begin
   begin
     Mouse.Click(MOUSE_RIGHT);
 
-    Result := Self.IsOpen();
+    Result := Self.IsOpen(1500);
   end;
 end;
 

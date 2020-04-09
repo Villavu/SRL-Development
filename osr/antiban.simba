@@ -5,9 +5,10 @@
 {$ENDIF}
 
 type
-  PAntibanTask = ^TAntibanTask;
   TAntibanMethod = procedure of object;
   TAntibanCondition = function: Boolean of object;
+
+  PAntibanTask = ^TAntibanTask;
   TAntibanTask = record
     Method: TAntibanMethod;
     Interval: Double;
@@ -25,12 +26,26 @@ type
     NextAtTime, PrevAtTime: Double;
   end;
 
+  PSleepTask = ^TSleepTask;
+  TSleepTask = record
+    Time: String;
+    Length: Double;
+    Randomness: String;
+    LogoutChance: Double;
+    StdVar: Double;
+    NextAtTime: Double;
+  end;
+
   TAntiban = record
     Debugging: Boolean;
     DebugRandoms: Boolean;
 
+    Sleeps: array of TSleepTask;
     Breaks: array of TBreakTask;
     Tasks: array of TAntibanTask;
+
+    OnStartSleep: procedure(Task: PSleepTask);
+    OnFinishSleep: procedure(Task: PSleepTask);
 
     OnStartBreak: procedure(Task: PBreakTask);
     OnFinishBreak: procedure(Task: PBreakTask);
@@ -45,7 +60,33 @@ begin
     WriteLn(SRL.TimeStamp() + ' [Antiban]: ' + Message);
 end;
 
-function TAntiban.AddBreak(Interval, Length: Double; Randomness: Double = 0.2; LogoutChance: Double = 0.50): Boolean;
+function TAntiban.TimeRunningAtClock(TimeOfDay: String; Randomness: Double = 0.10): Int64;
+var
+  Res: TDateTime;
+begin
+  Res := (Date() + StrToTime(TimeOfDay)) - Now();
+  if (Res < 0) then
+    Res += 1;
+
+  Result := GetTimeRunning() + Trunc(Res * SecsPerDay * MSecsPerSec);
+  Result += Trunc(SRL.GaussRand(0, StrToTime(ToStr(Randomness * 10)) * SecsPerDay * MSecsPerSec));
+  Result := Max(0, Result);
+end;
+
+procedure TAntiban.AddSleep(Time: String; Length: Double; Randomness: Double = 0.10; LogoutChance: Double = 0.50);
+var
+  Task: TSleepTask;
+begin
+  Task.Time := Time;
+  Task.Length := Length;
+  Task.StdVar := Randomness;
+  Task.LogoutChance := LogoutChance;
+  Task.NextAtTime := Self.TimeRunningAtClock(Task.Time, Task.StdVar);
+
+  Self.Sleeps += Task;
+end;
+
+procedure TAntiban.AddBreak(Interval, Length: Double; Randomness: Double = 0.2; LogoutChance: Double = 0.50);
 var
   Task: TBreakTask;
 begin
@@ -56,6 +97,54 @@ begin
   Task.NextAtTime := GetTimeRunning() + Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar));
 
   Self.Breaks += Task;
+end;
+
+procedure TAntiban.TakeSleep(var Task: TSleepTask);
+var
+  Countdown: TCountDown;
+  I: Int32;
+begin
+  Countdown.Init(Abs(Round(SRL.GaussRand(Task.Length, Task.Length * Task.StdVar))));
+
+  Self.Debug('Sleeping for ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+
+  if (@Self.OnStartSleep <> nil) then
+    Self.OnStartSleep(@Task);
+
+  if Random() < Task.LogoutChance then
+  begin
+    Self.Debug('Logging out');
+
+    Logout.ClickLogout();
+  end;
+
+  if Random() < 0.50 then
+    Self.LoseFocus();
+
+  while not Countdown.IsFinished() do
+  begin
+    Self.Debug('Sleep time remaining: ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+
+    Wait(Min(Countdown.TimeRemaining(), 60000 * 5));
+  end;
+
+  Self.Debug('Sleep finished');
+
+  if (@Self.OnFinishSleep <> nil) then
+    Self.OnFinishSleep(@Task);
+
+  if InRange(CurrentPlayer, Low(Players), High(Players)) then
+    Players[CurrentPlayer].Login();
+
+  // Offset all tasks & breaks
+  for I := 0 to High(Self.Breaks) do
+    Self.Breaks[I].NextAtTime += GetTickCount() - (Countdown.Timeout - Countdown.Length);
+
+  for I := 0 to High(Self.Tasks) do
+    Self.Tasks[I].NextAtTime += GetTickCount() - (Countdown.Timeout - Countdown.Length);
+
+  // Setup next time this break happens
+  Task.NextAtTime := Self.TimeRunningAtClock(Task.Time, Task.StdVar);
 end;
 
 procedure TAntiban.TakeBreak(var Task: TBreakTask);
@@ -95,7 +184,7 @@ begin
   if InRange(CurrentPlayer, Low(Players), High(Players)) then
     Players[CurrentPlayer].Login();
 
-  // Offset all tasks
+  // Offset all tasks & breaks
   for I := 0 to High(Self.Breaks) do
     Self.Breaks[I].NextAtTime += GetTickCount() - (Countdown.Timeout - Countdown.Length);
 
@@ -141,10 +230,27 @@ begin
       Self.TakeBreak(Self.Breaks[I]);
 
       Result := True;
+
+      I := -1; // Restart loop
     end;
 end;
 
-function TAntiban.DoAntiban(CheckBreaks: Boolean = True): Boolean;
+function TAntiban.DoSleep: Boolean;
+var
+  I: Int32;
+begin
+  for I := 0 to High(Self.Sleeps) do
+    if GetTimeRunning() > Self.Sleeps[I].NextAtTime then
+    begin
+      Self.TakeSleep(Self.Sleeps[I]);
+
+      Result := True;
+
+      I := -1; // Restart loop
+    end;
+end;
+
+function TAntiban.DoAntiban(CheckBreaks: Boolean = True; CheckSleeps: Boolean = True): Boolean;
 var
   I: Int32;
   Task: PAntibanTask;
@@ -171,8 +277,8 @@ begin
       I := -1; // Restart loop
     end;
 
-  if CheckBreaks and Self.DoBreak() then
-    Result := True;
+  if CheckBreaks and Self.DoBreak() then Result := True;
+  if CheckSleeps and Self.DoSleep() then Result := True;
 end;
 
 procedure TAntiban.RandomMouse;
@@ -182,7 +288,7 @@ begin
   Self.Debug('Random Mouse');
 
   CustomMouse := Mouse;
-  CustomMouse.Speed += 5;
+  CustomMouse.Speed += Random(1, 5);
 
   for 1 to Round(SRL.TruncatedGauss(1, 6)) do
   begin
@@ -242,7 +348,7 @@ begin
     GameTabs.Open(Tab);
 end;
 
-procedure TAntiban.LoseFocus; overload;
+procedure TAntiban.LoseFocus;
 var
   Space: TBoxArray;
 begin
@@ -332,6 +438,39 @@ end;
 function TAntiban.TimeUntilBreak(Task: TBreakTask): String;
 begin
   Result := SRL.MsToTime(Max(0, Round(Task.NextAtTime - GetTimeRunning())), TIME_BARE);
+end;
+
+procedure TAntiban.SimulateBreaks;
+const
+  TEST_DAYS: UInt64 = 1000;
+var
+  Active, Inactive, Len, Prev: Double;
+  I: Int32;
+  Task: PBreakTask;
+begin
+  while (Active + Inactive < TEST_DAYS * ONE_DAY) do
+  begin
+    Task := @Self.Breaks[0];
+    for I := 0 to High(Self.Breaks) do
+      if Self.Breaks[I].NextAtTime < Task^.NextAtTime then
+        Task := @Self.Breaks[I];
+
+    Len := Abs(SRL.GaussRand(Task^.Length, Task^.Length * Task^.StdVar));
+    Active += Task^.NextAtTime - Prev;
+    Inactive += Len;
+
+    for I := 0 to High(Self.Breaks) do
+      Self.Breaks[I].NextAtTime += Len;
+
+    Prev := Task^.NextAtTime;
+
+    Task^.NextAtTime += Abs(SRL.GaussRand(Task^.Interval, Task^.Interval * Task^.StdVar));
+  end;
+
+  Inactive /= TEST_DAYS;
+  Active /= TEST_DAYS;
+
+  WriteLn('Running for ', SRL.MsToTime(Round(Active), TIME_FORMAL_LONG), ' per day, on average.');
 end;
 
 var
