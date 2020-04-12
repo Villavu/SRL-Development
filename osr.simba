@@ -18,6 +18,9 @@
   var
     SRL: TSRL;
 
+  {$DEFINE SRL_WITH_REMOTEINPUT}   //todo fix lagg...
+  {$DEFINE SRL_WITH_SLACKTREE}
+
   {$INCLUDE utils/utils.simba}
 
   procedure TSRL.AddSetupMethod(Method: TSRLSetupMethod);
