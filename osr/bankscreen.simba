@@ -252,6 +252,7 @@ const
   BANK_WITHDRAW_ALL = -1;
   BANK_WITHDRAW_ALL_BUT_ONE = -2;
 
+
 procedure TRSBankScreen.ScrollToTop;
 begin
   if not Self.IsOpen() then
@@ -263,7 +264,10 @@ end;
 
 function TRSBankScreen.WithdrawItem(B: TBox; Amount: Int32): Boolean; overload;
 begin
-  Mouse.Move(Bounds);
+
+  Self.ClickButton(Self.BUTTON_WITHDRAW_ITEM_OFF, mouse_Left);
+
+  Mouse.Move(B);
 
   case Amount of
     BANK_WITHDRAW_ALL:
@@ -280,8 +284,101 @@ begin
   end;
 end;
 
-// function TRSBankScreen.WithdrawNote
-// function TRSBankScreen.WithdrawQuantity
+function TRSBankScreen.WithdrawNote(B: TBox; Amount: Int32): Boolean;
+begin
+
+  Self.ClickButton(Self.BUTTON_WITHDRAW_NOTE_OFF, mouse_Left);
+
+  Mouse.Move(B);
+
+  case Amount of
+    BANK_WITHDRAW_ALL:
+      Result := ChooseOption.Select('Withdraw-All');
+    BANK_WITHDRAW_ALL_BUT_ONE:
+      Result := ChooseOption.Select('Withdraw-All-but-1');
+    else
+    begin
+      if ChooseOption.Select('Withdraw-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False) then
+        Exit(True);
+      if ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500)) then
+        Exit(True);
+    end;
+  end;
+end;
+
+function TRSBankScreen.WithdrawQuantity(B: TBox; Amount: Int32): Boolean;
+var
+  A: String;
+begin
+
+  Self.ClickButton(Self.BUTTON_WITHDRAW_ITEM_OFF, mouse_Left);
+
+  A := ToString(Amount);
+  case Amount of
+    1:
+      Self.ClickButton(Self.BUTTON_QUANTITY_1_OFF, mouse_Left);
+    5:
+     Self.ClickButton(Self.BUTTON_QUANTITY_5_OFF, mouse_Left);
+    10:
+      Self.ClickButton(Self.BUTTON_QUANTITY_10_OFF, mouse_Left);
+    BANK_WITHDRAW_ALL:
+      begin
+      Self.ClickButton(Self.BUTTON_QUANTITY_ALL_OFF, mouse_Left);
+      A := 'All';
+      end;
+    else
+      Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_OFF, mouse_Left);
+    end;
+
+  Mouse.Move(B);
+
+  if MainScreen.IsUpText('Withdraw-' + ToString(Amount)) then
+    Mouse.Click(mouse_Left)
+    else
+  begin
+  if (Amount = BANK_WITHDRAW_ALL) then
+    Exit(False);
+  if ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500)) then
+    Exit(True);
+  end;
+end;
+
+function TRSBankScreen.WithdrawQuantityNote(B: TBox; Amount: Int32): Boolean;
+var
+  A: String;
+begin
+
+  Self.ClickButton(Self.BUTTON_WITHDRAW_NOTE_OFF, mouse_Left);
+
+  A := ToString(Amount);
+  case Amount of
+    1:
+      Self.ClickButton(Self.BUTTON_QUANTITY_1_OFF, mouse_Left);
+    5:
+     Self.ClickButton(Self.BUTTON_QUANTITY_5_OFF, mouse_Left);
+    10:
+      Self.ClickButton(Self.BUTTON_QUANTITY_10_OFF, mouse_Left);
+    BANK_WITHDRAW_ALL:
+      begin
+      Self.ClickButton(Self.BUTTON_QUANTITY_ALL_OFF, mouse_Left);
+      A := 'All';
+      end;
+    else
+      Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_OFF, mouse_Left);
+    end;
+
+  Mouse.Move(B);
+
+  if MainScreen.IsUpText('Withdraw-' + ToString(Amount)) then
+    Mouse.Click(mouse_Left)
+    else
+  begin
+  if (Amount = BANK_WITHDRAW_ALL) then
+    Exit(False);
+  if ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500)) then
+    Exit(True);
+  end;
+end;
 
 function TRSBankScreen._Open(P: TPoint): Boolean;
 begin
@@ -367,6 +464,131 @@ begin
       Result := Self._OpenChest(CTS2(5526875, 15, 0.19, 0.06), CTS2(2503237, 20, 0.10, 0.14));
   end;
 end;
+
+
+function TRSBankScreen.Close(): Boolean;
+var
+  t: UInt64;
+begin
+  if (not Self.IsOpen()) then
+    Exit(True);
+
+  Self.ClickButton(Self.BUTTON_CLOSE, mouse_left);
+  t := GetTickCount() + Random(4000, 5000);
+  while (t > GetTickCount()) do
+  begin
+    if (not Self.IsOpen()) then
+      Exit(True);
+  end;
+end;
+
+function TRSBankScreen.EscapeClose(): Boolean;
+var
+  t: UInt64;
+begin
+  if (not Self.IsOpen()) then
+    Exit(True);
+
+  Keyboard.PressKey(VK_ESCAPE);
+  t := GetTickCount() + Random(4000, 5000);
+  while (t > GetTickCount()) do
+  begin
+    if (not Self.IsOpen()) then
+      Exit(True);
+  end;
+end;
+
+
+(*
+BankScreen.DepositAll
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.DepositAll(): Boolean;
+Depositis your inventory by clicking the deposit inventory button
+*)
+function TRSBankScreen.DepositAll(): Boolean;
+begin
+  {if (Inventory.Count = 0) then
+    Exit(True);}
+
+  Result := Self.ClickButton(Self.BUTTON_DEPOSIT_INVENTORY, mouse_left);
+end;
+
+(*
+BankScreen.DepositItem
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.DepositItem(Slot:Int32; DepositAll:Boolean): Boolean;
+Depeosit a single item, or all of it's kind from inventory.
+*)
+function TRSBankScreen.DepositItem(Slot:Int32; DepositAll:Boolean): Boolean;
+var
+  t: TCountDown;
+begin
+  if (not Self.IsOpen) then
+    Exit(False);
+
+  Result := not Inventory.IsSlotUsed(Slot);
+  if (not Result) then
+  begin
+    Mouse.Move(Inventory.GetSlotBox(Slot)); Wait(40,90);
+
+    if DepositAll then
+    begin
+      ChooseOption.Open();
+      Result := ChooseOption.Select(['Deposit-All']);
+    end else
+    begin
+      Mouse.Click(mouse_left);
+      Result := True;
+    end;
+
+    // wait for and verify completion
+    t.Init(2000);
+    while (not t.IsFinished) and Inventory.IsSlotUsed(Slot) do  Wait(70,160);
+    Result := not Inventory.IsSlotUsed(Slot);
+  end;
+end;
+
+
+(*
+BankScreen.Deposit
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Deposit(SlotArr: TIntegerArray): Boolean;
+Depeosits all the given items / slots
+*)
+function TRSBankScreen.Deposit(SlotArr: TIntegerArray): Boolean;
+var
+  i,j:Int32;
+  t:UInt64;
+begin
+  if (not self.IsOpen()) then
+    Exit();
+
+  for j:=0 to 1 do
+  begin
+    Result := True;
+    for i:=0 to High(SlotArr) do
+      if Inventory.IsSlotUsed(SlotArr[i]) then
+      begin
+        self.DepositItem(SlotArr[i], srl.GetItemAmount(Inventory.GetSlotBox(slotArr[i])) > 0);
+        Wait(6,25);
+      end;
+
+    for i:=0 to High(SlotArr) do
+      if InRange(SlotArr[i],0,27) then
+      begin
+        t := GetTickCount() + 200;
+        repeat
+          Result := not(inventory.IsSlotUsed(slotArr[i]));
+        until (GetTickCount() > t) or Result;
+      end;
+
+    if Result then
+      Break
+    else
+      Wait(180,265); //wait a bit before round 2
+  end;
+end;
+
 
 
 var

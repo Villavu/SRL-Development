@@ -83,8 +83,8 @@
   {$IFNDEF SRL_LOGOUT_INCLUDED}             {$INCLUDE osr/logout.simba}
   {$IFNDEF SRL_MINIMAP_INCLUDED}            {$INCLUDE osr/minimap.simba}
   {$IFNDEF SRL_MINIMAP_TO_MS_INCLUDED}      {$INCLUDE osr/minimaptoms.simba}
-  {$IFNDEF SRL_BANKSCREEN_INCLUDED}         {$INCLUDE osr/bankscreen.simba}
   {$IFNDEF SRL_INVENTORY_INCLUDED}          {$INCLUDE osr/inventory.simba}
+  {$IFNDEF SRL_BANKSCREEN_INCLUDED}         {$INCLUDE osr/bankscreen.simba}
   {$IFNDEF SRL_ITEMFINDER_INCLUDED}         {$INCLUDE osr/itemfinder/itemfinder.simba}
   {$IFNDEF SRL_ITEMFINDER_FINDERS_INCLUDED} {$INCLUDE osr/itemfinder/itemfinder_finders.simba}
   {$IFNDEF SRL_WALKER_INCLUDED}             {$INCLUDE osr/walker/walker.simba}

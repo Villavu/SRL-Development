@@ -53,7 +53,7 @@ end;
 
 function TRSInventory.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = TAB_INVENTORY) or BankScreen.IsOpen();
+  Result := (GameTabs.GetCurrentTab() = TAB_INVENTORY);
 end;
 
 function TRSInventory.Open: Boolean;

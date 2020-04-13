@@ -167,6 +167,8 @@ begin
           Result := Result + Slot;
       end;
     end;
+    Image.SaveToFile('img.png');
+    Templ.SaveToFile('templ.png');
 
     Image.Free();
     Image := nil;
