@@ -158,6 +158,9 @@ var
   I, Attempts: Int32;
   Active: Int32;
 begin
+  if (Length(Slots) = 0) then
+    Exit(True);
+
   IsKeyDown(VK_SHIFT); // Clear cache
 
   Boxes := Self.GetSlotBoxes();

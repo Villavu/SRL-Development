@@ -1,0 +1,6 @@
+[submodule "plugins/simpleocr"]
+	path = plugins/simpleocr
+	url = https://github.com/ollydev/SimpleOCR
+[submodule "plugins/slacktree"]
+	path = plugins/slacktree
+	url = https://github.com/ollydev/SlackTree

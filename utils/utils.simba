@@ -22,9 +22,12 @@ var
 {$include_once color.simba}
 {$include_once types.simba}
 {$include_once drawing.simba}
-{$include_once slacktree.simba}
 
-{$IFDEF REMOTEINPUT}
+{$IFDEF SRL_WITH_SLACKTREE}
+  {$include_once slacktree.simba}
+{$ENDIF}
+
+{$IFDEF SRL_WITH_REMOTEINPUT}
   {$include_once remoteinput.simba}
 {$ENDIF}
 
