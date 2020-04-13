@@ -7,14 +7,14 @@ function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; overload
 var
   Identifer: String;
 begin
-  if Self.Open() then
+  if BankScreen.IsOpen or Self.Open() then
     for Identifer in Identifers do
       Result += ItemFinder.Find(Identifer, Self.GetSlotBoxes());
 end;
 
 function TRSInventory.FindAll(Identifer: String): TIntegerArray; overload;
 begin
-  if Self.Open() then
+  if BankScreen.IsOpen or Self.Open() then
     Result := Self.FindAll([Identifer]);
 end;
 
@@ -42,7 +42,7 @@ function TRSInventory.Count(Identifers: TStringArray): Int32; overload;
 var
   Identifer: String;
 begin
-  if Self.Open() then
+  if (BankScreen.IsOpen or Self.Open()) then
   begin
     for Identifer in Identifers do
       Result += Length(Self.FindAll(Identifer));
@@ -104,6 +104,51 @@ begin
   Matches := ItemFinder.Find(Identifier, Items);
   if Length(Matches) > 0 then
     Result := Self.WithdrawItem(Items[Matches[0]], Amount);
+end;
+
+function TRSBankScreen.WithdrawNote(Identifier: String; Amount: Int32): Boolean; overload;
+var
+  Items: TBoxArray;
+  Matches: TIntegerArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Items := Self.FindItems();
+
+  Matches := ItemFinder.Find(Identifier, Items);
+  if Length(Matches) > 0 then
+    Result := Self.WithdrawNote(Items[Matches[0]], Amount);
+end;
+
+function TRSBankScreen.WithdrawQuantity(Identifier: String; Amount: Int32): Boolean; overload;
+var
+  Items: TBoxArray;
+  Matches: TIntegerArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Items := Self.FindItems();
+
+  Matches := ItemFinder.Find(Identifier, Items);
+  if Length(Matches) > 0 then
+    Result := Self.WithdrawQuantity(Items[Matches[0]], Amount);
+end;
+
+function TRSBankScreen.WithdrawQuantityNote(Identifier: String; Amount: Int32): Boolean; overload;
+var
+  Items: TBoxArray;
+  Matches: TIntegerArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Items := Self.FindItems();
+
+  Matches := ItemFinder.Find(Identifier, Items);
+  if Length(Matches) > 0 then
+    Result := Self.WithdrawQuantityNote(Items[Matches[0]], Amount);
 end;
 
 function TRSBankScreen.Count(Identifer: String): Int32;
