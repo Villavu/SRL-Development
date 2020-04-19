@@ -421,7 +421,7 @@ begin
   if (not Self.IsOpen()) then
     Exit(True);
 
-  Self.ClickButton(Self.BUTTON_CLOSE, mouse_left);
+  Self.ClickButton([Self.BUTTON_CLOSE, Self.BUTTON_CLOSE_HOVER], MOUSE_LEFT);
   t := GetTickCount() + Random(4000, 5000);
   while (t > GetTickCount()) do
   begin

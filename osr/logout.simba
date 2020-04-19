@@ -16,8 +16,8 @@ procedure TRSLogout.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'Options';
 
-  Self.BUTTON_LOGOUT := Self.AddOCRButton('Click here to logout', RS_FONTSET_BOLD_12, -1);
-  Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('World Switcher', RS_FONTSET_BOLD_12, -1);
+  Self.BUTTON_LOGOUT := Self.AddOCRButton('Click here to logout', RS_FONT_BOLD_12, -1);
+  Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('World Switcher', RS_FONT_BOLD_12, -1);
 
   Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddBitmapButton('logout_worldswitcher_close.png');
   Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER := Self.AddBitmapButton('logout_worldswitcher_close_hover.png');

@@ -24,7 +24,7 @@ end;
 procedure TRSLobbyScreen.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'Login Screen';
-  Self.BUTTON_PLAY := Self.AddOCRButton('CLICK HERE TO PLAY', RS_FONTSET_BOLD_12, $FFFFFF);
+  Self.BUTTON_PLAY := Self.AddOCRButton('CLICK HERE TO PLAY', RS_FONT_BOLD_12, $FFFFFF);
 
   if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
   begin

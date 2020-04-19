@@ -5,7 +5,6 @@
 
 var
   RS_INTERFACE_BITMAP_PATH: String := IncludeTrailingPathDelimiter({$macro CURRENT_DIRECTORY}) + 'bitmaps/';
-  RS_INTERFACE_BITMAPS: array of TMufasaBitmap;
 
 type
   TRSInterfaceButton = record
@@ -14,7 +13,7 @@ type
 
     // OCR
     Text: String;
-    Font: TFontSet;
+    Font: String;
     Color: Int32;
   end;
 
@@ -57,7 +56,7 @@ begin
     AddOnTerminate(@Self.FreeButtons);
 end;
 
-function TRSInterface.AddOCRButton(Text: String; Font: TFontSet; Color: Int32): TRSInterfaceButton;
+function TRSInterface.AddOCRButton(Text: String; Font: String; Color: Int32): TRSInterfaceButton;
 begin
   Result.Text := Text;
   Result.Font := Font;
@@ -205,9 +204,9 @@ begin
   end else
   begin
     if (Button.Color = -1) then
-      Result := FindText(Button.Text, Button.Font.Name, Self.X1, Self.Y1, Self.X2, Self.Y2, Bounds) = 1
+      Result := FindText(Button.Text, Button.Font, Self.X1, Self.Y1, Self.X2, Self.Y2, Bounds) = 1
     else
-      Result := FindTextColor(Button.Text, Button.Font.Name, Button.Color, 0, Self.X1, Self.Y1, Self.X2, Self.Y2, Bounds) = 1;
+      Result := FindTextColor(Button.Text, Button.Font, Button.Color, 0, Self.X1, Self.Y1, Self.X2, Self.Y2, Bounds) = 1;
   end;
 end;
 
@@ -219,7 +218,6 @@ begin
     if Self.FindButton(Buttons[I], Bounds) then
       Exit(True);
 end;
-
 
 function TRSInterface.FindButton(Button: TRSInterfaceButton): Boolean; overload;
 var
@@ -265,16 +263,4 @@ begin
   for I := 0 to High(Buttons) do
     if Self.ClickButton(Buttons[I], Action) then
       Exit(True)
-end;
-
-procedure RS_INTERFACE_BITMAPS_FREE;
-var
-  I: Int32;
-begin
-  for I := 0 to High(RS_INTERFACE_BITMAPS) do
-    RS_INTERFACE_BITMAPS[I].Free();
-end;
-
-begin
-  AddOnTerminate(@RS_INTERFACE_BITMAPS_FREE);
 end;

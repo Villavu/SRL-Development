@@ -86,7 +86,7 @@ begin
   if Self.OpenWorldSwitcher() then
   begin
     Button.Color := 0;
-    Button.Font := RS_FONTSET_BOLD_12;
+    Button.Font := RS_FONT_BOLD_12;
     Button.Text := ToString(World);
 
     for 1 to 3 do // Three pages of worlds
@@ -328,14 +328,14 @@ procedure TRSLoginScreen.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'Login Screen';
 
-  Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('Click to switch', RS_FONTSET_PLAIN_11, $FFFFFF);
-  Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddOCRButton('Cancel', RS_FONTSET_PLAIN_11, $FFFFFF);
-  Self.BUTTON_EXISTING_USER := Self.AddOCRButton('Existing User', RS_FONTSET_BOLD_12, $FFFFFF);
-  Self.BUTTON_LOGIN := Self.AddOCRButton('Login ', RS_FONTSET_BOLD_12, $FFFFFF);
-  Self.BUTTON_LOGIN_FIELD := Self.AddOCRButton('Login:', RS_FONTSET_BOLD_12, $FFFFFF);
-  Self.BUTTON_PASSWORD_FIELD := Self.AddOCRButton('Password:', RS_FONTSET_BOLD_12, $FFFFFF);
-  Self.BUTTON_OK := Self.AddOCRButton(' Ok ', RS_FONTSET_BOLD_12, $FFFFFF);
-  Self.BUTTON_TRY_AGAIN := Self.AddOCRButton('Try again', RS_FONTSET_PLAIN_12, $FFFFFF);
+  Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('Click to switch', RS_FONT_PLAIN_11, $FFFFFF);
+  Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddOCRButton('Cancel', RS_FONT_PLAIN_11, $FFFFFF);
+  Self.BUTTON_EXISTING_USER := Self.AddOCRButton('Existing User', RS_FONT_BOLD_12, $FFFFFF);
+  Self.BUTTON_LOGIN := Self.AddOCRButton('Login ', RS_FONT_BOLD_12, $FFFFFF);
+  Self.BUTTON_LOGIN_FIELD := Self.AddOCRButton('Login:', RS_FONT_BOLD_12, $FFFFFF);
+  Self.BUTTON_PASSWORD_FIELD := Self.AddOCRButton('Password:', RS_FONT_BOLD_12, $FFFFFF);
+  Self.BUTTON_OK := Self.AddOCRButton(' Ok ', RS_FONT_BOLD_12, $FFFFFF);
+  Self.BUTTON_TRY_AGAIN := Self.AddOCRButton('Try again', RS_FONT_PLAIN_12, $FFFFFF);
 
   if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
   begin
