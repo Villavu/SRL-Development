@@ -270,10 +270,19 @@ begin
     Mouse.Scroll(Self.GetSlotBoxes().Merge(), Random(1, 3), False);
 end;
 
-function TRSBankScreen.WithdrawItem(B: TBox; Amount: Int32): Boolean; overload;
+function TRSBankScreen.WithdrawItem(B: TBox; Amount: Int32; Noted: Boolean): Boolean; overload;
 begin
-
-  Self.ClickButton(Self.BUTTON_WITHDRAW_ITEM_OFF, mouse_Left);
+  if Noted then
+  begin
+    if not Self.FindButton(Self.BUTTON_WITHDRAW_NOTE_ON) and
+       not Self.ClickButton(Self.BUTTON_WITHDRAW_NOTE_OFF, MOUSE_LEFT) then
+      Exit(False);
+  end else
+  begin
+    if not Self.FindButton(Self.BUTTON_WITHDRAW_ITEM_ON) and
+       not Self.ClickButton(Self.BUTTON_WITHDRAW_ITEM_OFF, MOUSE_LEFT) then
+      Exit(False);
+  end;
 
   Mouse.Move(B);
 
@@ -292,100 +301,31 @@ begin
   end;
 end;
 
-function TRSBankScreen.WithdrawNote(B: TBox; Amount: Int32): Boolean;
+function TRSBankScreen.WithdrawQuantity(B: TBox; Amount: String; Noted: Boolean): Boolean;
 begin
-
-  Self.ClickButton(Self.BUTTON_WITHDRAW_NOTE_OFF, mouse_Left);
-
-  Mouse.Move(B);
-
-  case Amount of
-    BANK_WITHDRAW_ALL:
-      Result := ChooseOption.Select('Withdraw-All');
-    BANK_WITHDRAW_ALL_BUT_ONE:
-      Result := ChooseOption.Select('Withdraw-All-but-1');
-    else
-    begin
-      if ChooseOption.Select('Withdraw-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False) then
-        Exit(True);
-      if ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500)) then
-        Exit(True);
-    end;
-  end;
-end;
-
-function TRSBankScreen.WithdrawQuantity(B: TBox; Amount: Int32): Boolean;
-var
-  A: String;
-begin
-
-  Self.ClickButton(Self.BUTTON_WITHDRAW_ITEM_OFF, mouse_Left);
-
-  A := ToString(Amount);
-  case Amount of
-    1:
-      Self.ClickButton(Self.BUTTON_QUANTITY_1_OFF, mouse_Left);
-    5:
-     Self.ClickButton(Self.BUTTON_QUANTITY_5_OFF, mouse_Left);
-    10:
-      Self.ClickButton(Self.BUTTON_QUANTITY_10_OFF, mouse_Left);
-    BANK_WITHDRAW_ALL:
-      begin
-      Self.ClickButton(Self.BUTTON_QUANTITY_ALL_OFF, mouse_Left);
-      A := 'All';
-      end;
-    else
-      Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_OFF, mouse_Left);
-    end;
-
-  Mouse.Move(B);
-
-  if MainScreen.IsUpText('Withdraw-' + ToString(Amount)) then
-    Mouse.Click(mouse_Left)
-    else
+  if Noted then
   begin
-  if (Amount = BANK_WITHDRAW_ALL) then
-    Exit(False);
-  if ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500)) then
-    Exit(True);
-  end;
-end;
-
-function TRSBankScreen.WithdrawQuantityNote(B: TBox; Amount: Int32): Boolean;
-var
-  A: String;
-begin
-
-  Self.ClickButton(Self.BUTTON_WITHDRAW_NOTE_OFF, mouse_Left);
-
-  A := ToString(Amount);
-  case Amount of
-    1:
-      Self.ClickButton(Self.BUTTON_QUANTITY_1_OFF, mouse_Left);
-    5:
-     Self.ClickButton(Self.BUTTON_QUANTITY_5_OFF, mouse_Left);
-    10:
-      Self.ClickButton(Self.BUTTON_QUANTITY_10_OFF, mouse_Left);
-    BANK_WITHDRAW_ALL:
-      begin
-      Self.ClickButton(Self.BUTTON_QUANTITY_ALL_OFF, mouse_Left);
-      A := 'All';
-      end;
-    else
-      Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_OFF, mouse_Left);
-    end;
-
-  Mouse.Move(B);
-
-  if MainScreen.IsUpText('Withdraw-' + ToString(Amount)) then
-    Mouse.Click(mouse_Left)
-    else
+    if not Self.FindButton(Self.BUTTON_WITHDRAW_NOTE_ON) and
+       not Self.ClickButton(Self.BUTTON_WITHDRAW_NOTE_OFF, MOUSE_LEFT) then
+      Exit(False);
+  end else
   begin
-  if (Amount = BANK_WITHDRAW_ALL) then
-    Exit(False);
-  if ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500)) then
-    Exit(True);
+    if not Self.FindButton(Self.BUTTON_WITHDRAW_ITEM_ON) and
+       not Self.ClickButton(Self.BUTTON_WITHDRAW_ITEM_OFF, MOUSE_LEFT) then
+      Exit(False);
   end;
+
+  case UpperCase(Amount) of
+    '1':   Self.ClickButton(Self.BUTTON_QUANTITY_1_OFF, MOUSE_LEFT);
+    '5':   Self.ClickButton(Self.BUTTON_QUANTITY_5_OFF, MOUSE_LEFT);
+    '10':  Self.ClickButton(Self.BUTTON_QUANTITY_10_OFF, MOUSE_LEFT);
+    'X':   Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_OFF, MOUSE_LEFT);
+    'ALL': Self.ClickButton(Self.BUTTON_QUANTITY_ALL_OFF, MOUSE_LEFT);
+    else
+      TerminateScript('TRSBankScreen.WithdrawQuantity: Invalid amount "' + Amount + '"');
+  end;
+
+  Mouse.Click(B, MOUSE_LEFT);
 end;
 
 function TRSBankScreen._Open(P: TPoint): Boolean;

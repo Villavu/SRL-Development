@@ -91,7 +91,7 @@ begin
   Result := Self.Click([Identifer], Option);
 end;
 
-function TRSBankScreen.WithdrawItem(Identifier: String; Amount: Int32): Boolean; overload;
+function TRSBankScreen.WithdrawItem(Identifier: String; Amount: Int32; Noted: Boolean): Boolean; overload;
 var
   Items: TBoxArray;
   Matches: TIntegerArray;
@@ -103,10 +103,10 @@ begin
 
   Matches := ItemFinder.Find(Identifier, Items);
   if Length(Matches) > 0 then
-    Result := Self.WithdrawItem(Items[Matches[0]], Amount);
+    Result := Self.WithdrawItem(Items[Matches[0]], Amount, Noted);
 end;
 
-function TRSBankScreen.WithdrawNote(Identifier: String; Amount: Int32): Boolean; overload;
+function TRSBankScreen.WithdrawQuantity(Identifier: String; Amount: String; Noted: Boolean): Boolean; overload;
 var
   Items: TBoxArray;
   Matches: TIntegerArray;
@@ -118,37 +118,7 @@ begin
 
   Matches := ItemFinder.Find(Identifier, Items);
   if Length(Matches) > 0 then
-    Result := Self.WithdrawNote(Items[Matches[0]], Amount);
-end;
-
-function TRSBankScreen.WithdrawQuantity(Identifier: String; Amount: Int32): Boolean; overload;
-var
-  Items: TBoxArray;
-  Matches: TIntegerArray;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Items := Self.FindItems();
-
-  Matches := ItemFinder.Find(Identifier, Items);
-  if Length(Matches) > 0 then
-    Result := Self.WithdrawQuantity(Items[Matches[0]], Amount);
-end;
-
-function TRSBankScreen.WithdrawQuantityNote(Identifier: String; Amount: Int32): Boolean; overload;
-var
-  Items: TBoxArray;
-  Matches: TIntegerArray;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Items := Self.FindItems();
-
-  Matches := ItemFinder.Find(Identifier, Items);
-  if Length(Matches) > 0 then
-    Result := Self.WithdrawQuantityNote(Items[Matches[0]], Amount);
+    Result := Self.WithdrawQuantity(Items[Matches[0]], Amount, Noted);
 end;
 
 function TRSBankScreen.Count(Identifer: String): Int32;
