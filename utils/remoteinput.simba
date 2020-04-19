@@ -8,23 +8,25 @@ type
     EIOS: Pointer;
   end;
 
-procedure TRemoteInput.Setup;
-var
-  Target: TOSWindow;
-  PID: UInt32;
+function TRemoteInput.Target(PID: UInt32): Boolean;
 begin
-  Target := TOSWindow(GetNativeWindow());
-  PID := Target.GetPID();
-
   RIInject(PID);
 
   try
-    SetEIOSTarget(REMOTE_INPUT_LIB, IntToStr(PID));
+    SetEIOSTarget(REMOTE_INPUT_LIB, ToString(PID));
+
+    Self.EIOS := EIOS_PairClient(PID);
   except
-    TerminateScript('OSRS is not targeted');
+    Self.EIOS := nil;
   end;
 
-  Self.EIOS := EIOS_PairClient(PID);
+  Result := Self.EIOS <> nil;
+end;
+
+procedure TRemoteInput.Setup;
+begin
+  if (not Self.Target(GetSimbaTargetPID())) then
+    TerminateScript('OSRS is not targeted');
 end;
 
 var
