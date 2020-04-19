@@ -35,7 +35,7 @@ end;
 
 procedure TRSItemFinder.Setup;
 begin
-  Self.Similarity := 0.99997;
+  Self.Similarity := 0.999;
 
   AddOnTerminate(@Self.Free);
 end;
