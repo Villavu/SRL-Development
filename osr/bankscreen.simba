@@ -70,8 +70,16 @@ begin
 end;
 
 function TRSBankScreen.IsOpen: Boolean; overload;
+var
+  T: UInt64;
 begin
   Result := Self.FindButton([Self.BUTTON_REARRANGE_SWAP_ON, Self.BUTTON_REARRANGE_SWAP_OFF]);
+  if Result then
+  begin
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) and (SRL.CountColor(CTS0(65536), Self.GetSlotBoxes().Merge()) = 0) do
+      Wait(25);
+  end;
 end;
 
 function TRSBankScreen.IsOpen(WaitTime: Int32): Boolean; overload;
