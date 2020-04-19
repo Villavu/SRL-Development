@@ -7,7 +7,9 @@
 {$I world.graph}
 
 const
-  RSW_WORLD_MAP_PATH = {$MACRO CURRENT_DIRECTORY} + '/maps/';
+  RSW_PATH = {$MACRO CURRENT_DIRECTORY} + '/';
+  RSW_MAP_PATH = RSW_PATH + '/maps/';
+  RSW_MAP_ZIP_PATH = RSW_PATH+ '/maps.zip';
 
 type
   TRSWalker = record
@@ -38,18 +40,32 @@ begin
 end;
 
 procedure TRSWalker.Setup(Map: String; Speed: Int32 = 6); overload;
+var
+  Files: TStringArray;
+  Directory: String;
 begin
   Self.Speed := Speed;
   Self.Cache.Size := 200;
   Self.Cache.Enabled := True;
 
-  if (not FileExists(Map)) then
+  if not DirectoryExists(RSW_MAP_PATH) then
   begin
-    if (not FileExists(RSW_WORLD_MAP_PATH + Map)) then
-      raise 'Map "' + Map + '" does not exist';
+    WriteLn('Unzipping maps. This is a one time operation.');
 
-    Map := RSW_WORLD_MAP_PATH + Map;
+    UnZipFile(RSW_MAP_ZIP_PATH, RSW_PATH);
   end;
+
+  if not FileExists(Map) then
+  begin
+    for Directory in [ExtractFileDir(Map), RSW_MAP_PATH] do
+      Files += FindFile(Directory, ExtractFileName(Map) + '*.png;*.bmp;', False, False);
+
+    if Length(Files) > 0 then
+      Map := Files[0];
+  end;
+
+  if (not FileExists(Map)) then
+    TerminateScript('Unable to find file: ' + Map);
 
   Self.WorldSample.Init(Client.GetMBitmaps());
 
@@ -60,7 +76,7 @@ end;
 
 procedure TRSWalker.Setup(Speed: Int32 = 6); overload;
 begin
-  Setup('world.png', Speed);
+  Setup('world', Speed);
 
   Self.Web := WorldGraph;
 end;
