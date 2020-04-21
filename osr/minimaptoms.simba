@@ -454,6 +454,96 @@ begin
   Result := FindNearest(area, accuracy, Result, True);
 end;
 
+(*
+MainScreen.TranslateDistance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32;
+
+Roughly translates a distance acquired at a specific zoom level to the current zoom level.
+
+**Example:**
+
+.. pascal::
+
+  // 10 pixels at 50 zoom is currently X pixels at our current zoom level.
+  WriteLn(MainScreen.TranslateDistance(10, 50));
+*)
+function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32;
+var
+  MinimapToMS: TMinimapToMS;
+  MinimapCenter: TPoint;
+
+  function Run(X: Double): Double;
+  var
+    TPA: TPointArray;
+  begin
+    TPA := MinimapToMS.Run([Vec3(MinimapCenter.X, MinimapCenter.Y),
+                            Vec3(MinimapCenter.X + X, MinimapCenter.Y)], 0);
+
+    Result := TPA[0].DistanceTo(TPA[1]);
+  end;
+
+var
+  Lo, Hi: Double;
+  X: Double;
+begin
+  MinimapToMS.Setup(SRL.ClientMode); // Init MM2MS at the zoom level `dist` was calculated at
+  MinimapToMS.SetZoomLevel(Zoom);
+
+  MinimapCenter := Minimap.Center;
+
+  Lo := Dist;
+  while Run(Lo) >= dist do
+    Lo -= Lo / 20;
+
+  Hi := Lo;
+  while Run(Hi) <= dist do
+    Hi += Hi / 20;
+
+  X := Lo + ((Hi - Lo) / 2);
+
+  Result := Distance(
+    Minimap.VecToMs(Vec3(MinimapCenter.X, MinimapCenter.Y), 0),
+    Minimap.VecToMs(Vec3(MinimapCenter.X + X, MinimapCenter.Y), 0)
+  );
+end;
+
+(*
+MainScreen.GetPlayerBox
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.GetPlayerBox: TBox;
+
+Returns a box surrounding our player. Works at any zoom level.
+*)
+function TRSMainScreen.GetPlayerBox: TBox;
+var
+  A: Double := Minimap.GetCompassAngle(False);
+  Center: TPoint := Minimap.Center;
+  TPA: TPointArray;
+begin
+  TPA := [Minimap.VecToMS(Vec3(Center.X - 2, Center.Y, 10), A),
+          Minimap.VecToMS(Vec3(Center.X + 2, Center.Y, -3), A)];
+
+  Result := TPA.Bounds();
+end;
+
+(*
+MainScreen.FacePoint
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
+
+Rotates the camera to face point `P`.
+*)
+function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
+var
+  Angle: Double;
+begin
+  Angle := Self.PointToMM(P).ToPoint.AngleBetween(Minimap.Center);
+  Angle += Random(-Randomness, Randomness);
+
+  Minimap.SetCompassAngle(Angle);
+end;
+
 begin
   SRL.AddSetupMethod(@MM2MS.Setup);
   // SRL.AddDebugMethod(@MM2MS.Debug);

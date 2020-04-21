@@ -89,6 +89,62 @@ begin
   Result := Self.IsUpText([Text], Timeout);
 end;
 
+(*
+MainScreen.TranslateDistance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32;
+
+Roughly translates a distance acquired at a specific zoom level to the current zoom level.
+
+**Example:**
+
+.. pascal::
+
+  // 10 pixels at 50 zoom is currently X pixels at our current zoom level.
+  WriteLn(MainScreen.TranslateDistance(10, 50));
+*)
+function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32; forward;
+// Implemented in minimaptoms.simba
+
+(*
+MainScreen.GetPlayerBox
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.GetPlayerBox: TBox;
+
+Returns a box surrounding our player. Works at any zoom level.
+*)
+function TRSMainScreen.GetPlayerBox: TBox; forward;
+// Implemented in minimaptoms.simba
+
+(*
+MainScreen.FacePoint
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
+
+Rotates the camera to face point `P`.
+*)
+function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean; forward;
+// Implemented in minimaptoms.simba
+
+(*
+Mainscreen.PointToMM
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3;
+
+Takes a mainscreen point and converts it to a point on the minimap.
+
+Returns a Vector3 which includes input height. Conversion to a TPoint if that's what you need is simply
+done by calling `.ToPoint` on the result.
+
+**Example**
+
+.. pascal::
+  WriteLn Mainscreen.PointToMM(Point(250,140), 2);           // as a vector (more accurate)
+  WriteLn Mainscreen.PointToMM(Point(250,140), 2).ToPoint(); // as a TPoint (lost accuracy)
+*)
+function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double= 0.2): Vector3; forward;
+// Implemented in minimaptoms.simba
+
 begin
   SRL.AddSetupMethod(@MainScreen.Setup);
   SRL.AddDebugMethod(@MainScreen.Debug);
