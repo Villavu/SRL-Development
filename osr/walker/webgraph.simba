@@ -177,6 +177,28 @@ begin
 end;
 
 function TWebGraph.InvalidConnection(p,q: TPoint): Boolean;
+
+  function LinesIntersect(p,q:array[0..1] of TPoint; out i:TPoint): Boolean;
+  var
+    dx,dy,d: TPoint;
+    dt,s,t: Double;
+    function Det(a,b: TPoint): Int64;
+    begin
+      Result := a.x*b.y - a.y*b.x;
+    end;
+  begin
+    dx := [p[0].x - p[1].x, q[0].x - q[1].x];
+    dy := [p[0].y - p[1].y, q[0].y - q[1].y];
+    dt := det(dx, dy);
+    if dt = 0 then Exit(False);
+    d := [Det(p[0],p[1]), Det(q[0],q[1])];
+    i.x := Round(Det(d, dx) / dt);
+    i.y := Round(Det(d, dy) / dt);
+    s := (dx.x * (q[0].y-p[0].y) + dy.x * (p[0].x-q[0].x)) / dt;
+    t := (dx.y * (p[0].y-q[0].y) + dy.y * (q[0].x-p[0].x)) / (-dt);
+    Result := (s > 0) and (s < 1) and (t > 0) and (t < 1);
+  end;
+
 var
   i,n: Int32;
   l1,l2: array[0..1] of TPoint;
@@ -191,7 +213,7 @@ begin
       l2[1] := self.Nodes[n];
       if (l1[0] = l2[0]) and (l1[1] = l2[1]) then
         Continue;
-      if SRL.LinesIntersect(l1[0], l1[1], l2[0], l2[1], _) then
+      if LinesIntersect(l1,l2,_) then
         Exit(True);
     end;
   end;

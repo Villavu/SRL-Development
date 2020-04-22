@@ -5,6 +5,7 @@
 
 {$I webgraph.simba}
 {$I world.graph}
+{$I zeah.graph}
 
 const
   RSW_PATH = {$MACRO CURRENT_DIRECTORY} + '/';
@@ -33,6 +34,24 @@ type
     end;
   end;
 
+function TRSWalker.FindMap(Map: String): String;
+var
+  Mask: String = '.png;.bmp;';
+  Files: TStringArray;
+begin
+  Mask := StringReplace(Mask, '.', Map + '.', [rfReplaceAll]);
+
+  if FileExists(Map) then
+    Exit(Map);
+
+  Files := FindFile(ExtractFileDir(Map), ExtractFileName(Map) + Mask, False, False) +
+           FindFile(RSW_MAP_PATH,        ExtractFileName(Map) + Mask, False, False);
+
+  if Length(Files) > 0 then
+    Result := Files[0];
+end;
+
+
 procedure TRSWalker.Free;
 begin
   Self.WorldSample.Free();
@@ -41,44 +60,31 @@ end;
 
 procedure TRSWalker.Setup(Map: String; Speed: Int32 = 6); overload;
 var
-  Files: TStringArray;
-  Directory: String;
+  MapFile: String;
 begin
+  MapFile := Self.FindMap(Map);
+  if (MapFile = '') then
+    TerminateScript('Unable to find map: ' + Map);
+
   Self.Speed := Speed;
   Self.Cache.Size := 200;
   Self.Cache.Enabled := True;
 
-  if not DirectoryExists(RSW_MAP_PATH) then
-  begin
-    WriteLn('Unzipping maps. This is a one time operation.');
-
-    UnZipFile(RSW_MAP_ZIP_PATH, RSW_PATH);
+  case Map.Lower() of
+    'world': Self.Web := WorldGraph;
+    'zeah':  Self.Web := ZeahGraph;
   end;
-
-  if not FileExists(Map) then
-  begin
-    for Directory in [ExtractFileDir(Map), RSW_MAP_PATH] do
-      Files += FindFile(Directory, ExtractFileName(Map) + '*.png;*.bmp;', False, False);
-
-    if Length(Files) > 0 then
-      Map := Files[0];
-  end;
-
-  if (not FileExists(Map)) then
-    TerminateScript('Unable to find file: ' + Map);
 
   Self.WorldSample.Init(Client.GetMBitmaps());
 
   Self.World.Init(Client.GetMBitmaps());
-  Self.World.LoadFromFile(Map);
+  Self.World.LoadFromFile(MapFile);
   Self.World.Downsample(Self.Speed, Self.WorldSample);
 end;
 
 procedure TRSWalker.Setup(Speed: Int32 = 6); overload;
 begin
   Setup('world', Speed);
-
-  Self.Web := WorldGraph;
 end;
 
 procedure TRSWalker.ClearDots(Bitmap: TMufasaBitmap);
@@ -719,6 +725,15 @@ end;
 function TRSWalker.MSToWorld(Loc: TPoint; Height: Int32=0; Accuracy:Double=0.2): TPoint;
 begin
   Result := Self.MSToWorldEx(Self.GetMyPos(), Loc, Height, Accuracy);
+end;
+
+begin
+  if not DirectoryExists(RSW_MAP_PATH) then
+  begin
+    WriteLn('[Walker]: Unzipping maps. This is a one time operation.');
+
+    UnZipFile(RSW_MAP_ZIP_PATH, RSW_PATH);
+  end;
 end;
 
 

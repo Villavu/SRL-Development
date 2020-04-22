@@ -351,12 +351,17 @@ begin
   Writeln('end;');
 end;
 
-procedure TWebberForm.FormShow(Sender: TObject);
+procedure TWebberForm.OnFormShow(Sender: TObject);
 begin
   Self.SelectedNode := High(Self.Graph.Nodes);
   if Self.SelectedNode > -1 then
     Self.ImageBox.MoveTo(Self.Graph.Nodes[SelectedNode].X, Self.Graph.Nodes[SelectedNode].Y);
   Self.ImageBox.Update();
+end;
+
+procedure TWebberForm.OnFormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  Self.OnPrintGraph(nil);
 end;
 
 procedure TWebberForm.Run;
@@ -373,7 +378,8 @@ begin
     Self.Form.SetWidth(1000);
     Self.Form.SetHeight(1000);
     Self.Form.GetFont().SetSize(10);
-    Self.Form.SetOnShow(@Self.FormShow);
+    Self.Form.SetOnShow(@Self.OnFormShow);
+    Self.Form.SetOnClose(@Self.OnFormClose);
 
     Panel.Init(Self.Form);
     Panel.SetParent(Self.Form);
