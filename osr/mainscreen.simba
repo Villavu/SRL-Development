@@ -4,15 +4,29 @@
 {$ENDIF}
 
 type
+  TRSObjectFinder = record
+    Colors: array of TCTS2Color;
+    ColorClusters: array of record Primary, Secondary: TCTS2Color; Distance: Int32;end;
+    ClusterDistance: Int32;
+    Erode: Int32;
+    MinLongSide, MaxLongSide: Int32;
+    MinShortSide, MaxShortSide: Int32;
+    Zoom: Int32;
+  end;
+
   TRSMainScreen = record(TRSInterface)
     UpTextArea: TBox;
     UpTextFilter: TCompareRules;
+
+    TranslateCache: array[0..100] of array[0..100] of Int32;
   end;
 
 var
   MainScreen: TRSMainScreen;
 
 procedure TRSMainScreen.Setup(ClientMode: ERSClientMode);
+var
+  I, J: Int32;
 begin
   Self.Name := 'MainScreen';
 
@@ -39,6 +53,10 @@ begin
   end;
 
   Self.UpTextFilter := [-1, 85, True, 85];
+
+  for I := 0 to High(Self.TranslateCache) do
+    for J := 0 to High(Self.TranslateCache[I]) do
+      Self.TranslateCache[I][J] := -1;
 end;
 
 function TRSMainScreen.GetUpText(): String;
@@ -144,6 +162,65 @@ done by calling `.ToPoint` on the result.
 *)
 function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double= 0.2): Vector3; forward;
 // Implemented in minimaptoms.simba
+
+function TRSMainScreen.FindObject(Finder: TRSObjectFinder): T2DPointArray;
+var
+  TPA, Primary, Secondary: TPointArray;
+  ATPA: T2DPointArray;
+  I: Int32;
+  L, S: Int32;
+begin
+  // Translate distance parameters into current zoom
+  Finder.ClusterDistance := Self.TranslateDistance(Finder.ClusterDistance, Finder.Zoom);
+  Finder.Erode := Self.TranslateDistance(Finder.Erode, Finder.Zoom);
+
+  for I := 0 to High(Finder.ColorClusters) do
+    Finder.ColorClusters[I].Distance := Self.TranslateDistance(Finder.ColorClusters[I].Distance, Finder.Zoom);
+
+  Finder.MinLongSide  := Self.TranslateDistance(Finder.MinLongSide,  Finder.Zoom);
+  Finder.MaxLongSide  := Self.TranslateDistance(Finder.MaxLongSide,  Finder.Zoom);
+  Finder.MinShortSide := Self.TranslateDistance(Finder.MinShortSide, Finder.Zoom);
+  Finder.MaxShortSide := Self.TranslateDistance(Finder.MaxShortSide, Finder.Zoom);
+
+  // Find colors
+  for I := 0 to High(Finder.Colors) do
+    if SRL.FindColors(TPA, Finder.Colors[I], Self.Bounds()) > 0 then
+      ATPA += TPA;
+
+  for I := 0 to High(Finder.ColorClusters) do
+  begin
+    if (SRL.FindColors(Primary, Finder.ColorClusters[I].Primary, Self.Bounds()) > 0) and
+       (SRL.FindColors(Secondary, Finder.ColorClusters[I].Secondary, Self.Bounds()) > 0) then
+      ATPA += Primary.PointsInRangeOf(Secondary, 0, Finder.ColorClusters[I].Distance);
+  end;
+
+  // Process points
+  TPA := ATPA.Merge();
+
+  if Length(TPA) > 0 then
+  begin
+    for 1 to Finder.Erode do
+      TPA := ClearTPAFromTPA(TPA, TPA.Edges());
+
+    if Length(TPA) > 0 then
+    begin
+      ATPA := TPA.Cluster(Finder.ClusterDistance);
+
+      if (Finder.MinShortSide > 0) and (Finder.MinLongSide > 0) or
+         (Finder.MaxShortSide > 0) and (Finder.MaxLongSide > 0) then
+      begin
+        for I := 0 to High(ATPA) do
+        begin
+          ATPA[I].MinAreaRectEx(L, S);
+          if InRange(L, Finder.MinLongSide, Finder.MaxLongSide) and
+             InRange(S, Finder.MinShortSide, Finder.MaxShortSide) then
+            Result += ATPA[I];
+        end;
+      end else
+        Result := ATPA;
+    end;
+  end;
+end;
 
 begin
   SRL.AddSetupMethod(@MainScreen.Setup);

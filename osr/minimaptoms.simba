@@ -486,7 +486,19 @@ var
 var
   Lo, Hi: Double;
   X: Double;
+  I: Int32;
 begin
+  if (Dist = 0) then
+    Exit;
+
+  if InRange(Zoom, Low(Self.TranslateCache), High(Self.TranslateCache)) and
+     InRange(Dist, Low(Self.TranslateCache[Zoom]), High(Self.TranslateCache[Zoom])) then
+  begin
+    Result := Self.TranslateCache[Zoom][Dist];
+    if Result > -1 then
+      Exit;
+  end;
+
   MinimapToMS.Setup(SRL.ClientMode); // Init MM2MS at the zoom level `dist` was calculated at
   MinimapToMS.SetZoomLevel(Zoom);
 
@@ -506,6 +518,8 @@ begin
     Minimap.VecToMs(Vec3(MinimapCenter.X, MinimapCenter.Y), 0),
     Minimap.VecToMs(Vec3(MinimapCenter.X + X, MinimapCenter.Y), 0)
   );
+
+  Self.TranslateCache[Zoom][Dist] := Result;
 end;
 
 (*
