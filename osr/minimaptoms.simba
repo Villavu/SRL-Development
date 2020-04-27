@@ -403,7 +403,7 @@ done by calling `.ToPoint` on the result.
   WriteLn Mainscreen.PointToMM(Point(250,140), 2);           // as a vector (more accurate)
   WriteLn Mainscreen.PointToMM(Point(250,140), 2).ToPoint(); // as a TPoint (lost accuracy)
 *)
-function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3;
+function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3; override;
 var
   a: Double := Minimap.GetCompassAngle(False);
   mid: TPoint := Minimap.Center();
@@ -468,7 +468,7 @@ Roughly translates a distance acquired at a specific zoom level to the current z
   // 10 pixels at 50 zoom is currently X pixels at our current zoom level.
   WriteLn(MainScreen.TranslateDistance(10, 50));
 *)
-function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32;
+function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32; override;
 var
   MinimapToMS: TMinimapToMS;
   MinimapCenter: TPoint;
@@ -529,7 +529,7 @@ MainScreen.GetPlayerBox
 
 Returns a box surrounding our player. Works at any zoom level.
 *)
-function TRSMainScreen.GetPlayerBox: TBox;
+function TRSMainScreen.GetPlayerBox: TBox; override;
 var
   A: Double := Minimap.GetCompassAngle(False);
   Center: TPoint := Minimap.Center;
@@ -548,7 +548,7 @@ MainScreen.FacePoint
 
 Rotates the camera to face point `P`.
 *)
-function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
+function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean; override;
 var
   Angle: Double;
 begin

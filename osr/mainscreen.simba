@@ -121,8 +121,10 @@ Roughly translates a distance acquired at a specific zoom level to the current z
   // 10 pixels at 50 zoom is currently X pixels at our current zoom level.
   WriteLn(MainScreen.TranslateDistance(10, 50));
 *)
-function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32; forward;
-// Implemented in minimaptoms.simba
+function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32;
+begin
+  // Implemented in minimaptoms.simba
+end;
 
 (*
 MainScreen.GetPlayerBox
@@ -131,8 +133,10 @@ MainScreen.GetPlayerBox
 
 Returns a box surrounding our player. Works at any zoom level.
 *)
-function TRSMainScreen.GetPlayerBox: TBox; forward;
-// Implemented in minimaptoms.simba
+function TRSMainScreen.GetPlayerBox: TBox;
+begin
+  // Implemented in minimaptoms.simba
+end;
 
 (*
 MainScreen.FacePoint
@@ -141,13 +145,15 @@ MainScreen.FacePoint
 
 Rotates the camera to face point `P`.
 *)
-function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean; forward;
-// Implemented in minimaptoms.simba
+function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
+begin
+  // Implemented in minimaptoms.simba
+end;
 
 (*
 Mainscreen.PointToMM
 ~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3;
+.. pascal:: function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32 = 0; Accuracy:Double = 0.2): Vector3;
 
 Takes a mainscreen point and converts it to a point on the minimap.
 
@@ -160,8 +166,10 @@ done by calling `.ToPoint` on the result.
   WriteLn Mainscreen.PointToMM(Point(250,140), 2);           // as a vector (more accurate)
   WriteLn Mainscreen.PointToMM(Point(250,140), 2).ToPoint(); // as a TPoint (lost accuracy)
 *)
-function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double= 0.2): Vector3; forward;
-// Implemented in minimaptoms.simba
+function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32 = 0; Accuracy:Double = 0.2): Vector3;
+begin
+  // Implemented in minimaptoms.simba
+end;
 
 function TRSMainScreen.FindObject(Finder: TRSObjectFinder): T2DPointArray;
 var

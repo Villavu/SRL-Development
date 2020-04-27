@@ -224,12 +224,53 @@ begin
 end;
 
 function TRSInventory.Count: Int32;
-var
-  I: Int32;
 begin
-  for I := Self.LOW_SLOT to Self.HIGH_SLOT do
-    if Self.IsSlotUsed(I) then
-      Inc(Result);
+  // Implemented in itemfinder.simba
+end;
+
+function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSInventory.FindAll(Identifer: String): TIntegerArray; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSInventory.Find(Identifers: TStringArray): Int32; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSInventory.Find(Identifer: String): Int32; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSInventory.Count(Identifers: TStringArray): Int32; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSInventory.Count(Identifer: String): Int32; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSInventory.CountStack(Identifer: String): Int32;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSInventory.Click(Identifers: TStringArray; Option: String = ''): Boolean; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSInventory.Click(Identifer: String; Option: String = ''): Boolean; overload;
+begin
+  // Implemented in itemfinder.simba
 end;
 
 var

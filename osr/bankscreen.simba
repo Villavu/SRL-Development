@@ -537,7 +537,25 @@ begin
   end;
 end;
 
+function TRSBankScreen.WithdrawItem(Identifier: String; Amount: Int32; Noted: Boolean): Boolean; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
 
+function TRSBankScreen.WithdrawQuantity(Identifier: String; Amount: String; Noted: Boolean): Boolean; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSBankScreen.Count(Identifer: String): Int32;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+function TRSBankScreen.CountStack(Identifer: String): Int32;
+begin
+  // Implemented in itemfinder.simba
+end;
 
 var
   BankScreen: TRSBankScreen;
