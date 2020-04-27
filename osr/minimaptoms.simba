@@ -519,7 +519,9 @@ begin
     Minimap.VecToMs(Vec3(MinimapCenter.X + X, MinimapCenter.Y), 0)
   );
 
-  Self.TranslateCache[Zoom][Dist] := Result;
+  if InRange(Zoom, Low(Self.TranslateCache), High(Self.TranslateCache)) and
+     InRange(Dist, Low(Self.TranslateCache[Zoom]), High(Self.TranslateCache[Zoom])) then
+    Self.TranslateCache[Zoom][Dist] := Result;
 end;
 
 (*

@@ -9,6 +9,7 @@ type
     ColorClusters: array of record Primary, Secondary: TCTS2Color; Distance: Int32;end;
     ClusterDistance: Int32;
     Erode: Int32;
+    Grow: Int32;
     MinLongSide, MaxLongSide: Int32;
     MinShortSide, MaxShortSide: Int32;
     Zoom: Int32;
@@ -173,14 +174,17 @@ end;
 
 function TRSMainScreen.FindObject(Finder: TRSObjectFinder; Area: TBox): T2DPointArray; overload;
 var
-  TPA, Primary, Secondary: TPointArray;
+  TPA, Primary, Secondary, Template: TPointArray;
   ATPA: T2DPointArray;
   I: Int32;
   L, S: Int32;
 begin
+  Area.LimitTo(Self.Bounds());
+
   // Translate distances
   Finder.ClusterDistance := Self.TranslateDistance(Finder.ClusterDistance, Finder.Zoom);
   Finder.Erode := Self.TranslateDistance(Finder.Erode, Finder.Zoom);
+  Finder.Grow := Self.TranslateDistance(Finder.Grow, Finder.Zoom);
 
   for I := 0 to High(Finder.ColorClusters) do
     Finder.ColorClusters[I].Distance := Self.TranslateDistance(Finder.ColorClusters[I].Distance, Finder.Zoom);
@@ -189,6 +193,11 @@ begin
   Finder.MaxLongSide  := Self.TranslateDistance(Finder.MaxLongSide,  Finder.Zoom);
   Finder.MinShortSide := Self.TranslateDistance(Finder.MinShortSide, Finder.Zoom);
   Finder.MaxShortSide := Self.TranslateDistance(Finder.MaxShortSide, Finder.Zoom);
+
+  if (Finder.MaxLongSide = 0) then
+    Finder.MaxLongSide := $FFFFFF;
+  if (Finder.MaxShortSide = 0) then
+    Finder.MaxShortSide := $FFFFFF;
 
   // Find colors
   for I := 0 to High(Finder.Colors) do
@@ -205,10 +214,13 @@ begin
   TPA := ATPA.Merge();
 
   // Process TPA
-  if Length(TPA) > 0 then
+  if (Length(TPA) > 0) then
   begin
-    for 1 to Finder.Erode do
-      TPA := ClearTPAFromTPA(TPA, TPA.Edges());
+    if (Finder.Grow > 0) then
+      TPA := TPA.Grow(Finder.Grow);
+
+    if (Finder.Erode > 0) then
+      TPA := TPA.Erode(Finder.Erode);
 
     if Length(TPA) > 0 then
     begin

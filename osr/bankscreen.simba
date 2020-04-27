@@ -5,7 +5,8 @@
 
 type
   ERSBankLocation = (BANK_LOCATION_CASTLE_WARS,
-                     BANK_LOCATION_CLAN_WARS);
+                     BANK_LOCATION_CLAN_WARS,
+                     BANK_LOCATION_GRAND_EXCHANGE);
 
   TRSBankScreen = record(TRSInterface)
     BUTTON_REARRANGE_SWAP_OFF: TRSInterfaceButton;
@@ -362,6 +363,28 @@ begin
   end;
 end;
 
+function TRSBankScreen._OpenGE: Boolean;
+var
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  P: TPoint;
+  I: Int32;
+begin
+  ATPA := GrandExchange.FindNPC(GrandExchange.FINDER_BANKER);
+
+  for I := 0 to Min(High(ATPA), 3) do
+  begin
+    TPA := ATPA[I];
+
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
+
+    if Self.Open(P) then
+      Exit(True);
+  end;
+end;
+
 function TRSBankScreen._OpenChest: Boolean;
 var
   ATPA: T2DPointArray;
@@ -394,9 +417,11 @@ begin
     BANK_LOCATION_CLAN_WARS,
     BANK_LOCATION_CASTLE_WARS:
       Result := Self._OpenChest();
+
+    BANK_LOCATION_GRAND_EXCHANGE:
+      Result := Self._OpenGE();
   end;
 end;
-
 
 function TRSBankScreen.Close(): Boolean;
 var

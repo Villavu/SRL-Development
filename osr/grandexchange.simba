@@ -1,0 +1,67 @@
+{$DEFINE SRL_GRANDEXCHANGE_INCLUDED}
+{$IFNDEF OSRS}
+  {$include_once SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSGrandExchange = record(TRSInterface)
+    FINDER_BANKER: TRSObjectFinder;
+  end;
+
+function TRSGrandExchange.FindNPC(Finder: TRSObjectFinder): T2DPointArray;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  P: TPoint;
+  B: TBox;
+  I: Int32;
+  Weights: TIntegerArray;
+  Size: Int32;
+begin
+  // Find center G.E using yellow dots
+  TPA := Minimap.GetDots(MINIMAP_DOT_NPC);
+  TPA.Offset([2, 2]);
+  TPA := TPA.Cluster(15).Biggest();
+  with TPA.MeanEx() do
+    P := Minimap.VecToMS([X, Y]);
+
+  // Size of GE center at 50 zoom
+  Size := MainScreen.TranslateDistance(110, 50);
+
+  // Center G.E on the mainscreen
+  B := [P.X, P.Y, P.X, P.Y];
+  B := B.Expand(Size);
+
+  Result := MainScreen.FindObject(Finder, B);
+
+  if (Length(Result) > 0) then
+  begin
+    // Weigh from center AND towards the player
+    SetLength(Weights, Length(Result));
+    for I := 0 to High(Result) do
+      if Length(Result[I]) > 0 then
+        Weights[I] := Distance(Result[I].Mean, P) + Min(Distance(Result[I].Mean, MainScreen.Center), Size);
+
+    QuickATPASort(Weights, Result, 0, High(Result), True);
+  end;
+end;
+
+procedure TRSGrandExchange.Setup;
+begin
+  Self.Name := 'Grand Exchange';
+
+  Self.FINDER_BANKER.Zoom := 50;
+  Self.FINDER_BANKER.ColorClusters += [CTS2(6710894, 12, 0.19, 0.07), CTS2(2110788, 11, 0.29, 0.84), 10]; // grey, brown
+  Self.FINDER_BANKER.ClusterDistance := 3;
+  Self.FINDER_BANKER.Grow := 3;
+  Self.FINDER_BANKER.Erode := 3;
+  Self.FINDER_BANKER.MinLongSide := 10;
+end;
+
+var
+  GrandExchange: TRSGrandExchange;
+
+begin
+  GrandExchange.Setup();
+end;
+
