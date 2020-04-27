@@ -53,6 +53,8 @@ type
     BUTTON_CLOSE_HOVER: TRSInterfaceButton;
 
     BUTTON_SCROLLED_TOP: TRSInterfaceButton;
+
+    FINDER_BANK_CHEST: TRSObjectFinder;
   end;
 
 function TRSBankScreen.GetSlotBoxes: TBoxArray; constref;
@@ -111,6 +113,11 @@ end;
 procedure TRSBankScreen.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'BankScreen';
+
+  Self.FINDER_BANK_CHEST.Zoom := 50;
+  Self.FINDER_BANK_CHEST.ColorClusters += [CTS2(2503237, 40, 0.10, 0.14), CTS2(5526875, 35, 0.19, 0.06), 8]; //brown, grey
+  Self.FINDER_BANK_CHEST.ClusterDistance := 3;
+  Self.FINDER_BANK_CHEST.Erode := 2;
 
   Self.BUTTON_REARRANGE_SWAP_OFF := Self.AddBitmapButton('bank_rearrange_swap_off.png');
   Self.BUTTON_REARRANGE_SWAP_ON := Self.AddBitmapButton('bank_rearrange_swap_on.png');
@@ -328,7 +335,7 @@ begin
   Mouse.Click(B, MOUSE_LEFT);
 end;
 
-function TRSBankScreen._Open(P: TPoint): Boolean;
+function TRSBankScreen.Open(P: TPoint): Boolean; overload;
 begin
   Mouse.Move(P);
 
@@ -355,53 +362,30 @@ begin
   end;
 end;
 
-function TRSBankScreen._OpenChest(FrameColor, TextureColor: TCTS2Color): Boolean;
+function TRSBankScreen._OpenChest: Boolean;
 var
-  FrameTPA, TextureTPA, TPA: TPointArray;
   ATPA: T2DPointArray;
-  Magic: Int32;
-  I: Int32;
+  TPA: TPointArray;
   P: TPoint;
+  I: Int32;
 begin
-  // This gives us a constant distance regardless of the zoom level
-  Magic := Distance(Minimap.VecToMS([Minimap.Center.X, Minimap.Center.Y]),
-                    Minimap.VecToMS([Minimap.Center.X + 1.2, Minimap.Center.Y]));
+  ATPA := MainScreen.FindObject(Self.FINDER_BANK_CHEST);
 
-  if (Magic > 0) then
+  // Check four largest groups
+  for I := 0 to Min(High(ATPA), 3) do
   begin
-    SRL.FindColors(FrameTPA, FrameColor, MainScreen.Bounds);
-    SRL.FindColors(TextureTPA, TextureColor, MainScreen.Bounds);
+    TPA := ATPA[I];
 
-    // Get points where the frame and texture are close to eachother
-    TPA := TextureTPA.PointsInRangeOf(FrameTPA, 0, Magic);
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
 
-    // Remove noise by removing the TPA edge a few times
-    for 1 to Magic div 4 do
-      TPA := ClearTPAFromTPA(TPA, TPA.Edges());
-
-    if Length(TPA) > 0 then
-    begin
-      // Split our matches into groups
-      ATPA := TPA.Cluster(Magic div 4);
-      ATPA.SortBySize();
-
-      // Loop though the three largest groups
-      for I := 0 to Min(High(ATPA), 3) do
-      begin
-        TPA := ATPA[I];
-
-        P := TPA[Random(Length(TPA))];
-        P.X += Random(-2, 2);
-        P.Y += Random(-2, 2);
-
-        if Self._Open(P) then
-          Exit(True);
-      end;
-    end;
+    if Self.Open(P) then
+      Exit(True);
   end;
 end;
 
-function TRSBankScreen.Open(Location: ERSBankLocation): Boolean;
+function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; overload;
 begin
   if Self.IsOpen() then
     Exit(True);
@@ -409,7 +393,7 @@ begin
   case Location of
     BANK_LOCATION_CLAN_WARS,
     BANK_LOCATION_CASTLE_WARS:
-      Result := Self._OpenChest(CTS2(5526875, 15, 0.19, 0.06), CTS2(2503237, 20, 0.10, 0.14));
+      Result := Self._OpenChest();
   end;
 end;
 

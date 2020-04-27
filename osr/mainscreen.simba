@@ -171,14 +171,14 @@ begin
   // Implemented in minimaptoms.simba
 end;
 
-function TRSMainScreen.FindObject(Finder: TRSObjectFinder): T2DPointArray;
+function TRSMainScreen.FindObject(Finder: TRSObjectFinder; Area: TBox): T2DPointArray; overload;
 var
   TPA, Primary, Secondary: TPointArray;
   ATPA: T2DPointArray;
   I: Int32;
   L, S: Int32;
 begin
-  // Translate distance parameters into current zoom
+  // Translate distances
   Finder.ClusterDistance := Self.TranslateDistance(Finder.ClusterDistance, Finder.Zoom);
   Finder.Erode := Self.TranslateDistance(Finder.Erode, Finder.Zoom);
 
@@ -192,19 +192,19 @@ begin
 
   // Find colors
   for I := 0 to High(Finder.Colors) do
-    if SRL.FindColors(TPA, Finder.Colors[I], Self.Bounds()) > 0 then
+    if SRL.FindColors(TPA, Finder.Colors[I], Area) > 0 then
       ATPA += TPA;
 
   for I := 0 to High(Finder.ColorClusters) do
   begin
-    if (SRL.FindColors(Primary, Finder.ColorClusters[I].Primary, Self.Bounds()) > 0) and
-       (SRL.FindColors(Secondary, Finder.ColorClusters[I].Secondary, Self.Bounds()) > 0) then
+    if (SRL.FindColors(Primary, Finder.ColorClusters[I].Primary, Area) > 0) and
+       (SRL.FindColors(Secondary, Finder.ColorClusters[I].Secondary, Area) > 0) then
       ATPA += Primary.PointsInRangeOf(Secondary, 0, Finder.ColorClusters[I].Distance);
   end;
 
-  // Process points
   TPA := ATPA.Merge();
 
+  // Process TPA
   if Length(TPA) > 0 then
   begin
     for 1 to Finder.Erode do
@@ -214,20 +214,30 @@ begin
     begin
       ATPA := TPA.Cluster(Finder.ClusterDistance);
 
-      if (Finder.MinShortSide > 0) and (Finder.MinLongSide > 0) or
-         (Finder.MaxShortSide > 0) and (Finder.MaxLongSide > 0) then
+      if (Finder.MinShortSide > 0) or (Finder.MaxShortSide > 0) or (Finder.MinLongSide > 0) or (Finder.MaxLongSide > 0) then
       begin
         for I := 0 to High(ATPA) do
         begin
           ATPA[I].MinAreaRectEx(L, S);
-          if InRange(L, Finder.MinLongSide, Finder.MaxLongSide) and
-             InRange(S, Finder.MinShortSide, Finder.MaxShortSide) then
-            Result += ATPA[I];
+
+          if ((Finder.MinShortSide > 0) or (Finder.MaxShortSide > 0)) and (not InRange(S, Finder.MinShortSide, Finder.MaxShortSide)) then
+            Continue;
+          if ((Finder.MinLongSide > 0) or (Finder.MaxLongSide > 0)) and (not InRange(L, Finder.MinLongSide, Finder.MaxLongSide)) then
+            Continue;
+
+          Result += ATPA[I];
         end;
       end else
         Result := ATPA;
     end;
+
+    Result.SortBySize();
   end;
+end;
+
+function TRSMainScreen.FindObject(Finder: TRSObjectFinder): T2DPointArray; overload;
+begin
+  Result := MainScreen.FindObject(Finder, Self.Bounds());
 end;
 
 begin

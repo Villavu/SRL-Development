@@ -310,7 +310,7 @@ var
 begin
   T := GetTickCount() + WaitTime;
 
-  while (T > WaitTime) do
+  while (T > GetTickCount()) do
   begin
     if FindFlag(P) then
       Exit(True);
