@@ -51,19 +51,43 @@ The above color cluster found:
 
 #### TRSObjectFinder.Erode
 
-The amount to erode before clustering. This is useful for removing noise.
+The amount to erode before clustering. This is useful for removing small amounts of noise.
 
 ```pascal
 Finder.Erode := 2;
 ```
 
-Before:
+`Erode=0`
 
 ![img](images/no_erode.png)
 
-After:
+`Erode=2`
 
 ![img](images/erode.png)
+
+---
+
+#### TRSObjectFinder.Grow
+
+The amount to grow before eroding. This is useful for filling gaps.
+
+```pascal
+Finder.Grow := 2;
+```
+
+`Grow=0`
+
+![img](images/grow_before.png)
+
+`Grow=3`
+
+![img](images/grow_after.png)
+
+Paired with eroding:
+`Grow=3`
+`Erode=4`
+
+![img](images/grow_erode.png)
 
 ---
 
