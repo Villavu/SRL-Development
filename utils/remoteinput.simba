@@ -24,9 +24,27 @@ begin
 end;
 
 procedure TRemoteInput.Setup;
+var
+  PID: UInt32;
 begin
-  if (not Self.Target(GetSimbaTargetPID())) then
-    TerminateScript('OSRS is not targeted');
+  PID := GetSimbaTargetPID();
+
+  {$IFDEF WINDOWS}
+  if (PID = 0) then
+  begin
+    if MessageDlg('Simba has no target', 'Simba has no target. Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) then
+    begin
+      RIInject('JagexLauncher.exe');
+      if EIOS_GetClients(True) = 0 then
+        TerminateScript('Found no OSRS clients');
+
+      PID := EIOS_GetClientPID(0);
+    end;
+  end;
+  {$ENDIF}
+
+  if (not Self.Target(PID)) then
+    TerminateScript('Failed to pair to a RS client. Is RS targeted?');
 end;
 
 var
