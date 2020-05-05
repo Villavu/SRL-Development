@@ -327,10 +327,20 @@ begin
     '1':   Self.ClickButton(Self.BUTTON_QUANTITY_1_OFF, MOUSE_LEFT);
     '5':   Self.ClickButton(Self.BUTTON_QUANTITY_5_OFF, MOUSE_LEFT);
     '10':  Self.ClickButton(Self.BUTTON_QUANTITY_10_OFF, MOUSE_LEFT);
-    'X':   Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_OFF, MOUSE_LEFT);
     'ALL': Self.ClickButton(Self.BUTTON_QUANTITY_ALL_OFF, MOUSE_LEFT);
     else
-      TerminateScript('TRSBankScreen.WithdrawQuantity: Invalid amount "' + Amount + '"');
+    begin
+      Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_OFF, MOUSE_LEFT);
+
+      Mouse.Move(B);
+
+      if (not MainScreen.IsUpText('-' + Amount)) then
+      begin
+        Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_ON, MOUSE_RIGHT);
+        if ChooseOption.Select('Set custom quantity') then
+          Chatbox.AnswerQuery('Enter amount', Amount, Random(2000, 3000));
+      end;
+    end;
   end;
 
   Mouse.Click(B, MOUSE_LEFT);
