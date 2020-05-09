@@ -1,8 +1,14 @@
+{$DEFINE SRL_TPOINT_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 (*
 TPoint
 =============
 TPoint related methods
 *)
+
 function TPoint.InRect(Rect: TRectangle): Boolean; constref;
 begin
   if srl.PointInTriangle(Self, Rect.Top,Rect.Btm,Rect.Right) then Exit(True);
@@ -52,6 +58,7 @@ end;
 
 function TPoint.Random(Min, Max: Integer; Gauss: Boolean = False): TPoint; constref;
 begin
+{
   if (Gauss) then
   begin
     Result.X := Self.X + srl.NormalRange(Min, Max);
@@ -61,10 +68,12 @@ begin
     Result.X := Self.X + System.Random(Min, Max);
     Result.Y := Self.Y + System.Random(Min, Max);
   end;
+}
 end;
 
 function TPoint.Random(XMin, XMax: Integer; YMin, YMax: Integer; Gauss: Boolean = False): TPoint; constref; overload;
 begin
+{
   if (Gauss) then
   begin
     Result.X := Self.X + srl.NormalRange(XMin, XMax);
@@ -74,6 +83,7 @@ begin
     Result.X := Self.X + System.Random(XMin, XMax);
     Result.Y := Self.Y + System.Random(YMin, YMax);
   end;
+}
 end;
 
 // -----------------------------------------------------------------

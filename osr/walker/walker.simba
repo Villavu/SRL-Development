@@ -1,6 +1,6 @@
 {$DEFINE SRL_WALKER_INCLUDED}
-{$IFNDEF OSRS}
-  {$include_once SRL/osr.simba}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
 {$ENDIF}
 
 {$I webgraph.simba}
@@ -13,7 +13,7 @@ const
   RSW_MAP_ZIP_PATH = RSW_PATH+ '/maps.zip';
 
 type
-  TRSWalker = record
+  TRSWalker = record(TSRLBaseRecord)
     World: TMufasaBitmap;
     WorldSample: TMufasaBitmap;
     Web: TWebGraph;
@@ -58,13 +58,15 @@ begin
   Self.World.Free();
 end;
 
-procedure TRSWalker.Setup(Map: String; Speed: Int32 = 6); overload;
+procedure TRSWalker.Setup(Map: String; Speed: Int32 = 6);
 var
   MapFile: String;
 begin
+  Self.Name := 'Walker';
+
   MapFile := Self.FindMap(Map);
   if (MapFile = '') then
-    TerminateScript('Unable to find map: ' + Map);
+    Self.Fatal('Unable to find map: ' + Map);
 
   Self.Speed := Speed;
   Self.Cache.Size := 200;
@@ -80,11 +82,6 @@ begin
   Self.World.Init(Client.GetMBitmaps());
   Self.World.LoadFromFile(MapFile);
   Self.World.Downsample(Self.Speed, Self.WorldSample);
-end;
-
-procedure TRSWalker.Setup(Speed: Int32 = 6); overload;
-begin
-  Setup('world', Speed);
 end;
 
 procedure TRSWalker.ClearDots(Bitmap: TMufasaBitmap);
@@ -356,7 +353,7 @@ begin
         Exit;
       end else
       begin
-        Writeln(Format('Performing full scan. (%f)', [Self.Similarity]));
+        Self.Debug(Format('Performing full scan. (%f)', [Self.Similarity]));
 
         Self.ClearCache();
       end;
@@ -635,7 +632,7 @@ begin
   Result := Self.WebWalk(Self.Web.Nodes[dstNode], ClickRnd, PathRnd, FinalCorrection);
 end;
 
-procedure TRSWalker.Debug;
+procedure TRSWalker.DebugPosition;
 var
   mx,my,x1,y1,x2,y2: Int32;
   BMP, BMP1: TMufasaBitmap;
@@ -735,6 +732,3 @@ begin
     UnZipFile(RSW_MAP_ZIP_PATH, RSW_PATH);
   end;
 end;
-
-
-

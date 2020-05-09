@@ -1,3 +1,8 @@
+{$DEFINE SRL_DRAWING_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 (*
 Drawing
 =======
@@ -6,17 +11,31 @@ The drawing file holds TMufasaBitmap drawing functions to aid drawing onto bitma
 The source for this file can be found `here <https://github.com/SRL/SRL/blob/master/shared/drawing.simba>`.
 *)
 
-type
-  TColorArray = array of TColor;
-
-(*
-const __SHADOW_COLOR
-~~~~~~~~~~~~~~~~~~~~
-Integer constant that stores the shadow color for adding a shadow for text drawing.
-*)
 const
-  __SHADOW_COLOR = 65536;
-
+  clBlack      = TColor($000000);
+  clMaroon     = TColor($000080);
+  clGreen      = TColor($008000);
+  clOlive      = TColor($008080);
+  clNavy       = TColor($800000);
+  clPurple     = TColor($800080);
+  clTeal       = TColor($808000);
+  clRed        = TColor($0000FF);
+  clLime       = TColor($00FF00);
+  clYellow     = TColor($00FFFF);
+  clBlue       = TColor($FF0000);
+  clFuchsia    = TColor($FF00FF);
+  clAqua       = TColor($FFFF00);
+  clGray       = TColor($808080);
+  clSilver     = TColor($C0C0C0);
+  clLtGray     = TColor($C0C0C0);
+  clMedGray    = TColor($A4A0A0);
+  clDkGray     = TColor($808080);
+  clWhite      = TColor($FFFFFF);
+  clMoneyGreen = TColor($65BB85);
+  clSkyBlue    = TColor($F0CAA6);
+  clCream      = TColor($F0FBFF);
+  clPink       = TColor($B3A2EA);
+  clOrange     = TColor($0099FF);
   
 (*
 TMufasaBitmap.FromClient
@@ -295,39 +314,6 @@ begin
 end;
 
 (*
-TMufasaBitmap.DrawClippedBox
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawClippedBox(box: TBox; fill: boolean; color: TColor); overload;
-
-Same as the other TMufasaBitmap.DrawBox but is clipped so it won't draw off the
-bounds of the bitmap.
-
-.. note::
-
-    - by Olly
-    - Last Updated: 29 October 2013 by Olly
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawClippedBox(Box(50, 50, 100, 100), true, clLime);
-*)
-procedure TMufasaBitmap.DrawClippedBox(box: TBox; fill: boolean; color: TColor);
-var
-  b:TBox;
-begin
-  b.x1 := Max(box.x1, 0);
-  b.y1 := Max(box.y1, 0);
-  b.x2 := Min(box.x2, self.GetWidth() - 1);
-  b.y2 := Min(box.y2, self.GetHeight() - 1);
-
-  self.DrawBox(b, fill, color);
-end;
-
-(*
 TMufasaBitmap.DrawBoxes
 ~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -357,44 +343,6 @@ begin
 
   for i:=0 to h do
     self.DrawBox(boxArr[i], fill, color);
-end;
-
-(*
-TMufasaBitmap.DrawBoxes; overload
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBoxes(boxArr: TBoxArray; fill: boolean; colors: TColorArray); overload;
-
-Same as TMufasaBitmap.DrawBoxes() but accepts a extra paramter that allows a color for each box.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawBoxes([Box(10, 10, 20, 20), Box(50, 50, 250, 250),
-                     Box(440, 440, 600, 600)], true, [clRed, clLime, clOrange]);
-
-*)
-procedure TMufasaBitmap.DrawBoxes(boxArr: TBoxArray; fill: boolean; colors: TColorArray); overload;
-var
-  l,i:Int32;
-begin
-  l := Length(boxArr);
-
-  if (l <> Length(colors)) then
-  begin
-    WriteLn('-- ERROR: TMufasaBitmap.DrawBoxes(): boxArr/colors lengths differ');
-    Exit;
-  end;
-
-  for i := 0 to (l-1) do
-    self.DrawBox(boxArr[i], fill, colors[i]);
 end;
 
 (*
@@ -605,43 +553,6 @@ begin
 end;
 
 (*
-TMufasaBitmap.DrawPolygon
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawPolygon(polygonPnts: TPointArray; color: TColor);
-
-Draws a line between all the points(polygonPnts) to draw a polygon-like shape on
-the TMufasaBitmap.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawPolygon([point(10, 10), point(100, 100), point(500, 500), point(230, 555)], clLime);
-
-*)
-procedure TMufasaBitmap.DrawPolygon(polygonPnts: TPointArray; color: TColor);
-var
-  i, h: Integer;
-begin
-  h := (High(polygonPnts) - 1);
-
-  if (h = -1) then
-    exit();
-
-  for i := 0 to h do
-    self.LineTo(polygonPnts[i], polygonPnts[i + 1], color);
-
-  self.LineTo(polygonPnts[h + 1], polygonPnts[0], color);
-end;
-
-(*
 TMufasaBitmap.DrawClippedText
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -666,11 +577,7 @@ var
   tpa, tpaShadow: TPointArray;
   w,h: Int32;
 begin
-  {$IFDEF SIMBAMAJOR1200}
-  with client.GetMOCR() do TPA := TextToFontTPA(txt, font, w,h);
-  {$ELSE} //-- Simba 1300
   TPAFromText(txt, font, w,h);
-  {$ENDIF}
   OffsetTPA(TPA, pt);
 
   if (shadow) then
@@ -678,54 +585,11 @@ begin
     tpaShadow := CopyTPA(tpa);
     OffsetTPA(tpaShadow, point(1, 1));
     FilterPointsBox(tpaShadow, 0, 0, self.GetWidth()-1, self.GetHeight()-1);
-    self.DrawTPA(tpaShadow, __SHADOW_COLOR);
+    self.DrawTPA(tpaShadow, $000000);
   end;
 
   FilterPointsBox(tpa, 0, 0, self.GetWidth()-1, self.GetHeight()-1);
   self.DrawTPA(tpa, color);
-end;
-
-procedure TMufasaBitmap.DrawText(txt: String; pt: TPoint; Color: TColor); overload;
-begin
-  Self.DrawText(txt, 'StatChars07', pt, True, Color);
-end;
-
-(*
-TMufasaBitmap.DrawTextArray
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawTextArray(txtArr: TStringArray; pts: TPointArray; font: string; shadow: boolean; color: TColor);
-
-Draws an array of text on the TMufasaBitmap, each index in the textArr will be
-be drawn at the same point in the pnt array.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.drawTextArray(['hello', 'world'], [point(50, 50), point(100, 111)], 'SmallChars07', false, clBlue);
-
-*)
-procedure TMufasaBitmap.DrawTextArray(txtArr: TStringArray; pts: TPointArray; font: string; shadow: boolean; color: TColor);
-var
-  i, l: Integer;
-begin
-  l := Length(txtArr);
-
-  if (l <> Length(pts)) then
-  begin
-    WriteLn('-- ERROR: TMufasaBitmap.DrawTextArray(): txtArr/pts length differ');
-    exit();
-  end;
-
-  for i := 0 to (l -1) do
-    self.DrawText(txtArr[i], font, pts[i], shadow, color);
 end;
 
 (*
@@ -770,277 +634,10 @@ begin
   begin
     shadowTPA := CopyTPA(TPA);
     OffsetTPA(shadowTPA, Point(1, 1));
-    self.DrawTPA(shadowTPA, __SHADOW_COLOR);
+    self.DrawTPA(shadowTPA, $000000);
   end;
 
   self.DrawTPA(TPA, color);
-end;
-
-(*
-TMufasaBitmap.Debug
-~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.Debug();
-
-Will display the TMufasaBitmap in Simba's debug image form. Note: will only
-work if the bitmap is managed by Simba
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-**Example:**
-
-.. code-block:: pascal
-
-    Image.Debug();
-    // or for a non TMufasaBitmap
-    GetMufasaBitmap(bitmap).Debug();
-*)
-procedure TMufasaBitmap.Debug(); constref;
-begin
-  if (not BitmapExists(self.GetIndex())) then
-  begin
-    WriteLn('-- ERROR: Cannot debug the bitmap because it is not managed by Simba');
-    WriteLn('-- HINT: Example for a managed bitmap is "TMufasaBitmap.Init(client.GetMBitmaps());"');
-    Exit();
-  end;
-
-  ClearDebugImg();
-  DisplayDebugImgWindow(self.GetWidth(), self.GetHeight());
-  DrawBitmapDebugImg(self.GetIndex());
-end;
-
-(*
-TMufasaBitmap.DebugEx
-~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TMufasaBitmap.DebugEx(SetManaged: Boolean=True; MinSize: Int32=128); constref;
-
-Will display the TMufasaBitmap in Simba's debug image form. Note that if the
-bitmap isn't managed by Simba it will be added if ``SetManaged`` is ``True``.
-Alterantive parameter ``MinSize`` is used to better display small images.
-
-**Example:**
-
-pascal::
-    Image.DebugEx();
-    // or for a non TMufasaBitmap
-    GetMufasaBitmap(bitmap).DebugEx();
-*)
-procedure TMufasaBitmap.DebugEx(SetManaged: Boolean=True; MinSize: Int32=128); constref;
-var
-  nW,nH, W,H, x1,y1:Int32;
-  tmp: TMufasaBitmap;
-begin
-  if SetManaged and (not BitmapExists(Self.GetIndex())) then
-    client.GetMBitmaps().AddBMP(Self);
-
-  if (not BitmapExists(self.GetIndex())) then
-  begin
-    WriteLn('-- ERROR: Cannot debug the bitmap because it is not managed by Simba');
-    WriteLn('-- HINT: Example for a managed bitmap is "TMufasaBitmap.Init(client.GetMBitmaps());"');
-    Exit();
-  end;
-
-  GetBitmapSize(Self.GetIndex(), W,H);
-  if (W < MinSize) or (H < MinSize) then
-  begin
-    nW := Max(128, W);
-    nH := Max(128, H);
-    DisplayDebugImgWindow(nW,nH);
-
-    tmp := GetMufasaBitmap(CreateBitmap(nW,nH));
-    tmp.ReplaceColor(0, 15790320);
-    x1 := Trunc(nW / 2 - W / 2);
-    y1 := Trunc(nH / 2 - H / 2);
-    WriteLn([x1,y1]);
-    Self.DrawTransparent(x1,y1, tmp);
-    DrawBitmapDebugImg(tmp.GetIndex());
-    tmp.Free();
-  end else
-  begin
-    DisplayDebugImgWindow(W,H);
-    DrawBitmapDebugImg(Self.GetIndex());
-  end;
-end;
-
-(*
-TMufasaBitmap.UpdateDebugImage
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.UpdateDebugImage();
-
-Will update Simba's debug image form with the current image. 
-*)
-procedure TMufasaBitmap.UpdateDebugImage(); constref;
-begin
-  if (not BitmapExists(self.GetIndex())) then
-  begin
-    WriteLn('-- ERROR: Cannot debug the bitmap because it is not managed by Simba');
-    WriteLn('-- HINT: Example for a managed bitmap is "TMufasaBitmap.Init(client.GetMBitmaps());"');
-    Exit;
-  end;
-  
-  DrawBitmapDebugImg(self.GetIndex());
-  DisplayDebugImgWindow(self.GetWidth(), self.GetHeight());
-end;
-
-(*
-TMufasaBitmap.DebugTPA
-~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DebugTPA(tpa: TPointArray; drawPoints: boolean = true);
-
-Will debug a TPointArray onto the TMufasaBitmap, parameter drawPoints is a optional
-parameter and by default is enabled, if enabled it will draw the points in the array.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DebugTPA(tpa);
-*)
-procedure TMufasaBitmap.DebugTPA(tpa: TPointArray; drawPoints: Boolean = True);
-var
-  mid: TPoint;
-  l: Int32;
-  b: TBox;
-begin
-  b := GetTPABounds(tpa);
-  mid := MiddleTPA(tpa);
-  l := Length(tpa);
-
-  if (l < 1) then
-    exit();
-
-  if (drawPoints) then
-    self.DrawTPA(tpa, clWhite);
-
-  self.DrawBox(b, false, clRed);
-  self.DrawCross(mid, 5, clPurple);
-  self.DrawText('TPA Length: ' + ToStr(l), Point(b.x1+2, b.y1+2), clLime);
-end;
-
-(*
-TMufasaBitmap.DebugATPA
-~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DebugATPA(const ATPA: T2DPointArray);
-
-Will debug a T2DPointArray onto the TMufasaBitmap.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DebugATPA(ATPA);
-*)
-procedure TMufasaBitmap.DebugATPA(const ATPA: T2DPointArray);
-var
-  i, l, c: Int32;
-  b: TBox;
-  colArr: array [0..9] of TColor;
-  mid: TPoint;
-begin
-  colArr := [clAqua, clBlue, clFuchsia, clLime, clMaroon,
-             clOrange, clNavy, clYellow, clRed, clWhite];
-
-  l := Length(ATPA);
-  c := 0;
-
-  if (l < 1) then
-    exit();
-
-  for i := 0 to (l-1) do
-  begin
-    b := GetTPABounds(ATPA[i]);
-    mid := MiddleTPA(ATPA[i]);
-
-    self.DrawBox(b, false, colArr[c]);
-    self.DrawCross(mid, 3, colArr[c]);
-    self.DrawText(intToStr(i), point(b.x1 + 2, b.y1 + 2), colArr[c]);
-
-    Inc(c);
-
-    if (c > High(colArr)) then
-      c := 0;
-  end;
-end;
-
-(*
-TMufasaBitmap.DebugDTM
-~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DebugDTM(dtm: Integer; area: TBox; color: TColor);
-
-Will search for the dtm in the desired area, drawing a cross at each point that
-is found.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DebugDTM(myDTM, mainScreen.getBounds(), clRed);
-*)
-procedure TMufasaBitmap.DebugDTM(dtm: Integer; area: TBox; color: TColor);
-var
-  tpa: TPointArray;
-  atpa: T2DPointArray;
-  l, i: Integer;
-  b: TBox;
-const
-  CROSS_SIZE = 4;
-begin
-  if (not DTMExists(dtm)) then
-  begin
-    WriteLn('-- ERROR: TMufasaBitmap.DebugDTM(): The DTM you entered does not exist');
-    exit();
-  end;
-
-  FindDTMs(dtm, tpa, area);
-  ClearDoubleTPA(tpa);
-
-  l := Length(tpa);
-  SetLength(atpa, l);
-
-  if (l < 1) then
-    exit();
-
-  for i := 0 to (l-1) do
-  begin
-    b := IntToBox(tpa[i].x - CROSS_SIZE, tpa[i].y - CROSS_SIZE,
-                  tpa[i].x + CROSS_SIZE, tpa[i].y + CROSS_SIZE);
-
-    atpa[i] := MergeATPA([tpaFromLine(b.x1, b.y1, b.x2, b.y2),
-                          tpaFromLine(b.x2, b.y1, b.x1, b.y2)]);
-  end;
-
-  tpa := MergeATPA(atpa);
-  // a cross could draw off the bitmap
-  FilterPointsBox(tpa, area.x1, area.y1, area.x2, area.y2);
-
-  self.DrawTPA(tpa, color);
 end;
 
 procedure TMufasaBitmap.DrawCrosshairs(const box: TBox; const pt: TPoint; const color: TColor; const boxColor: Integer = -1);
@@ -1052,89 +649,15 @@ begin
     self.DrawBox(box, false, boxColor);
 end;
 
-procedure TMufasaBitmap.DrawTPARainbow(var TPA: TPointArray);
-var
-  i, j, h, x, w, hei: Integer;
-  fraction, m: Double;
-  mt: Byte;
-  ptr: PRGB32;
-  new: TPointArray;
+procedure TMufasaBitmap.Debug;
 begin
-  h := High(TPA);
-  if (h < 0) then
-    Exit;
-
-  j := 0;
-  SetLength(new, h+1);
-
-  w := Self.getWidth();
-  hei := Self.getHeight();
-  ptr := Self.getData();
-
-  for i := 0 to High(TPA) do
-  begin
-    if (TPA[i].X < 0) or (TPA[i].Y < 0) or (TPA[i].X >= w) or (TPA[i].Y >= hei) then
-      Continue;
-    new[Inc(j)-1] := TPA[i];
-    fraction := i / h;
-    if (fraction <= 0) then
-      m := 0
-    else if (fraction >= 1) then
-      m := 6
-    else
-      m := fraction * 6;
-
-    x := TPA[i].Y * w + TPA[i].X;
-    mt := (round(frac(m) * $FF));
-    case Trunc(m) of
-    0:
-      begin
-        ptr[x]^.R := $FF;
-        ptr[x]^.G := mt;
-        ptr[x]^.B := 0;
-      end;
-    1:
-      begin
-        ptr[x]^.R := $FF - mt;
-        ptr[x]^.G := $FF;
-        ptr[x]^.B := 0;
-      end;
-    2:
-      begin
-        ptr[x]^.R := 0;
-        ptr[x]^.G := $FF;
-        ptr[x]^.B := mt;
-      end;
-    3:
-      begin
-        ptr[x]^.R := 0;
-        ptr[x]^.G := $FF - mt;
-        ptr[x]^.B := $FF;
-      end;
-    4:
-      begin
-        ptr[x]^.R := mt;
-        ptr[x]^.G := 0;
-        ptr[x]^.B := $FF;
-      end;
-    5:
-      begin
-        ptr[x]^.R := $FF;
-        ptr[x]^.G := 0;
-        ptr[x]^.B := $FF - mt;
-       end;
-    end;
-  end;
-
-  SetLength(new, j);
-  TPA := new;
+  ShowBitmap(Self);
 end;
+
 procedure Debug(TPA: TPointArray; Color: TColor = $0000FF); overload;
 var
   BMP: TMufasaBitmap;
 begin
-  TPA := TPA.FilterBox(GetClientBounds().Expand(1));
-
   BMP.FromClient();
   BMP.DrawTPA(TPA, Color);
   BMP.Debug();
@@ -1149,7 +672,7 @@ begin
   BMP.FromClient();
 
   for TPA in ATPA do
-    BMP.DrawTPA(TPA.FilterBox(GetClientBounds().Expand(1)), Random($FFFFFF));
+    BMP.DrawTPA(TPA, Random($FFFFFF));
 
   BMP.Debug();
   BMP.Free();

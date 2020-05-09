@@ -1,8 +1,7 @@
-(*
-Other datatypes
-===============
-Defines methods for some other datatypes
-*)
+{$DEFINE SRL_VECTOR_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
 
 type
   TMatrix4 = packed record

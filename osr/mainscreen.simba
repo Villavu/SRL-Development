@@ -1,6 +1,6 @@
 {$DEFINE SRL_MAINSCREEN_INCLUDED}
-{$IFNDEF OSRS}
-  {$include_once SRL/osr.simba}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
 {$ENDIF}
 
 type

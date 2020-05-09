@@ -1,11 +1,17 @@
+{$DEFINE SRL_REMOTEINPUT_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 {$loadlib ../plugins/libremoteinput}
 
 const
   REMOTE_INPUT_LIB = {$macro CURRENT_DIRECTORY} + '/../plugins/libremoteinput' + {$IFDEF CPU64}'64'{$ELSE}'32'{$ENDIF} + '.' + SharedSuffix;
 
 type
-  TRemoteInput = record
+  TRemoteInput = record(TSRLBaseRecord)
     EIOS: Pointer;
+    PID: UInt32;
   end;
 
 function TRemoteInput.Target(PID: UInt32): Boolean;
@@ -24,28 +30,34 @@ begin
 end;
 
 procedure TRemoteInput.Setup;
-var
-  PID: UInt32;
 begin
-  PID := GetSimbaTargetPID();
+  Self.PID := GetSimbaTargetPID();
 
   {$IFDEF WINDOWS}
-  if (PID = 0) then
+  if (not IsTargetValid()) then
   begin
-    if MessageDlg('Simba has no target', 'Simba has no target. Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) then
+    if MessageDlg('SRL', 'Simba has no valid target. Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) then
     begin
       RIInject('JagexLauncher.exe');
       if EIOS_GetClients(True) = 0 then
-        TerminateScript('Found no OSRS clients');
+        Self.Fatal('Found no OSRS clients');
 
-      PID := EIOS_GetClientPID(0);
+      Self.PID := EIOS_GetClientPID(0);
     end;
   end;
   {$ENDIF}
 
-  if (not Self.Target(PID)) then
-    TerminateScript('Failed to pair to a RS client. Is RS targeted?');
+  if (not Self.Target(Self.PID)) then
+    Self.Fatal('Failed to pair to a RS client. Is RS targeted?');
+
+  EIOS_SetKeyboardRepeatDelay(Self.EIOS, 250); // Windows
+
+  Self.Debug('Paired to client with PID: ' + ToString(Self.PID));
 end;
 
 var
   RemoteInput: TRemoteInput;
+
+begin
+  RemoteInput.Name := 'Remote Input';
+end;

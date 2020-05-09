@@ -1,3 +1,8 @@
+{$DEFINE SRL_SLACKTREE_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 (*
 Slacktree
 ==========
@@ -11,7 +16,7 @@ The library loaded may not work properly on Linux distors.
 (*
 TPointArray.PointsInRangeOf
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: 
+.. pascal::
   function TPointArray.PointsInRangeOf(Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref;
 
 Returns all the points from `self` that are within range of any point in `other`.
@@ -33,7 +38,7 @@ end;
 (*
 TPointArray.PointsInRangeOf
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: 
+.. pascal::
   function TPointArray.PointsInRangeOf(Other: TPointArray; minDx, minDy, maxDx, maxDy: Int32): TPointArray; constref; overload;
 
 Same as the above but lets you specify X- and Y-wise min & max distance separately.

@@ -1,6 +1,6 @@
 {$DEFINE SRL_MINIMAP_TO_MS_INCLUDED}
-{$IFNDEF OSRS}
-  {$include_once SRL/osr.simba}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
 {$ENDIF}
 
 (*
@@ -35,19 +35,21 @@ type TMinimapToMS
 The comments explains it. This is the datastructure MM2MS uses.
 *)
 type
-  TMinimapToMS = record
+  TMinimapToMS = record(TSRLBaseRecord)
     BASE_W, BASE_H: Int32;
     SCALE_MIN, SCALE_MAX: Double;
     YSHIFT: Double;
     YLOOK: Double;
     ZOOM: Double;
+    ZOOM_LEVEL: Int32;
   end;
 
 procedure TMinimapToMS.SetZoomLevel(Level: Int32);
 const
   ZoomLevelToRSZoom = [0.0000, 0.0025, 0.0065, 0.0100, 0.0130, 0.0165, 0.0205, 0.0235, 0.0280, 0.0310, 0.0350, 0.0390, 0.0430, 0.0430, 0.0465, 0.0515, 0.0555, 0.0605, 0.0645, 0.0690, 0.0740, 0.0785, 0.0835, 0.0885, 0.0935, 0.0990, 0.1045, 0.1095, 0.1150, 0.1205, 0.1260, 0.1325, 0.1385, 0.1455, 0.1505, 0.1585, 0.1635, 0.1635, 0.1705, 0.1775, 0.1845, 0.1925, 0.1995, 0.2055, 0.2145, 0.2215, 0.2305, 0.2365, 0.2465, 0.2545, 0.2635, 0.2725, 0.2825, 0.2905, 0.3005, 0.3105, 0.3195, 0.3285, 0.3405, 0.3555, 0.3615, 0.3705, 0.3825, 0.3825, 0.3945, 0.4065, 0.4185, 0.4305, 0.4425, 0.4575, 0.4695, 0.4815, 0.4965, 0.5115, 0.5265, 0.5385, 0.5535, 0.5685, 0.5835, 0.5985, 0.6165, 0.6315, 0.6495, 0.6645, 0.6825, 0.7035, 0.7215, 0.7215, 0.7395, 0.7575, 0.7815, 0.7995, 0.8175, 0.8355, 0.8595, 0.8835, 0.9015, 0.9255, 0.9495, 0.9735, 1.000];
 begin
-  Self.ZOOM := ZoomLevelToRSZoom[Level];
+  Self.ZOOM_LEVEL := Level;
+  Self.ZOOM := ZoomLevelToRSZoom[Self.ZOOM_LEVEL];
 end;
 
 function TMinimapToMS.GetDebugBitmap(Angle: Double = -1): TMufasaBitmap; overload;
@@ -71,7 +73,7 @@ begin
     end;
 end;
 
-procedure TMinimapToMS.Debug(BMP: TMufasaBitmap);
+procedure TMinimapToMS.DebugToBitmap(BMP: TMufasaBitmap);
 var
   Dot: TPoint;
 begin
@@ -139,7 +141,11 @@ var
   P: TPoint;
 begin
   if Self.ZOOM = -1 then
+  begin
+    Self.Debug('Unknown zoom level, reading from options...');
     Self.SetZoomLevel(Options.GetZoomLevel());
+    Self.Debug('Current zoom level: ' + ToString(Self.ZOOM_LEVEL));
+  end;
 
   P := Minimap.Center;
   for i := 0 to High(Arr) do
@@ -150,11 +156,11 @@ end;
 
 procedure TMinimapToMS.Setup(ClientMode: ERSClientMode);
 begin
-  Self.ZOOM := -1;
+  Self.Name := 'MM2MS';
 
+  Self.ZOOM := -1;
   Self.BASE_W := 513;
   Self.BASE_H := 335;
-
   Self.YSHIFT := 24;
 
   case ClientMode of

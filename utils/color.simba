@@ -1,3 +1,8 @@
+{$DEFINE SRL_COLOR_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 (*
 Color
 ======
@@ -9,11 +14,7 @@ type
     Tolerance: Int32;
   end;
 
-  TCTS1Color = record
-    Color: Int32;
-    Tolerance: Int32;
-    _: Int32; // Needed so CTS0 and CTS1 aren't equal
-  end;
+  TCTS1Color = type TCTS0Color;
 
   TCTS2Color = record
     Color: Int32;
@@ -96,45 +97,6 @@ begin
   Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 2, Color.HueMod, Color.SatMod);
 end;
 
-function TSRL.FindColorsArray(out TPA: TPointArray; Colors: array of TCTS0Color; Area: TBox): Int32; constref; overload;
-var
-  ATPA: T2DPointArray;
-  i: Int32;
-begin
-  SetLength(ATPA, Length(Colors));
-
-  for i := 0 to High(Colors) do
-    Result := Result + Self.FindColorsHelper(ATPA[i], Area, Colors[i].Color, Colors[i].Tolerance, 0);
-
-  TPA := ATPA.Merge();
-end;
-
-function TSRL.FindColorsArray(out TPA: TPointArray; Colors: array of TCTS1Color; Area: TBox): Int32; constref; overload;
-var
-  ATPA: T2DPointArray;
-  i: Int32;
-begin
-  SetLength(ATPA, Length(Colors));
-
-  for i := 0 to High(Colors) do
-    Result := Result + Self.FindColorsHelper(ATPA[i], Area, Colors[i].Color, Colors[i].Tolerance, 1);
-
-  TPA := ATPA.Merge();
-end;
-
-function TSRL.FindColorsArray(out TPA: TPointArray; Colors: array of TCTS2Color; Area: TBox): Int32; constref; overload;
-var
-  ATPA: T2DPointArray;
-  i: Int32;
-begin
-  SetLength(ATPA, Length(Colors));
-
-  for i := 0 to High(Colors) do
-    Result := Result + Self.FindColorsHelper(ATPA[i], Area, Colors[i].Color, Colors[i].Tolerance, 2, Colors[i].HueMod, Colors[i].SatMod);
-
-  TPA := ATPA.Merge();
-end;
-
 function TSRL.CountColor(Color: TCTS0Color; Area: TBox): Int32; overload;
 var
   TPA: TPointArray;
@@ -154,28 +116,4 @@ var
   TPA: TPointArray;
 begin
   Result := Self.FindColors(TPA, Color, Area);
-end;
-
-function TSRL.WaitDTM(DTM: Integer; out pt: TPoint; Area: TBox; WaitTime: Integer): Boolean; constref;
-var
-  t: UInt64;
-begin
-  t := GetTickCount() + WaitTime;
-  repeat
-    if FindDTM(DTM, pt.x, pt.y, Area.X1, Area.Y1, Area.X2, Area.Y2) then
-      Exit(True);
-    Wait(Random(50, 100));
-  until (GetTickCount() > t);
-end;
-
-function TSRL.WaitBitmap(BMP, Tolerance: Integer; out pt: TPoint; Area: TBox; WaitTime: Integer): Boolean; constref;
-var
-  t: UInt64;
-begin
-  t := GetTickCount() + WaitTime;
-  repeat
-    if (FindBitmapToleranceIn(BMP, pt.x, pt.y, Area.X1, Area.Y1, Area.X2, Area.Y2, Tolerance)) then
-      Exit(True);
-    Wait(Random(50, 100));
-  until (GetTickCount() > t);
 end;

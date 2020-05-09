@@ -1,6 +1,6 @@
 {$DEFINE SRL_ANTIBAN_INCLUDED}
 
-{$IFNDEF OSRS}
+{$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
 
@@ -36,7 +36,7 @@ type
     NextAtTime: Double;
   end;
 
-  TAntiban = record
+  TAntiban = record(TSRLBaseRecord)
     Debugging: Boolean;
     DebugRandoms: Boolean;
 
@@ -53,12 +53,6 @@ type
     OnStartTask: procedure(Task: PAntibanTask);
     OnFinishTask: procedure(Task: PAntibanTask);
   end;
-
-procedure TAntiban.Debug(Message: String);
-begin
-  if Self.Debugging then
-    WriteLn(SRL.TimeStamp() + ' [Antiban]: ' + Message);
-end;
 
 function TAntiban.TimeRunningAtClock(TimeOfDay: String; Randomness: Double = 0.10): Int64;
 var
@@ -477,5 +471,5 @@ var
   Antiban: TAntiban;
 
 begin
-  Antiban.Debugging := True;
+  Antiban.Name := 'Antiban';
 end;

@@ -1,3 +1,8 @@
+{$DEFINE SRL_TIME_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 (*
 Time
 =======
@@ -143,174 +148,6 @@ begin
 end;
 
 (*
-TTimeMarker
-~~~~~~~~~~~
-.. code-block:: pascal
-
-    type TTimeMarker = record
-        time, startTime: LongWord;
-        paused: Boolean;
-    end;
-
-Timer type which is useful for loops, timing and writing progress reports.
-
-.. note::
-
-    - by Bart de Boer
-*)
-type
-  TTimeMarker = record
-    FTime, FStartTime, FPrevMark: UInt64;
-    FPaused: Boolean;
-  end;
-
-(*
-TTimeMarker.Start
-~~~~~~~~~~~~~~~~~
-.. code-block pascal
-
-    procedure TTimeMarker.Start();
-
-Starts the timer. Can also be used when paused to continue where it left.
-
-.. note::
-
-    - by Bart de Boer
-
-Example:
-
-.. code-block:: pascal
-
-    myTimer.Start();
-*)
-procedure TTimeMarker.Start();
-begin
-  Self.FPrevMark := GetTickCount(); // used for adding time after a pause
-
-  if (not Self.FPaused) and (Self.FStartTime = 0) then
-  begin
-    Self.FStartTime := GetTickCount();
-    Self.FTime := 0;
-  end;
-
-  Self.FPaused := False;
-end;
-
-(*
-TTimeMarker.Reset
-~~~~~~~~~~~~~~~~~
-.. code-block pascal
-
-    procedure TTimeMarker.Reset();
-
-Stops the timer and resets it to zero.
-
-.. note::
-
-    - by Bart de Boer
-
-Example:
-
-.. code-block:: pascal
-
-    myTimer.Reset();
-*)
-procedure TTimeMarker.Reset();
-begin
-  Self.FPaused := False;
-  Self.FTime := 0;
-  Self.FStartTime := 0;
-  Self.FPrevMark := 0;
-end;
-
-(*
-TTimeMarker.Pause
-~~~~~~~~~~~~~~~~~
-.. code-block pascal
-
-    procedure TTimeMarker.Pause();
-
-Pauses the timer. It can be continued with start().
-
-.. note::
-
-    - by Bart de Boer
-
-Example:
-
-.. code-block:: pascal
-
-    myTimer.Pause();
-    TakeABreak(90000);
-    myTimer.Start();
-*)
-procedure TTimeMarker.Pause();
-begin
-  Self.FTime := Self.FTime + (GetTickCount() - Self.FPrevMark);
-  Self.FPaused := True;
-end;
-
-(*
-TTimeMarker.GetTime
-~~~~~~~~~~~~~~~~~~~
-.. code-block pascal
-
-    function TTimeMarker.GetTime(): UInt64;
-
-Gets the time from the timer. Returns zero if the timer was not set.
-
-.. note::
-
-    - by Bart de Boer
-
-Example:
-
-.. code-block:: pascal
-
-    myTimer.start();
-    repeat
-      DoStuff;
-    until(myTimer.GetTime() > 60000);
-
-*)
-function TTimeMarker.GetTime(): UInt64;
-begin
-  if not Self.FPaused then
-    Result := Self.FTime + (GetTickCount() - Self.FPrevMark)
-  else
-    Result := Self.FTime;
-end;
-
-(*
-TTimeMarker.GetTotalTime
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block pascal
-
-    function TTimeMarker.GetTotalTime(): UInt64;
-
-Gets the time from the timer including the time it was paused. Returns zero if
-the timer was not set.
-
-.. note::
-
-    - by Bart de Boer
-
-Example:
-
-.. code-block:: pascal
-
-    BreakTime := MyTimer.GetTotalTime() - MyTimer.GetTime();
-
-*)
-function TTimeMarker.GetTotalTime(): UInt64;
-begin
-  if (Self.FStartTime > 0) then
-    Result := GetTickCount() - Self.FStartTime;
-end;
-
-
-
-(*
 TCountDown
 ~~~~~~~~~~~~~~~~~~~
 A neat and simple timer type.
@@ -333,7 +170,6 @@ type
     Timeout: UInt64;
   end;
 
-  
 procedure TCountDown.Init(Time: UInt32);
 begin
   Self.Length  := Time;
@@ -355,8 +191,6 @@ function TCountDown.IsFinished(): Boolean;
 begin
   Result := GetTickCount() >= Self.Timeout;
 end;
-
-
 
 {$IFDEF WINDOWS}
 function PerformanceTimer(): Double;

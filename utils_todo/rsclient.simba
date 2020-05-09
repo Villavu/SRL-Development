@@ -246,4 +246,4 @@ begin
   Self.Setup(Options);
 end;
 
-{$include_once rsclient_overrides.simba}
+{$I rsclient_overrides.simba}

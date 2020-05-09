@@ -1,127 +1,123 @@
 {$HINTS OFF}
 
-{$IFNDEF OSRS}
-  {$DEFINE OSRS}
+{$DEFINE SRL_OSR}
+{$DEFINE SRL_USE_SLACKTREE}
 
-  type
-    ERSClientMode = (RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM);
+type
+  ERSClientMode = (RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM);
 
-    TSRLSetupMethod = procedure(ClientMode: ERSClientMode) of object;
-    TSRLDebugMethod = procedure(Bitmap: TMufasaBitmap) of object;
+  TSRLSetupMethod = procedure(ClientMode: ERSClientMode) of object;
+  TSRLDebugMethod = procedure(Bitmap: TMufasaBitmap) of object;
 
-    TSRL = record
-      ClientMode: ERSClientMode;
+  TSRL = record
+    ClientMode: ERSClientMode;
 
-      SetupMethods: array of TSRLSetupMethod;
-      DebugMethods: array of TSRLDebugMethod;
+    SetupMethods: array of TSRLSetupMethod;
+    DebugMethods: array of TSRLDebugMethod;
 
-    end;
-
-  var
-    SRL: TSRL;
-
-  {$DEFINE SRL_WITH_REMOTEINPUT}   //todo fix lagg...
-  {$DEFINE SRL_WITH_SLACKTREE}
-
-  {$INCLUDE utils/utils.simba}
-
-  procedure TSRL.AddSetupMethod(Method: TSRLSetupMethod);
-  begin
-    Self.SetupMethods := Self.SetupMethods + @Method;
   end;
 
-  procedure TSRL.AddDebugMethod(Method: TSRLDebugMethod);
-  begin
-    Self.DebugMethods := Self.DebugMethods + @Method;
-  end;
+var
+  SRL: TSRL;
 
-  procedure TSRL.Setup(ClientMode: ERSClientMode);
-  var
-    I: Int32;
-  begin
-    Self.ClientMode := ClientMode;
+{$I utils.simba}
 
-    for I := 0 to High(Self.SetupMethods) do
-      Self.SetupMethods[i](Self.ClientMode);
+procedure TSRL.AddSetupMethod(Method: TSRLSetupMethod);
+begin
+  Self.SetupMethods := Self.SetupMethods + @Method;
+end;
 
-    {$IFDEF REMOTEINPUT}
-    RemoteInput.Setup();
-    {$ENDIF}
-  end;
+procedure TSRL.AddDebugMethod(Method: TSRLDebugMethod);
+begin
+  Self.DebugMethods := Self.DebugMethods + @Method;
+end;
 
-  procedure TSRL.Debug;
-  var
-    Bitmap: TMufasaBitmap;
-    I: Int32;
-  begin
-    Freeze();
+procedure TSRL.Setup(ClientMode: ERSClientMode);
+var
+  I: Int32;
+begin
+  Self.ClientMode := ClientMode;
 
-    Bitmap.FromClient();
+  for I := 0 to High(Self.SetupMethods) do
+    Self.SetupMethods[i](Self.ClientMode);
 
-    for I := 0 to High(Self.DebugMethods) do
-      Self.DebugMethods[I](Bitmap);
+  {$IFDEF SRL_USE_REMOTEINPUT}
+  RemoteInput.Setup();
+  {$ENDIF}
+end;
 
-    Bitmap.Debug();
-    Bitmap.Free();
+procedure TSRL.Debug;
+var
+  Bitmap: TMufasaBitmap;
+  I: Int32;
+begin
+  Freeze();
 
-    UnFreeze();
-  end;
+  Bitmap.FromClient();
 
-  // The following allows individual include files to compile on their own with just having {$I SRL/osr.simba}
-  // Summary: It includes until the current file is reached.
+  for I := 0 to High(Self.DebugMethods) do
+    Self.DebugMethods[I](Bitmap);
 
-  {$IFNDEF SRL_OCR_INCLUDED}                {$INCLUDE osr/ocr.simba}
-  {$IFNDEF SRL_INTERFACE_INCLUDED}          {$INCLUDE osr/interface.simba}
-  {$IFNDEF SRL_ROOT_INTERFACE_INCLUDED}     {$INCLUDE osr/rootinterface.simba}
-  {$IFNDEF SRL_CHATBUTTONS_INCLUDED}        {$INCLUDE osr/chatbuttons.simba}
-  {$IFNDEF SRL_MISC_INCLUDED}               {$INCLUDE osr/misc.simba}
-  {$IFNDEF SRL_LOBBYSCREEN_INCLUDED}        {$INCLUDE osr/lobbyscreen.simba}
-  {$IFNDEF SRL_LOGINSCREEN_INCLUDED}        {$INCLUDE osr/loginscreen.simba}
-  {$IFNDEF SRL_CHOOSEOPTION_INCLUDED}       {$INCLUDE osr/chooseoption.simba}
-  {$IFNDEF SRL_MAINSCREEN_INCLUDED}         {$INCLUDE osr/mainscreen.simba}
-  {$IFNDEF SRL_CHATBOX_INCLUDED}            {$INCLUDE osr/chatbox.simba}
-  {$IFNDEF SRL_GAMETABS_INCLUDED}           {$INCLUDE osr/gametabs.simba}
-  {$IFNDEF SRL_GAMETAB_INCLUDED}            {$INCLUDE osr/gametab.simba}
-  {$IFNDEF SRL_INTERFACEAREA_INCLUDED}      {$INCLUDE osr/interfacearea.simba}
-  {$IFNDEF SRL_XPBAR_INCLUDED}              {$INCLUDE osr/xpbar.simba}
-  {$IFNDEF SRL_OPTIONS_INCLUDED}            {$INCLUDE osr/options.simba}
-  {$IFNDEF SRL_LOGOUT_INCLUDED}             {$INCLUDE osr/logout.simba}
-  {$IFNDEF SRL_MINIMAP_INCLUDED}            {$INCLUDE osr/minimap.simba}
-  {$IFNDEF SRL_MINIMAP_TO_MS_INCLUDED}      {$INCLUDE osr/minimaptoms.simba}
-  {$IFNDEF SRL_INVENTORY_INCLUDED}          {$INCLUDE osr/inventory.simba}
-  {$IFNDEF SRL_GRANDEXCHANGE_INCLUDED}      {$INCLUDE osr/grandexchange.simba}
-  {$IFNDEF SRL_BANKSCREEN_INCLUDED}         {$INCLUDE osr/bankscreen.simba}
-  {$IFNDEF SRL_ITEMFINDER_INCLUDED}         {$INCLUDE osr/itemfinder/itemfinder.simba}
-  {$IFNDEF SRL_WALKER_INCLUDED}             {$INCLUDE osr/walker/walker.simba}
-  {$IFNDEF SRL_STATS_INCLUDED}              {$INCLUDE osr/stats.simba}
-  {$IFNDEF SRL_PLAYER_INCLUDED}             {$INCLUDE osr/player.simba}
-  {$IFNDEF SRL_ANTIBAN_INCLUDED}            {$INCLUDE osr/antiban.simba}
+  Bitmap.Debug();
+  Bitmap.Free();
 
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
-  {$ELSE}{$ENDIF}
+  UnFreeze();
+end;
 
-{$ENDIF}
+// The following allows individual include files to compile on their own with just having {$I SRL/osr.simba}
+// Summary: It includes until the current file is reached.
+
+{$IFNDEF SRL_OCR_INCLUDED}                {$I osr/ocr.simba}
+{$IFNDEF SRL_INTERFACE_INCLUDED}          {$I osr/interface.simba}
+{$IFNDEF SRL_ROOT_INTERFACE_INCLUDED}     {$I osr/rootinterface.simba}
+{$IFNDEF SRL_CHATBUTTONS_INCLUDED}        {$I osr/chatbuttons.simba}
+{$IFNDEF SRL_MISC_INCLUDED}               {$I osr/misc.simba}
+{$IFNDEF SRL_LOBBYSCREEN_INCLUDED}        {$I osr/lobbyscreen.simba}
+{$IFNDEF SRL_LOGINSCREEN_INCLUDED}        {$I osr/loginscreen.simba}
+{$IFNDEF SRL_CHOOSEOPTION_INCLUDED}       {$I osr/chooseoption.simba}
+{$IFNDEF SRL_MAINSCREEN_INCLUDED}         {$I osr/mainscreen.simba}
+{$IFNDEF SRL_CHATBOX_INCLUDED}            {$I osr/chatbox.simba}
+{$IFNDEF SRL_GAMETABS_INCLUDED}           {$I osr/gametabs.simba}
+{$IFNDEF SRL_GAMETAB_INCLUDED}            {$I osr/gametab.simba}
+{$IFNDEF SRL_INTERFACEAREA_INCLUDED}      {$I osr/interfacearea.simba}
+{$IFNDEF SRL_XPBAR_INCLUDED}              {$I osr/xpbar.simba}
+{$IFNDEF SRL_OPTIONS_INCLUDED}            {$I osr/options.simba}
+{$IFNDEF SRL_LOGOUT_INCLUDED}             {$I osr/logout.simba}
+{$IFNDEF SRL_MINIMAP_INCLUDED}            {$I osr/minimap.simba}
+{$IFNDEF SRL_MINIMAP_TO_MS_INCLUDED}      {$I osr/minimaptoms.simba}
+{$IFNDEF SRL_INVENTORY_INCLUDED}          {$I osr/inventory.simba}
+{$IFNDEF SRL_GRANDEXCHANGE_INCLUDED}      {$I osr/grandexchange.simba}
+{$IFNDEF SRL_BANKSCREEN_INCLUDED}         {$I osr/bankscreen.simba}
+{$IFNDEF SRL_ITEMFINDER_INCLUDED}         {$I osr/itemfinder/itemfinder.simba}
+{$IFNDEF SRL_WALKER_INCLUDED}             {$I osr/walker/walker.simba}
+{$IFNDEF SRL_STATS_INCLUDED}              {$I osr/stats.simba}
+{$IFNDEF SRL_PLAYER_INCLUDED}             {$I osr/player.simba}
+{$IFNDEF SRL_ANTIBAN_INCLUDED}            {$I osr/antiban.simba}
+
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+

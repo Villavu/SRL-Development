@@ -1,3 +1,8 @@
+{$DEFINE SRL_WRAPPERS_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 (*
 Wrappers
 ========
@@ -7,33 +12,6 @@ The wrappers include contains wrapper functions used throughout SRL, some of the
 The source for this file can be found `here <https://github.com/Olly-/SRL/blob/master/lib/utilities/wrappers.simba>`_.
 
 *)
-{$f-}
-
-{$ifndecl ShowBitmap}
-procedure ShowBitmap(bmp: Integer);
-var w,h: Int32;
-begin
-  GetBitmapSize(bmp, w,h);
-  DisplayDebugImgWindow(w,h);
-  DrawBitmapDebugImg(bmp);
-end;
-{$endif}
-
-
-//fix - didn't handle single pixel box
-function EdgeFromBox(const Box:TBox): TPointArray; override;
-begin
-  if (Box.x1 = Box.x2) and (Box.y1 = Box.y2) then
-    Result := [Point(Box.x1,Box.y1)]
-  else
-    Result := Inherited(Box);
-end;
-
-//fix
-function ReturnPointsNotInTPA(const TotalTPA: TPointArray; const Box: TBox): TPointArray; override;
-begin;
-  Result := ClearTPAfromTPA(TPAFromBox(box), TotalTPA); 
-end;
 
 function TPAFromLine(Start, Stop: TPoint): TPointArray; overload;
 begin
@@ -310,108 +288,6 @@ Example:
 function CountColorTolerance(const Color: Integer; const SearchBox: TBox; const Tol: Integer): Integer; overload;
 begin
   Result := CountColorTolerance(Color, SearchBox.x1, SearchBox.y1, SearchBox.x2, SearchBox.y2, Tol);
-end;
-
-(*
-FreeDTMs
-~~~~~~~~
-.. code-block:: pascal
-
-    procedure FreeDTMs(const DTMs: TIntegerArray);
-
-Free's an array of DTMs.
-
-.. note:: by Olly
-
-Example:
-
-.. code-block:: pascal
-
-     FreeDTMs([dtm1, dtm2]);
-*)
-procedure FreeDTMs(const DTMs: TIntegerArray);
-var
-  i: Integer;
-begin
-  for i := 0 to High(DTMs) do
-    FreeDTM(DTMs[i]);
-end;
-
-(*
-FreeBitmaps
-~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure FreeBitmaps(const Bitmaps: TIntegerArray);
-
-Free's an array of bitmaps.
-
-.. note:: by Olly
-
-Example:
-
-.. code-block:: pascal
-
-     FreeBitmaps([bmp1, bmp2]);
-*)
-procedure FreeBitmaps(const Bitmaps: TIntegerArray);
-var
-  i: Integer;
-begin
-  for i := 0 to High(Bitmaps) do
-    FreeBitmap(Bitmaps[i]);
-end;
-
-(*
-GetBitmapName
-~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function GetBitmapName(const Index: Integer): String;
-
-Returns the name of the bitmap stored in 'index'.
-
-.. note:: by Olly
-
-Example:
-
-.. code-block:: pascal
-
-     WriteLn(GetBitmapName(BMP));
-*)
-function GetBitmapName(const Index: Integer): String;
-begin
-  Result := '';
-
-  with (Client.getMBitmaps()) do
-    if (ExistsBMP(Index)) then
-      Result := GetBMP(Index).getName();
-end;
-
-(*
-GetDTMName
-~~~~~~~~~~
-.. code-block:: pascal
-
-    function GetDTMName(const Index: Integer): String;
-
-Returns the name of the dtm stored in 'index'.
-
-.. note:: by Olly
-
-Example:
-
-.. code-block:: pascal
-
-     WriteLn(GetDTMName(DTM));
-*)
-function GetDTMName(const Index: Integer): String;
-begin
-  Result := '';
-
-  with (Client.getMDTMs()) do
-    if (ExistsDTM(Index)) then
-      Result := GetDTM(Index).getName();
 end;
 
 (*
@@ -711,29 +587,6 @@ begin
 end;
 
 (*
-Replicate; overload
-~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function Replicate(const Str: String; const Times: Integer): String; overload;
-
-Used to replicate any string, instead of chars.
-
-.. note:: by Zyt3x
-
-Example:
-
-.. code-block:: pascal
-
-    WriteLn(Replicate('SRL', 10));
-*)
-function Replicate(const Str: String; const Times: Integer): String; overload;
-begin
-  for 1 to Times do
-    Result := Result + Str;
-end;
-
-(*
 InRange; overload
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -782,24 +635,9 @@ begin
   Result := GetTextAtEx(SearchBox.X1, SearchBox.Y1, SearchBox.X2, SearchBox.Y2, MinV, MaxV, HSpacing, Color, Tol, Font);
 end;
 
-function FindMaskTolerance(Mask: TMask; out x, y: Integer; SearchArea: TBox; Tolerance, ContourTolerance: Integer): Boolean; overload;
-begin
-  Result := FindMaskTolerance(Mask, x, y, SearchArea.X1, SearchArea.Y1, SearchArea.X2, SearchArea.Y2, Tolerance, ContourTolerance);
-end;
-
 procedure TerminateScript(Reason: String); overload;
 begin
   WriteLn('Terminating: ' + Reason);
 
   TerminateScript();
 end;
-
-procedure SetTarget(Handle: PtrUInt; Free: Boolean = True); overload;
-begin
-  if Free then
-    FreeTarget(0);
-
-  Client.GetIOManager().SetTarget(Handle);
-end;
-
-{$f+}

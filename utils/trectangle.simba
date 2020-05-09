@@ -1,3 +1,8 @@
+{$DEFINE SRL_TRECTANGLE_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 (*
 TRectangle
 ===========

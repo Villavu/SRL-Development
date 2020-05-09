@@ -1,6 +1,6 @@
 {$DEFINE SRL_INTERFACE_INCLUDED}
-{$IFNDEF OSRS}
-  {$include_once SRL/osr.simba}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
 {$ENDIF}
 
 var
@@ -22,9 +22,7 @@ type
     Offset: Int32;
   end;
 
-  TRSInterface = record
-    Name: String;
-
+  TRSInterface = record(TSRLBaseRecord)
     Buttons: array of TRSInterfaceButton;
 
     Alignment: record
@@ -65,16 +63,6 @@ begin
   Self.Buttons := Self.Buttons + Result;
   if Length(Self.Buttons) = 1 then
     AddOnTerminate(@Self.FreeButtons);
-end;
-
-procedure TRSInterface.Fatal(Message: String); constref;
-begin
-  TerminateScript('[' + Self.Name + ']: ' + Message);
-end;
-
-procedure TRSInterface.Debug(Message: String); constref; overload;
-begin
-  WriteLn(SRL.TimeStamp() + ' [' + Self.Name + ']: ' + Message);
 end;
 
 function TRSInterface.X1: Int32; constref;

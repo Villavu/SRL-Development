@@ -1,3 +1,8 @@
+{$DEFINE SRL_MATH_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 (*
 Math
 =======
@@ -20,7 +25,7 @@ Example:
 
     Writeln(srl.Modulo(a, b));
 *)
-function TSRL.Modulo(X, Y: Double): Double; static;
+function TSRL.Modulo(X, Y: Double): Double; static; overload;
 begin
   Result := X - Floor(X / Y) * Y;
 end;
@@ -40,7 +45,7 @@ srl.CrossProduct
 
 Cross-product of rp and rq vectors.
 *)
-function TSRL.CrossProduct(rx,ry, px,py, qx,qy: Double): Double; static;
+function TSRL.CrossProduct(rx,ry, px,py, qx,qy: Double): Double; static; overload;
 begin
   Result := (px - rx) * (qy - ry) - (py - ry) * (qx - rx);
 end;
@@ -100,7 +105,7 @@ end;
 function TSRL.DistToLine(Pt, sA, sB: TPoint): Double; static;
 var qt:TPoint;
 begin
-  Result := DistToLineEx(Pt,sA,sB, qt);
+  Result := TSRL.DistToLineEx(Pt,sA,sB, qt);
 end;
 
 (*
@@ -114,8 +119,8 @@ var
   s, t, det: Double;
   s1, s2: TPoint;
 begin
-  s1 := p2-p1;
-  s2 := q2-q1;
+ // s1 := p2-p1;
+ // s2 := q2-q1;
   det := (-s2.x * s1.y + s1.x * s2.y);
   if det = 0 then Exit(False);
 
@@ -255,11 +260,19 @@ srl.PointInCuboid
 Check if a point is within a cuboid defined by top and bottom rectangle.
 *)
 function TSRL.PointInCuboid(pt: TPoint; Top, Btm: TRectangle): Boolean; static;
+
+  function InRect(P: TPoint; Rect: TRectangle): Boolean;
+  begin
+    Result := srl.PointInTriangle(P, Rect.Top,Rect.Btm,Rect.Right) or
+              srl.PointInTriangle(P, Rect.Top,Rect.Left,Rect.Btm);
+  end;
+
 begin
-  if pt.InRect(Top) then Exit(True);   //we could instead create a poly.. hum..
-  if pt.InRect(Btm) then Exit(True);
-  if Pt.InRect([Top.Left, Top.Btm, Btm.Btm, Btm.Left])   then Exit(True);
-  if Pt.InRect([Top.Top, Top.Right, Btm.Right, Btm.Top]) then Exit(True);
-  if Pt.InRect([Top.Top, Btm.Top, Btm.Left, Top.Left])   then Exit(True);
-  if Pt.InRect([Top.Right, Btm.Right, Btm.Btm, Top.Btm]) then Exit(True);
+  if InRect(pt, Top) then Exit(True);
+  if InRect(pt, Btm) then Exit(True);
+  if InRect(pt, [Top.Left, Top.Btm, Btm.Btm, Btm.Left])   then Exit(True);
+  if InRect(pt, [Top.Top, Top.Right, Btm.Right, Btm.Top]) then Exit(True);
+  if InRect(pt, [Top.Top, Btm.Top, Btm.Left, Top.Left])   then Exit(True);
+  if InRect(pt, [Top.Right, Btm.Right, Btm.Btm, Top.Btm]) then Exit(True);
 end;
+

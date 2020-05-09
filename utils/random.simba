@@ -1,3 +1,9 @@
+{$DEFINE SRL_RANDOM_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
+
 (*
 Random
 =======
@@ -90,7 +96,7 @@ srl.NormalRange
 
 Generates a random integer in the given range, weighted towards the mean.
 *)
-function TSRL.NormalRange(Min, Max: Int64; CUTOFF:Single=0): Int64; constref;
+function TSRL.NormalRange(Min, Max: Int64; CUTOFF:Single=0): Int64; constref; overload;
 begin
   if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
   case Random(0,1) of

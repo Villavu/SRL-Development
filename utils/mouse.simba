@@ -1,3 +1,8 @@
+{$DEFINE SRL_MOUSE_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
 (*
 Mouse
 =======
@@ -41,6 +46,9 @@ Move and click the mouse to a random (gauss) point in a box.
 Move and click the mouse to a random (gauss) point in a circle.
 ``Mouse.Click(Point(100, 100), 50, mouse_Right);``
 *)
+
+const
+  MOUSE_MOVE = 3;
 
 type
   ERandomStyle = (rndRandom, rndGauss, rndSkewed, rndRowp);

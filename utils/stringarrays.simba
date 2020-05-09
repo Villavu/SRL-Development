@@ -1,8 +1,7 @@
-(*
-TStringArray
-=============
-TStringArray related methods
-*)
+{$DEFINE SRL_STRINGARRAY_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
 
 procedure TStringArray.Append(const Value: String);
 var top:Int32;
@@ -49,7 +48,7 @@ begin
     if i >= 0 then Self.Del(i);
     Exit;
   end;
-  
+
   lst := Self.FindAll(Value);
   for i:=High(lst) downto 0 do
     Self.Del(lst[i]);
@@ -71,7 +70,7 @@ begin
   SetLength(Self, len+Length(Arr));
   for i:=0 to High(Arr) do
     Self[len+i] := Arr[i];
-end; 
+end;
 
 function TStringArray.Find(const Value: String): Integer; constref;
 begin
@@ -155,11 +154,11 @@ var i:Int32;
 begin
   if (Length(Self) <> Length(Other)) then Exit(False);
   if (Length(Self) = 0) then Exit(True);
-  
+
   for i:=0 to High(self) do
     if (self[i] <> Other[i]) then
       Exit(False);
-  Result := True;      
+  Result := True;
 end;
 
 function TStringArray.Merge(glue:String=''): String; constref;
