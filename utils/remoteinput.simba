@@ -34,7 +34,7 @@ begin
   Self.PID := GetSimbaTargetPID();
 
   {$IFDEF WINDOWS}
-  if (not IsTargetValid()) then
+  if (Self.PID = 0) or (not IsTargetValid()) then
   begin
     if MessageDlg('SRL', 'Simba has no valid target. Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) then
     begin
