@@ -1,12 +1,11 @@
 ### About TRSObjectFinder
 
 ---
-#### TRSObjectFinder.Zoom
+#### Zoom
 
-This field contains the zoom level that this finder was created at. 
-This allows the object finder to work at any zoom level without needing to change variables.
+When designing a object finder you should be at **default zoom(50)** in the **fixed** client mode. This allows the finder to work at any zoom and client mode when made. The `MainScreen.ConvertDistance` method makes this possible.
 
-A finder working at two different zoom levels, producing similar results:
+A finder working at two different zoom levels, producing similar results without having to change any variables:
 
 ![img](images/zoom.png)
 
