@@ -115,7 +115,6 @@ procedure TRSBankScreen.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'BankScreen';
 
-  Self.FINDER_BANK_CHEST.Zoom := 50;
   Self.FINDER_BANK_CHEST.ColorClusters += [CTS2(2503237, 40, 0.10, 0.14), CTS2(5526875, 35, 0.19, 0.06), 8]; //brown, grey
   Self.FINDER_BANK_CHEST.ClusterDistance := 3;
   Self.FINDER_BANK_CHEST.Erode := 2;

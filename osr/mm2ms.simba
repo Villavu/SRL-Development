@@ -1,4 +1,4 @@
-{$DEFINE SRL_MINIMAP_TO_MS_INCLUDED}
+{$DEFINE SRL_MM2MS_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
@@ -19,11 +19,11 @@ MM2MS
 *)
 
 (*
-type TMinimapToMS
+type TMM2MS
 ~~~~~~~~~~~~~~~~~
 .. pascal:: 
   type
-    TMinimapToMS = record
+    TMM2MS = record
       BASE_W, BASE_H: Int32;        // the size of the area we project to (mainscreen size)
       MainScreen.Middle.X, MainScreen.Middle.Y: Int32;            // the center of the area we project to (mainscreen center)
       MMCX, MMCY: Int32;            // the center of the area we project from (minimap center)
@@ -35,33 +35,30 @@ type TMinimapToMS
 The comments explains it. This is the datastructure MM2MS uses.
 *)
 type
-  TMinimapToMS = record(TSRLBaseRecord)
-    BASE_W, BASE_H: Int32;
-    SCALE_MIN, SCALE_MAX: Double;
-    YSHIFT: Double;
-    YLOOK: Double;
-    ZOOM: Double;
-    ZOOM_LEVEL: Int32;
+  TMM2MS = record(TSRLBaseRecord)
+    ZoomLevel: Int32;
   end;
 
-procedure TMinimapToMS.SetZoomLevel(Level: Int32);
-const
-  ZoomLevelToRSZoom = [0.0000, 0.0025, 0.0065, 0.0100, 0.0130, 0.0165, 0.0205, 0.0235, 0.0280, 0.0310, 0.0350, 0.0390, 0.0430, 0.0430, 0.0465, 0.0515, 0.0555, 0.0605, 0.0645, 0.0690, 0.0740, 0.0785, 0.0835, 0.0885, 0.0935, 0.0990, 0.1045, 0.1095, 0.1150, 0.1205, 0.1260, 0.1325, 0.1385, 0.1455, 0.1505, 0.1585, 0.1635, 0.1635, 0.1705, 0.1775, 0.1845, 0.1925, 0.1995, 0.2055, 0.2145, 0.2215, 0.2305, 0.2365, 0.2465, 0.2545, 0.2635, 0.2725, 0.2825, 0.2905, 0.3005, 0.3105, 0.3195, 0.3285, 0.3405, 0.3555, 0.3615, 0.3705, 0.3825, 0.3825, 0.3945, 0.4065, 0.4185, 0.4305, 0.4425, 0.4575, 0.4695, 0.4815, 0.4965, 0.5115, 0.5265, 0.5385, 0.5535, 0.5685, 0.5835, 0.5985, 0.6165, 0.6315, 0.6495, 0.6645, 0.6825, 0.7035, 0.7215, 0.7215, 0.7395, 0.7575, 0.7815, 0.7995, 0.8175, 0.8355, 0.8595, 0.8835, 0.9015, 0.9255, 0.9495, 0.9735, 1.000];
-begin
-  Self.ZOOM_LEVEL := Level;
-  Self.ZOOM := ZoomLevelToRSZoom[Self.ZOOM_LEVEL];
-end;
+(*
+var MM2MS
+~~~~~~~~~
+.. pascal::
+  var MM2MS: TMM2MS;
 
-function TMinimapToMS.GetDebugBitmap(Angle: Double = -1): TMufasaBitmap; overload;
+The global variable which you would refer to.
+*)
 var
+  MM2MS: TMM2MS;
+
+procedure TMM2MS.DebugTiles(Dots: Boolean; Angle: Double = 0);
+var
+  BMP: TMufasaBitmap;
   X, Y: Int32;
   Tile: Vector3;
   TPA: TPointArray;
+  Dot: TPoint;
 begin
-  if Angle = -1 then
-    Angle := Minimap.GetCompassAngle(False);
-
-  Result.FromClient();
+  BMP.FromClient();
 
   for X := Minimap.Center.X - 25 * 4 to Minimap.Center.X + 25 * 4 with 4 do
     for Y := Minimap.Center.Y - 25 * 4 to Minimap.Center.Y + 25 * 4 with 4 do
@@ -69,129 +66,61 @@ begin
       Tile := Vec3(X, Y).RotateXY(Angle, Minimap.Center.X, Minimap.Center.Y);
       TPA := Minimap.VecToMsRect(Tile, Angle).ToTPA().Connect();
 
-      Result.DrawTPA(TPA, $00FF00);
+      BMP.DrawTPA(TPA, $00FF00);
     end;
-end;
 
-procedure TMinimapToMS.DebugToBitmap(BMP: TMufasaBitmap);
-var
-  Dot: TPoint;
-begin
-  for Dot in Minimap.GetDots(MINIMAP_DOT_NPC) do
-    BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2.5, Dot.Y + 2.5]), $00FFFF);
-  for Dot in Minimap.GetDots(MINIMAP_DOT_ITEM) do
-    BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2.5, Dot.Y + 2.5]), $0000FF);
-  for Dot in Minimap.GetDots(MINIMAP_DOT_PLAYER) do
-    BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2.5, Dot.Y + 2.5]), $FFFFFF);
-end;
+  if Dots then
+  begin
+    for Dot in Minimap.GetDots(MINIMAP_DOT_NPC) do
+      BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2.5, Dot.Y + 2.5]), $00FFFF);
+    for Dot in Minimap.GetDots(MINIMAP_DOT_ITEM) do
+      BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2.5, Dot.Y + 2.5]), $0000FF);
+    for Dot in Minimap.GetDots(MINIMAP_DOT_PLAYER) do
+      BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2.5, Dot.Y + 2.5]), $FFFFFF);
+  end;
 
-procedure TMinimapToMS.DebugTiles(Angle: Double = -1);
-var
-  BMP: TMufasaBitmap;
-begin
-  BMP := Self.GetDebugBitmap(Angle);
   BMP.Debug();
   BMP.Free();
 end;
 
-function TMinimapToMS.Transform(coord: Vector3; matrix: TMatrix4; scaleMin, scaleMax: Double; MSCX, MSCY: Int32): Vector3; overload;
+function TMM2MS.Run(Arr: Vector3Array; Roll:Single=$FFFF): TPointArray;
 var
-  p: Vector3;
-  scale: Double;
-begin
-  scale := ScaleMin + ZOOM * (ScaleMax - ScaleMin);
-  p := Vector3.TransformCoordinate(coord, matrix);
-  Result.x := (+p.X * BASE_W * scale) + MSCX;
-  Result.y := (-p.Y * BASE_H * scale) + MSCY + (zoom * YSHIFT);
-end;
-
-function TMinimapToMS.Project(Coords: Vector3Array; Rotation: Vector3): TPointArray; overload;
-var
-  vec: Vector3;
-  viewMatrix, projMatrix, worldMatrix,transMatrix: TMatrix4;
-  scaleMin, scaleMax: Double;
-  MSCX, MSCY: Int32;
   i: Int32;
-begin
-  viewMatrix := TMatrix4.LookAtRH([0, YLOOK, 61], [0, 0, 1.3], Vector3_UnitY);
-  projMatrix := TMatrix4.PerspectiveFovRH(Sqrt(2), 765 / 503, 0.01, 1.0);
-
-  worldMatrix := TMatrix4.RotationYawPitchRoll(Rotation.Y, Rotation.X, Rotation.Z) * Matrix_Identity;
-  transMatrix := worldMatrix * viewMatrix * projMatrix;
-
-  scaleMin := SCALE_MIN * MainScreen.Height() / 503;
-  scaleMax := SCALE_MAX * MainScreen.Height() / 503;
-
-  MSCX := MainScreen.Center().X;
-  MSCY := MainScreen.Center().Y;
-
-  SetLength(Result, Length(Coords));
-  for i := 0 to High(Coords) do
-  begin
-    vec := Transform(Coords[i], transMatrix, scaleMin, scaleMax, MSCX, MSCY);
-
-    Result[i].X := Round(vec.x);
-    Result[i].Y := Round(vec.y);
-  end;
-end;
-
-function TMinimapToMS.Run(Arr: Vector3Array; Roll:Single=$FFFF): TPointArray;
-var
-  i, Level: Int32;
   P: TPoint;
+  Projector: TMM2MSProjector;
 begin
-  if Self.ZOOM = -1 then
+  if (Self.ZoomLevel = -1) then
   begin
     Self.Debug('Unknown zoom level, reading from options...');
-    Self.SetZoomLevel(Options.GetZoomLevel());
-    Self.Debug('Current zoom level: ' + ToString(Self.ZOOM_LEVEL));
+    Self.ZoomLevel := Options.GetZoomLevel();
+    Self.Debug('Current zoom level: ' + ToString(Self.ZoomLevel));
   end;
+
+  case SRL.ClientMode of
+    RS_CLIENT_FIXED:
+      Projector := MM2MS_PROJECTOR_FIXED;
+
+    RS_CLIENT_RESIZABLE_BOTTOM,
+    RS_CLIENT_RESIZABLE_CLASSIC:
+      Projector := MM2MS_PROJECTOR_RESIZABLE;
+  end;
+
+  Projector.MainScreen := MainScreen.Bounds;
+  Projector.Minimap := Minimap.Bounds;
+  Projector.ZoomLevel := Self.ZoomLevel;
 
   P := Minimap.Center;
   for i := 0 to High(Arr) do
-    Arr[i] := [Arr[i].X - P.X, (P.Y - Arr[i].Y), Arr[i].Z];
+    Arr[i] := [Arr[i].X - P.X, P.Y - Arr[i].Y, Arr[i].Z];
 
-  Result := Project(Arr, Vec3(0, 0, PI*2 - Roll));
+  Result := Projector.Run(Arr, Vec3(0, 0, PI*2 - Roll));
 end;
 
-procedure TMinimapToMS.Setup(ClientMode: ERSClientMode);
+procedure TMM2MS.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'MM2MS';
-
-  Self.ZOOM := -1;
-  Self.BASE_W := 513;
-  Self.BASE_H := 335;
-  Self.YSHIFT := 24;
-
-  case ClientMode of
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
-      begin
-        Self.SCALE_MIN := 0.635;
-        Self.SCALE_MAX := 4.9;
-
-        Self.YLOOK := -21;
-      end;
-
-    RS_CLIENT_FIXED:
-      begin
-        Self.SCALE_MIN := 0.80;
-        Self.SCALE_MAX := 6.32;
-
-        Self.YLOOK := -25.5;
-      end;
-  end;
+  Self.ZoomLevel := -1;
 end;
-
-(*
-var MM2MS
-~~~~~~~~~
-.. pascal::
-  var MM2MS: TMinimapToMS;
-
-The global variable which you would refer to.
-*)
-var
-  MM2MS: TMinimapToMS;
 
 (*
 Minimap
@@ -461,73 +390,72 @@ begin
 end;
 
 (*
-MainScreen.TranslateDistance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32;
+MainScreen.ConvertDistance
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
 
-Roughly translates a distance acquired at a specific zoom level to the current zoom level.
+Converts a distance acquired from the **fixed client* and **default zoom** to the
+current mainscreen.
 
 **Example:**
 
 .. pascal::
 
-  // 10 pixels at 50 zoom is currently X pixels at our current zoom level.
-  WriteLn(MainScreen.TranslateDistance(10, 50));
+  // 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom & client size.
+  WriteLn(MainScreen.TranslateDistance(20));
 *)
-function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32; override;
+function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): Int32; override;
 var
-  MinimapToMS: TMinimapToMS;
-  MinimapCenter: TPoint;
+  Projector: TMM2MSProjector;
+  Base: TPoint;
 
-  function Run(X: Double): Double;
+  function SearchUp(Value: Single; Target: Single; Inc: Single): Single;
   var
-    TPA: TPointArray;
+    P: TPoint;
   begin
-    TPA := MinimapToMS.Run([Vec3(MinimapCenter.X, MinimapCenter.Y),
-                            Vec3(MinimapCenter.X + X, MinimapCenter.Y)], 0);
+    while True do
+    begin
+      P := Projector.Run([Value, 0, 0], [0, 0, 0]);
+      if Base.DistanceTo(P) > Target then
+        Exit(Value);
 
-    Result := TPA[0].DistanceTo(TPA[1]);
+      Value *= Inc;
+    end;
+  end;
+
+  function SearchDown(Value: Single; Target: Single; Dec: Single): Single;
+  var
+    P: TPoint;
+  begin
+    while True do
+    begin
+      P := Projector.Run([Value, 0, 0], [0, 0, 0]);
+      if Base.DistanceTo(P) < Target then
+        Exit(Value);
+
+      Value /= Dec;
+    end;
   end;
 
 var
-  Lo, Hi: Double;
-  X: Double;
-  I: Int32;
+  lo, hi, mean: Single;
 begin
   if (Dist = 0) then
     Exit;
 
-  if InRange(Zoom, Low(Self.TranslateCache), High(Self.TranslateCache)) and
-     InRange(Dist, Low(Self.TranslateCache[Zoom]), High(Self.TranslateCache[Zoom])) then
-  begin
-    Result := Self.TranslateCache[Zoom][Dist];
-    if Result > -1 then
-      Exit;
-  end;
+  Projector := MM2MS_PROJECTOR_FIXED;
+  Base := Projector.Run([0, 0, 0], [0, 0, 0]);
 
-  MinimapToMS.Setup(SRL.ClientMode); // Init MM2MS at the zoom level `dist` was calculated at
-  MinimapToMS.SetZoomLevel(Zoom);
+  hi := SearchUp(0.1, Dist, 1.50);
+  lo := SearchDown(hi, Dist, 1.50);
 
-  MinimapCenter := Minimap.Center;
+  hi := SearchUp(lo, Dist, Accuracy);
+  lo := SearchDown(hi, Dist, Accuracy);
 
-  Lo := Dist;
-  while Run(Lo) >= dist do
-    Lo -= Lo / 20;
+  mean := lo + ((hi - lo) / 2);
 
-  Hi := Lo;
-  while Run(Hi) <= dist do
-    Hi += Hi / 20;
-
-  X := Lo + ((Hi - Lo) / 2);
-
-  Result := Distance(
-    Minimap.VecToMs(Vec3(MinimapCenter.X, MinimapCenter.Y), 0),
-    Minimap.VecToMs(Vec3(MinimapCenter.X + X, MinimapCenter.Y), 0)
-  );
-
-  if InRange(Zoom, Low(Self.TranslateCache), High(Self.TranslateCache)) and
-     InRange(Dist, Low(Self.TranslateCache[Zoom]), High(Self.TranslateCache[Zoom])) then
-    Self.TranslateCache[Zoom][Dist] := Result;
+  Result := Distance(Minimap.VecToMs([Minimap.Center.X, Minimap.Center.Y], 0),
+                     Minimap.VecToMs([Minimap.Center.X + mean, Minimap.Center.Y], 0));
 end;
 
 (*

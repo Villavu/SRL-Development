@@ -1052,9 +1052,7 @@ end;
 
 function TPointArray.Erode(constref Amount: Int32): TPointArray; constref;
 begin
-  Result := Copy(Self);
-  for 1 to Amount do
-    Result := ClearTPAFromTPA(Result, Result.Edges());
+  Result := TPAErode(Self, Amount);
 end;
 
 procedure T2DPointArray.Append(const Value: TPointArray);

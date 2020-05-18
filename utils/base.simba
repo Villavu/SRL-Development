@@ -12,12 +12,12 @@ type
 procedure TSRLBaseRecord.Debug(Message: String); constref;
 begin
   if not Self.DisableDebugging then
-    WriteLn('[' + Self.Name + ']: ' + Message);
+    WriteLn(SRL.TimeStamp() + ':[' + Self.Name + ']: ' + Message);
 end;
 
 procedure TSRLBaseRecord.Fatal(Message: String); constref;
 begin
-  WriteLn('[' + Self.Name + ']:[Fatal]: ' + Message);
+  WriteLn(SRL.TimeStamp() + ':[' + Self.Name + ']:[Fatal]: ' + Message);
 
   TerminateScript();
 end;

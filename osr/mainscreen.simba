@@ -12,14 +12,11 @@ type
     Grow: Int32;
     MinLongSide, MaxLongSide: Int32;
     MinShortSide, MaxShortSide: Int32;
-    Zoom: Int32;
   end;
 
   TRSMainScreen = record(TRSInterface)
     UpTextArea: TBox;
     UpTextFilter: TCompareRules;
-
-    TranslateCache: array[0..100] of array[0..100] of Int32;
   end;
 
 var
@@ -54,10 +51,6 @@ begin
   end;
 
   Self.UpTextFilter := [-1, 85, True, 85];
-
-  for I := 0 to High(Self.TranslateCache) do
-    for J := 0 to High(Self.TranslateCache[I]) do
-      Self.TranslateCache[I][J] := -1;
 end;
 
 function TRSMainScreen.GetUpText(): String;
@@ -109,23 +102,25 @@ begin
 end;
 
 (*
-MainScreen.TranslateDistance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32;
+MainScreen.ConvertDistance
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
 
-Roughly translates a distance acquired at a specific zoom level to the current zoom level.
+Converts a distance acquired from the **fixed client* and **default zoom(50)** to the
+current mainscreen.
 
 **Example:**
 
 .. pascal::
 
-  // 10 pixels at 50 zoom is currently X pixels at our current zoom level.
-  WriteLn(MainScreen.TranslateDistance(10, 50));
+  // 20 pixels on the fixed client and default zoom(50) is currently x pixels on the mainscreen.
+  WriteLn(MainScreen.TranslateDistance(20));
 *)
-function TRSMainScreen.TranslateDistance(Dist: Int32; Zoom: Int32): Int32;
+function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
 begin
   // Implemented in minimaptoms.simba
 end;
+
 
 (*
 MainScreen.GetPlayerBox
@@ -182,17 +177,17 @@ begin
   Area.LimitTo(Self.Bounds());
 
   // Translate distances
-  Finder.ClusterDistance := Self.TranslateDistance(Finder.ClusterDistance, Finder.Zoom);
-  Finder.Erode := Self.TranslateDistance(Finder.Erode, Finder.Zoom);
-  Finder.Grow := Self.TranslateDistance(Finder.Grow, Finder.Zoom);
+  Finder.ClusterDistance := Self.ConvertDistance(Finder.ClusterDistance);
+  Finder.Erode := Self.ConvertDistance(Finder.Erode);
+  Finder.Grow := Self.ConvertDistance(Finder.Grow);
 
   for I := 0 to High(Finder.ColorClusters) do
-    Finder.ColorClusters[I].Distance := Self.TranslateDistance(Finder.ColorClusters[I].Distance, Finder.Zoom);
+    Finder.ColorClusters[I].Distance := Self.ConvertDistance(Finder.ColorClusters[I].Distance);
 
-  Finder.MinLongSide  := Self.TranslateDistance(Finder.MinLongSide,  Finder.Zoom);
-  Finder.MaxLongSide  := Self.TranslateDistance(Finder.MaxLongSide,  Finder.Zoom);
-  Finder.MinShortSide := Self.TranslateDistance(Finder.MinShortSide, Finder.Zoom);
-  Finder.MaxShortSide := Self.TranslateDistance(Finder.MaxShortSide, Finder.Zoom);
+  Finder.MinLongSide  := Self.ConvertDistance(Finder.MinLongSide);
+  Finder.MaxLongSide  := Self.ConvertDistance(Finder.MaxLongSide);
+  Finder.MinShortSide := Self.ConvertDistance(Finder.MinShortSide);
+  Finder.MaxShortSide := Self.ConvertDistance(Finder.MaxShortSide);
 
   if (Finder.MaxLongSide = 0) then
     Finder.MaxLongSide := $FFFFFF;
@@ -230,7 +225,7 @@ begin
       begin
         for I := 0 to High(ATPA) do
         begin
-          ATPA[I].MinAreaRectEx(L, S);
+          ATPA[I].Edges().MinAreaRectEx(L, S);
 
           if ((Finder.MinShortSide > 0) or (Finder.MaxShortSide > 0)) and (not InRange(S, Finder.MinShortSide, Finder.MaxShortSide)) then
             Continue;

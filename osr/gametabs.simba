@@ -27,6 +27,38 @@ type
 const
   TAB_IGNORE = TAB_FRIENDS;
 
+{
+function TRSGameTabs.X1: Int32; constref; override;
+begin
+  Result := inherited
+end;
+}
+
+// Needed because depending on the client width the tabs stack into row(s)
+function TRSGameTabs.Y1: Int32; constref; override;
+begin
+  Result := inherited;
+
+  if (RootInterface.Width >= 948) then
+    Result += 36;
+end;
+
+{
+function TRSGameTabs.X2: Int32; constref; override;
+begin
+  Result := inherited;
+end;
+}
+
+// Needed because depending on the client width the tabs stack into row(s)
+function TRSGameTabs.Y2: Int32; constref; override;
+begin
+  Result := inherited;
+
+  if (RootInterface.Width >= 948) then
+    Result += 36;
+end;
+
 function TRSGameTabs.GetTabBoxes: TBoxArray;
 var
   I: Int32;
@@ -42,13 +74,13 @@ begin
         // One row
         if (RootInterface.Width >= 948) then
         begin
-          Result := Grid(14, 1, 30, 33, [3, 0], [Self.X1 -197, Self.Y1 + 312]);
+          Result := Grid(14, 1, 30, 33, [3, 0], [Self.X1 - 197, Self.Y2 - 70]);
 
           for I := Ord(TAB_MUSIC) downto Ord(TAB_FRIENDS) do
             Result[I] := Result[I-1];
         end else
         // Two rows
-          Result := Grid(7, 2, 30, 33, [3, 2], [Self.X1 + 0, Self.Y1 + 276]);
+          Result := Grid(7, 2, 30, 33, [3, 3], [Self.X1, Self.Y2 - 70]);
 
         // Logout button is moved to top right corner
         Result[7] := Result[10];
