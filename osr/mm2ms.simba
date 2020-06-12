@@ -50,7 +50,7 @@ The global variable which you would refer to.
 var
   MM2MS: TMM2MS;
 
-procedure TMM2MS.DebugTiles(Dots: Boolean; Angle: Double = 0);
+procedure TMM2MS.DebugTiles(Dots: Boolean; Angle: Double = -1);
 var
   BMP: TMufasaBitmap;
   X, Y: Int32;

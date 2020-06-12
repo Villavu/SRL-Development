@@ -8,7 +8,9 @@ const
   CHATBOX_INPUT_LINE = 8;
 
 type
-  TRSChatBox = type TRSInterface;
+  TRSChatBox = record(TRSInterface)
+    MakeCache: array of record Item: String; Index: Int32; end;
+  end;
 
 var
   Chatbox: TRSChatBox;
@@ -99,6 +101,134 @@ begin
   Text := OCR.Recognize($000000, 0, Chatbox.GetLineBoxes[CHATBOX_INPUT_LINE], RS_FONTSET_PLAIN_12);
   if Text.EndsWith(':') then
     Result := Copy(Text, 1, Length(Text) - 1);
+end;
+
+function TRSChatbox.FindMakeButtons(out QuantityButtons, ItemButtons: TBoxArray): Boolean;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+begin
+  if SRL.FindColors(TPA, CTS0(6191241), Chatbox.Bounds()) then
+    ATPA += TPA;
+  if SRL.FindColors(TPA, CTS0(8101298), Chatbox.Bounds()) then
+    ATPA += TPA;
+
+  ATPA := ATPA.Merge().Cluster(Chatbox.Width, 5);
+  ATPA.SortByY();
+
+  if (Length(ATPA) = 2) then
+  begin
+    QuantityButtons := ATPA[0].Cluster(5).ToTBA();
+    QuantityButtons.SortByX();
+
+    ItemButtons := ATPA[1].Cluster(5).ToTBA();
+    ItemButtons.SortByX();
+
+    Result := (Length(QuantityButtons) > 0) and (Length(ItemButtons) > 0);
+  end;
+end;
+
+function TRSChatbox.FindMakeItem(Item: String): Int32;
+const
+  HINT_COLOR = $A0FFFF;
+var
+  QuantityButtons, ItemButtons: TBoxArray;
+  I: Int32;
+begin
+  Result := -1;
+
+  if Self.FindMakeButtons(QuantityButtons, ItemButtons) then
+  begin
+    for I := 0 to High(ItemButtons) do
+    begin
+      Mouse.Move(ItemButtons[I]);
+      Wait(60, 120);
+      if SRL.WaitColor(HINT_COLOR, 3000, Self.Bounds()) and FindTextColor(Item, RS_FONT_PLAIN_12, 0, 0, Self.Bounds, 1) then
+        Exit(I);
+    end;
+  end;
+end;
+
+function TRSChatbox.ClickMakeButton(Index: Int32; Quantity: String; UseKeyboard: Boolean): Boolean; overload;
+const
+  BUTTON_SELECTED = $FFFFFF;
+  BUTTON_UNSELECTED = $203040;
+  HINT_COLOR = 10551295;
+var
+  QuantityButtons, ItemButtons: TBoxArray;
+  B: TBox;
+  I: Int32;
+begin
+  if Self.FindMakeButtons(QuantityButtons, ItemButtons) and (Index < Length(ItemButtons)) then
+  begin
+    B := QuantityButtons.Merge();
+
+    // find quantity
+    if FindText(Quantity, RS_FONT_PLAIN_11, B.X1, B.Y1, B.X2, B.Y2, B) = 1 then
+    begin
+      // select quantity
+      if CountColor(BUTTON_SELECTED, B) = 0 then
+        Mouse.Click(B, MOUSE_LEFT);
+
+      B := ItemButtons[Index];
+      B.Y1 := B.Y2;
+      B.Y2 += 20;
+
+      if UseKeyboard then
+      begin
+        if FindText('Space', RS_FONT_PLAIN_11, B.X1, B.Y1, B.X2, B.Y2, 1) then
+          Keyboard.PressKey(VK_SPACE)
+        else
+          Keyboard.PressKey(VK_1 + Index);
+      end else
+        Mouse.Click(ItemButtons[Index], MOUSE_LEFT);
+
+      Result := True;
+    end;
+  end;
+end;
+
+function TRSChatbox.IsMakeOpen: Boolean; overload;
+var
+  QuantityButtons, ItemButtons: TBoxArray;
+begin
+  Result := FindMakeButtons(QuantityButtons, ItemButtons);
+end;
+
+function TRSChatbox.IsMakeOpen(WaitTime: Int32): Boolean; overload;
+begin
+  Result := WaitUntil(Self.IsMakeOpen(), 100, WaitTime);
+end;
+
+function TRSChatBox.ClickMakeButton(Item: String; Quantity: String; UseKeyboard: Boolean): Boolean; overload;
+var
+  QuantityButtons, ItemButtons: TBoxArray;
+  I: Int32;
+  Index: Int32;
+begin
+  Index := -1;
+
+  if Self.FindMakeButtons(QuantityButtons, ItemButtons) then
+  begin
+    for I := 0 to High(Self.MakeCache) do
+      if Self.MakeCache[I].Item = Item then
+        Index := Self.MakeCache[I].Index;
+
+    if (Index = -1) then
+    begin
+      Index := Self.FindMakeItem(Item);
+
+      if (Index > -1) then
+      begin
+        WriteLn('Make cache: ', Item, ' = ', Index);
+
+        Self.MakeCache += [Item, Index];
+      end;
+    end;
+
+    if (Index > -1) then
+      Result := ClickMakeButton(Index, Quantity, UseKeyboard);
+  end;
 end;
 
 begin

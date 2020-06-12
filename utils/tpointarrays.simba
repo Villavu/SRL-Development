@@ -1032,22 +1032,8 @@ begin
 end;
 
 function TPointArray.Grow(constref Amount: Int32): TPointArray; constref;
-var
-  Template: TPointArray;
-  TemplateLength, TemplateSize: Int32;
-  I: Int32;
 begin
-  Template := TPAFromCircle(0, 0, Amount);
-  Template.Fill();
-
-  TemplateLength := Length(Template);
-  TemplateSize := Length(Template) * SizeOf(TPoint);
-
-  SetLength(Result, Length(Self) + (Length(Self) * Length(Template)));
-
-  MemMove(Self[0], Result[0], Length(Self) * SizeOf(TPoint));
-  for I := 0 to High(Self) do
-    MemMove(Template.OffsetFunc(Self[I])[0], Result[(I+1) * TemplateLength], TemplateSize);
+  Result := TPAGrow(Self, Amount);
 end;
 
 function TPointArray.Erode(constref Amount: Int32): TPointArray; constref;
@@ -1270,6 +1256,36 @@ end;
 procedure T2DPointArray.SortBySize(Size:Int32=0; ClosestFirst: Boolean=False);
 begin
   SortATPAFromSize(Self, Size, ClosestFirst);
+end;
+
+procedure T2DPointArray.SortByX(LowToHi: Boolean = True);
+var
+  Weights: TIntegerArray;
+  I: Int32;
+begin
+  if Length(Self) = 0 then
+    Exit;
+
+  SetLength(Weights, Length(Self));
+  for I := 0 to High(Weights) do
+    Weights[I] := Self[I].Bounds.X1;
+
+  QuickATPASort(Weights, Self, Low(Self), High(Self), LowToHi);
+end;
+
+procedure T2DPointArray.SortByY(LowToHi: Boolean = True);
+var
+  Weights: TIntegerArray;
+  I: Int32;
+begin
+  if Length(Self) = 0 then
+    Exit;
+
+  SetLength(Weights, Length(Self));
+  for I := 0 to High(Weights) do
+    Weights[I] := Self[I].Bounds.Y1;
+
+  QuickATPASort(Weights, Self, Low(Self), High(Self), LowToHi);
 end;
 
 function T2DPointArray.Means(): TPointArray; constref;

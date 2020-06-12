@@ -1,0 +1,250 @@
+{$DEFINE UPTEXT_DEBUG}
+{$DEFINE SRL_USE_REMOTEINPUT}
+{$I SRL/osr.simba}
+
+type
+  EFletchTask = (
+    FLETCH_ARROW_SHAFTS,
+    FLETCH_OAK_LONGBOW,
+    FLETCH_WILLOW_SHORTBOW,
+    FLETCH_WILLOW_LONGBOW,
+    FLETCH_MAPLE_LONGBOW
+  );
+
+const
+  ITEM_TO_FLETCH = FLETCH_MAPLE_LONGBOW;
+
+type
+  TScript = record
+    Item: EFletchTask;
+
+    Activity: record
+      Countdown: TCountdown;
+      XP: Int32;
+    end;
+
+    CurrentTool: String;
+    CurrentItem: String;
+    CurrentItemXP: Single;
+    CurrentItemMaterial: String;
+  end;
+
+procedure TScript.Setup(Task: EFletchTask);
+begin
+  Self.Item := Task;
+
+  case Self.Item of
+    FLETCH_ARROW_SHAFTS:
+      begin
+        Self.CurrentItemXP := 5;
+        Self.CurrentItem := 'arrow shafts';
+        Self.CurrentItemMaterial := 'Logs';
+        Self.CurrentTool := 'knife';
+      end;
+
+    FLETCH_OAK_LONGBOW:
+      begin
+        Self.CurrentItemXP := 25;
+        Self.CurrentItem := 'Oak longbow (u)';
+        Self.CurrentItemMaterial := 'Oak Logs';
+        Self.CurrentTool := 'knife';
+      end;
+
+    FLETCH_WILLOW_SHORTBOW:
+      begin
+        Self.CurrentItemXP := 33;
+        Self.CurrentItem := 'Willow shortbow (u)';
+        Self.CurrentItemMaterial := 'Willow Logs';
+        Self.CurrentTool := 'knife';
+      end;
+
+    FLETCH_WILLOW_LONGBOW:
+      begin
+        Self.CurrentItemXP := 41.5;
+        Self.CurrentItem := 'Willow longbow (u)';
+        Self.CurrentItemMaterial := 'Willow Logs';
+        Self.CurrentTool := 'knife';
+      end;
+
+    FLETCH_MAPLE_LONGBOW:
+      begin
+        Self.CurrentItemXP := 58.5;
+        Self.CurrentItem := 'Maple longbow (u)';
+        Self.CurrentItemMaterial := 'Maple Logs';
+        Self.CurrentTool := 'knife';
+      end;
+  end;
+
+  Activity.Countdown.Init(60000);
+end;
+
+procedure TScript.Debug(S: String);
+begin
+  WriteLn(SRL.TimeStamp() + ':[FLETCHER]: ' + S);
+end;
+
+procedure TScript.Fatal(S: String);
+begin
+  Self.Debug(S);
+
+  TerminateScript();
+end;
+
+function TScript.CheckActivity: Boolean;
+begin
+  if XPBar.Read() > Activity.XP then
+  begin
+    Activity.Countdown.Restart();
+    Activity.XP := XPBar.Read();
+
+    Result := True;
+  end;
+
+  if Activity.Countdown.IsFinished() then
+    Self.Fatal('Haven''t gained any experience in ' + ToString(Activity.Countdown.Length div 1000) + ' seconds');
+end;
+
+function TScript.HasMaterials: Boolean;
+begin
+  Result := Inventory.Count(Self.CurrentItemMaterial) > 0;
+end;
+
+function TScript.Withdraw: Boolean;
+var
+  Slot: Int32;
+begin
+  if not Self.HasMaterials() then
+  begin
+    if not BankScreen.Open(BANK_LOCATION_GRAND_EXCHANGE) then
+    begin
+      Self.Debug('Failed to open bank');
+
+      Exit;
+    end;
+
+    Slot := Inventory.Find(Self.CurrentItem);
+    if (Slot > -1) and not BankScreen.DepositItem(Slot, True) then
+    begin
+      Self.Debug('Failed to deposit items');
+
+      Exit;
+    end;
+
+    if not BankScreen.WithdrawItem(Self.CurrentItemMaterial, BANK_WITHDRAW_ALL, False) then
+    begin
+      Self.Debug('Failed to withdraw material');
+
+      Exit;
+    end;
+
+    if not WaitUntil(Self.HasMaterials(), 100, 2500) then
+    begin
+      Self.Debug('Failed to detect materials entering our inventory');
+
+      Exit;
+    end;
+  end;
+
+  if not Self.HasMaterials() then
+  begin
+    Self.Debug('No materials?');
+
+    Exit;
+  end;
+
+  if not BankScreen.EscapeClose() then
+  begin
+    Self.Debug('Failed to close bankscreen');
+
+    Exit;
+  end;
+
+  Result := True;
+end;
+
+function TScript.Fletch: Boolean;
+var
+  TargetXP: Int32;
+  Timeout: TCountDown;
+begin
+  TargetXP := XPBar.Read() + Floor(Inventory.Count(Self.CurrentItemMaterial) * Self.CurrentItemXP);
+
+  if not Inventory.Use(Self.CurrentTool, Self.CurrentItemMaterial) then
+  begin
+    Self.Debug('Failed to use knife on material');
+    Exit;
+  end;
+
+  if not Chatbox.IsMakeOpen(2500) then
+  begin
+    Self.Debug('Make interface did not open');
+    Exit;
+  end;
+
+  if not Chatbox.ClickMakeButton(Self.CurrentItem.Replace('(u)', '').Strip(), 'All', True) then
+  begin
+    Self.Debug('Failed to handle make interface');
+    Exit;
+  end;
+
+  if Random() < 0.66 then
+    Antiban.LoseFocus();
+
+  Timeout.Init(5000);
+
+  while (TargetXP > XPBar.Read()) and (not Chatbox.HasLevelUp()) do
+  begin
+    if Self.CheckActivity() then
+      Timeout.Restart();
+
+    if Timeout.IsFinished() then
+    begin
+      Self.Debug('Timed out while fletching');
+      Exit;
+    end;
+
+    Wait(500);
+  end;
+
+  Wait(0, 20000, wdLeft);
+
+  Result := True;
+end;
+
+procedure TScript.Run;
+begin
+  while SRL.IsLoggedIn() do
+  begin
+    Self.CheckActivity();
+    if (not Self.Withdraw()) or (not Self.Fletch()) then
+      Wait(1000, 2000);
+  end;
+end;
+
+procedure TerminateScript; override;
+begin
+  SaveScreenshot('fletcher-fatal.png');
+
+  inherited();
+end;
+
+procedure TAntiban.LoseFocus; override;
+var
+  Space: TBoxArray;
+begin
+  Self.Debug('Lose focus');
+
+  Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(1000));
+  if Length(Space) > 0 then
+    Mouse.Click(Space[Random(Length(Space))], MOUSE_LEFT);
+end;
+
+var
+  Script: TScript;
+
+begin
+  SRL.Setup(RS_CLIENT_RESIZABLE_CLASSIC);
+
+  Script.Setup(ITEM_TO_FLETCH);
+  Script.Run();
+end.

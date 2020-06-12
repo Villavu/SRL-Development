@@ -219,8 +219,7 @@ begin
         self.RunCircleOffset := [-3, 121];
         Self.PrayerCircleOffset := [-13, 90];
         Self.HitpointsCircleOffset := [-13, 55];
-        Self.PolygonOffset := [
-           [0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [52, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
+        Self.PolygonOffset := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [52, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
       end;
 
     RS_CLIENT_FIXED:
@@ -451,6 +450,11 @@ begin
   T := GetTickCount + TimeOut;
   while (T > GetTickCount()) and Self.IsPlayerMoving(MinShift) do
     ;
+end;
+
+function TRSMinimap.GetHPLevel: Int32;
+begin
+  Result := Self.GetOrbLevel(Self.GetHPCircle());
 end;
 
 var

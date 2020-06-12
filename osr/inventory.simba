@@ -58,7 +58,7 @@ end;
 
 function TRSInventory.Open: Boolean;
 begin
-  Result := GameTabs.Open(TAB_INVENTORY);
+  Result := Self.IsOpen() or GameTabs.Open(TAB_INVENTORY);
 end;
 
 function TRSInventory.IsSlotUsed(Slot: Int32): Boolean;
@@ -119,6 +119,22 @@ begin
         Break;
       end;
   end;
+end;
+
+procedure TRSInventory.Use(Slot, OtherSlot: Int32);
+var
+  Active: Int32;
+begin
+  Active := Self.GetActiveSlot();
+  if (Active > -1) and (Active <> Slot) then
+    Self.ClearActiveSlot();
+
+  if (Active <> Slot) then
+    Mouse.Click(Self.GetSlotBox(Slot), MOUSE_LEFT);
+
+  Wait(0, 1000, wdLeft);
+
+  Mouse.Click(Self.GetSlotBox(OtherSlot), MOUSE_LEFT);
 end;
 
 function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
@@ -224,8 +240,29 @@ begin
 end;
 
 function TRSInventory.Count: Int32;
+var
+  I: Int32;
 begin
-  // Implemented in itemfinder.simba
+  for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+    if Self.IsSlotUsed(I) then
+      Inc(Result);
+end;
+
+function TRSInventory.RandomSlotNearby(Slot: Int32; Slots: TIntegerArray): Int32;
+var
+  I, J: Int32;
+  Middles: TPointArray;
+  From: TPoint;
+begin
+  Middles := Self.GetSlotBoxes().Middles();
+  From := Middles[Slot];
+
+  for I := 0 to High(Slots) do
+    for J := 0 to High(Slots) do
+      if Distance(Middles[Slots[J]], From) > Distance(Middles[Slots[I]], From) then
+        Swap(Slots[J], Slots[I]);
+
+  Result := Slots[Floor(SRL.TruncatedGauss(0, Length(Slots)))];
 end;
 
 function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; overload;
@@ -272,6 +309,12 @@ function TRSInventory.Click(Identifer: String; Option: String = ''): Boolean; ov
 begin
   // Implemented in itemfinder.simba
 end;
+
+function TRSInventory.Use(Item: String; OtherItem: String): Boolean; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
 
 var
   Inventory: TRSInventory;

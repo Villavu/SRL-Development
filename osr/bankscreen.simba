@@ -280,7 +280,12 @@ begin
 end;
 
 function TRSBankScreen.WithdrawItem(B: TBox; Amount: Int32; Noted: Boolean): Boolean; overload;
+var
+  Count: Int32;
+  T: UInt64;
 begin
+  Count := Inventory.Count();
+
   if Noted then
   begin
     if not Self.FindButton(Self.BUTTON_WITHDRAW_NOTE_ON) and
@@ -302,12 +307,21 @@ begin
       Result := ChooseOption.Select('Withdraw-All-but-1');
     else
     begin
-      if ChooseOption.Select('Withdraw-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False) then
-        Exit(True);
-      if ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500)) then
-        Exit(True);
+      Result := ChooseOption.Select('Withdraw-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False);
+      if not Result then
+        Result := ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500));
     end;
   end;
+
+  T := GetTickCount() + Random(2000, 3000);
+  if Result then
+    while (T > GetTickCount()) do
+    begin
+      if Inventory.Count() <> Count then
+        Exit;
+
+      Wait(100, 1000, wdLeft);
+    end;
 end;
 
 function TRSBankScreen.WithdrawQuantity(B: TBox; Amount: String; Noted: Boolean): Boolean;
@@ -579,6 +593,11 @@ end;
 
 var
   BankScreen: TRSBankScreen;
+
+function TRSInventory.IsOpen: Boolean; override;
+begin
+  Result := inherited() or BankScreen.IsOpen();
+end;
 
 begin
   SRL.AddSetupMethod(@BankScreen.Setup);

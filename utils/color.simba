@@ -97,6 +97,13 @@ begin
   Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 2, Color.HueMod, Color.SatMod);
 end;
 
+function TSRL.CountColor(Color: Int32; Area: TBox): Int32; overload;
+var
+  TPA: TPointArray;
+begin
+  Result := Self.FindColors(TPA, CTS0(Color), Area);
+end;
+
 function TSRL.CountColor(Color: TCTS0Color; Area: TBox): Int32; overload;
 var
   TPA: TPointArray;
@@ -116,4 +123,18 @@ var
   TPA: TPointArray;
 begin
   Result := Self.FindColors(TPA, Color, Area);
+end;
+
+function TSRL.WaitColor(Color: Int32; WaitTime: Int32; Area: TBox): Boolean;
+var
+  T: UInt64;
+begin
+  T := GetTickCount() + WaitTime;
+  while (T > GetTickCount()) do
+  begin
+    if Self.CountColor(Color, Area) > 0 then
+      Exit(True);
+
+    Wait(50, 100);
+  end;
 end;

@@ -39,7 +39,7 @@ function TRSGameTabs.Y1: Int32; constref; override;
 begin
   Result := inherited;
 
-  if (RootInterface.Width >= 948) then
+  if (SRL.ClientMode = RS_CLIENT_RESIZABLE_BOTTOM) and (RootInterface.Width >= 948) then
     Result += 36;
 end;
 
@@ -55,7 +55,7 @@ function TRSGameTabs.Y2: Int32; constref; override;
 begin
   Result := inherited;
 
-  if (RootInterface.Width >= 948) then
+  if (SRL.ClientMode = RS_CLIENT_RESIZABLE_BOTTOM) and (RootInterface.Width >= 948) then
     Result += 36;
 end;
 

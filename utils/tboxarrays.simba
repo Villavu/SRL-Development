@@ -246,6 +246,45 @@ begin
     Result := Result + Self[i];
 end;
 
+procedure TBoxArray.SortByX(LowToHi: Boolean = True);
+var
+  Weights: TIntegerArray;
+  I: Int32;
+begin
+  if Length(Self) = 0 then
+    Exit;
+
+  SetLength(Weights, Length(Self));
+  for I := 0 to High(Weights) do
+    Weights[I] := Self[I].X1;
+
+  Sort(Weights, Low(Self), High(Self), LowToHi);
+end;
+
+procedure TBoxArray.SortByY(LowToHi: Boolean = True);
+var
+  Weights: TIntegerArray;
+  I: Int32;
+begin
+  if Length(Self) = 0 then
+    Exit;
+
+  SetLength(Weights, Length(Self));
+  for I := 0 to High(Weights) do
+    Weights[I] := Self[I].Y1;
+
+  Sort(Weights, Low(Self), High(Self), LowToHi);
+end;
+
+function TBoxArray.Middles: TPointArray; constref;
+var
+  I: Int32;
+begin
+  SetLength(Result, Length(Self));
+  for I := 0 to High(Self) do
+    Result[I] := Self[I].Middle();
+end;
+
 function Grid(Columns, Rows, Width, Height: Int32; Spacing, Start: TPoint): TBoxArray;
 var
   I: Int32;

@@ -182,14 +182,14 @@ function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; override
 var
   Identifer: String;
 begin
-  if BankScreen.IsOpen or Self.Open() then
+  if Self.Open() then
     for Identifer in Identifers do
       Result += ItemFinder.Find(Identifer, Self.GetSlotBoxes());
 end;
 
 function TRSInventory.FindAll(Identifer: String): TIntegerArray; override;
 begin
-  if BankScreen.IsOpen or Self.Open() then
+  if Self.Open() then
     Result := Self.FindAll([Identifer]);
 end;
 
@@ -217,7 +217,7 @@ function TRSInventory.Count(Identifers: TStringArray): Int32; override;
 var
   Identifer: String;
 begin
-  if (BankScreen.IsOpen or Self.Open()) then
+  if Self.Open() then
   begin
     for Identifer in Identifers do
       Result += Length(Self.FindAll(Identifer));
@@ -264,6 +264,28 @@ end;
 function TRSInventory.Click(Identifer: String; Option: String = ''): Boolean; override;
 begin
   Result := Self.Click([Identifer], Option);
+end;
+
+function TRSInventory.Use(Item: String; OtherItem: String): Boolean; override;
+var
+  Slot, OtherSlot: Int32;
+  OtherSlots: TIntegerArray;
+begin
+  Self.ClearActiveSlot(); // Items change when they are activated. :(
+
+  Slot := Self.Find(Item);
+
+  if (Slot > -1) then
+  begin
+    OtherSlots := Self.FindAll(OtherItem);
+
+    if Length(OtherSlots) > 0 then
+    begin
+      Self.Use(Slot, Self.RandomSlotNearby(Slot, OtherSlots));
+
+      Exit(True);
+    end;
+  end;
 end;
 
 function TRSBankScreen.WithdrawItem(Identifier: String; Amount: Int32; Noted: Boolean): Boolean; override;

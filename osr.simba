@@ -14,7 +14,6 @@ type
 
     SetupMethods: array of TSRLSetupMethod;
     DebugMethods: array of TSRLDebugMethod;
-
   end;
 
 var
@@ -124,4 +123,3 @@ end;
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
-

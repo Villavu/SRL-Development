@@ -50,7 +50,7 @@ begin
       end;
   end;
 
-  Self.UpTextFilter := [-1, 85, True, 85];
+  Self.UpTextFilter := [-1, 85, True, 50];
 end;
 
 function TRSMainScreen.GetUpText(): String;
@@ -58,7 +58,7 @@ begin
   Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONTSET_BOLD_12_SHADOW);
 
   {$IFDEF UPTEXT_DEBUG}
-  SRL.WriteLn('UpText: ' + Result);
+  Self.Debug('UpText: ' + Result);
   {$ENDIF}
 end;
 
@@ -169,7 +169,7 @@ end;
 
 function TRSMainScreen.FindObject(Finder: TRSObjectFinder; Area: TBox): T2DPointArray; overload;
 var
-  TPA, Primary, Secondary, Template: TPointArray;
+  TPA, Primary, Secondary: TPointArray;
   ATPA: T2DPointArray;
   I: Int32;
   L, S: Int32;
@@ -181,6 +181,7 @@ begin
   Finder.Erode := Self.ConvertDistance(Finder.Erode);
   Finder.Grow := Self.ConvertDistance(Finder.Grow);
 
+  Finder.ColorClusters := Copy(Finder.ColorClusters); // Make a copy!
   for I := 0 to High(Finder.ColorClusters) do
     Finder.ColorClusters[I].Distance := Self.ConvertDistance(Finder.ColorClusters[I].Distance);
 
@@ -199,12 +200,16 @@ begin
     if SRL.FindColors(TPA, Finder.Colors[I], Area) > 0 then
       ATPA += TPA;
 
+  // Find color clusters
   for I := 0 to High(Finder.ColorClusters) do
-  begin
     if (SRL.FindColors(Primary, Finder.ColorClusters[I].Primary, Area) > 0) and
        (SRL.FindColors(Secondary, Finder.ColorClusters[I].Secondary, Area) > 0) then
-      ATPA += Primary.PointsInRangeOf(Secondary, 0, Finder.ColorClusters[I].Distance);
-  end;
+    begin
+      TPA := Primary.PointsInRangeOf(Secondary, 0, Finder.ColorClusters[I].Distance);
+
+      if TPA <> [] then
+        ATPA += TPA;
+    end;
 
   TPA := ATPA.Merge();
 
@@ -213,7 +218,6 @@ begin
   begin
     if (Finder.Grow > 0) then
       TPA := TPA.Grow(Finder.Grow);
-
     if (Finder.Erode > 0) then
       TPA := TPA.Erode(Finder.Erode);
 

@@ -1,4 +1,4 @@
-{$DEFINE REMOTEINPUT}
+{.$DEFINE SRL_USE_REMOTEINPUT}
 {$I SRL/osr.simba}
 
 begin
