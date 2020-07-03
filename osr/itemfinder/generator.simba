@@ -1,0 +1,64 @@
+// SUPERRRRR Slow! Like 6 mins. Will optimize one day.
+
+var
+  Data, Item: TJSONObject;
+  Stream: TMemoryStream;
+  Icon: String;
+  Keys, Output: TStringList;
+  Name: String;
+  Files: TStringArray;
+  I, ID: Int32;
+begin
+  DeleteFile('item-names');
+  DeleteDirectory('.item-icons', True);
+  CreateDirectory('.item-icons');
+
+  Data.Init(GetPage('https://raw.githubusercontent.com/osrsbox/osrsbox-db/master/docs/items-complete.json'));
+  Keys := Data.Keys();
+
+  Stream.Init();
+  Output.Init();
+
+  for I := 0 to Keys.GetCount() - 1 do
+  begin
+    if (i mod 1000 = 0) then
+      WriteLn(Round((i / Keys.GetCount()) * 100), '%');
+
+    Item := Data.getJSONObject(Keys.GetStrings(I));
+
+    if Item.GetBoolean('noted') then
+      Name := 'noted ' + Item.GetString('name')
+    else
+      Name := Item.GetString('name');
+
+    ID := Item.GetInt('id');
+
+    if Output.IndexOfName(Name) = -1 then
+    begin
+      Output.Add(LowerCase(Name) + '=' + ToString(ID));
+
+      Icon := Item.getString('icon');
+      if (Icon <> '') then
+      begin
+        Icon := Base64Decode(Icon);
+
+        Stream.Clear();
+        Stream.Write(Icon[1], Length(Icon));
+        Stream.SaveToFile('.item-icons/' + ToString(ID) + '.png');
+      end;
+    end;
+  end;
+
+  Output.SaveToFile('item-names');
+  Files := GetFiles('.item-icons/', '*png');
+  for I := 0 to High(Files) do
+    Files[I] := ExpandFileName('.item-icons/' + Files[I]);
+
+  ZipFiles('item-icons.zip',  Files);
+
+  DeleteDirectory('.item-icons', True);
+
+  Output.Free();
+  Stream.Free();
+  Data.Free();
+end.
