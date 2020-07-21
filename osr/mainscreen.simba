@@ -50,7 +50,8 @@ begin
       end;
   end;
 
-  Self.UpTextFilter := [-1, 85, True, 50];
+  Self.UpTextFilter := [-1, 85, True, 70];
+  Self.UpTextFilter.MinCharacterMatch := 15; // Filter out tiny characters (likely junk)
 end;
 
 function TRSMainScreen.GetUpText(): String;
