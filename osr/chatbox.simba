@@ -149,7 +149,7 @@ begin
   end;
 end;
 
-function TRSChatbox.ClickMakeButton(Index: Int32; Quantity: String; UseKeyboard: Boolean): Boolean; overload;
+function TRSChatbox.ClickMakeButton(Index: Int32; Quantity: String; UseKeyboard: Boolean = False): Boolean; overload;
 const
   BUTTON_SELECTED = $FFFFFF;
   BUTTON_UNSELECTED = $203040;
@@ -200,7 +200,7 @@ begin
   Result := WaitUntil(Self.IsMakeOpen(), 100, WaitTime);
 end;
 
-function TRSChatBox.ClickMakeButton(Item: String; Quantity: String; UseKeyboard: Boolean): Boolean; overload;
+function TRSChatBox.ClickMakeButton(Item: String; Quantity: String; UseKeyboard: Boolean = False): Boolean; overload;
 var
   QuantityButtons, ItemButtons: TBoxArray;
   I: Int32;
@@ -220,8 +220,7 @@ begin
 
       if (Index > -1) then
       begin
-        WriteLn('Make cache: ', Item, ' = ', Index);
-
+        Self.Debug('Found "' + Item + '" at button index: ' + ToString(Index));
         Self.MakeCache += [Item, Index];
       end;
     end;

@@ -3,10 +3,27 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
+const
+  BANK_WITHDRAW_ALL         = -1;
+  BANK_WITHDRAW_ALL_BUT_ONE = -2;
+
+  BANK_WITHDRAW_1  = 1;
+  BANK_WITHDRAW_5  = 5;
+  BANK_WITHDRAW_10 = 10;
+
+const
+  BANK_DEPOSIT_ALL = -1;
+
+  BANK_DEPOSIT_1  = 1;
+  BANK_DEPOSIT_5  = 5;
+  BANK_DEPOSIT_10 = 10;
+
 type
-  ERSBankLocation = (BANK_LOCATION_CASTLE_WARS,
-                     BANK_LOCATION_CLAN_WARS,
-                     BANK_LOCATION_GRAND_EXCHANGE);
+  ERSBankLocation = (
+    BANK_LOCATION_CASTLE_WARS,
+    BANK_LOCATION_FEROX,
+    BANK_LOCATION_GRAND_EXCHANGE
+  );
 
   TRSBankScreen = record(TRSInterface)
     BUTTON_REARRANGE_SWAP_OFF: TRSInterfaceButton;
@@ -55,7 +72,9 @@ type
 
     BUTTON_SCROLLED_TOP: TRSInterfaceButton;
 
-    FINDER_BANK_CHEST: TRSObjectFinder;
+    FINDER_CASTLE_WARS_CHEST: TRSObjectFinder;
+    FINDER_FEROX_CHEST: TRSObjectFinder;
+    FINDER_EDGE_BOOTH: TRSObjectFinder;
   end;
 
 function TRSBankScreen.GetSlotBoxes: TBoxArray; constref;
@@ -75,14 +94,13 @@ end;
 function TRSBankScreen.IsOpen: Boolean; overload;
 var
   T: UInt64;
+  B: TBox;
 begin
   Result := Self.FindButton([Self.BUTTON_REARRANGE_SWAP_ON, Self.BUTTON_REARRANGE_SWAP_OFF]);
+
+  // Wait 1-2 seconds to items to load
   if Result then
-  begin
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
-    while (T > GetTickCount()) and (SRL.CountColor(CTS0(65536), Self.GetSlotBoxes().Merge()) = 0) do
-      Wait(50, 100);
-  end;
+    WaitUntil(SRL.CountColor(CTS0(65536), Self.GetSlotBoxes().Merge()) > 0, 100, Random(1000, 2000));
 end;
 
 function TRSBankScreen.IsOpen(WaitTime: Int32): Boolean; overload;
@@ -115,9 +133,18 @@ procedure TRSBankScreen.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'BankScreen';
 
-  Self.FINDER_BANK_CHEST.ColorClusters += [CTS2(2503237, 40, 0.10, 0.14), CTS2(5526875, 35, 0.19, 0.06), 8]; //brown, grey
-  Self.FINDER_BANK_CHEST.ClusterDistance := 3;
-  Self.FINDER_BANK_CHEST.Erode := 2;
+  Self.FINDER_CASTLE_WARS_CHEST.ColorClusters += [CTS2(2503237, 40, 0.10, 0.14), CTS2(5526875, 35, 0.19, 0.06), 8]; //brown, grey
+  Self.FINDER_CASTLE_WARS_CHEST.ClusterDistance := 3;
+  Self.FINDER_CASTLE_WARS_CHEST.Erode := 2;
+
+  Self.FINDER_FEROX_CHEST.Colors += CTS2(931652, 12, 0.07, 0.89);
+  Self.FINDER_FEROX_CHEST.ClusterDistance := 1;
+  Self.FINDER_FEROX_CHEST.Erode := 1;
+
+  Self.FINDER_EDGE_BOOTH.ColorClusters += [CTS2(5265760, 4, 1.64, 1.29), CTS2(1068392, 15, 0.06, 2.57), 8]; //grey, brown
+  Self.FINDER_EDGE_BOOTH.ClusterDistance := 5;
+  Self.FINDER_EDGE_BOOTH.Grow := 2;
+  Self.FINDER_EDGE_BOOTH.Erode := 4;
 
   Self.BUTTON_REARRANGE_SWAP_OFF := Self.AddBitmapButton('bank_rearrange_swap_off.png');
   Self.BUTTON_REARRANGE_SWAP_ON := Self.AddBitmapButton('bank_rearrange_swap_on.png');
@@ -178,27 +205,33 @@ begin
   end;
 end;
 
+(*
+BankScreen.GetTitle
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.GetTitle: String;
+
+  Returns the title of the bankscreen. Useful when searching.
+
+  **Example**
+
+    WriteLn BankScreen.GetTitle();
+*)
 function TRSBankScreen.GetTitle: String;
 var
   B: TBox;
-  BMP: TMufasaBitmap;
-  TPA: TPointArray;
+  Filter: TCompareRules;
 begin
   B := Self.Bounds;
   B.X1 += 50;
-  B.Y1 += 5;
+  B.Y1 += 10;
   B.X2 -= 50;
-  B.Y2 := B.Y1 + 25;
+  B.Y2 := B.Y1 + 15;
+  B.LimitTo(Self.Bounds);
 
-  BMP.FromClient(B);
-  BMP.ThresholdAdaptive(0, 255, False, TM_Mean, 15);
-  BMP.FindColors(TPA, $0000FF);
-  with TPA.Bounds() do
-    BMP.Crop(X1, Y1, X2, Y2);
+  Filter.Color := -1;
+  Filter.Threshold := 15;
 
-  Result := OCR.Recognize(BMP.ToMatrix(), [255], RS_FONTSET_BOLD_12);
-
-  BMP.Free();
+  Result := OCR.Recognize(B, Filter, RS_FONTSET_BOLD_12, True);
 end;
 
 function TRSBankScreen.IsTitle(Text: String): Boolean; overload;
@@ -207,21 +240,33 @@ begin
 end;
 
 function TRSBankScreen.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
-var
-  T: UInt64;
 begin
-  T := GetTickCount() + WaitTime;
-  while (T > GetTickCount()) do
-  begin
-    if Self.IsTitle(Text) then
-      Exit(True);
-
-    Wait(0, 1000, wdLeft);
-  end;
+  Result := WaitUntil(Self.IsTitle(Text), 100, WaitTime);
 end;
 
+(*
+BankScreen.Search
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Search(Item: String): Boolean;
+
+  Searches for an item.
+  If no item is passed, the current search will be cleared.
+
+  **Example**
+
+    BankScreen.Search('logs'); // Search for logs
+    BankScreen.Search(''); // Clear current search
+*)
 function TRSBankScreen.Search(Item: String): Boolean;
 begin
+  if (Item = '') then
+  begin
+    Result := Self.FindButton([Self.BUTTON_SEARCH_OFF, Self.BUTTON_SEARCH_OFF_HOVER]) or
+              Self.ClickButton([Self.BUTTON_SEARCH_ON, Self.BUTTON_SEARCH_ON_HOVER], MOUSE_LEFT);
+
+    Exit;
+  end;
+
   if Self.IsTitle('Showing items: ' + LowerCase(Item)) then
     Exit(True);
 
@@ -265,11 +310,6 @@ begin
   end;
 end;
 
-const
-  BANK_WITHDRAW_ALL = -1;
-  BANK_WITHDRAW_ALL_BUT_ONE = -2;
-
-
 procedure TRSBankScreen.ScrollToTop;
 begin
   if not Self.IsOpen() then
@@ -279,13 +319,17 @@ begin
     Mouse.Scroll(Self.GetSlotBoxes().Merge(), Random(1, 3), False);
 end;
 
-function TRSBankScreen.WithdrawItem(B: TBox; Amount: Int32; Noted: Boolean): Boolean; overload;
+(*
+BankScreen._Withdraw
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen._Withdraw(B: TBox; Amount: Int32; Noted: Boolean): Boolean;
+
+  Internal functon.
+*)
+function TRSBankScreen._Withdraw(B: TBox; Amount: Int32; Noted: Boolean): Boolean;
 var
-  Count: Int32;
   T: UInt64;
 begin
-  Count := Inventory.Count();
-
   if Noted then
   begin
     if not Self.FindButton(Self.BUTTON_WITHDRAW_NOTE_ON) and
@@ -312,19 +356,18 @@ begin
         Result := ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500));
     end;
   end;
-
-  T := GetTickCount() + Random(2000, 3000);
-  if Result then
-    while (T > GetTickCount()) do
-    begin
-      if Inventory.Count() <> Count then
-        Exit;
-
-      Wait(100, 1000, wdLeft);
-    end;
 end;
 
-function TRSBankScreen.WithdrawQuantity(B: TBox; Amount: String; Noted: Boolean): Boolean;
+(*
+BankScreen._WithdrawQuantity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen._WithdrawQuantity(B: TBox; Amount: Int32; Noted: Boolean): Boolean;
+
+  Internal functon.
+*)
+function TRSBankScreen._WithdrawQuantity(B: TBox; Amount: Int32; Noted: Boolean): Boolean;
+var
+  Options: TRSChooseOption_OptionArray;
 begin
   if Noted then
   begin
@@ -338,27 +381,291 @@ begin
       Exit(False);
   end;
 
-  case UpperCase(Amount) of
-    '1':   Self.ClickButton(Self.BUTTON_QUANTITY_1_OFF, MOUSE_LEFT);
-    '5':   Self.ClickButton(Self.BUTTON_QUANTITY_5_OFF, MOUSE_LEFT);
-    '10':  Self.ClickButton(Self.BUTTON_QUANTITY_10_OFF, MOUSE_LEFT);
-    'ALL': Self.ClickButton(Self.BUTTON_QUANTITY_ALL_OFF, MOUSE_LEFT);
+  case Amount of
+    BANK_WITHDRAW_1:   Self.ClickButton(Self.BUTTON_QUANTITY_1_OFF, MOUSE_LEFT);
+    BANK_WITHDRAW_5:   Self.ClickButton(Self.BUTTON_QUANTITY_5_OFF, MOUSE_LEFT);
+    BANK_WITHDRAW_10:  Self.ClickButton(Self.BUTTON_QUANTITY_10_OFF, MOUSE_LEFT);
+    BANK_WITHDRAW_ALL: Self.ClickButton(Self.BUTTON_QUANTITY_ALL_OFF, MOUSE_LEFT);
     else
     begin
       Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_OFF, MOUSE_LEFT);
 
       Mouse.Move(B);
 
-      if (not MainScreen.IsUpText('-' + Amount)) then
+      if (not MainScreen.IsUpText('Withdraw-' + ToString(Amount))) then
       begin
-        Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_ON, MOUSE_RIGHT);
-        if ChooseOption.Select('Set custom quantity') then
-          Chatbox.AnswerQuery('Enter amount', Amount, Random(2000, 3000));
+        if ChooseOption.Open() then
+        begin
+          Options := ChooseOption.GetOptions();
+          if Length(Options) < 4 then
+            Exit(False);
+
+          if 'Withdraw-' + ToString(Amount) in Options[4].Text then
+            // Uptext failed. This happens :)
+          else
+          begin
+            Result := ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
+            Exit;
+          end;
+        end;
       end;
     end;
   end;
 
-  Mouse.Click(B, MOUSE_LEFT);
+  case Amount of
+    BANK_WITHDRAW_1:   Result := Self.FindButton(Self.BUTTON_QUANTITY_1_ON);
+    BANK_WITHDRAW_5:   Result := Self.FindButton(Self.BUTTON_QUANTITY_5_ON);
+    BANK_WITHDRAW_10:  Result := Self.FindButton(Self.BUTTON_QUANTITY_10_ON);
+    BANK_WITHDRAW_ALL: Result := Self.FindButton(Self.BUTTON_QUANTITY_ALL_ON);
+    else
+      Result := Self.FindButton(Self.BUTTON_QUANTITY_CUSTOM_ON);
+  end;
+
+  if Result then
+    Mouse.Click(B, MOUSE_LEFT);
+end;
+
+(*
+BankScreen.Withdraw
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Withdraw(Item: String; Amount: Int32; Noted: Boolean): Boolean;
+
+  Withdraws the specified amount ``Amount`` of the item ``Item``.
+
+  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+  ``BANK_WITHDRAW_ALL`` and ``BANK_WITHDRAW_ALL_BUT_ONE`` constants can be used for ``Amount``.
+
+  **Example**
+
+    BankScreen.Withdraw('logs', 10, False); // Withdraw 10 logs
+    BankScreen.Withdraw('lobster', WITHDRAW_ALL, True); // Withdraw all lobsters as noted
+*)
+function TRSBankScreen.Withdraw(Item: String; Amount: Int32; Noted: Boolean): Boolean;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+(*
+BankScreen.WithdrawQuantity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean;
+
+  Withdraws the specified amount ``Amount`` of the item ``Item``.
+  The quantity buttons are used for picking the amount.
+
+  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+  ``BANK_WITHDRAW_ALL`` constants can be used for ``Amount``.
+
+  **Example**
+
+    BankScreen.WithdrawQuantity('logs', 10, False); // Withdraw 10 logs using the `10` quantity button
+    BankScreen.Withdraw('lobster', 2, True); // Withdraw all lobsters as noted using the `X` quantity button
+*)
+function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+(*
+BankScreen.Deposit
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Deposit(Slots: TIntegerArray): Boolean;
+
+  Deposits an array of slots.
+
+  **Example**
+
+    BankScreen.Deposit([0, 1]); // Deposit the items in inventory slot 0 & 1.
+    BankScreen.Deposit([1..10]); // Deposit the items in inventory slots 1 to 10.
+*)
+function TRSBankScreen.Deposit(Slots: TIntegerArray): Boolean; overload;
+var
+  Slot: Int32;
+begin
+  Result := True;
+
+  for Slot in Slots do
+    if Inventory.IsSlotUsed(Slot) and not Deposit(Slot, BANK_DEPOSIT_ALL) then
+      Result := False;
+end;
+
+(*
+BankScreen.Deposit
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Deposit(Slot: Int32; Amount: Int32): Boolean;
+
+  Deposits the specified amount ``Amount`` of the item in the inventory slot ``Slot``.
+  The quantity buttons are used for picking the amount.
+
+  ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
+
+  **Example**
+
+    BankScreen.Deposit(1, 10); // Deposit 10 logs using inventory slot 1 using the `10` quantity button.
+    BankScreen.Deposit(0, BANK_DEPOSIT_ALL); // Deposit all logs using inventory slot 1 using the `ALL` quantity button.
+*)
+function TRSBankScreen.Deposit(Slot: Int32; Amount: Int32): Boolean; overload;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := not Inventory.IsSlotUsed(Slot);
+
+  if not Result then
+  begin
+    Mouse.Move(Inventory.GetSlotBox(Slot));
+
+    if (Amount = BANK_DEPOSIT_ALL) then
+    begin
+      if Result := MainScreen.IsUpText('Deposit-All ') then
+        Mouse.Click(MOUSE_LEFT)
+      else
+        Result := ChooseOption.Select('Deposit-All ')
+    end else
+    begin
+      if Result := MainScreen.IsUpText('Deposit-' + ToString(Amount) + ' ') then
+        Mouse.Click(MOUSE_LEFT)
+      else
+      begin
+        Result := ChooseOption.Select('Deposit-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False);
+        if not Result then
+          Result := ChooseOption.Select('Deposit-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500));
+      end;
+    end;
+
+    if Result then
+      Result := WaitUntil(not Inventory.IsSlotUsed(Slot), 100, 2000);
+  end;
+end;
+
+(*
+BankScreen.DepositQuantity
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.DepositQuantity(Slot: Int32; Amount: Int32): Boolean;
+
+  Deposits the specified amount ``Amount`` of the item in the inventory slot ``Slot``.
+  The quantity buttons are used for picking the amount.
+
+  ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
+
+ **Example**
+
+   BankScreen.DepositQuantity(1, 10); // Deposit 10 logs using inventory slot 1 using the `10` quantity button.
+   BankScreen.DepositQuantity(0, BANK_DEPOSIT_ALL); // Deposit all logs using inventory slot 1 using the `ALL` quantity button.
+*)
+function TRSBankScreen.DepositQuantity(Slot: Int32; Amount: Int32): Boolean;
+var
+  Options: TRSChooseOption_OptionArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := not Inventory.IsSlotUsed(Slot);
+
+  if not Result then
+  begin
+    case Amount of
+      BANK_DEPOSIT_1:   Self.ClickButton(Self.BUTTON_QUANTITY_1_OFF, MOUSE_LEFT);
+      BANK_DEPOSIT_5:   Self.ClickButton(Self.BUTTON_QUANTITY_5_OFF, MOUSE_LEFT);
+      BANK_DEPOSIT_10:  Self.ClickButton(Self.BUTTON_QUANTITY_10_OFF, MOUSE_LEFT);
+      BANK_DEPOSIT_ALL: Self.ClickButton(Self.BUTTON_QUANTITY_ALL_OFF, MOUSE_LEFT);
+      else
+      begin
+        Self.ClickButton(Self.BUTTON_QUANTITY_CUSTOM_OFF, MOUSE_LEFT);
+
+        Mouse.Move(Inventory.GetSlotBox(Slot));
+
+        if (not MainScreen.IsUpText('Deposit-' + ToString(Amount))) then
+        begin
+          if ChooseOption.Open() then
+          begin
+            Options := ChooseOption.GetOptions();
+            if Length(Options) < 4 then
+              Exit(False);
+
+            if 'Deposit-' + ToString(Amount) in Options[4].Text then
+              // Uptext failed us. This happens :)
+            else
+            begin
+              Result := ChooseOption.Select('Deposit-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
+              Exit;
+            end;
+          end;
+        end;
+      end;
+    end;
+
+    case Amount of
+      BANK_DEPOSIT_1:   Result := Self.FindButton(Self.BUTTON_QUANTITY_1_ON);
+      BANK_DEPOSIT_5:   Result := Self.FindButton(Self.BUTTON_QUANTITY_5_ON);
+      BANK_DEPOSIT_10:  Result := Self.FindButton(Self.BUTTON_QUANTITY_10_ON);
+      BANK_DEPOSIT_ALL: Result := Self.FindButton(Self.BUTTON_QUANTITY_ALL_ON);
+      else
+        Result := Self.FindButton(Self.BUTTON_QUANTITY_CUSTOM_ON);
+    end;
+
+    if Result then
+      Mouse.Click(Inventory.GetSlotBox(Slot), MOUSE_LEFT);
+  end;
+end;
+
+(*
+BankScreen.DepositQuantity
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean;
+
+  Deposits the specified amount ``Amount`` of the item ``Item``.
+  The quantity buttons are used for picking the amount.
+
+  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+  ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
+
+ **Example**
+
+   BankScreen.DepositQuantity('logs', 10); // Deposit 10 logs using using the `10` quantity button.
+   BankScreen.DepositQuantity('lobster', BANK_DEPOSIT_ALL); // Deposit all lobsters using inventory slot 1 using the `ALL` quantity button.
+*)
+function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+(*
+BankScreen.Deposit
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Deposit(Items: TStringArray): Boolean;
+
+  Deposits an array of items.
+  ``Items`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+
+ **Example**
+
+   BankScreen.Deposit(['logs', 'lobster']);
+*)
+function TRSBankScreen.Deposit(Items: TStringArray): Boolean; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
+
+(*
+BankScreen.Deposit
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Deposit(Item: String; Amount: Int32): Boolean;
+
+  Deposits the specified amount ``Amount`` of the item ``Item``.
+  The quantity buttons are used for picking the amount.
+
+  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+  ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
+
+ **Example**
+
+   BankScreen.Deposit('lobster', 10); // Deposit 10 logs using the `10` quantity button.
+   BankScreen.Deposit('logs', BANK_DEPOSIT_ALL); // Deposit 10 logs using the `ALL` quantity button.
+*)
+function TRSBankScreen.Deposit(Item: String; Amount: Int32): Boolean; overload;
+begin
+  // Implemented in itemfinder.simba
 end;
 
 function TRSBankScreen.Open(P: TPoint): Boolean; overload;
@@ -388,48 +695,42 @@ begin
   end;
 end;
 
-function TRSBankScreen._OpenGE: Boolean;
+function TRSBankScreen._Open(Finder: TRSObjectFinder): Boolean;
 var
   ATPA: T2DPointArray;
   TPA: TPointArray;
   P: TPoint;
-  I: Int32;
+  Attempt, I: Int32;
+  Direction: Boolean;
 begin
-  ATPA := GrandExchange.FindNPC(GrandExchange.FINDER_BANKER);
+  Direction := SRL.Dice(50);
 
-  for I := 0 to Min(High(ATPA), 3) do
+  for Attempt := 1 to 5 do
   begin
-    TPA := ATPA[I];
+    if Attempt in [2, 4] then
+    begin
+      Debug('Bank not found, rotating...');
 
-    P := TPA[Random(Length(TPA))];
-    P.X += Random(-2, 2);
-    P.Y += Random(-2, 2);
+      if Direction then
+        Minimap.SetCompassAngle(Minimap.GetCompassAngle() + Random(80, 200))
+      else
+        Minimap.SetCompassAngle(Minimap.GetCompassAngle() - Random(80, 200));
+    end;
 
-    if Self.Open(P) then
-      Exit(True);
-  end;
-end;
+    ATPA := GrandExchange.FindNPC(GrandExchange.FINDER_BANKER);
 
-function TRSBankScreen._OpenChest: Boolean;
-var
-  ATPA: T2DPointArray;
-  TPA: TPointArray;
-  P: TPoint;
-  I: Int32;
-begin
-  ATPA := MainScreen.FindObject(Self.FINDER_BANK_CHEST);
+    // Check four largest groups
+    for I := 0 to Min(High(ATPA), 3) do
+    begin
+      TPA := ATPA[I];
 
-  // Check four largest groups
-  for I := 0 to Min(High(ATPA), 3) do
-  begin
-    TPA := ATPA[I];
+      P := TPA[Random(Length(TPA))];
+      P.X += Random(-2, 2);
+      P.Y += Random(-2, 2);
 
-    P := TPA[Random(Length(TPA))];
-    P.X += Random(-2, 2);
-    P.Y += Random(-2, 2);
-
-    if Self.Open(P) then
-      Exit(True);
+      if Self.Open(P) then
+        Exit(True);
+    end;
   end;
 end;
 
@@ -439,45 +740,35 @@ begin
     Exit(True);
 
   case Location of
-    BANK_LOCATION_CLAN_WARS,
-    BANK_LOCATION_CASTLE_WARS:
-      Result := Self._OpenChest();
-
-    BANK_LOCATION_GRAND_EXCHANGE:
-      Result := Self._OpenGE();
+    BANK_LOCATION_CASTLE_WARS:    Result := Self._Open(Self.FINDER_CASTLE_WARS_CHEST);
+    BANK_LOCATION_FEROX:          Result := Self._Open(Self.FINDER_FEROX_CHEST);
+    BANK_LOCATION_GRAND_EXCHANGE: Result := Self._Open(GrandExchange.FINDER_BANKER);
   end;
 end;
 
-function TRSBankScreen.Close(): Boolean;
-var
-  t: UInt64;
+(*
+BankScreen.Close
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Close(UseKeyboard: Boolean = False): Boolean;
+
+  Closes the bank, Depending on `UseKeyboard` the function will either click the button
+  or press backspace.
+
+ **Example**
+
+   WriteLn BankScreen.Close();
+*)
+function TRSBankScreen.Close(UseKeyboard: Boolean = False): Boolean;
 begin
   if (not Self.IsOpen()) then
     Exit(True);
 
-  Self.ClickButton([Self.BUTTON_CLOSE, Self.BUTTON_CLOSE_HOVER], MOUSE_LEFT);
-  t := GetTickCount() + Random(4000, 5000);
-  while (t > GetTickCount()) do
-  begin
-    if (not Self.IsOpen()) then
-      Exit(True);
-  end;
-end;
+  if UseKeyboard then
+    Keyboard.PressKey(VK_ESCAPE)
+  else
+    Self.ClickButton([Self.BUTTON_CLOSE, Self.BUTTON_CLOSE_HOVER], MOUSE_LEFT);
 
-function TRSBankScreen.EscapeClose(): Boolean;
-var
-  t: UInt64;
-begin
-  if (not Self.IsOpen()) then
-    Exit(True);
-
-  Keyboard.PressKey(VK_ESCAPE);
-  t := GetTickCount() + Random(4000, 5000);
-  while (t > GetTickCount()) do
-  begin
-    if (not Self.IsOpen()) then
-      Exit(True);
-  end;
+  Result := WaitUntil(not Self.IsOpen(), 100, 2000);
 end;
 
 
@@ -489,96 +780,10 @@ Depositis your inventory by clicking the deposit inventory button
 *)
 function TRSBankScreen.DepositAll(): Boolean;
 begin
-  {if (Inventory.Count = 0) then
-    Exit(True);}
+  if (Inventory.Count = 0) then
+    Exit(True);
 
-  Result := Self.ClickButton(Self.BUTTON_DEPOSIT_INVENTORY, mouse_left);
-end;
-
-(*
-BankScreen.DepositItem
-~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.DepositItem(Slot:Int32; DepositAll:Boolean): Boolean;
-Depeosit a single item, or all of it's kind from inventory.
-*)
-function TRSBankScreen.DepositItem(Slot:Int32; DepositAll:Boolean): Boolean;
-var
-  t: TCountDown;
-begin
-  if (not Self.IsOpen) then
-    Exit(False);
-
-  Result := not Inventory.IsSlotUsed(Slot);
-  if (not Result) then
-  begin
-    Mouse.Move(Inventory.GetSlotBox(Slot)); Wait(40,90);
-
-    if DepositAll then
-    begin
-      ChooseOption.Open();
-      Result := ChooseOption.Select(['Deposit-All']);
-    end else
-    begin
-      Mouse.Click(mouse_left);
-      Result := True;
-    end;
-
-    // wait for and verify completion
-    t.Init(2000);
-    while (not t.IsFinished) and Inventory.IsSlotUsed(Slot) do  Wait(70,160);
-    Result := not Inventory.IsSlotUsed(Slot);
-  end;
-end;
-
-
-(*
-BankScreen.Deposit
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.Deposit(SlotArr: TIntegerArray): Boolean;
-Depeosits all the given items / slots
-*)
-function TRSBankScreen.Deposit(SlotArr: TIntegerArray): Boolean;
-var
-  i,j:Int32;
-  t:UInt64;
-begin
-  if (not self.IsOpen()) then
-    Exit();
-
-  for j:=0 to 1 do
-  begin
-    Result := True;
-    for i:=0 to High(SlotArr) do
-      if Inventory.IsSlotUsed(SlotArr[i]) then
-      begin
-        self.DepositItem(SlotArr[i], srl.GetItemAmount(Inventory.GetSlotBox(slotArr[i])) > 0);
-        Wait(6,25);
-      end;
-
-    for i:=0 to High(SlotArr) do
-      if InRange(SlotArr[i],0,27) then
-      begin
-        t := GetTickCount() + 200;
-        repeat
-          Result := not(inventory.IsSlotUsed(slotArr[i]));
-        until (GetTickCount() > t) or Result;
-      end;
-
-    if Result then
-      Break
-    else
-      Wait(180,265); //wait a bit before round 2
-  end;
-end;
-
-function TRSBankScreen.WithdrawItem(Identifier: String; Amount: Int32; Noted: Boolean): Boolean; overload;
-begin
-  // Implemented in itemfinder.simba
-end;
-
-function TRSBankScreen.WithdrawQuantity(Identifier: String; Amount: String; Noted: Boolean): Boolean; overload;
-begin
-  // Implemented in itemfinder.simba
+  Result := Self.ClickButton(Self.BUTTON_DEPOSIT_INVENTORY, MOUSE_LEFT);
 end;
 
 function TRSBankScreen.Count(Identifer: String): Int32;
@@ -591,9 +796,21 @@ begin
   // Implemented in itemfinder.simba
 end;
 
+function TRSBankScreen.Find(Item: String; out Bounds: TBox): Boolean;
+begin
+  // Implemented in itemfinder.simba
+end;
+
 var
   BankScreen: TRSBankScreen;
 
+(*
+Inventory.IsOpen
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.IsOpen: Boolean;
+
+  Overrides the inventory function so it returns true if the bankscreen is open.
+*)
 function TRSInventory.IsOpen: Boolean; override;
 begin
   Result := inherited() or BankScreen.IsOpen();

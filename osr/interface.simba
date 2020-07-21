@@ -35,7 +35,7 @@ type
         (*
           To get a perfect alignment you need to mess with this.
           We need to recreate how RS aligns it's interfaces, however it isn't just
-          an generic method. See BankScreen & DepositScreen for offsets i've used.
+          an generic method. See BankScreen & DepositScreen for offsets used.
 
           Make sure to test the alignments by debugging the bounds, expanding
           client by one pixel, and debugging again.
@@ -57,7 +57,13 @@ begin
 end;
 
 function TRSInterface.AddBitmapButton(Bitmap: String): TRSInterfaceButton;
+var
+  I: Int32;
 begin
+  for I := 0 to High(Self.Buttons) do
+    if (Self.Buttons[I].Bitmap <> nil) and (Self.Buttons[I].Bitmap.GetName() = Bitmap) then
+      Exit;
+
   Bitmap := RS_INTERFACE_BITMAP_PATH + Bitmap;
   if not FileExists(Bitmap) then
     Self.Fatal('Bitmap does not exist: ' + Bitmap);

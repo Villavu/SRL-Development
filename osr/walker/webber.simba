@@ -17,7 +17,7 @@ var
 
 begin
   // Change the map here
-  Webber.Map := {$macro CURRENT_DIRECTORY} + '/maps/world.png';
+  Webber.Map := {$macro CURRENT_DIRECTORY} + '/maps/world.bmp';
 
   // Comment out for a new graph ...
   Webber.Graph.Names := WorldGraph.Names;

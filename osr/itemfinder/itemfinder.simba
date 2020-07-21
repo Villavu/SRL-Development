@@ -160,8 +160,11 @@ begin
       begin
         // Clear stack: Find on template, and clear on both images.
         if Templ.FindColors(TPA, ITEM_FINDER_YELLOW_STACK) then Clear(Image, Templ, TPA, [1, 1]);
-        if Templ.FindColors(TPA, ITEM_FINDER_WHITE_STACK) then Clear(Image, Templ, TPA, [1, 1]);
-        if Templ.FindColors(TPA, ITEM_FINDER_GREEN_STACK) then Clear(Image, Templ, TPA, [1, 1]);
+        if Templ.FindColors(TPA, ITEM_FINDER_WHITE_STACK)  then Clear(Image, Templ, TPA, [1, 1]);
+        if Templ.FindColors(TPA, ITEM_FINDER_GREEN_STACK)  then Clear(Image, Templ, TPA, [1, 1]);
+
+        // Clear black border
+        if Templ.FindColors(TPA, ITEM_FINDER_BORDER_COLOR) then Clear(Image, Templ, TPA, []);
 
         // Clear background: Since images are aligned we know the background points from our database image.
         if Image.FindColors(TPA, $000000) then Clear(Image, Templ, TPA);
@@ -288,36 +291,6 @@ begin
   end;
 end;
 
-function TRSBankScreen.WithdrawItem(Identifier: String; Amount: Int32; Noted: Boolean): Boolean; override;
-var
-  Items: TBoxArray;
-  Matches: TIntegerArray;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Items := Self.FindItems();
-
-  Matches := ItemFinder.Find(Identifier, Items);
-  if Length(Matches) > 0 then
-    Result := Self.WithdrawItem(Items[Matches[0]], Amount, Noted);
-end;
-
-function TRSBankScreen.WithdrawQuantity(Identifier: String; Amount: String; Noted: Boolean): Boolean; override;
-var
-  Items: TBoxArray;
-  Matches: TIntegerArray;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Items := Self.FindItems();
-
-  Matches := ItemFinder.Find(Identifier, Items);
-  if Length(Matches) > 0 then
-    Result := Self.WithdrawQuantity(Items[Matches[0]], Amount, Noted);
-end;
-
 function TRSBankScreen.Count(Identifer: String): Int32; override;
 begin
   if not Self.IsOpen() then
@@ -339,6 +312,150 @@ begin
   Matches := ItemFinder.Find(Identifer, Items);
   if Length(Matches) > 0 then
     Result := SRL.GetItemAmount(Items[Matches[0]]);
+end;
+
+(*
+BankScreen.Deposit
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Deposit(Items: TStringArray): Boolean;
+
+  Deposits an array of items.
+  ``Items`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+
+ **Example**
+
+   BankScreen.Deposit(['logs', 'lobster']);
+*)
+function TRSBankScreen.Deposit(Items: TStringArray): Boolean; override;
+var
+  Slot: Int32;
+begin
+  for Slot in Inventory.FindAll(Items) do
+    Result := Self.Deposit(Slot, BANK_DEPOSIT_ALL);
+end;
+
+(*
+BankScreen.DepositQuantity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean;
+
+  Deposits the specified amount ``Amount`` of the item ``Item``.
+  The quantity buttons are used for picking the amount.
+
+  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+  ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
+
+ **Example**
+
+   BankScreen.DepositQuantity('logs', 10); // Deposit 10 logs using using the `10` quantity button.
+   BankScreen.DepositQuantity('lobster', BANK_DEPOSIT_ALL); // Deposit all lobsters using inventory slot 1 using the `ALL` quantity button.
+*)
+function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean; override;
+var
+  Slot: Int32;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Slot := Inventory.Find(Item);
+  if (Slot > -1) then
+    Result := Self.DepositQuantity(Slot, Amount);
+end;
+
+(*
+BankScreen.Deposit
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Deposit(Item: String; Amount: Int32): Boolean;
+
+  Deposits the specified amount ``Amount`` of the item ``Item``.
+  The quantity buttons are used for picking the amount.
+
+  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+  ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
+
+ **Example**
+
+   BankScreen.Deposit('lobster', 10); // Deposit 10 logs using the `10` quantity button.
+   BankScreen.Deposit('logs', BANK_DEPOSIT_ALL); // Deposit 10 logs using the `ALL` quantity button.
+*)
+function TRSBankScreen.Deposit(Item: String; Amount: Int32): Boolean; override;
+var
+  Slot: Int32;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Slot := Inventory.Find(Item);
+  if (Slot > -1) then
+    Result := Self.Deposit(Slot, Amount);
+end;
+
+function TRSBankScreen.Find(Item: String; out Bounds: TBox): Boolean; override;
+var
+  Slots: TBoxArray;
+  Matches: TIntegerArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Slots := Self.FindItems();
+
+  Matches := ItemFinder.Find(Item, Slots);
+  if Result := Length(Matches) > 0 then
+    Bounds := Slots[Matches[0]];
+end;
+
+(*
+BankScreen.Withdraw
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Withdraw(Item: String; Amount: Int32; Noted: Boolean): Boolean;
+
+  Withdraws the specified amount ``Amount`` of the item ``Item``.
+
+  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+  ``BANK_WITHDRAW_ALL`` and ``BANK_WITHDRAW_ALL_BUT_ONE`` constants can be used for ``Amount``.
+
+  **Example**
+
+    BankScreen.Withdraw('logs', 10, False); // Withdraw 10 logs
+    BankScreen.Withdraw('lobster', WITHDRAW_ALL, True); // Withdraw all lobsters as noted
+*)
+function TRSBankScreen.Withdraw(Item: String; Amount: Int32; Noted: Boolean): Boolean; override;
+var
+  Bounds: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  if Self.Find(Item, Bounds) then
+    Result := Self._Withdraw(Bounds, Amount, Noted);
+end;
+
+(*
+BankScreen.WithdrawQuantity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean;
+
+  Withdraws the specified amount ``Amount`` of the item ``Item``.
+  The quantity buttons are used for picking the amount.
+
+  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+  ``BANK_WITHDRAW_ALL`` constants can be used for ``Amount``.
+
+  **Example**
+
+    BankScreen.WithdrawQuantity('logs', 10, False); // Withdraw 10 logs using the `10` quantity button
+    BankScreen.Withdraw('lobster', 2, True); // Withdraw all lobsters as noted using the `X` quantity button
+*)
+function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean; override;
+var
+  Bounds: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  if Self.Find(Item, Bounds) then
+    Result := Self._WithdrawQuantity(Bounds, Amount, Noted);
 end;
 
 begin

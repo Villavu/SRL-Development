@@ -66,7 +66,8 @@ begin
   if not Self.Open() then
     Exit(False);
 
-  Result := SRL.CountColor(CTS0($10000), Self.GetSlotBox(Slot)) > 0;
+  // black with tolerance for when item is transparent
+  Result := SRL.CountColor(CTS1(1118740, 35), Self.GetSlotBox(Slot)) > 0;
 end;
 
 function TRSInventory.IsSlotActive(Slot: Int32): Boolean;
