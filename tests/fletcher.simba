@@ -1,6 +1,9 @@
-{$DEFINE UPTEXT_DEBUG}
 {$DEFINE SRL_USE_REMOTEINPUT}
+{$DEFINE UPTEXT_DEBUG}
 {$I SRL/osr.simba}
+
+// more randomness in inventory used
+
 
 type
   EFletchTask = (
@@ -8,11 +11,13 @@ type
     FLETCH_OAK_LONGBOW,
     FLETCH_WILLOW_SHORTBOW,
     FLETCH_WILLOW_LONGBOW,
-    FLETCH_MAPLE_LONGBOW
+    FLETCH_MAPLE_LONGBOW,
+    FLETCH_YEW_LONGBOW_STRING
   );
 
 const
-  ITEM_TO_FLETCH = FLETCH_MAPLE_LONGBOW;
+  ITEM_TO_FLETCH = FLETCH_YEW_LONGBOW_STRING;
+  BANK_TO_USE    = BANK_LOCATION_GRAND_EXCHANGE;
 
 type
   TScript = record
@@ -26,7 +31,9 @@ type
     CurrentTool: String;
     CurrentItem: String;
     CurrentItemXP: Single;
-    CurrentItemMaterial: String;
+    CurrentItemMaterials: array of record
+      Item: String; Amount: Int32;
+    end;
   end;
 
 procedure TScript.Setup(Task: EFletchTask);
@@ -38,7 +45,7 @@ begin
       begin
         Self.CurrentItemXP := 5;
         Self.CurrentItem := 'arrow shafts';
-        Self.CurrentItemMaterial := 'Logs';
+        Self.CurrentItemMaterials += ['Logs', 27];
         Self.CurrentTool := 'knife';
       end;
 
@@ -46,7 +53,7 @@ begin
       begin
         Self.CurrentItemXP := 25;
         Self.CurrentItem := 'Oak longbow (u)';
-        Self.CurrentItemMaterial := 'Oak Logs';
+        Self.CurrentItemMaterials += ['Oak Logs', 27];
         Self.CurrentTool := 'knife';
       end;
 
@@ -54,7 +61,7 @@ begin
       begin
         Self.CurrentItemXP := 33;
         Self.CurrentItem := 'Willow shortbow (u)';
-        Self.CurrentItemMaterial := 'Willow Logs';
+        Self.CurrentItemMaterials += ['Willow Logs', 27];
         Self.CurrentTool := 'knife';
       end;
 
@@ -62,7 +69,7 @@ begin
       begin
         Self.CurrentItemXP := 41.5;
         Self.CurrentItem := 'Willow longbow (u)';
-        Self.CurrentItemMaterial := 'Willow Logs';
+        Self.CurrentItemMaterials += ['Willow Logs', 27];
         Self.CurrentTool := 'knife';
       end;
 
@@ -70,8 +77,17 @@ begin
       begin
         Self.CurrentItemXP := 58.5;
         Self.CurrentItem := 'Maple longbow (u)';
-        Self.CurrentItemMaterial := 'Maple Logs';
+        Self.CurrentItemMaterials += ['Maple Logs', 27];
         Self.CurrentTool := 'knife';
+      end;
+
+    FLETCH_YEW_LONGBOW_STRING:
+      begin
+        Self.CurrentItemXP := 75;
+        Self.CurrentItem := 'Yew longbow';
+        Self.CurrentItemMaterials += ['Yew longbow (u)', 14];
+        Self.CurrentItemMaterials += ['Bow string', 14];
+        Self.CurrentTool := '';
       end;
   end;
 
@@ -80,7 +96,7 @@ end;
 
 procedure TScript.Debug(S: String);
 begin
-  WriteLn(SRL.TimeStamp() + ':[FLETCHER]: ' + S);
+  WriteLn(SRL.TimeStamp() + ':[Script]: ' + S);
 end;
 
 procedure TScript.Fatal(S: String);
@@ -92,12 +108,10 @@ end;
 
 function TScript.CheckActivity: Boolean;
 begin
-  if XPBar.Read() > Activity.XP then
+  if Result := XPBar.Read() > Activity.XP then
   begin
     Activity.Countdown.Restart();
     Activity.XP := XPBar.Read();
-
-    Result := True;
   end;
 
   if Activity.Countdown.IsFinished() then
@@ -105,39 +119,64 @@ begin
 end;
 
 function TScript.HasMaterials: Boolean;
+var
+  I: Int32;
 begin
-  Result := Inventory.Count(Self.CurrentItemMaterial) > 0;
+  for I := 0 to High(Self.CurrentItemMaterials) do
+    if Inventory.Count(Self.CurrentItemMaterials[I].Item) = 0 then
+      Exit;
+
+  Result := True;
 end;
 
 function TScript.Withdraw: Boolean;
 var
-  Slot: Int32;
+  I: Int32;
 begin
   if not Self.HasMaterials() then
   begin
-    if not BankScreen.Open(BANK_LOCATION_GRAND_EXCHANGE) then
+    if not BankScreen.Open(BANK_TO_USE) then
     begin
       Self.Debug('Failed to open bank');
 
       Exit;
     end;
 
-    Slot := Inventory.Find(Self.CurrentItem);
-    if (Slot > -1) and not BankScreen.DepositItem(Slot, True) then
+    if (Inventory.Count(Self.CurrentItem) > 0) and not BankScreen.DepositQuantity(Self.CurrentItem, Self.CurrentItemMaterials[0].Amount) then
     begin
       Self.Debug('Failed to deposit items');
 
       Exit;
     end;
 
-    if not BankScreen.WithdrawItem(Self.CurrentItemMaterial, BANK_WITHDRAW_ALL, False) then
+    if (Self.CurrentTool <> '') and (Inventory.Count(Self.CurrentTool) = 0) then
     begin
-      Self.Debug('Failed to withdraw material');
+      BankScreen.DepositAll();
+
+      if (not BankScreen.Search(Self.CurrentTool)) and (not BankScreen.Withdraw(Self.CurrentTool, 1, False)) then
+      begin
+        Self.Fatal('Failed to withdraw tool');
+
+        Exit;
+      end;
+    end;
+
+    if not BankScreen.Search('') then
+    begin
+      Self.Debug('Unable to clear search');
 
       Exit;
     end;
 
-    if not WaitUntil(Self.HasMaterials(), 100, 2500) then
+    for I := 0 to High(Self.CurrentItemMaterials) do
+      if not BankScreen.WithdrawQuantity(Self.CurrentItemMaterials[I].Item, Self.CurrentItemMaterials[I].Amount, False) then
+      begin
+        Self.Debug('Failed to withdraw material: ' + Self.CurrentItemMaterials[I].Item);
+
+        Exit;
+      end;
+
+    if not WaitUntil(Self.HasMaterials(), 100, 2000) then
     begin
       Self.Debug('Failed to detect materials entering our inventory');
 
@@ -145,14 +184,14 @@ begin
     end;
   end;
 
-  if not Self.HasMaterials() then
+  if not WaitUntil(Self.HasMaterials(), Random(50, 500), Random(2000, 2500)) then
   begin
     Self.Debug('No materials?');
 
     Exit;
   end;
 
-  if not BankScreen.EscapeClose() then
+  if not BankScreen.Close() then
   begin
     Self.Debug('Failed to close bankscreen');
 
@@ -167,28 +206,47 @@ var
   TargetXP: Int32;
   Timeout: TCountDown;
 begin
-  TargetXP := XPBar.Read() + Floor(Inventory.Count(Self.CurrentItemMaterial) * Self.CurrentItemXP);
+  TargetXP := XPBar.Read() + Round(Self.CurrentItemMaterials[0].Amount * (Self.CurrentItemXP - 0.5));
 
-  if not Inventory.Use(Self.CurrentTool, Self.CurrentItemMaterial) then
+  if (Self.CurrentTool <> '') then
   begin
-    Self.Debug('Failed to use knife on material');
-    Exit;
+    if not Inventory.Use(Self.CurrentTool, Self.CurrentItemMaterials[0].Item) then
+    begin
+      Self.Debug('Failed to use knife on material');
+
+      Exit;
+    end;
+  end else
+  begin
+    if not Inventory.Use(Self.CurrentItemMaterials[0].Item, Self.CurrentItemMaterials[1].Item) then
+    begin
+      Self.Debug('Failed to use materials');
+
+      Exit;
+    end;
   end;
 
   if not Chatbox.IsMakeOpen(2500) then
   begin
     Self.Debug('Make interface did not open');
+
     Exit;
   end;
 
-  if not Chatbox.ClickMakeButton(Self.CurrentItem.Replace('(u)', '').Strip(), 'All', True) then
+  if not Chatbox.ClickMakeButton(Self.CurrentItem.Replace('(u)', '').Strip(), 'All') then
   begin
     Self.Debug('Failed to handle make interface');
+
     Exit;
   end;
 
   if Random() < 0.66 then
+  begin
+    if Random() < 0.33 then
+      Wait(0, 5000, wdLeft);
+
     Antiban.LoseFocus();
+  end;
 
   Timeout.Init(5000);
 
@@ -200,21 +258,30 @@ begin
     if Timeout.IsFinished() then
     begin
       Self.Debug('Timed out while fletching');
+
       Exit;
     end;
 
     Wait(500);
   end;
 
-  Wait(0, 20000, wdLeft);
+  if Random() > 0.10 then
+    Wait(0, 20000, wdLeft);
 
   Result := True;
 end;
 
 procedure TScript.Run;
+var
+  I: Int32;
 begin
   while SRL.IsLoggedIn() do
   begin
+    // Randomize material order each loop
+    if Length(Self.CurrentItemMaterials) > 1 then
+      for I := 0 to High(Self.CurrentItemMaterials) do
+        Swap(Self.CurrentItemMaterials[I], Self.CurrentItemMaterials[Random(Length(Self.CurrentItemMaterials))]);
+
     Self.CheckActivity();
     if (not Self.Withdraw()) or (not Self.Fletch()) then
       Wait(1000, 2000);
@@ -237,6 +304,36 @@ begin
   Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(1000));
   if Length(Space) > 0 then
     Mouse.Click(Space[Random(Length(Space))], MOUSE_LEFT);
+end;
+
+// ANTIBAN: 10% chance of deposit normally
+function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean; override;
+begin
+  if SRL.Dice(10) then
+    Result := Self.Deposit(Item, Amount)
+  else
+    Result := inherited();
+end;
+
+// ANTIBAN: 10% chance of withdrawing normally
+function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean; override;
+begin
+  if SRL.Dice(10) then
+    Result := Self.Withdraw(Item, Amount, Noted)
+  else
+    Result := inherited();
+end;
+
+// ANTIBAN: 20% chance of clicking the close button
+function TRSBankScreen.Close(UseKeyboard: Boolean = False): Boolean; override;
+begin
+  Result := inherited(SRL.Dice(80));
+end;
+
+// ANTIBAN: 25% chance of clicking make
+function TRSChatBox.ClickMakeButton(Item: String; Quantity: String; UseKeyboard: Boolean = False): Boolean; override;
+begin
+  Result := inherited(Item, Quantity, SRL.Dice(75));
 end;
 
 var
