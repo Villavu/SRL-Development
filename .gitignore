@@ -1,7 +1,4 @@
 docgen/build/
 docgen/source/
-backup
-lib
-*.lps
 /osr/itemfinder/images
-/osr/walker/maps
+*.bmp

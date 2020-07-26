@@ -8,9 +8,8 @@
 {$I zeah.graph}
 
 const
-  RSW_PATH = {$MACRO CURRENT_DIRECTORY} + '/';
-  RSW_MAP_PATH = RSW_PATH + '/maps/';
-  RSW_MAP_ZIP_PATH = RSW_PATH+ '/maps.zip';
+  RSW_PATH := IncludeTrailingPathDelimiter({$MACRO CURRENT_DIRECTORY});
+  RSW_MAP_PATH := IncludeTrailingPathDelimiter(RSW_PATH + 'maps');
 
 type
   TRSWalker = record(TSRLBaseRecord)
@@ -34,7 +33,7 @@ type
     end;
   end;
 
-function TRSWalker.FindMap(Map: String): String;
+function TRSWalker.FindMap(Map: String): String; static;
 var
   Mask: String = '.png;.bmp;';
   Files: TStringArray;
@@ -44,13 +43,36 @@ begin
   if FileExists(Map) then
     Exit(Map);
 
-  Files := FindFile(ExtractFileDir(Map), ExtractFileName(Map) + Mask, False, False) +
-           FindFile(RSW_MAP_PATH,        ExtractFileName(Map) + Mask, False, False);
+  Files := FindFile(ExtractFileDir(Map), Mask, False, False) +
+           FindFile(RSW_MAP_PATH,        Mask, False, False);
 
   if Length(Files) > 0 then
     Result := Files[0];
 end;
 
+function TRSWalker.LoadMap(Path: String): TMufasaBitmap; static;
+var
+  Cache: String;
+begin
+  Result.Init(Client.GetMBitmaps());
+
+  // Save as bitmaps for faster loading
+  if ExtractFileDir(Path) in RSW_MAP_PATH then
+  begin
+    Cache := RSW_MAP_PATH + SHA1String(ExtractFileName(Path)) + '.bmp';
+    if FileExists(Cache) then
+      Path := Cache
+    else
+    begin
+      WriteLn('[WALKER]: Caching "' + ExtractFileName(Path) + '"');
+
+      Result.LoadFromFile(Path);
+      Result.SaveToFile(Cache);
+    end;
+  end;
+
+  Result.LoadFromFile(Path);
+end;
 
 procedure TRSWalker.Free;
 begin
@@ -60,12 +82,12 @@ end;
 
 procedure TRSWalker.Setup(Map: String; Speed: Int32 = 6);
 var
-  MapFile: String;
+  Path: String;
 begin
   Self.Name := 'Walker';
 
-  MapFile := Self.FindMap(Map);
-  if (MapFile = '') then
+  Path := Self.FindMap(Map);
+  if (Path = '') then
     Self.Fatal('Unable to find map: ' + Map);
 
   Self.Speed := Speed;
@@ -79,8 +101,7 @@ begin
 
   Self.WorldSample.Init(Client.GetMBitmaps());
 
-  Self.World.Init(Client.GetMBitmaps());
-  Self.World.LoadFromFile(MapFile);
+  Self.World := Self.LoadMap(Path);
   Self.World.Downsample(Self.Speed, Self.WorldSample);
 end;
 
@@ -319,10 +340,10 @@ begin
       P.Y := Self.Cache.Position.Y div Self.Speed;
 
       CacheSample := WorldSample.Copy(
-        P.X - (Self.Cache.Size div Self.Speed),
-        P.Y - (Self.Cache.Size div Self.Speed),
-        P.X + (Self.Cache.Size div Self.Speed),
-        P.Y + (Self.Cache.Size div Self.Speed)
+        Max(0, P.X - (Self.Cache.Size div Self.Speed)),
+        Max(0, P.Y - (Self.Cache.Size div Self.Speed)),
+        Min(WorldSample.GetWidth()  - 1, P.X + (Self.Cache.Size div Self.Speed)),
+        Min(WorldSample.GetHeight() - 1, P.Y + (Self.Cache.Size div Self.Speed))
       );
 
       Matrix := CacheSample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
@@ -722,13 +743,4 @@ end;
 function TRSWalker.MSToWorld(Loc: TPoint; Height: Int32=0; Accuracy:Double=0.2): TPoint;
 begin
   Result := Self.MSToWorldEx(Self.GetMyPos(), Loc, Height, Accuracy);
-end;
-
-begin
-  if not DirectoryExists(RSW_MAP_PATH) then
-  begin
-    WriteLn('[Walker]: Unzipping maps. This is a one time operation.');
-
-    UnZipFile(RSW_MAP_ZIP_PATH, RSW_PATH);
-  end;
 end;
