@@ -52,14 +52,27 @@ srl.TruncatedGauss
 Generates a random gaussian/normal number which is truncated and mapped within then 
 given range ``[left..right]`` weighted towards ``left``
 *)
-function TSRL.TruncatedGauss(Left:Double=0; Right:Double=1; CUTOFF:Single=0): Double; static;
+function TSRL.TruncatedGauss(Left:Double=0; Right:Double=1; CUTOFF:Single=0): Double; static; overload;
 begin
   if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
 
   Result := CUTOFF+1;
   while Result >= CUTOFF do
     Result := Abs(Sqrt(-2 * Ln(nzRandom())) * Cos(2 * PI * Random()));
-  Result := Result / CUTOFF * (right-left) + left;
+  Result := Result / CUTOFF * (Right-Left) + Left;
+end;
+
+(*
+srl.TruncatedGauss
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal function TSRL.TruncatedGauss(Left:Int64=0; Right:Int64=1; CUTOFF:Single=0): Int64;
+
+Generates a random gaussian/normal number which is truncated and mapped within then
+given range ``[left..right]`` weighted towards ``left``
+*)
+function TSRL.TruncatedGauss(Left:Int64=0; Right:Int64=1; CUTOFF:Single=0): Int64; static; overload;
+begin
+  Result := Round(SRL.TruncatedGauss(Left * 1.00, Right * 1.00, CUTOFF));
 end;
 
 

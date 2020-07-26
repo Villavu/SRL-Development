@@ -195,9 +195,12 @@ begin
   Result := FindMakeButtons(QuantityButtons, ItemButtons);
 end;
 
-function TRSChatbox.IsMakeOpen(WaitTime: Int32): Boolean; overload;
+function TRSChatbox.IsMakeOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
-  Result := WaitUntil(Self.IsMakeOpen(), 100, WaitTime);
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(0, 1500);
+
+  Result := WaitUntil(Self.IsMakeOpen(), Interval, WaitTime);
 end;
 
 function TRSChatBox.ClickMakeButton(Item: String; Quantity: String; UseKeyboard: Boolean = False): Boolean; overload;

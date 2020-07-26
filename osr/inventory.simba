@@ -174,6 +174,7 @@ var
   Boxes: TBoxArray;
   I, Attempts: Int32;
   Active: Int32;
+  Circle: TCircle;
 begin
   if (Length(Slots) = 0) then
     Exit(True);
@@ -207,10 +208,13 @@ begin
           Mouse.Click(Self.GetSlotBox(Slots[I]), MOUSE_LEFT);
 
           // Spam click a little
-          for 1 to Round(SRL.TruncatedGauss(0, 3)) do
+          for 1 to SRL.TruncatedGauss(0, 3) do
           begin
-            Mouse.Move(Mouse.GetPosition(), 5, SRL.Dice(25));
-            Mouse.Click(MOUSE_LEFT);
+            Circle.X := Mouse.GetPosition().X;
+            Circle.Y := Mouse.GetPosition().Y;
+            Circle.Radius := 5;
+
+            Mouse.Click(Circle, MOUSE_LEFT, True);
           end;
 
           Wait(0, 250, wdLeft);

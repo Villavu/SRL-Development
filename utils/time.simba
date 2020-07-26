@@ -69,7 +69,6 @@ begin
     if (Time[i] > 0) or (STA[Ord(Format)][tl]) or (i = t) then
       Result += PadZ(IntToStr(Time[i]), STA[Ord(Format)][tl+1]) + STA[Ord(Format)][i];
 end;
-
   
 (*
 srl.TimeRunning
@@ -102,52 +101,6 @@ begin
 end;
 
 (*
-srl.WaitFunc
-~~~~~~~~~~~~~
-.. pascal::
-  function TSRL.WaitFunc(Func: function: Boolean; WaitPerLoop, MaxTime: Integer): Boolean; constref;
-
-Waits till the given function returns ``True``, or otherwise time out defineds by ``MaxTime``.
-*)
-function TSRL.WaitFunc(Func: function: Boolean; WaitPerLoop, MaxTime: Integer): Boolean; constref;
-var
-  t: UInt64;
-begin
-  Result := False;
-  t := GetTickCount() + MaxTime;
-
-  while (GetTickCount() < t) do
-  begin
-    if (Func()) then
-      Exit(True);
-    Wait(WaitPerLoop);
-  end;
-end;
-
-(*
-srl.WaitTypeFunc
-~~~~~~~~~~~~~~~~~
-.. pascal::
-  function TSRL.WaitTypeFunc(Func: function: Boolean of object; WaitPerLoop, MaxTime: Integer): Boolean; constref;
-
-Waits till the given function returns ``True``, or otherwise time out defineds by ``MaxTime``.
-*)
-function TSRL.WaitTypeFunc(Func: function: Boolean of object; WaitPerLoop, MaxTime: Integer): Boolean; constref;
-var
-  t: UInt64;
-begin
-  Result := False;
-  t := GetTickCount() + MaxTime;
-
-  while (GetTickCount() < t) do
-  begin
-    if (Func()) then
-      Exit(True);
-    Wait(WaitPerLoop);
-  end;
-end;
-
-(*
 TCountDown
 ~~~~~~~~~~~~~~~~~~~
 A neat and simple timer type.
@@ -168,28 +121,53 @@ type
   TCountDown = record
     Length: UInt64;
     Timeout: UInt64;
+    Paused: UInt64;
   end;
 
 procedure TCountDown.Init(Time: UInt32);
 begin
   Self.Length  := Time;
   Self.Timeout := GetTickCount() + Time;
+  Self.Paused := 0;
 end;
 
-procedure TCountDown.Restart(Rand:Int32=0);
+procedure TCountDown.Restart(Rand: Int32 = 0);
 begin
+  Self.Paused := 0;
   Self.Timeout := GetTickCount() + (Length + Rand);
 end;  
 
-function TCountDown.TimeRemaining(): UInt32;
+function TCountDown.TimeRemaining: UInt32;
 begin
-  if not Self.IsFinished() then
+  if Self.IsPaused() then
+    Result := Max(Self.Timeout - Self.Paused, 0)
+  else
     Result := Max(Self.Timeout - GetTickCount(), 0);
 end;
 
-function TCountDown.IsFinished(): Boolean;
+function TCountDown.IsFinished: Boolean;
 begin
-  Result := GetTickCount() >= Self.Timeout;
+  Result := TimeRemaining() = 0;
+end;
+
+function TCountDown.IsPaused: Boolean;
+begin
+  Result := Self.Paused > 0;
+end;
+
+procedure TCountDown.Pause;
+begin
+  if not Self.IsPaused() then
+    Self.Paused := GetTickCount();
+end;
+
+procedure TCountDown.Resume;
+begin
+  if Self.IsPaused() then
+  begin
+    Self.Timeout := Self.Timeout + (GetTickCount() - Self.Paused);
+    Self.Paused := 0;
+  end;
 end;
 
 {$IFDEF WINDOWS}

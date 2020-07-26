@@ -59,6 +59,7 @@ type
   TMouse = record
     Speed: Int32;
     Gravity, Wind: Double;
+    IsMoving: Boolean;
     OnMoving: TMouseMovingEvent;
     OnMoved: TMouseMovedEvent;
   end;
@@ -159,6 +160,7 @@ begin
     veloY := veloY + windY;
     veloX := veloX + gravity * (xe - xs) / dist;
     veloY := veloY + gravity * (ye - ys) / dist;
+
     if (Hypot(veloX, veloY) > maxStep) then
     begin
       randomDist := maxStep / 2.0 + Random(round(maxStep) div 2);
@@ -166,6 +168,7 @@ begin
       veloX := (veloX / veloMag) * randomDist;
       veloY := (veloY / veloMag) * randomDist;
     end;
+
     lastX := Round(xs);
     lastY := Round(ys);
     xs := xs + veloX;
@@ -184,12 +187,20 @@ end;
 
 procedure TMouse.Move(P: TPoint);
 var
-  randSpeed: Double;
+  RandSpeed: Double;
 begin
-  randSpeed := (Random(Self.Speed) / 2.0 + Self.Speed) / 10.0;
+  Self.IsMoving := True;
 
-  Self.WindMouse(Self.GetPosition().X, Self.GetPosition().Y, P.X, P.Y, Self.Gravity, Self.Wind,
-                 10.0 / randSpeed, 15.0 / randSpeed, 10.0 * randSpeed, 10.0 * randSpeed);
+  try
+    RandSpeed := (Random(Self.Speed) / 2.0 + Self.Speed) / 10.0;
+
+    Self.WindMouse(Self.GetPosition().X, Self.GetPosition().Y,
+                   P.X, P.Y,
+                   Self.Gravity, Self.Wind,
+                   10.0 / RandSpeed, 15.0 / RandSpeed, 10.0 * RandSpeed, 10.0 * RandSpeed);
+  finally
+    Self.IsMoving := False;
+  end;
 end;
 
 procedure TMouse.Move(X, Y: Int32); overload;
@@ -199,7 +210,7 @@ end;
 
 procedure TMouse.Move(Box: TBox; ForcedMove: Boolean = False; RandomStyle: ERandomStyle = rndGauss); overload;
 begin
-  if PointInBox(Self.GetPosition(), Box) and (not ForcedMove) then
+  if Box.Contains(Self.GetPosition()) and (not ForcedMove) then
     Exit;
 
   case RandomStyle of
@@ -210,32 +221,28 @@ begin
   end;
 end;
 
-procedure TMouse.Move(Middle: TPoint; Radius: Int32; ForcedMove: Boolean = False); overload;
+procedure TMouse.Move(Circle: TCircle; ForcedMove: Boolean = False); overload;
 var
   P: TPoint;
 begin
-  if (not ForcedMove) then
-  begin
-    P := Self.GetPosition();
-    if Sqr(P.X - Middle.X) + Sqr(P.Y - Middle.Y) <= Sqr(Radius) then
-      Exit;
-  end;
+  if Circle.Contains(Self.GetPosition()) and (not ForcedMove) then
+    Exit;
 
-  Self.Move(srl.RandomPoint(Middle, Radius));
+  Self.Move(SRL.RandomPoint(Circle.Mean(), Circle.Radius));
 end;
 
 procedure TMouse.Move(Rect: TRectangle; ForcedMove: Boolean = False); overload;
 begin
-  if (not ForcedMove) and Rect.Contains(Self.GetPosition()) then
-    Exit();
+  if Rect.Contains(Self.GetPosition()) and (not ForcedMove) then
+    Exit;
 
-  Self.Move(srl.RandomPoint(Rect));
+  Self.Move(SRL.RandomPoint(Rect));
 end;
 
 procedure TMouse.Click(Button: Integer);
 begin
   Self.Hold(Button);
-  Wait(Trunc(srl.SkewedRand(60,45,350)));
+  Wait(Trunc(SRL.SkewedRand(60,45,350)));
   Self.Release(Button);
 end;
 
@@ -244,7 +251,7 @@ begin
   if (Self.GetPosition() <> P) then
   begin
     Self.Move(P.X, P.Y);
-    Wait(Trunc(srl.SkewedRand(50,10,250)));
+    Wait(Trunc(SRL.SkewedRand(50,10,250)));
   end;
   Self.Click(Button);
 end;
@@ -260,9 +267,10 @@ begin
   Self.Click(Button);
 end;
 
-procedure TMouse.Click(Middle: TPoint; Radius, Button: Int32); overload;
+procedure TMouse.Click(Circle: TCircle; Button: Int32; ForcedMove: Boolean = False); overload;
 begin
-  Self.Click(srl.RandomPoint(Middle, Radius), Button);
+  Self.Move(Circle, ForcedMove);
+  Self.Click(Button);
 end;
 
 procedure TMouse.Click(Rect: TRectangle; Button: Integer; ForcedMove: Boolean = False); overload;
@@ -316,7 +324,7 @@ begin
   {$ENDIF}
 
   P := Self.GetPosition();
-  step := Round(srl.GaussRand(6.0,0.6));
+  step := Round(SRL.GaussRand(6.0,0.6));
   for i := 1 to Scrolls do
   begin
     if Down then
@@ -326,7 +334,7 @@ begin
 
     if k mod step = 0 then
     begin
-      step := Round(srl.GaussRand(6.0,0.6));
+      step := Round(SRL.GaussRand(6.0,0.6));
       Wait(215, 410);
       k := 0;
     end else

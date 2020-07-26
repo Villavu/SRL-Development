@@ -51,7 +51,7 @@ begin
   end;
 
   Self.UpTextFilter := [-1, 85, True, 70];
-  Self.UpTextFilter.MinCharacterMatch := 15; // Filter out tiny characters (likely junk)
+  Self.UpTextFilter.MinCharacterMatch := 18; // Filter out tiny characters (likely junk)
 end;
 
 function TRSMainScreen.GetUpText(): String;
@@ -175,6 +175,9 @@ var
   I: Int32;
   L, S: Int32;
 begin
+  if Finder = [] then
+    Self.Fatal('Empty TRSObjectFinder passed');
+
   Area.LimitTo(Self.Bounds());
 
   // Translate distances

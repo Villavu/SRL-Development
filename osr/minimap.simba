@@ -256,8 +256,7 @@ var
 begin
   if not Self.IsRunEnabled() then
   begin
-    with Self.GetRunCircle() do
-      Mouse.Click(Mean(), Radius, MOUSE_LEFT);
+    Mouse.Click(Self.GetRunCircle(), MOUSE_LEFT);
 
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) do
@@ -276,8 +275,7 @@ var
 begin
   if Self.IsRunEnabled() then
   begin
-    with Self.GetRunCircle() do
-      Mouse.Click(Mean(), Radius, MOUSE_LEFT);
+    Mouse.Click(Self.GetRunCircle(), MOUSE_LEFT);
 
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) do

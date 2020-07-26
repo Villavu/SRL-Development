@@ -91,7 +91,16 @@ begin
   Result := Grid(10, 1, 36, 30, [4, 0], [Self.X1 + 46, Self.Y1 + 42]);
 end;
 
-function TRSBankScreen.IsOpen: Boolean; overload;
+(*
+BankScreen.IsOpen
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.IsOpen(WaitForItems: Boolean = True): Boolean;
+
+  Returns true if the bankscreen is visible.
+  It is possible there can be a minor delay for the items to load. If ``True`` the parameter
+  ``WaitForItems`` will wait for 1-2 seconds for items to become visible.
+*)
+function TRSBankScreen.IsOpen(WaitForItems: Boolean = True): Boolean; overload;
 var
   T: UInt64;
   B: TBox;
@@ -99,23 +108,16 @@ begin
   Result := Self.FindButton([Self.BUTTON_REARRANGE_SWAP_ON, Self.BUTTON_REARRANGE_SWAP_OFF]);
 
   // Wait 1-2 seconds to items to load
-  if Result then
+  if Result and WaitForItems then
     WaitUntil(SRL.CountColor(CTS0(65536), Self.GetSlotBoxes().Merge()) > 0, 100, Random(1000, 2000));
 end;
 
-function TRSBankScreen.IsOpen(WaitTime: Int32): Boolean; overload;
-var
-  T: UInt64;
+function TRSBankScreen.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
-  T := GetTickCount() + WaitTime;
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(0, 1500);
 
-  while (T > GetTickCount()) do
-  begin
-     if Self.IsOpen() then
-       Exit(True);
-
-     Wait(0, 1000, wdLeft);
-  end;
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;
 
 procedure TRSBankScreen.Debug(Bitmap: TMufasaBitmap); override;
@@ -392,22 +394,12 @@ begin
 
       Mouse.Move(B);
 
+      // This sets the custom amount, and works if uptext fails.
       if (not MainScreen.IsUpText('Withdraw-' + ToString(Amount))) then
       begin
-        if ChooseOption.Open() then
-        begin
-          Options := ChooseOption.GetOptions();
-          if Length(Options) < 4 then
-            Exit(False);
+        Result := ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
 
-          if 'Withdraw-' + ToString(Amount) in Options[4].Text then
-            // Uptext failed. This happens :)
-          else
-          begin
-            Result := ChooseOption.Select('Withdraw-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
-            Exit;
-          end;
-        end;
+        Exit;
       end;
     end;
   end;
@@ -575,22 +567,12 @@ begin
 
         Mouse.Move(Inventory.GetSlotBox(Slot));
 
+        // This sets the custom amount, and works if uptext fails.
         if (not MainScreen.IsUpText('Deposit-' + ToString(Amount))) then
         begin
-          if ChooseOption.Open() then
-          begin
-            Options := ChooseOption.GetOptions();
-            if Length(Options) < 4 then
-              Exit(False);
+          Result := ChooseOption.Select('Deposit-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
 
-            if 'Deposit-' + ToString(Amount) in Options[4].Text then
-              // Uptext failed us. This happens :)
-            else
-            begin
-              Result := ChooseOption.Select('Deposit-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
-              Exit;
-            end;
-          end;
+          Exit;
         end;
       end;
     end;
@@ -695,7 +677,7 @@ begin
   end;
 end;
 
-function TRSBankScreen._Open(Finder: TRSObjectFinder): Boolean;
+function TRSBankScreen._Open(FinderFunc: function(Finder: TRSObjectFinder): T2DPointArray of object; Finder: TRSObjectFinder): Boolean;
 var
   ATPA: T2DPointArray;
   TPA: TPointArray;
@@ -703,6 +685,9 @@ var
   Attempt, I: Int32;
   Direction: Boolean;
 begin
+  if Self.IsOpen() then
+    Exit(True);
+
   Direction := SRL.Dice(50);
 
   for Attempt := 1 to 5 do
@@ -717,7 +702,7 @@ begin
         Minimap.SetCompassAngle(Minimap.GetCompassAngle() - Random(80, 200));
     end;
 
-    ATPA := GrandExchange.FindNPC(GrandExchange.FINDER_BANKER);
+    ATPA := FinderFunc(Finder);
 
     // Check four largest groups
     for I := 0 to Min(High(ATPA), 3) do
@@ -734,15 +719,52 @@ begin
   end;
 end;
 
+function TRSBankScreen._Hover(FinderFunc: function(Finder: TRSObjectFinder): T2DPointArray of object; Finder: TRSObjectFinder): Boolean;
+var
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  P: TPoint;
+  I: Int32;
+begin
+  ATPA := FinderFunc(Finder);
+
+  // Check four largest groups
+  for I := 0 to Min(High(ATPA), 3) do
+  begin
+    TPA := ATPA[I];
+
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
+
+    Mouse.Move(P);
+
+    if MainScreen.IsUpText(['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker']) then
+      Exit(True);
+  end;
+end;
+
+function TRSBankScreen.Hover(Location: ERSBankLocation): Boolean;
+begin
+  case Location of
+    BANK_LOCATION_CASTLE_WARS:    Result := Self._Hover(@MainScreen.FindObject, Self.FINDER_CASTLE_WARS_CHEST);
+    BANK_LOCATION_FEROX:          Result := Self._Hover(@MainScreen.FindObject, Self.FINDER_FEROX_CHEST);
+    BANK_LOCATION_GRAND_EXCHANGE: Result := Self._Hover(@GrandExchange.FindNPC, GrandExchange.FINDER_BANKER);
+  end;
+end;
+
 function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; overload;
 begin
   if Self.IsOpen() then
     Exit(True);
 
+  if MainScreen.IsUpText(['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker']) and Self.Open(Mouse.GetPosition()) then
+    Exit(True);
+
   case Location of
-    BANK_LOCATION_CASTLE_WARS:    Result := Self._Open(Self.FINDER_CASTLE_WARS_CHEST);
-    BANK_LOCATION_FEROX:          Result := Self._Open(Self.FINDER_FEROX_CHEST);
-    BANK_LOCATION_GRAND_EXCHANGE: Result := Self._Open(GrandExchange.FINDER_BANKER);
+    BANK_LOCATION_CASTLE_WARS:    Result := Self._Open(@MainScreen.FindObject, Self.FINDER_CASTLE_WARS_CHEST);
+    BANK_LOCATION_FEROX:          Result := Self._Open(@MainScreen.FindObject, Self.FINDER_FEROX_CHEST);
+    BANK_LOCATION_GRAND_EXCHANGE: Result := Self._Open(@GrandExchange.FindNPC, GrandExchange.FINDER_BANKER);
   end;
 end;
 
@@ -768,7 +790,7 @@ begin
   else
     Self.ClickButton([Self.BUTTON_CLOSE, Self.BUTTON_CLOSE_HOVER], MOUSE_LEFT);
 
-  Result := WaitUntil(not Self.IsOpen(), 100, 2000);
+  Result := WaitUntil(not Self.IsOpen(False), SRL.TruncatedGauss(0, 1500), Random(2500, 5000));
 end;
 
 

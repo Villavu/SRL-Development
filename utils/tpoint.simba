@@ -11,8 +11,8 @@ TPoint related methods
 
 function TPoint.InRect(Rect: TRectangle): Boolean; constref;
 begin
-  if srl.PointInTriangle(Self, Rect.Top,Rect.Btm,Rect.Right) then Exit(True);
-  if srl.PointInTriangle(Self, Rect.Top,Rect.Left,Rect.Btm)  then Exit(True);
+  Result := SRL.PointInTriangle(Self, Rect.Top, Rect.Btm, Rect.Right) or
+            SRL.PointInTriangle(Self, Rect.Top, Rect.Left, Rect.Btm);
 end;
 
 function TPoint.InBox(Box: TBox): Boolean; constref;
@@ -20,9 +20,9 @@ begin
   Result := PointInBox(Self, Box);
 end;
 
-function TPoint.InCircle(Mid: TPoint; Radius: Double): Boolean; constref;
+function TPoint.InCircle(Circle: TCircle): Boolean; constref;
 begin
-  Result := Hypot(Self.x-Mid.x, Self.y-Mid.y) <= Radius;
+  Result := Hypot(Self.X - Circle.X, Self.Y - Circle.Y) <= Circle.Radius;
 end;
 
 function TPoint.DistanceTo(Other:TPoint): Double; constref;
@@ -47,7 +47,7 @@ end;
 
 function TPoint.AngleBetween(Other: TPoint): Double; constref; overload;
 begin
-  Result := srl.Modulo(Degrees(ArcTan2(other.Y - self.Y, other.X - self.X)) - 90, 360);
+  Result := SRL.Modulo(Degrees(ArcTan2(other.Y - self.Y, other.X - self.X)) - 90, 360);
 end;
 
 procedure TPoint.Offset(p: TPoint);
@@ -58,32 +58,28 @@ end;
 
 function TPoint.Random(Min, Max: Integer; Gauss: Boolean = False): TPoint; constref;
 begin
-{
   if (Gauss) then
   begin
-    Result.X := Self.X + srl.NormalRange(Min, Max);
-    Result.Y := Self.Y + srl.NormalRange(Min, Max);
+    Result.X := Self.X + SRL.NormalRange(Min, Max);
+    Result.Y := Self.Y + SRL.NormalRange(Min, Max);
   end else 
   begin
     Result.X := Self.X + System.Random(Min, Max);
     Result.Y := Self.Y + System.Random(Min, Max);
   end;
-}
 end;
 
 function TPoint.Random(XMin, XMax: Integer; YMin, YMax: Integer; Gauss: Boolean = False): TPoint; constref; overload;
 begin
-{
   if (Gauss) then
   begin
-    Result.X := Self.X + srl.NormalRange(XMin, XMax);
-    Result.Y := Self.Y + srl.NormalRange(YMin, YMax);
+    Result.X := Self.X + SRL.NormalRange(XMin, XMax);
+    Result.Y := Self.Y + SRL.NormalRange(YMin, YMax);
   end else 
   begin
     Result.X := Self.X + System.Random(XMin, XMax);
     Result.Y := Self.Y + System.Random(YMin, YMax);
   end;
-}
 end;
 
 // -----------------------------------------------------------------

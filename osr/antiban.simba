@@ -37,6 +37,8 @@ type
   end;
 
   TAntiban = record(TSRLBaseRecord)
+    Checking: Boolean;
+
     Debugging: Boolean;
     DebugRandoms: Boolean;
 
@@ -198,6 +200,7 @@ begin
   Task.Condition := @Condition;
   Task.StdVar := Randomness;
   Task.NextAtTime := GetTimeRunning() + Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar));
+  Task.NextAtTime := Random(0, Task.NextAtTime); // So the antiban "starts at an random sequence upon script start"
 
   Self.Tasks += Task;
 end;
@@ -210,6 +213,8 @@ begin
   Task.Method := @Method;
   Task.StdVar := Randomness;
   Task.NextAtTime := GetTimeRunning() + Abs(SRL.GaussRand(Task.Interval, Task.Interval * Task.StdVar));
+  Task.NextAtTime := SRL.TruncatedGauss(Task.NextAtTime, 0);
+  Task.NextAtTime := Random(0, Task.NextAtTime); // So the antiban "starts at an random sequence upon script start"
 
   Self.Tasks += Task;
 end;
@@ -249,30 +254,37 @@ var
   I: Int32;
   Task: PAntibanTask;
 begin
-  for I := 0 to High(Self.Tasks) do
-    if GetTimeRunning() > Self.Tasks[I].NextAtTime then
-    begin
-      Task := @Self.Tasks[I];
+  if Self.Checking then
+    Exit;
 
-      if (@Task^.Condition <> nil) and (not Task^.Condition()) then
-        Continue;
+  Self.Checking := True;
 
-      if (@Self.OnStartTask <> nil) then
-        Self.OnStartTask(Task);
+  try
+    for I := 0 to High(Self.Tasks) do
+      if GetTimeRunning() > Self.Tasks[I].NextAtTime then
+      begin
+        Task := @Self.Tasks[I];
+        if (@Task^.Condition <> nil) and (not Task^.Condition()) then
+          Continue;
 
-      Task^.Method();
-      Task^.NextAtTime := GetTimeRunning() + SRL.GaussRand(Task^.Interval, Task^.Interval * Task^.StdVar);
+        if (@Self.OnStartTask <> nil) then
+          Self.OnStartTask(Task);
 
-      if (@Self.OnFinishTask <> nil) then
-        Self.OnFinishTask(Task);
-      
-      Result := True;
+        Task^.Method();
+        Task^.NextAtTime := GetTimeRunning() + SRL.GaussRand(Task^.Interval, Task^.Interval * Task^.StdVar);
+        if (@Self.OnFinishTask <> nil) then
+          Self.OnFinishTask(Task);
 
-      I := -1; // Restart loop
-    end;
+        Result := True;
 
-  if CheckBreaks and Self.DoBreak() then Result := True;
-  if CheckSleeps and Self.DoSleep() then Result := True;
+        I := -1; // Restart loop
+      end;
+
+    if CheckBreaks and Self.DoBreak() then Result := True;
+    if CheckSleeps and Self.DoSleep() then Result := True;
+  finally
+    Self.Checking := False;
+  end;
 end;
 
 procedure TAntiban.RandomMouse;
@@ -284,7 +296,7 @@ begin
   CustomMouse := Mouse;
   CustomMouse.Speed += Random(1, 5);
 
-  for 1 to Round(SRL.TruncatedGauss(1, 6)) do
+  for 1 to SRL.TruncatedGauss(1, 6) do
   begin
     if Random() < 0.30 then
       CustomMouse.Move(GetClientBounds().Expand(150), True, rndGauss)
@@ -348,9 +360,13 @@ var
 begin
   Self.Debug('Lose focus');
 
-  Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(500));
+  {$IFDEF SRL_USE_REMOTEINPUT}
+  Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(1000));
   if Length(Space) > 0 then
-    Mouse.Move(Space[Random(Length(Space))]);
+    Mouse.Click(Space[Random(Length(Space))], MOUSE_LEFT);
+  {$ELSE}
+  Self.Fatal('Lose focus not yet implemented for this target');
+  {$ENDIF}
 end;
 
 procedure TAntiban.RandomTab;

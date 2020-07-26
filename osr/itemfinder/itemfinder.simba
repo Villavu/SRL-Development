@@ -271,24 +271,25 @@ end;
 
 function TRSInventory.Use(Item: String; OtherItem: String): Boolean; override;
 var
+  Slots, OtherSlots: TIntegerArray;
   Slot, OtherSlot: Int32;
-  OtherSlots: TIntegerArray;
 begin
-  Self.ClearActiveSlot(); // Items change when they are activated. :(
+  Self.ClearActiveSlot(); // Item sprites change when activated.
 
-  Slot := Self.Find(Item);
+  Slots := Self.FindAll(Item);
+  if Length(Slots) = 0 then
+    Exit;
 
-  if (Slot > -1) then
-  begin
-    OtherSlots := Self.FindAll(OtherItem);
+  OtherSlots := Self.FindAll(OtherItem);
+  if Length(OtherSlots) = 0 then
+    Exit;
 
-    if Length(OtherSlots) > 0 then
-    begin
-      Self.Use(Slot, Self.RandomSlotNearby(Slot, OtherSlots));
+  Slot := Slots[Random(Length(Slots))];
+  OtherSlot := Self.RandomSlotNearby(OtherSlot, OtherSlots);
 
-      Exit(True);
-    end;
-  end;
+  Self.Use(Slot, OtherSlot);
+
+  Result := True;
 end;
 
 function TRSBankScreen.Count(Identifer: String): Int32; override;
@@ -451,9 +452,6 @@ function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Bool
 var
   Bounds: TBox;
 begin
-  if not Self.IsOpen() then
-    Exit;
-
   if Self.Find(Item, Bounds) then
     Result := Self._WithdrawQuantity(Bounds, Amount, Noted);
 end;
