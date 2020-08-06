@@ -285,7 +285,7 @@ begin
     Exit;
 
   Slot := Slots[Random(Length(Slots))];
-  OtherSlot := Self.RandomSlotNearby(OtherSlot, OtherSlots);
+  OtherSlot := Self.RandomSlotNearby(Slot, OtherSlots);
 
   Self.Use(Slot, OtherSlot);
 
@@ -356,11 +356,20 @@ var
   Slot: Int32;
 begin
   if not Self.IsOpen() then
-    Exit;
+  begin
+    WriteLn('Not open');
+    SaveScreenshot('wtfollynotopen.bmp');
+    Exit(False);
+  end;
 
   Slot := Inventory.Find(Item);
   if (Slot > -1) then
-    Result := Self.DepositQuantity(Slot, Amount);
+    Result := Self.DepositQuantity(Slot, Amount)
+  else
+  begin
+    Writeln('Slot = -1');
+    Result := True;
+  end;
 end;
 
 (*

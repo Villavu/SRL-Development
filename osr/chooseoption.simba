@@ -91,7 +91,8 @@ end;
 
 function TRSChooseOption.GetOptions: TRSChooseOption_OptionArray;
 var
-  I: Int32;
+  I, Y: Int32;
+  B: TBox;
   Boxes: TBoxArray;
   BMP: TMufasaBitmap;
 begin
@@ -100,18 +101,19 @@ begin
     if Bounds.Height < 15 then
       Exit;
 
-    Boxes := Self.Bounds.Partition(Bounds.Height() div 15, 1, 1);
-
-    SetLength(Result, Length(Boxes));
-
+    SetLength(Result, Bounds.Height() div 15);
     for I := 0 to High(Result) do
     begin
-      BMP.FromClient(Boxes[I]);
+      B := [Bounds.X1, Bounds.Y1 + (I * 15), Bounds.X2, Bounds.Y1 + (I * 15) + 15];
+      if (B.Y2 > Bounds.Y2) then
+        Exit;
+
+      BMP.FromClient(B);
       BMP.ReplaceColor(4674653, 0);
       BMP.ThresholdAdaptive(0, 255, False, TM_Mean, -1);
 
-      Result[I].Bounds := Boxes[I];
-      Result[I].Text := OCR.Recognize(BMP.ToMatrix(), [255, 1], RS_FONTSET_BOLD_12_SHADOW);
+      Result[I].Bounds := B;
+      Result[I].Text := OCR.Recognize(BMP.ToMatrix(), [255], RS_FONTSET_BOLD_12_SHADOW, True);
 
       BMP.Free();
       BMP := nil;
@@ -135,7 +137,7 @@ begin
   if Length(Boxes) = 0 then
     raise 'No space found to move mouse';
 
-  Mouse.Move(Boxes[Random(Length(Boxes))], False, rndRandom);
+  Mouse.Move(Boxes[Random(Length(Boxes))], False, MOUSE_DISTRIBUTION_RANDOM);
 
   T := GetTickCount() + 1000;
   while (T > GetTickCount()) do
@@ -198,6 +200,16 @@ end;
 function TRSChooseOption.Select(Text: String; MouseAction: Int32 = MOUSE_LEFT; CaseSensitive: Boolean = True; CloseIfNotFound: Boolean = True): Boolean; overload;
 begin
   Result := Select([Text], MouseAction, CaseSensitive, CloseIfNotFound);
+end;
+
+function TRSChooseOption.Hover(Text: TStringArray; CaseSensitive: Boolean = True; CloseIfNotFound: Boolean = True): Boolean; overload;
+begin
+  Result := Select(Text, MOUSE_MOVE, CaseSensitive, CloseIfNotFound);
+end;
+
+function TRSChooseOption.Hover(Text: String; CaseSensitive: Boolean = True; CloseIfNotFound: Boolean = True): Boolean; overload;
+begin
+  Result := Select([Text], MOUSE_MOVE, CaseSensitive, CloseIfNotFound);
 end;
 
 var

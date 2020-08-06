@@ -75,6 +75,9 @@ type
     FINDER_CASTLE_WARS_CHEST: TRSObjectFinder;
     FINDER_FEROX_CHEST: TRSObjectFinder;
     FINDER_EDGE_BOOTH: TRSObjectFinder;
+
+    FINDER_UPTEXT: TStringArray;
+    FINDER_OPTION: TStringArray;
   end;
 
 function TRSBankScreen.GetSlotBoxes: TBoxArray; constref;
@@ -147,6 +150,9 @@ begin
   Self.FINDER_EDGE_BOOTH.ClusterDistance := 5;
   Self.FINDER_EDGE_BOOTH.Grow := 2;
   Self.FINDER_EDGE_BOOTH.Erode := 4;
+
+  Self.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
+  Self.FINDER_OPTION := ['Use Bank', 'Bank Bank'];
 
   Self.BUTTON_REARRANGE_SWAP_OFF := Self.AddBitmapButton('bank_rearrange_swap_off.png');
   Self.BUTTON_REARRANGE_SWAP_ON := Self.AddBitmapButton('bank_rearrange_swap_on.png');
@@ -230,10 +236,10 @@ begin
   B.Y2 := B.Y1 + 15;
   B.LimitTo(Self.Bounds);
 
-  Filter.Color := -1;
-  Filter.Threshold := 15;
+  Filter.Threshold := True;
+  Filter.ThresholdAmount := 15;
 
-  Result := OCR.Recognize(B, Filter, RS_FONTSET_BOLD_12, True);
+  Result := OCR.Recognize(B, Filter, RS_FONTSET_BOLD_12);
 end;
 
 function TRSBankScreen.IsTitle(Text: String): Boolean; overload;
@@ -526,7 +532,7 @@ begin
     end;
 
     if Result then
-      Result := WaitUntil(not Inventory.IsSlotUsed(Slot), 100, 2000);
+      Result := WaitUntil(not Inventory.IsSlotUsed(Slot), 100, 4000);
   end;
 end;
 
@@ -571,8 +577,8 @@ begin
         if (not MainScreen.IsUpText('Deposit-' + ToString(Amount))) then
         begin
           Result := ChooseOption.Select('Deposit-X') and Chatbox.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
-
-          Exit;
+          if not Result then
+            Exit;
         end;
       end;
     end;
@@ -654,26 +660,29 @@ function TRSBankScreen.Open(P: TPoint): Boolean; overload;
 begin
   Mouse.Move(P);
 
-  if MainScreen.IsUpText(['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker']) then
+  Result := ChooseOption.IsOpen() and ChooseOption.Select(Self.FINDER_OPTION);
+
+  if not Result then
   begin
-    // Right click
-    if ('Banker' in MainScreen.GetUpText()) or (Random() < 0.10) then
+    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
     begin
-      if (not ChooseOption.Select(['Use Bank', 'Bank Bank'])) then
-        Exit(False);
-    end else
-    // Left click
-    begin
-      Mouse.Click(MOUSE_LEFT);
+      if ('Banker' in MainScreen.GetUpText()) or SRL.Dice(10) then
+        Result := ChooseOption.Select(Self.FINDER_OPTION)
+      else
+      begin
+        Mouse.Click(MOUSE_LEFT);
 
-      if (not SRL.DidClick(RS_CLICK_RED)) then
-        Exit(False);
+        Result := SRL.DidClick(RS_CLICK_RED);
+      end;
     end;
+  end;
 
-    if Minimap.HasFlag(Random(400, 800)) then
+  if Result then
+  begin
+    if Minimap.HasFlag(Random(200, 400)) then
       Minimap.WaitFlag();
 
-    Result := Self.IsOpen(Random(2000, 4000));
+    Result := Self.IsOpen(Random(3000, 4000));
   end;
 end;
 
@@ -685,9 +694,6 @@ var
   Attempt, I: Int32;
   Direction: Boolean;
 begin
-  if Self.IsOpen() then
-    Exit(True);
-
   Direction := SRL.Dice(50);
 
   for Attempt := 1 to 5 do
@@ -739,7 +745,7 @@ begin
 
     Mouse.Move(P);
 
-    if MainScreen.IsUpText(['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker']) then
+    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
       Exit(True);
   end;
 end;
@@ -755,10 +761,7 @@ end;
 
 function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; overload;
 begin
-  if Self.IsOpen() then
-    Exit(True);
-
-  if MainScreen.IsUpText(['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker']) and Self.Open(Mouse.GetPosition()) then
+  if Self.IsOpen() or Self.Open(Mouse.GetPosition()) then
     Exit(True);
 
   case Location of

@@ -19,9 +19,8 @@ const
 
 type
   TScript = record
-    Item: EFletchTask;
-    ForceBank: Boolean;
-    CanAFK: Boolean;
+    Task: EFletchTask;
+    EarlyBank: Int32;
 
     Activity: record
       Countdown: TCountdown;
@@ -36,23 +35,6 @@ type
     end;
   end;
 
-function TScript.AllowAFK: Boolean;
-begin
-  Result := Self.CanAFK;
-end;
-
-procedure TAntiban.AFK;
-var
-  Time: Int32 := SRL.TruncatedGauss(2000, 40000);
-begin
-  Self.Debug('AFK for ' + ToString(Time div 1000) + ' seconds');
-
-  if Random() < 0.50 then
-    Self.LoseFocus();
-
-  Wait(Time);
-end;
-
 procedure TScript.DoAntiban;
 begin
   Self.Activity.Countdown.Pause();
@@ -64,23 +46,47 @@ begin
   end;
 end;
 
-procedure TAntiban.HoverBank;
+procedure TScript.Antiban_HoverBank;
 begin
-  Self.Debug('Hover bank');
+  Antiban.Debug('Hover bank');
 
-  BankScreen.Hover(BANK_TO_USE);
+  if BankScreen.Hover(BANK_TO_USE) and SRL.Dice(50) then
+  begin
+    ChooseOption.Open();
+
+    if SRL.Dice(50) then
+    begin
+      Wait(0, 2500, wdLeft);
+
+      ChooseOption.Hover(['Use Bank', 'Bank Bank']);
+    end;
+  end;
 end;
 
-procedure TAntiban.HoverStats;
+procedure TScript.Antiban_EarlyBank;
 begin
-  Self.HoverSkill(SKILL_FLETCHING, Random(1000, 10000), SRL.Dice(20));
+  Self.EarlyBank := SRL.TruncatedGauss(Self.CountMaterials(), 1);
+
+  Antiban.Debug('Early bank: ' + ToString(Self.EarlyBank));
+end;
+
+procedure TScript.Antiban_AFK;
+var
+  Time: Int32 := SRL.TruncatedGauss(1000, 60000);
+begin
+  Antiban.Debug('AFK for ' + ToString(Time div 1000) + ' seconds');
+
+  if Random() < 0.50 then
+    Antiban.LoseFocus();
+
+  Wait(Time);
 end;
 
 procedure TScript.Setup(Task: EFletchTask);
 begin
-  Self.Item := Task;
+  Self.Task := Task;
 
-  case Self.Item of
+  case Self.Task of
     FLETCH_ARROW_SHAFTS:
       begin
         Self.CurrentItemXP := 5;
@@ -139,11 +145,19 @@ begin
       end;
   end;
 
-  Antiban.AddTask(5  * ONE_MINUTE, @Antiban.AFK, @Self.AllowAFK);
-  Antiban.AddTask(10 * ONE_MINUTE, @Antiban.AFK, @Self.AllowAFK);
+  Antiban.Skills := [SKILL_FLETCHING];
 
-  Antiban.AddTask(5  * ONE_MINUTE, @Antiban.HoverBank);
-  Antiban.AddTask(10 * ONE_MINUTE, @Antiban.HoverBank);
+  // AFK tasks are paused 95% of the time which is why the interval is very low.
+  Antiban.AddTask(0.5 * ONE_MINUTE, @Self.Antiban_AFK);
+  Antiban.AddTask(1.0 * ONE_MINUTE, @Self.Antiban_AFK);
+  Antiban.AddTask(1.5 * ONE_MINUTE, @Self.Antiban_AFK);
+  Antiban.AddTask(2.0 * ONE_MINUTE, @Self.Antiban_AFK);
+
+  Antiban.AddTask(10 * ONE_MINUTE, @Self.Antiban_EarlyBank);
+  Antiban.AddTask(20 * ONE_MINUTE, @Self.Antiban_EarlyBank);
+
+  Antiban.AddTask(10 * ONE_MINUTE, @Self.Antiban_HoverBank);
+  Antiban.AddTask(20 * ONE_MINUTE, @Self.Antiban_HoverBank);
 
   Antiban.AddTask(10 * ONE_MINUTE, @Antiban.LoseFocus);
   Antiban.AddTask(20 * ONE_MINUTE, @Antiban.LoseFocus);
@@ -160,10 +174,10 @@ begin
   Antiban.AddTask(30 * ONE_MINUTE, @Antiban.RandomRotate);
   Antiban.AddTask(60 * ONE_MINUTE, @Antiban.RandomRotate);
 
-  Antiban.AddTask(50  * ONE_MINUTE, @Antiban.HoverStats);
-  Antiban.AddTask(100 * ONE_MINUTE, @Antiban.HoverStats);
+  Antiban.AddTask(50  * ONE_MINUTE, @Antiban.HoverSkills);
+  Antiban.AddTask(100 * ONE_MINUTE, @Antiban.HoverSkills);
 
-  Activity.Countdown.Init(60000);
+  Activity.Countdown.Init(90000);
 end;
 
 procedure TScript.Debug(S: String);
@@ -214,25 +228,19 @@ begin
   Result := WaitUntil(Self.HasMaterials(), Interval, WaitTime);
 end;
 
-function TScript.Withdraw: Boolean;
+function TScript.Bank: Boolean;
 var
   I: Int32;
 begin
-  Self.CanAFK := False;
+  Antiban.PauseTask(@Self.Antiban_HoverBank);
 
-  if not Self.ForceBank and Self.HasMaterials() then
+  if (Self.EarlyBank = 0) and Self.HasMaterials() then
   begin
     Result := BankScreen.Close();
     if not Result then
-      Self.Debug('Failed to close bankscreen');
+      Self.Debug('Failed to close bankscreen. (already had materials)');
 
     Exit;
-  end;
-
-  if Self.ForceBank then
-  begin
-    Self.Debug('Force bank');
-    Self.ForceBank := False;
   end;
 
   if not BankScreen.Open(BANK_TO_USE) then
@@ -242,7 +250,7 @@ begin
     Exit;
   end;
 
-  Self.CanAFK := True;
+  Antiban.ResumeTask(@Self.Antiban_AFK);
 
   if (Inventory.Count(Self.CurrentItem) > 0) and (not BankScreen.DepositQuantity(Self.CurrentItem, Self.CurrentItemMaterials[0].Amount)) then
   begin
@@ -299,23 +307,22 @@ begin
     Exit;
   end;
 
+  Self.EarlyBank := 0;
+
   Result := True;
 end;
 
 function TScript.Fletch: Boolean;
 var
-  TargetXP, Amount: Int32;
+  TargetXP: Int32;
   Timeout: TCountDown;
 begin
-  Self.CanAFK := True;
+  Antiban.ResumeTask(@Self.Antiban_AFK);
 
-  Self.ForceBank := SRL.Dice(15); // ANTIBAN: 15% of chance of not completing the inventory and banking early
-  if Self.ForceBank then
-    Amount := SRL.TruncatedGauss(Self.CountMaterials(), 1)
+  if (Self.EarlyBank > 0) then
+    TargetXP := XPBar.Read() + Round(Self.EarlyBank * Floor(Self.CurrentItemXP))
   else
-    Amount := Self.CountMaterials();
-
-  TargetXP := XPBar.Read() + Round(Amount * Floor(Self.CurrentItemXP));
+    TargetXP := XPBar.Read() + Round(Self.CountMaterials() * Floor(Self.CurrentItemXP));
 
   if not ((Self.CurrentTool <> '') and Inventory.Use(Self.CurrentTool, Self.CurrentItemMaterials[0].Item)) and
      not ((Self.CurrentTool = '')  and Inventory.Use(Self.CurrentItemMaterials[0].Item, Self.CurrentItemMaterials[1].Item)) then
@@ -339,7 +346,8 @@ begin
     Exit;
   end;
 
-  Self.CanAFK := False;
+  Antiban.PauseTask(@Self.Antiban_AFK);
+  Antiban.ResumeTask(@Self.Antiban_HoverBank);
 
   if Random() < 0.65 then
   begin
@@ -360,7 +368,7 @@ begin
 
     if Timeout.IsFinished() then
     begin
-      Self.Debug('Timed out while fletching');
+      Self.Debug('Timed out while fletching: ' + ToString(XPBar.Read()) + ', ' + ToString(TargetXP));
 
       Exit;
     end;
@@ -370,7 +378,7 @@ begin
     Wait(500, 5000, wdLeft);
   end;
 
-  if SRL.Dice(50) then // ANTIBAN: act a little AFK 50% of the time
+  if (Self.EarlyBank = 0) and SRL.Dice(50) then // ANTIBAN: little AFK 50% of the time
     Wait(0, 15000, wdLeft);
 
   Result := True;
@@ -388,7 +396,7 @@ begin
         Swap(Self.CurrentItemMaterials[I], Self.CurrentItemMaterials[Random(Length(Self.CurrentItemMaterials))]);
 
     Self.CheckActivity();
-    if (not Self.Withdraw()) or (not Self.Fletch()) then
+    if (not Self.Bank()) or (not Self.Fletch()) then
       Wait(1000, 2000);
   end;
 end;
@@ -398,17 +406,6 @@ begin
   SaveScreenshot('fletcher-fatal.png');
 
   inherited();
-end;
-
-procedure TAntiban.LoseFocus; override;
-var
-  Space: TBoxArray;
-begin
-  //Self.Debug('Lose focus');
-
-  Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(1000));
-  if Length(Space) > 0 then
-    Mouse.Click(Space[Random(Length(Space))], MOUSE_LEFT);
 end;
 
 var
@@ -422,13 +419,28 @@ begin
   inherited(P);
 end;
 
+// ANTIBAN: Check antiban before we press a key
+procedure TKeyboard.PressKey(Key: Integer); override;
+begin
+  Script.DoAntiban();
+
+  inherited(Key);
+end;
+
 // ANTIBAN: 10% chance of deposit normally
 function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean; override;
 begin
   if SRL.Dice(10) then
-    Result := Self.Deposit(Item, Amount)
-  else
+  begin
+    Result := Self.Deposit(Item, Amount);
+    if not Result then
+      Self.Debug('NORMAL DEPOSIT FAILED');
+  end else
+  begin
     Result := inherited();
+    if not Result then
+      Self.Debug('DEPOSIT QUANTITY FAILED');
+  end;
 end;
 
 // ANTIBAN: 10% chance of withdrawing normally
@@ -443,7 +455,7 @@ end;
 // ANTIBAN: 10% chance of clicking the close button
 function TRSBankScreen.Close(UseKeyboard: Boolean = False): Boolean; override;
 begin
-  Result := inherited(SRL.Dice(10));
+  Result := inherited(SRL.Dice(90));
 end;
 
 // ANTIBAN: 20% chance of clicking make

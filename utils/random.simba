@@ -148,10 +148,10 @@ srl.RandomPoint
 Generates a random TPoint which weights around ``Mean``, with a max distance 
 from mean defined by ``MaxRad``.
 *)
-function TSRL.RandomPoint(Mean: TPoint; MaxRad: Int32): TPoint; constref;
+function TSRL.RandomPoint(Mean: TPoint; MaxRad: Int32; CUTOFF:Single=0): TPoint; constref;
 begin
-  Result.X := NormalRange(Mean.x-maxRad, Mean.x+MaxRad);
-  Result.Y := NormalRange(Mean.y-maxRad, Mean.y+MaxRad);
+  Result.X := NormalRange(Mean.x-maxRad, Mean.x+MaxRad, CUTOFF);
+  Result.Y := NormalRange(Mean.y-maxRad, Mean.y+MaxRad, CUTOFF);
 end;
 
 
@@ -165,10 +165,10 @@ srl.RandomPoint (overload)
 Generates a random TPoint in the bounds of the given box ``Bounds``, 
 the point weights towards the middle of the box.
 *)
-function TSRL.RandomPoint(Bounds: TBox): TPoint; constref; overload;
+function TSRL.RandomPoint(Bounds: TBox; CUTOFF:Single=0): TPoint; constref; overload;
 begin
-  Result.X := NormalRange(Bounds.x1, Bounds.x2);
-  Result.Y := NormalRange(Bounds.y1, Bounds.y2);
+  Result.X := NormalRange(Bounds.x1, Bounds.x2, CUTOFF);
+  Result.Y := NormalRange(Bounds.y1, Bounds.y2, CUTOFF);
 end;
 
 (*
@@ -181,7 +181,7 @@ srl.RandomPoint (overload)
 Generates a random TPoint in the given rectangle ``Rect``,
 The point weights towards the middle of the rectangle.
 *)
-function TSRL.RandomPoint(Rect: TRectangle): TPoint; constref; overload;
+function TSRL.RandomPoint(Rect: TRectangle; CUTOFF:Single = 0): TPoint; constref; overload;
 var
   a,x,y,x1,y1,x2,y2: Double;
 begin
@@ -196,8 +196,8 @@ begin
     y2 := y+Hypot(Left.y-Btm.y, Left.x-Btm.x) / 2;
   end;
 
-  Result.X := Round(srl.NormalRange(x1+1, x2-1));
-  Result.Y := Round(srl.NormalRange(y1+1, y2-1));
+  Result.X := Round(srl.NormalRange(x1+1, x2-1, CUTOFF));
+  Result.Y := Round(srl.NormalRange(y1+1, y2-1, CUTOFF));
   Result := RotatePoint(Result, a, (X2+X1)/2+Random()-0.5, (Y2+Y1)/2+Random()-0.5);
 end;
 
@@ -248,7 +248,7 @@ Final implementation and math done by slacky.
 
 Force ranges from -1 (close to) to 1 (away from), where 0 is mean, but with a bit of a skewiness...
 *)
-function TSRL.rowp(From: TPoint; Rect: TRectangle; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint; static; overload;
+function TSRL.rowp(From: TPoint; Rect: TRectangle; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint; static;
 var
   p,e: TPoint;
   t, dist: Double;
@@ -263,12 +263,13 @@ var
     if (dist := srl.DistToLineEx(p, Rect.Btm,  Rect.Right,x)) < best then begin Result := x; Best := dist; end;
     if (dist := srl.DistToLineEx(p, Rect.Right,Rect.Top,  x)) < best then begin Result := x; Best := dist; end;
   end;
+
 begin
-  p := srl.RandomPoint(rect);
+  p := srl.RandomPoint(rect, SRL_GAUSS_CUTOFF / 2 + 0.5);
   e := NearestEdgeTo(P);
 
   dist := Hypot(p.X - e.X, p.Y - e.Y);
-  t := ArcTan2(p.Y-From.Y, p.X-From.X) + (Random()-0.5)*Smoothness;
+  t := ArcTan2(p.Y-From.Y, p.X-From.X) + (Random()-0.5) * Smoothness;
   Result.X := Round(p.x + Cos(t) * srl.SkewedRand(dist * force, 0, dist));
   Result.Y := Round(p.y + Sin(t) * srl.SkewedRand(dist * force, 0, dist));
 end;

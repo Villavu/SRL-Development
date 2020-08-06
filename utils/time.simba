@@ -135,7 +135,12 @@ procedure TCountDown.Restart(Rand: Int32 = 0);
 begin
   Self.Paused := 0;
   Self.Timeout := GetTickCount() + (Length + Rand);
-end;  
+end;
+
+procedure TCountdown.Extend(Time: UInt32);
+begin
+  Self.Timeout := Self.Timeout + Time;
+end;
 
 function TCountDown.TimeRemaining: UInt32;
 begin

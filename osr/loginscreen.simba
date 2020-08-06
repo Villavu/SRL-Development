@@ -312,7 +312,7 @@ begin
     begin
       B.X2 += 40;
 
-      Result := StrToIntDef(ExtractFromStr(OCR.Recognize($FFFFFF, 0, B, RS_FONTSET_BOLD_12), Numbers), -1);
+      Result := StrToIntDef(ExtractFromStr(OCR.Recognize(B, [$FFFFFF], RS_FONTSET_BOLD_12), Numbers), -1);
     end;
 end;
 

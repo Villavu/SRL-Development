@@ -437,6 +437,8 @@ begin
     Exit(False);
 
   MinimapPoint := Self.WorldToMM(PlayerPoint, WorldPoint, Minimap.GetCompassAngle(False));
+  if (not Minimap.IsPointOn(MinimapPoint)) then
+    Exit(False);
 
   if WaitUntilDistance = -1 then
   begin
@@ -466,7 +468,8 @@ begin
   end else
   begin
     repeat
-      P := [Random(MinimapPoint.X - ClickRandomness, MinimapPoint.X + ClickRandomness), Random(MinimapPoint.Y - ClickRandomness, MinimapPoint.Y + ClickRandomness)];
+      P := [Random(MinimapPoint.X - ClickRandomness, MinimapPoint.X + ClickRandomness),
+            Random(MinimapPoint.Y - ClickRandomness, MinimapPoint.Y + ClickRandomness)];
     until Minimap.IsPointOn(P);
 
     Mouse.Click(P, MOUSE_LEFT);

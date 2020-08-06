@@ -259,6 +259,9 @@ var
   Middles: TPointArray;
   From: TPoint;
 begin
+  if Length(Slots) = 0 then
+    Self.Fatal('RandomSlotNearby: No slots');
+
   Middles := Self.GetSlotBoxes().Middles();
   From := Middles[Slot];
 
@@ -267,7 +270,7 @@ begin
       if Distance(Middles[Slots[J]], From) > Distance(Middles[Slots[I]], From) then
         Swap(Slots[J], Slots[I]);
 
-  Result := Slots[Floor(SRL.TruncatedGauss(0, Length(Slots)))];
+  Result := Slots[SRL.TruncatedGauss(0, High(Slots))];
 end;
 
 function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; overload;

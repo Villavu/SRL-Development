@@ -52,12 +52,12 @@ end;
 
 function TRSChatBox.GetQuery: String;
 begin
-  Result := OCR.Recognize(0, 0, Chatbox.Bounds(), RS_FONTSET_BOLD_12_SHADOW);
+  Result := OCR.Recognize(Chatbox.Bounds(), [$000000], RS_FONTSET_BOLD_12_SHADOW);
 end;
 
 function TRSChatbox.GetQueryAnswer: String;
 begin
-  Result := OCR.Recognize(8388608, 0, Chatbox.Bounds(), RS_FONTSET_BOLD_12_SHADOW);
+  Result := OCR.Recognize(Chatbox.Bounds(), [8388608], RS_FONTSET_BOLD_12_SHADOW);
 end;
 
 function TRSChatbox.WaitQuery(Query: String; WaitTime: Int32): Boolean;
@@ -98,7 +98,7 @@ function TRSChatbox.GetDisplayName: String;
 var
   Text: String;
 begin
-  Text := OCR.Recognize($000000, 0, Chatbox.GetLineBoxes[CHATBOX_INPUT_LINE], RS_FONTSET_PLAIN_12);
+  Text := OCR.Recognize(Chatbox.GetLineBoxes[CHATBOX_INPUT_LINE], [$000000], RS_FONTSET_PLAIN_12);
   if Text.EndsWith(':') then
     Result := Copy(Text, 1, Length(Text) - 1);
 end;

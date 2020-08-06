@@ -45,7 +45,7 @@ begin
   Result := (self.X = other.X) and (self.Y = other.Y);
 end;
 
-function TPoint.AngleBetween(Other: TPoint): Double; constref; overload;
+function TPoint.AngleBetween(Other: TPoint): Double; constref;
 begin
   Result := SRL.Modulo(Degrees(ArcTan2(other.Y - self.Y, other.X - self.X)) - 90, 360);
 end;

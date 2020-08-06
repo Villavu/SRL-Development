@@ -48,33 +48,41 @@ Move and click the mouse to a random (gauss) point in a circle.
 *)
 
 const
-  MOUSE_MOVE = 3;
+  MOUSE_MOVE = -1;
 
 type
-  ERandomStyle = (rndRandom, rndGauss, rndSkewed, rndRowp);
+  EMouseDistribution = (
+    MOUSE_DISTRIBUTION_DEFAULT,
+    MOUSE_DISTRIBUTION_RANDOM,
+    MOUSE_DISTRIBUTION_GAUSS,
+    MOUSE_DISTRIBUTION_SKEWED,
+    MOUSE_DISTRIBUTION_ROWP
+  );
 
   TMouseMovingEvent = procedure(Sender: Pointer; var X, Y: Double; var Done: Boolean);
-  TMouseMovedEvent = procedure(Sender: Pointer; X, Y: Int32);
+  TMousePositionEvent = procedure(Sender: Pointer; X, Y: Int32);
 
   TMouse = record
     Speed: Int32;
     Gravity, Wind: Double;
     IsMoving: Boolean;
+    Distribution: EMouseDistribution;
     OnMoving: TMouseMovingEvent;
-    OnMoved: TMouseMovedEvent;
+    OnMove: TMousePositionEvent;
   end;
 
 procedure TMouse.Setup;
 begin
-  Speed := 16;
-  Gravity := Random(8, 8.5);
-  Wind := Random(4.0, 4.5);
+  Self.Speed := Random(16, 18);
+  Self.Gravity := Random(8, 8.5);
+  Self.Wind := Random(4.0, 4.5);
+  Self.Distribution := MOUSE_DISTRIBUTION_ROWP;
 end;
 
 procedure TMouse.SetPosition(P: TPoint);
 begin
-  if (@OnMoved <> nil) then
-    OnMoved(@Self, P.X, P.Y);
+  if (@OnMove <> nil) then
+    OnMove(@Self, P.X, P.Y);
 
   MoveMouse(P.X, P.Y);
 end;
@@ -208,16 +216,19 @@ begin
   Self.Move(Point(X, Y));
 end;
 
-procedure TMouse.Move(Box: TBox; ForcedMove: Boolean = False; RandomStyle: ERandomStyle = rndGauss); overload;
+procedure TMouse.Move(Box: TBox; ForcedMove: Boolean = False; Distribution: EMouseDistribution = MOUSE_DISTRIBUTION_DEFAULT); overload;
 begin
   if Box.Contains(Self.GetPosition()) and (not ForcedMove) then
     Exit;
 
-  case RandomStyle of
-    rndRandom: Self.Move(Point(Random(Box.X1, Box.X2), Random(Box.Y1, Box.Y2)));
-    rndGauss:  Self.Move(SRL.RandomPoint(Box));
-    rndSkewed: Self.Move(SRL.RandomPointEx(Self.GetPosition(), Box));
-    rndRowp:   Self.Move(SRL.Rowp(Self.GetPosition(), Box));
+  if Distribution = MOUSE_DISTRIBUTION_DEFAULT then
+    Distribution := Self.Distribution;
+
+  case Distribution of
+    MOUSE_DISTRIBUTION_RANDOM: Self.Move(Point(Random(Box.X1, Box.X2), Random(Box.Y1, Box.Y2)));
+    MOUSE_DISTRIBUTION_GAUSS:  Self.Move(SRL.RandomPoint(Box));
+    MOUSE_DISTRIBUTION_SKEWED: Self.Move(SRL.RandomPointEx(Self.GetPosition(), Box));
+    MOUSE_DISTRIBUTION_ROWP:   Self.Move(SRL.Rowp(Self.GetPosition(), Box));
   end;
 end;
 
@@ -261,9 +272,9 @@ begin
   Self.Click(Point(X, Y), Button);
 end;
 
-procedure TMouse.Click(Box: TBox; Button: Integer; ForcedMove: Boolean = False; RandomStyle: ERandomStyle = rndGauss); overload;
+procedure TMouse.Click(Box: TBox; Button: Integer; ForcedMove: Boolean = False; Distribution: EMouseDistribution = MOUSE_DISTRIBUTION_DEFAULT); overload;
 begin
-  Self.Move(Box, ForcedMove, RandomStyle);
+  Self.Move(Box, ForcedMove, Distribution);
   Self.Click(Button);
 end;
 

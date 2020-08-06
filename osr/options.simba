@@ -131,7 +131,7 @@ begin
     if Distance(Slider, Destination) <= 12 then
     begin
       Boxes := Box(Slider.X - 12, Slider.Y - 12, Slider.X + 12, Slider.Y + 12).Invert(SliderBounds);
-      Mouse.Click(Boxes[Random(Length(Boxes))], MOUSE_LEFT, False, rndRowp);
+      Mouse.Click(Boxes[Random(Length(Boxes))], MOUSE_LEFT, False);
       Wait(0, 1000, wdLeft);
     end;
 

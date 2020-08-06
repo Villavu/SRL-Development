@@ -15,6 +15,10 @@ type
     Text: String;
     Font: String;
     Color: Int32;
+
+    Cache: record
+      Bounds: TBox;
+    end;
   end;
 
   TRSInterfaceAlignment = record
@@ -204,22 +208,33 @@ begin
   Result := Self.Bounds().Middle;
 end;
 
-function TRSInterface.FindButton(Button: TRSInterfaceButton; out Bounds: TBox): Boolean; overload;
-var
-  X, Y: Int32;
-begin
-  if (Button.Bitmap <> nil) then
+function TRSInterface.FindButton(var Button: TRSInterfaceButton; out Bounds: TBox): Boolean; overload;
+
+  function Find(Area: TBox): Boolean;
+  var
+    X, Y: Int32;
   begin
-    Result := FindBitmapToleranceIn(Button.Bitmap.GetIndex(), X, Y, Self.Bounds, 5);
+    if (Button.Bitmap <> nil) then
+    begin
+      Result := FindBitmapToleranceIn(Button.Bitmap.GetIndex(), X, Y, Area, 5);
+      if Result then
+        Bounds := Bounds := [X, Y, X + Button.Bitmap.GetWidth() - 1, Y + Button.Bitmap.GetHeight() - 1];
+    end else
+    begin
+      if (Button.Color = -1) then
+        Result := FindText(Button.Text, Button.Font, Self.X1, Self.Y1, Self.X2, Self.Y2, Area) = 1
+      else
+        Result := FindTextColor(Button.Text, Button.Font, Button.Color, 0, Self.X1, Self.Y1, Self.X2, Self.Y2, Area) = 1;
+    end;
+
     if Result then
-      Bounds := Bounds := [X, Y, X + Button.Bitmap.GetWidth() - 1, Y + Button.Bitmap.GetHeight() - 1];
-  end else
-  begin
-    if (Button.Color = -1) then
-      Result := FindText(Button.Text, Button.Font, Self.X1, Self.Y1, Self.X2, Self.Y2, Bounds) = 1
-    else
-      Result := FindTextColor(Button.Text, Button.Font, Button.Color, 0, Self.X1, Self.Y1, Self.X2, Self.Y2, Bounds) = 1;
+      Button.Cache.Bounds := Bounds;
   end;
+
+begin
+  Result := (Button.Cache.Bounds <> []) and Find(Button.Cache.Bounds); // try cache
+  if not Result then
+    Result := Find(Self.Bounds); // else entire interface
 end;
 
 function TRSInterface.FindButton(Buttons: array of TRSInterfaceButton; out Bounds: TBox): Boolean; overload;
@@ -231,7 +246,7 @@ begin
       Exit(True);
 end;
 
-function TRSInterface.FindButton(Button: TRSInterfaceButton): Boolean; overload;
+function TRSInterface.FindButton(var Button: TRSInterfaceButton): Boolean; overload;
 var
   Bounds: TBox;
 begin

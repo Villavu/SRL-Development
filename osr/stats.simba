@@ -131,7 +131,7 @@ begin
       B := GetTPABounds(ATPA[0]);
 
       TBA := [[B.x1,B.y1,B.x2,B.y2], [B.x1,B.y1+12,B.x2,B.y2]];
-      Text := OCR.Recognize($000000, 0, TBA[0], RS_FONTSET_PLAIN_12);
+      Text := OCR.Recognize(TBA[0], [$000000], RS_FONTSET_PLAIN_12);
 
       if Pos(SKILLNAMES[skill], text) = 0 then
         Continue;
@@ -140,7 +140,7 @@ begin
 
       if skill <> SKILL_TOTAL then
       begin
-        Text := OCR.Recognize($000000, 0, TBA[1], RS_FONTSET_PLAIN_12);
+        Text := OCR.Recognize(TBA[1], [$000000], RS_FONTSET_PLAIN_12);
         Result.Next := StrToIntDef(ExtractFromStr(Text, Numbers),0);
 
         if Result.XP <> -1 then
@@ -167,7 +167,7 @@ begin
   B := Self.GetSkillBox(Skill);
   B.Y2 := B.Y1 + (B.Height div 2);
 
-  Text := OCR.Recognize(65535, 0, B, RS_FONTSET_PLAIN_11);
+  Text := OCR.Recognize(B, [65535], RS_FONTSET_PLAIN_11);
   Result := StrToIntDef(ExtractFromStr(Text, Numbers), -1);
 end;
 

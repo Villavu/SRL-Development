@@ -23,8 +23,6 @@ var
   MainScreen: TRSMainScreen;
 
 procedure TRSMainScreen.Setup(ClientMode: ERSClientMode);
-var
-  I, J: Int32;
 begin
   Self.Name := 'MainScreen';
 
@@ -50,13 +48,16 @@ begin
       end;
   end;
 
-  Self.UpTextFilter := [-1, 85, True, 70];
+  Self.UpTextFilter.Color := -1;
+  Self.UpTextFilter.Tolerance := 85;
+  Self.UpTextFilter.UseShadow := True;
+  Self.UpTextFilter.ShadowMaxValue := 70;
   Self.UpTextFilter.MinCharacterMatch := 18; // Filter out tiny characters (likely junk)
 end;
 
 function TRSMainScreen.GetUpText(): String;
 begin
-  Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONTSET_BOLD_12_SHADOW);
+  Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONTSET_BOLD_12_SHADOW, True);
 
   {$IFDEF UPTEXT_DEBUG}
   Self.Debug('UpText: ' + Result);
