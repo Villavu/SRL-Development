@@ -280,7 +280,7 @@ var
 begin
   Result := Self.FindButton(Button, Bounds);
   if Result then
-    Mouse.Click(SRL.rowp(Mouse.GetPosition(), Bounds), Action);
+    Mouse.Click(Bounds, Action);
 end;
 
 function TRSInterface.ClickButton(Buttons: array of TRSInterfaceButton; Action: Int32): Boolean; overload;

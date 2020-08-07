@@ -14,8 +14,8 @@ var
   ItemFinder: TRSItemFinder;
 
 const
-  ITEM_FINDER_NAME_FILE    = {$macro CURRENT_DIRECTORY} + '/items';
-  ITEM_FINDER_IMAGES_ZIP   = {$macro CURRENT_DIRECTORY} + '/images.zip';
+  ITEM_FINDER_NAME_FILE    = {$macro CURRENT_DIRECTORY} + '/item-names';
+  ITEM_FINDER_IMAGES_ZIP   = {$macro CURRENT_DIRECTORY} + '/item-images.zip';
   ITEM_FINDER_IMAGES_PATH  = {$macro CURRENT_DIRECTORY} + '/images/';
 
   ITEM_FINDER_SHADOW_COLOR = $202030;
@@ -73,6 +73,8 @@ begin
       Exit(Self.ItemImages[i].Copy());
 
   ID := ToString(Self.GetItemID(Identifer)) + '.png';
+  if not DirectoryExists(ITEM_FINDER_IMAGES_PATH) then
+    CreateDirectory(ITEM_FINDER_IMAGES_PATH);
   if not FileExists(ITEM_FINDER_IMAGES_PATH + ID) then
     UnZipOneFile(ITEM_FINDER_IMAGES_ZIP, ID, ITEM_FINDER_IMAGES_PATH);
   if not FileExists(ITEM_FINDER_IMAGES_PATH + ID) then
@@ -168,6 +170,11 @@ begin
 
         // Clear background: Since images are aligned we know the background points from our database image.
         if Image.FindColors(TPA, $000000) then Clear(Image, Templ, TPA);
+
+        //WriteLn Image.MatchTemplate(Templ, TM_CCORR_NORMED)[0][0];
+        //Image.SaveToFile('img.png');
+        //Templ.SaveToFile('templ.png');
+        //Halt;
 
         if Image.MatchTemplate(Templ, TM_CCORR_NORMED)[0][0] > Self.Similarity then
           Result := Result + Slot;

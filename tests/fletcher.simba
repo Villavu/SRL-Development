@@ -14,7 +14,7 @@ type
   );
 
 const
-  ITEM_TO_FLETCH = FLETCH_YEW_LONGBOW_UNSTRUNG;
+  ITEM_TO_FLETCH = FLETCH_ARROW_SHAFTS;
   BANK_TO_USE    = BANK_LOCATION_GRAND_EXCHANGE;
 
 type
@@ -90,7 +90,7 @@ begin
     FLETCH_ARROW_SHAFTS:
       begin
         Self.CurrentItemXP := 5;
-        Self.CurrentItem := 'arrow shafts';
+        Self.CurrentItem := 'arrow shaft';
         Self.CurrentItemMaterials += ['Logs', 27];
         Self.CurrentTool := 'knife';
       end;
@@ -414,11 +414,13 @@ var
 // ANTIBAN: Check antiban before we move the mouse. This means the script could do a random task at any action.
 procedure TMouse.Move(P: TPoint); override;
 begin
-  Script.DoAntiban();
+  if SRL.Dice(50) then
+    Wait(0, 5000, wdLeft);
 
   inherited(P);
 end;
 
+{
 // ANTIBAN: Check antiban before we press a key
 procedure TKeyboard.PressKey(Key: Integer); override;
 begin
@@ -462,11 +464,15 @@ end;
 function TRSChatBox.ClickMakeButton(Item: String; Quantity: String; UseKeyboard: Boolean = False): Boolean; override;
 begin
   Result := inherited(Item, Quantity, SRL.Dice(80));
-end;
+end;    }
 
 begin
   SRL.Setup(RS_CLIENT_RESIZABLE_CLASSIC);
 
+  writeln(Inventory.find('arrow shaft'));
+
+ // BankScreen.DepositQuantity('arrow shaft', 27);
+  {
   Script.Setup(ITEM_TO_FLETCH);
-  Script.Run();
+  Script.Run(); }
 end.
