@@ -52,12 +52,12 @@ end;
 
 function TRSChatBox.GetQuery: String;
 begin
-  Result := OCR.Recognize(Chatbox.Bounds(), [$000000], RS_FONTSET_BOLD_12_SHADOW);
+  Result := OCR.Recognize(Chatbox.Bounds(), [$000000], RS_FONTSET_BOLD_12);
 end;
 
 function TRSChatbox.GetQueryAnswer: String;
 begin
-  Result := OCR.Recognize(Chatbox.Bounds(), [8388608], RS_FONTSET_BOLD_12_SHADOW);
+  Result := OCR.Recognize(Chatbox.Bounds(), [8388608], RS_FONTSET_BOLD_12);
 end;
 
 function TRSChatbox.WaitQuery(Query: String; WaitTime: Int32): Boolean;
@@ -142,8 +142,7 @@ begin
     for I := 0 to High(ItemButtons) do
     begin
       Mouse.Move(ItemButtons[I]);
-      Wait(60, 120);
-      if SRL.WaitColor(HINT_COLOR, 3000, Self.Bounds()) and FindTextColor(Item, RS_FONT_PLAIN_12, 0, 0, Self.Bounds, 1) then
+      if WaitUntil(FindTextColor(Item, RS_FONT_PLAIN_12, 0, 0, Self.Bounds, 1), SRL.TruncatedGauss(0, 2000), 4000) then
         Exit(I);
     end;
   end;
