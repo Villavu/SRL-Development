@@ -26,7 +26,7 @@ end;
 
 (*
 srl.GaussRand
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 .. code-block:: pascal
 
   function TSRL.GaussRand(Mean, Dev: Double): Double;
@@ -45,9 +45,7 @@ end;
 (*
 srl.TruncatedGauss
 ~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-  function TSRL.TruncatedGauss(Left:Double=0; Right:Double=1): Double;
+.. pascal:: function TSRL.TruncatedGauss(Left:Double=0; Right:Double=1): Double;
 
 Generates a random gaussian/normal number which is truncated and mapped within then 
 given range ``[left..right]`` weighted towards ``left``
@@ -65,7 +63,7 @@ end;
 (*
 srl.TruncatedGauss
 ~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal function TSRL.TruncatedGauss(Left:Int64=0; Right:Int64=1; CUTOFF:Single=0): Int64;
+.. pascal function TSRL.TruncatedGauss(Left:Int64=0; Right:Int64=1; CUTOFF:Single=0): Int64;
 
 Generates a random gaussian/normal number which is truncated and mapped within then
 given range ``[left..right]`` weighted towards ``left``
@@ -265,7 +263,7 @@ var
   end;
 
 begin
-  p := srl.RandomPoint(rect, SRL_GAUSS_CUTOFF / 2 + 0.5);
+  p := srl.RandomPoint(rect, SRL_GAUSS_CUTOFF / 1.5);
   e := NearestEdgeTo(P);
 
   dist := Hypot(p.X - e.X, p.Y - e.Y);
@@ -296,7 +294,7 @@ pascal::
 *)
 function TSRL.Dice(ChancePercent: Double): Boolean; static;
 begin
-  Result := System.Random() <= ChancePercent / 100;
+  Result := System.Random() < ChancePercent / 100;
 end;
 
 

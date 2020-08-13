@@ -142,7 +142,11 @@ begin
     for I := 0 to High(ItemButtons) do
     begin
       Mouse.Move(ItemButtons[I]);
-      if WaitUntil(FindTextColor(Item, RS_FONT_PLAIN_12, 0, 0, Self.Bounds, 1), SRL.TruncatedGauss(0, 2000), 4000) then
+
+      WaitEx(100, 200);
+
+      if WaitUntil(SRL.CountColor(HINT_COLOR, Self.Bounds()) > 0, SRL.TruncatedGauss(100, 1000), 4000) and
+         FindTextColor(Item, RS_FONT_PLAIN_12, 0, 0, Self.Bounds, 1) then
         Exit(I);
     end;
   end;
@@ -152,7 +156,6 @@ function TRSChatbox.ClickMakeButton(Index: Int32; Quantity: String; UseKeyboard:
 const
   BUTTON_SELECTED = $FFFFFF;
   BUTTON_UNSELECTED = $203040;
-  HINT_COLOR = 10551295;
 var
   QuantityButtons, ItemButtons: TBoxArray;
   B: TBox;

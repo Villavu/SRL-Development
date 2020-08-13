@@ -26,16 +26,26 @@ begin
   Self.BUTTON_DEPOSIT_INVENTORY := Self.AddBitmapButton('deposit_inventory.png');
   Self.BUTTON_DEPOSIT_INVENTORY_HOVER := Self.AddBitmapButton('deposit_inventory_hover.png');
 
-  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
-  begin
-    Self.Alignment.Left := [@InterfaceArea.X1];
-    Self.Alignment.Right := [@InterfaceArea.X2];
-    Self.Alignment.Top := [@InterfaceArea.Y1, 2];
-    Self.Alignment.Bottom := [@InterfaceArea.Y2, -2];
-    Self.Alignment.Center.MaxWidth := 452;
-    Self.Alignment.Center.MaxHeight := 276;
-    Self.Alignment.Center.Offset.X := -0.25;
-    Self.Alignment.Center.Offset.Y := -1.25;
+  case ClientMode of
+    RS_CLIENT_FIXED:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2];
+        Self.Alignment.Center.MaxWidth := 452;
+        Self.Alignment.Center.MaxHeight := 276;
+      end;
+
+    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, -1];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2];
+        Self.Alignment.Center.MaxWidth := 452;
+        Self.Alignment.Center.MaxHeight := 276;
+      end;
   end;
 end;
 

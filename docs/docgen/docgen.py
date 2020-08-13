@@ -1,15 +1,18 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+
 # -*- coding: utf-8 -*-
 # --------------------------------------------------------------------
 # Generates RST files from Simba sourcecode from the given root folder
 # --------------------------------------------------------------------
+
 import re
 import os, sys
 
 DOCNAME         = 'SRL'
-IGNORE_FOLDERS  = ['.git']
-FILE_EXTENSIONS = ['.pas','.inc','.simba','.lpr'] 
-SHORT_RST       = [('.. code-block:: pascal\n\n', '.. pascal::')]
+IGNORE_FOLDERS  = ['.git', 'docgen']
+FILE_EXTENSIONS = ['.simba'] 
+SHORT_RST       = [('.. code-block:: pascal\n\n', '.. pascal::'), 
+                   ('**Example:**\n\n.. code-block:: pascal  ', '**Example**')]
 
 commentregex = re.compile('\(\*.+?\*\)', re.DOTALL)
 
@@ -40,19 +43,13 @@ def generate_index_rst(TOC):
     index = 'Welcome to %ss documentation!\n===============================\n\n' %  (DOCNAME,)
     
     for dir,value in TOC:
-      print('Linking: ' + dir)
+      # print('Linking: ' + dir)
       index += '.. toctree::\n   :caption: %s\n\n' % (dir.upper().replace(os.sep,' -> '),)
       
       for name in value:
-        print('   * ' + name)
+        # print('   * ' + name)
         index += '   ' + name + '\n' 
       index += '\n-----------\n\n'
-    
-    index += '\n\n'
-    index += 'Indices and tables\n==================\n'
-    index += '* :ref:`genindex`\n'
-    index += '* :ref:`modindex`\n'
-    index += '* :ref:`search`\n'
 
     i = open('source/index.rst', 'w+')
     i.write(index)
@@ -63,6 +60,10 @@ def generate(root):
     ''' 
       Generates RST by walking the specified directly
     '''
+    
+    if not os.path.exists('source'):
+        os.mkdir('source')
+    
     paths = get_files(root)
     NameToID = {}
     TOC = []
@@ -70,7 +71,7 @@ def generate(root):
     added = set()
     
     for filename in paths:
-      print(filename)
+      # print(filename)
     
       # extract path, directory name, and filename without extension
       path = os.path.dirname(filename)
@@ -87,11 +88,15 @@ def generate(root):
         name = name + '('+dir.replace(os.sep,'_')+')'
       added.add(name)
       
-      # generate a output file
-      out = open('source/%s.rst' % name, 'w+')
       
       # extract all comments
       res = commentregex.findall(contents)
+      if len(res) == 0:
+        print('WARNING: ', name, ' is not documented')
+        continue
+      
+      # generate a output file
+      out = open('source/%s.rst' % name, 'w+')
       
       # write the rst-style'd comments to the output file
       for doc in res:
@@ -105,16 +110,22 @@ def generate(root):
       out.close()
       
       # Table of Contents
-      if len(res) != 0: 
-        if dir.strip() == '': dir = 'root'
-        if dir not in NameToID:
-          NameToID[dir] = len(TOC)
-          TOC.append((dir,[]))
-        TOC[NameToID[dir]][1].append(name)
-    
+      if dir.strip() == '': dir = 'root'
+      if dir not in NameToID:
+        NameToID[dir] = len(TOC)
+        TOC.append((dir,[]))
+      TOC[NameToID[dir]][1].append(name)
+
     # finally build the index file
     generate_index_rst(TOC)
-
-
+    
+    os.system('sphinx-build source build -c .')
+	
 if __name__ == '__main__':
     generate(sys.argv[1])
+    
+    if os.path.exists('source'):
+        for filename in os.listdir('source'):
+            os.remove('source' + os.sep + filename)
+            
+        os.rmdir('source') 

@@ -1,7 +1,14 @@
+(*
+MainScreen
+==========
+*)
+
 {$DEFINE SRL_MAINSCREEN_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
+
+{.$DEFINE SRL_DEBUG_MOUSE} // Enable me print uptext recognition
 
 type
   TRSObjectFinder = record
@@ -59,7 +66,7 @@ function TRSMainScreen.GetUpText(): String;
 begin
   Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONTSET_BOLD_12_SHADOW, True);
 
-  {$IFDEF UPTEXT_DEBUG}
+  {$IFDEF SRL_DEBUG_UPTEXT}
   Self.Debug('UpText: ' + Result);
   {$ENDIF}
 end;
@@ -111,9 +118,7 @@ MainScreen.ConvertDistance
 Converts a distance acquired from the **fixed client* and **default zoom(50)** to the
 current mainscreen.
 
-**Example:**
-
-.. pascal::
+**Example**
 
   // 20 pixels on the fixed client and default zoom(50) is currently x pixels on the mainscreen.
   WriteLn(MainScreen.TranslateDistance(20));
@@ -160,7 +165,6 @@ done by calling `.ToPoint` on the result.
 
 **Example**
 
-.. pascal::
   WriteLn Mainscreen.PointToMM(Point(250,140), 2);           // as a vector (more accurate)
   WriteLn Mainscreen.PointToMM(Point(250,140), 2).ToPoint(); // as a TPoint (lost accuracy)
 *)

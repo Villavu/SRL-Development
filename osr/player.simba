@@ -11,6 +11,7 @@ type
   TRSPlayer = record
     LoginName: String;
     Password: String;
+    Pin: String;
     Member: Boolean;
     Worlds: TIntegerArray;
 
@@ -31,12 +32,13 @@ var
 var
   CurrentPlayer: Int32;
 
-procedure TRSPlayerArray.Add(LoginName: String; Password: String; Member: Boolean; Worlds: TIntegerArray = []);
+procedure TRSPlayerArray.Add(LoginName: String; Password: String; Pin: String; Member: Boolean; Worlds: TIntegerArray = []);
 var
   Player: TRSPlayer;
 begin
   Player.LoginName := LoginName;
   Player.Password := Password;
+  Player.Pin := Pin;
   Player.Member := Member;
   Player.Worlds := Worlds;
 

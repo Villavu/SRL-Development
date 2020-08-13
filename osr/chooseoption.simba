@@ -153,7 +153,6 @@ procedure TRSChooseOption.Select(Option: TRSChooseOption_Option; MouseAction: In
 var
   From: TPoint;
   B: TBox;
-  CustomMouse: TMouse;
 begin
   B := Option.Bounds;
   B := B.Expand(-1);
@@ -161,13 +160,10 @@ begin
   From.X := B.X1;
   From.Y := B.Y1 + (B.Height div 3);
 
-  // Use a slightly slower mouse
-  CustomMouse := Mouse;
-  CustomMouse.Speed -= Max(8, Random(2, 10));
-  CustomMouse.Move(SRL.RandomPointEx(From, B));
+  Mouse.Move(SRL.RandomPointEx(From, B));
 
-  if MouseAction <> MOUSE_MOVE then
-    CustomMouse.Click(MouseAction);
+  if (MouseAction <> MOUSE_MOVE) then
+    Mouse.Click(MouseAction);
 end;
 
 function TRSChooseOption.Select(Text: TStringArray; MouseAction: Int32 = MOUSE_LEFT; CaseSensitive: Boolean = True; CloseIfNotFound: Boolean = True): Boolean; overload;

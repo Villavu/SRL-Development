@@ -1,3 +1,8 @@
+(*
+Misc
+====
+*)
+
 {$DEFINE SRL_MISC_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -32,9 +37,9 @@ var
   X, Y, W, H: Int32;
   Yellow, Red: Int32;
 begin
-  if Mouse.GetPosition() in GetClientBounds() then
+  if Mouse.Position() in GetClientBounds() then
   begin
-    with Mouse.GetPosition() do
+    with Mouse.Position() do
       B := [X - 8, Y - 8, X + 8, Y + 8];
 
     B.LimitTo(GetClientBounds());

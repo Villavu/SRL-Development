@@ -2,3 +2,4 @@ docgen/build/
 docgen/source/
 /osr/itemfinder/images
 *.bmp
+/docs/docgen/build

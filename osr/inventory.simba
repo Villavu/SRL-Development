@@ -210,8 +210,8 @@ begin
           // Spam click a little
           for 1 to SRL.TruncatedGauss(0, 3) do
           begin
-            Circle.X := Mouse.GetPosition().X;
-            Circle.Y := Mouse.GetPosition().Y;
+            Circle.X := Mouse.Position().X;
+            Circle.Y := Mouse.Position().Y;
             Circle.Radius := 5;
 
             Mouse.Click(Circle, MOUSE_LEFT, True);

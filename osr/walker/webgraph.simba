@@ -1,3 +1,8 @@
+(*
+Web Graph
+=========
+*)
+
 type
   TWebGraph = record
     Nodes: TPointArray;

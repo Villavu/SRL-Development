@@ -1,3 +1,8 @@
+(*
+Item Finder
+===========
+*)
+
 {$DEFINE SRL_ITEMFINDER_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -38,21 +43,23 @@ end;
 
 procedure TRSItemFinder.Setup;
 begin
+  Self.ItemNames.Init();
+  Self.ItemNames.LoadFromFile(ITEM_FINDER_NAME_FILE);
+
   Self.Similarity := 0.999;
 
   AddOnTerminate(@Self.Free);
+end;
+
+procedure TRSItemFinder.AddItemName(Item, ID: String);
+begin
+  Self.ItemNames.SetValues(Item, ID);
 end;
 
 function TRSItemFinder.GetItemID(Identifer: String): Int32;
 begin
   if not Identifer.IsDigit() then
   begin
-    if Self.ItemNames = nil then
-    begin
-      Self.ItemNames.Init();
-      Self.ItemNames.LoadFromFile(ITEM_FINDER_NAME_FILE);
-    end;
-
     if Self.ItemNames.IndexOfName(Identifer) = -1 then
       raise 'Unknown item: ' + Identifer;
 
@@ -73,6 +80,7 @@ begin
       Exit(Self.ItemImages[i].Copy());
 
   ID := ToString(Self.GetItemID(Identifer)) + '.png';
+
   if not DirectoryExists(ITEM_FINDER_IMAGES_PATH) then
     CreateDirectory(ITEM_FINDER_IMAGES_PATH);
   if not FileExists(ITEM_FINDER_IMAGES_PATH + ID) then
@@ -327,12 +335,12 @@ BankScreen.Deposit
 ~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSBankScreen.Deposit(Items: TStringArray): Boolean;
 
-  Deposits an array of items.
-  ``Items`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+Deposits an array of items.
+``Items`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 
- **Example**
+**Example**
 
-   BankScreen.Deposit(['logs', 'lobster']);
+  BankScreen.Deposit(['logs', 'lobster']);
 *)
 function TRSBankScreen.Deposit(Items: TStringArray): Boolean; override;
 var
@@ -347,16 +355,16 @@ BankScreen.DepositQuantity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean;
 
-  Deposits the specified amount ``Amount`` of the item ``Item``.
-  The quantity buttons are used for picking the amount.
+Deposits the specified amount ``Amount`` of the item ``Item``.
+The quantity buttons are used for picking the amount.
 
-  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
-  ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
+``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
 
- **Example**
+**Example**
 
-   BankScreen.DepositQuantity('logs', 10); // Deposit 10 logs using using the `10` quantity button.
-   BankScreen.DepositQuantity('lobster', BANK_DEPOSIT_ALL); // Deposit all lobsters using inventory slot 1 using the `ALL` quantity button.
+  BankScreen.DepositQuantity('logs', 10); // Deposit 10 logs using using the `10` quantity button.
+  BankScreen.DepositQuantity('lobster', BANK_DEPOSIT_ALL); // Deposit all lobsters using inventory slot 1 using the `ALL` quantity button.
 *)
 function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean; override;
 var
@@ -377,16 +385,16 @@ BankScreen.Deposit
 ~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSBankScreen.Deposit(Item: String; Amount: Int32): Boolean;
 
-  Deposits the specified amount ``Amount`` of the item ``Item``.
-  The quantity buttons are used for picking the amount.
+Deposits the specified amount ``Amount`` of the item ``Item``.
+The quantity buttons are used for picking the amount.
 
-  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
-  ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
+``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
 
- **Example**
+**Example**
 
-   BankScreen.Deposit('lobster', 10); // Deposit 10 logs using the `10` quantity button.
-   BankScreen.Deposit('logs', BANK_DEPOSIT_ALL); // Deposit 10 logs using the `ALL` quantity button.
+  BankScreen.Deposit('lobster', 10); // Deposit 10 logs using the `10` quantity button.
+  BankScreen.Deposit('logs', BANK_DEPOSIT_ALL); // Deposit 10 logs using the `ALL` quantity button.
 *)
 function TRSBankScreen.Deposit(Item: String; Amount: Int32): Boolean; override;
 var
@@ -420,15 +428,15 @@ BankScreen.Withdraw
 ~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSBankScreen.Withdraw(Item: String; Amount: Int32; Noted: Boolean): Boolean;
 
-  Withdraws the specified amount ``Amount`` of the item ``Item``.
+Withdraws the specified amount ``Amount`` of the item ``Item``.
 
-  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
-  ``BANK_WITHDRAW_ALL`` and ``BANK_WITHDRAW_ALL_BUT_ONE`` constants can be used for ``Amount``.
+``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+``BANK_WITHDRAW_ALL`` and ``BANK_WITHDRAW_ALL_BUT_ONE`` constants can be used for ``Amount``.
 
-  **Example**
+**Example**
 
-    BankScreen.Withdraw('logs', 10, False); // Withdraw 10 logs
-    BankScreen.Withdraw('lobster', WITHDRAW_ALL, True); // Withdraw all lobsters as noted
+  BankScreen.Withdraw('logs', 10, False); // Withdraw 10 logs
+  BankScreen.Withdraw('lobster', WITHDRAW_ALL, True); // Withdraw all lobsters as noted
 *)
 function TRSBankScreen.Withdraw(Item: String; Amount: Int32; Noted: Boolean): Boolean; override;
 var
@@ -446,16 +454,16 @@ BankScreen.WithdrawQuantity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean;
 
-  Withdraws the specified amount ``Amount`` of the item ``Item``.
-  The quantity buttons are used for picking the amount.
+Withdraws the specified amount ``Amount`` of the item ``Item``.
+The quantity buttons are used for picking the amount.
 
-  ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
-  ``BANK_WITHDRAW_ALL`` constants can be used for ``Amount``.
+``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
+``BANK_WITHDRAW_ALL`` constants can be used for ``Amount``.
 
-  **Example**
+**Example**
 
-    BankScreen.WithdrawQuantity('logs', 10, False); // Withdraw 10 logs using the `10` quantity button
-    BankScreen.Withdraw('lobster', 2, True); // Withdraw all lobsters as noted using the `X` quantity button
+  BankScreen.WithdrawQuantity('logs', 10, False); // Withdraw 10 logs using the `10` quantity button
+  BankScreen.Withdraw('lobster', 2, True); // Withdraw all lobsters as noted using the `X` quantity button
 *)
 function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean; override;
 var

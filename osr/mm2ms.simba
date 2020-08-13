@@ -14,13 +14,8 @@ functionality to convert coordinates to & from the minimap to the mainscreen.
 *)
 
 (*
-MM2MS
------
-*)
-
-(*
 type TMM2MS
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
 .. pascal:: 
   type
     TMM2MS = record
@@ -337,8 +332,7 @@ done by calling `.ToPoint` on the result.
 
 **Example**
 
-.. pascal::
-  WriteLn Mainscreen.PointToMM(Point(250,140), 2);           // as a vector (more accurate)
+  WriteLn Mainscreen.PointToMM(Point(250,140), 2);
   WriteLn Mainscreen.PointToMM(Point(250,140), 2).ToPoint(); // as a TPoint (lost accuracy)
 *)
 function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3; override;
@@ -400,9 +394,7 @@ MainScreen.ConvertDistance
 Converts a distance acquired from the **fixed client* and **default zoom** to the
 current mainscreen.
 
-**Example:**
-
-.. pascal::
+**Example**
 
   // 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom & client size.
   WriteLn(MainScreen.TranslateDistance(20));

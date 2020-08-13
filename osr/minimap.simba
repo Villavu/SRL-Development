@@ -143,7 +143,7 @@ begin
     Pixels := Round(Abs(SRL.DeltaAngle(Self.GetCompassAngle(), Degrees)) * DEG_PER_PIXEL);
     LeftToRight := ((Remaining > 0) and (Abs(Remaining) <= 180)) or ((Remaining < 0) and (Abs(Remaining) > 180));
 
-    MousePosition := Mouse.GetPosition();
+    MousePosition := Mouse.Position();
 
     if LeftToRight then
     begin
@@ -151,7 +151,7 @@ begin
       begin
         Mouse.Move([Available.X1, Available.Y1, Available.X1 + 200, Available.Y1 + 200]);
 
-        MousePosition := Mouse.GetPosition();
+        MousePosition := Mouse.Position();
       end;
 
       Destination.X := MousePosition.X + Pixels;
@@ -162,7 +162,7 @@ begin
       begin
         Mouse.Move([Available.X2 - 200, Available.Y1, Available.X2, Available.Y1 + 200]);
 
-        MousePosition := Mouse.GetPosition();
+        MousePosition := Mouse.Position();
       end;
 
       Destination.X := MousePosition.X - Pixels;

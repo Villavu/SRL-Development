@@ -23,7 +23,7 @@ type
 
   TRSInterfaceAlignment = record
     Method: function: Int32 of object;
-    Offset: Int32;
+    Offset: Single;
   end;
 
   TRSInterface = record(TSRLBaseRecord)
@@ -35,18 +35,6 @@ type
       Center: record
         MaxWidth: Single;
         MaxHeight: Single;
-
-        (*
-          To get a perfect alignment you need to mess with this.
-          We need to recreate how RS aligns it's interfaces, however it isn't just
-          an generic method. See BankScreen & DepositScreen for offsets used.
-
-          Make sure to test the alignments by debugging the bounds, expanding
-          client by one pixel, and debugging again.
-        *)
-        Offset: record
-           X, Y: Single;
-        end;
       end;
     end;
   end;
@@ -94,8 +82,7 @@ end;
 
 function TRSInterface.X1: Int32; constref;
 var
-  Left, Right: Int32;
-  Width, Center: Single;
+  Left, Right, Width, Center: Single;
 begin
   if (@Self.Alignment.Left.Method = nil) then
     Self.Fatal('No left anchor');
@@ -105,21 +92,20 @@ begin
     Left := Self.Alignment.Left.Method() + Self.Alignment.Left.Offset;
     Right := Self.Alignment.Right.Method() + Self.Alignment.Right.Offset;
 
-    Width := (Right - Left) + Self.Alignment.Center.Offset.X;
+    Width := (Right - Left);
     Center := Left + (Width / 2);
 
     Result := Max(
-      Round(Center - (Width / 2)),
-      Ceil(Center - (Self.Alignment.Center.MaxWidth / 2))
+      Floor(Center - (Width / 2)),
+      Floor(Center - ((Self.Alignment.Center.MaxWidth - 1) / 2))
     );
 
   end else
-    Result := Self.Alignment.Left.Method() + Self.Alignment.Left.Offset;
+    Result := Round(Self.Alignment.Left.Method() + Self.Alignment.Left.Offset)
 end;
 function TRSInterface.X2: Int32; constref;
 var
-  Left, Right: Int32;
-  Width, Center: Single;
+  Left, Right, Width, Center: Single;
 begin
   if (@Self.Alignment.Right.Method = nil) then
     Self.Fatal('No right anchor');
@@ -129,21 +115,20 @@ begin
     Left := Self.Alignment.Left.Method() + Self.Alignment.Left.Offset;
     Right := Self.Alignment.Right.Method() + Self.Alignment.Right.Offset;
 
-    Width := (Right - Left) + Self.Alignment.Center.Offset.X;
+    Width := (Right - Left);
     Center := Left + (Width / 2);
 
     Result := Min(
-      Round(Center + (Width / 2)),
-      Floor(Center + (Self.Alignment.Center.MaxWidth / 2))
+      Floor(Center + (Width / 2)),
+      Floor(Center + ((Self.Alignment.Center.MaxWidth - 1) / 2))
     );
   end else
-    Result := Self.Alignment.Right.Method() + Self.Alignment.Right.Offset;
+    Result := Round(Self.Alignment.Right.Method() + Self.Alignment.Right.Offset);
 end;
 
 function TRSInterface.Y1: Int32; constref;
 var
-  Top, Bottom: Int32;
-  Height, Center: Single;
+  Top, Bottom, Height, Center: Single;
 begin
   if (@Self.Alignment.Top.Method = nil) then
     Self.Fatal('No top anchor');
@@ -153,21 +138,20 @@ begin
     Top := Self.Alignment.Top.Method() + Self.Alignment.Top.Offset;
     Bottom := Self.Alignment.Bottom.Method() + Self.Alignment.Bottom.Offset;
 
-    Height := (Bottom - Top) + Self.Alignment.Center.Offset.Y;
+    Height := (Bottom - Top);
     Center := Top + (Height / 2);
 
     Result := Max(
-      Round(Center - (Height / 2)),
-      Ceil(Center - (Self.Alignment.Center.MaxHeight / 2))
+      Floor(Center - (Height / 2)),
+      Floor(Center - ((Self.Alignment.Center.MaxHeight - 1) / 2))
     );
   end else
-    Result := Self.Alignment.Top.Method() + Self.Alignment.Top.Offset;
+    Result := Round(Self.Alignment.Top.Method() + Self.Alignment.Top.Offset);
 end;
 
 function TRSInterface.Y2: Int32; constref;
 var
-  Top, Bottom: Int32;
-  Height, Center: Single;
+  Top, Bottom, Height, Center: Single;
 begin
   if (@Self.Alignment.Bottom.Method = nil) then
     Self.Fatal('No bottom anchor');
@@ -177,15 +161,15 @@ begin
     Top := Self.Alignment.Top.Method() + Self.Alignment.Top.Offset;
     Bottom := Self.Alignment.Bottom.Method() + Self.Alignment.Bottom.Offset;
 
-    Height := (Bottom - Top) + Self.Alignment.Center.Offset.Y;
+    Height := (Bottom - Top);
     Center := Top + (Height / 2);
 
     Result := Min(
-      Round(Center + (Height / 2)),
-      Floor(Center + (Self.Alignment.Center.MaxHeight / 2))
+      Floor(Center + (Height / 2)),
+      Floor(Center + ((Self.Alignment.Center.MaxHeight - 1) / 2))
     );
   end else
-    Result := Self.Alignment.Bottom.Method() + Self.Alignment.Bottom.Offset;
+    Result := Round(Self.Alignment.Bottom.Method() + Self.Alignment.Bottom.Offset);
 end;
 
 function TRSInterface.Bounds: TBox; constref;
@@ -222,9 +206,9 @@ function TRSInterface.FindButton(var Button: TRSInterfaceButton; out Bounds: TBo
     end else
     begin
       if (Button.Color = -1) then
-        Result := FindText(Button.Text, Button.Font, Self.X1, Self.Y1, Self.X2, Self.Y2, Area) = 1
+        Result := FindText(Button.Text, Button.Font, Self.X1, Self.Y1, Self.X2, Self.Y2, Bounds) = 1
       else
-        Result := FindTextColor(Button.Text, Button.Font, Button.Color, 0, Self.X1, Self.Y1, Self.X2, Self.Y2, Area) = 1;
+        Result := FindTextColor(Button.Text, Button.Font, Button.Color, 0, Self.X1, Self.Y1, Self.X2, Self.Y2, Bounds) = 1;
     end;
 
     if Result then

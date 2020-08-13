@@ -124,17 +124,3 @@ var
 begin
   Result := Self.FindColors(TPA, Color, Area);
 end;
-
-function TSRL.WaitColor(Color: Int32; WaitTime: Int32; Area: TBox): Boolean;
-var
-  T: UInt64;
-begin
-  T := GetTickCount() + WaitTime;
-  while (T > GetTickCount()) do
-  begin
-    if Self.CountColor(Color, Area) > 0 then
-      Exit(True);
-
-    Wait(50, 100);
-  end;
-end;
