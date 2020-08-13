@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>BankScreen.Deposit &mdash; SRL  documentation</title>
+  <title>Item Finder &mdash; SRL  documentation</title>
   
 
   
@@ -113,11 +113,14 @@
 </ul>
 <p class="caption"><span class="caption-text">OSR -&gt; ITEMFINDER</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">BankScreen.Deposit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#bankscreen-depositquantity">BankScreen.DepositQuantity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#id1">BankScreen.Deposit</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#bankscreen-withdraw">BankScreen.Withdraw</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#bankscreen-withdrawquantity">BankScreen.WithdrawQuantity</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Item Finder</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-deposit">BankScreen.Deposit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-depositquantity">BankScreen.DepositQuantity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">BankScreen.Deposit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-withdraw">BankScreen.Withdraw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-withdrawquantity">BankScreen.WithdrawQuantity</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">OSR -&gt; WALKER</span></p>
 <ul>
@@ -175,7 +178,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>BankScreen.Deposit</li>
+      <li>Item Finder</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -194,8 +197,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="bankscreen-deposit">
-<h1>BankScreen.Deposit<a class="headerlink" href="#bankscreen-deposit" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="item-finder">
+<h1>Item Finder<a class="headerlink" href="#item-finder" title="Permalink to this headline">¶</a></h1>
+<hr class="docutils" />
+<div class="section" id="bankscreen-deposit">
+<h2>BankScreen.Deposit<a class="headerlink" href="#bankscreen-deposit" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">Deposit</span><span class="p">(</span><span class="n">Items</span><span class="o">:</span> <span class="n">TStringArray</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -208,7 +214,7 @@
 </div>
 <hr class="docutils" />
 <div class="section" id="bankscreen-depositquantity">
-<h1>BankScreen.DepositQuantity<a class="headerlink" href="#bankscreen-depositquantity" title="Permalink to this headline">¶</a></h1>
+<h2>BankScreen.DepositQuantity<a class="headerlink" href="#bankscreen-depositquantity" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">DepositQuantity</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Amount</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -224,7 +230,7 @@ The quantity buttons are used for picking the amount.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="id1">
-<h1>BankScreen.Deposit<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<h2>BankScreen.Deposit<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">Deposit</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Amount</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -240,7 +246,7 @@ The quantity buttons are used for picking the amount.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="bankscreen-withdraw">
-<h1>BankScreen.Withdraw<a class="headerlink" href="#bankscreen-withdraw" title="Permalink to this headline">¶</a></h1>
+<h2>BankScreen.Withdraw<a class="headerlink" href="#bankscreen-withdraw" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">Withdraw</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Amount</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">Noted</span><span class="o">:</span> <span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -255,7 +261,7 @@ The quantity buttons are used for picking the amount.</p>
 </div>
 <hr class="docutils" />
 <div class="section" id="bankscreen-withdrawquantity">
-<h1>BankScreen.WithdrawQuantity<a class="headerlink" href="#bankscreen-withdrawquantity" title="Permalink to this headline">¶</a></h1>
+<h2>BankScreen.WithdrawQuantity<a class="headerlink" href="#bankscreen-withdrawquantity" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">WithdrawQuantity</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Amount</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">Noted</span><span class="o">:</span> <span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -269,6 +275,7 @@ The quantity buttons are used for picking the amount.</p>
 </pre></div>
 </div>
 <hr class="docutils" />
+</div>
 </div>
 
 
