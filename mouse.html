@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Mouse &mdash; SRL  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Time" href="time.html" />
+    <link rel="prev" title="String" href="string.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SRL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">UTILS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Mouse</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#emousedistribution">EMouseDistribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tmouse">TMouse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse-teleport">Mouse.Teleport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Mouse.Teleport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse-position">Mouse.Position</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse-hold">Mouse.Hold</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse-release">Mouse.Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse-windmouse">Mouse.WindMouse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse-move">Mouse.Move</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Mouse.Move</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Mouse.Move</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">Mouse.Move</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">Mouse.Move</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse-click">Mouse.Click</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse-miss">Mouse.Miss</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slacktree.html">Slacktree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bankscreen.html">BankScreen</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; ITEMFINDER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-depositquantity">BankScreen.DepositQuantity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#id1">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdraw">BankScreen.Withdraw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdrawquantity">BankScreen.WithdrawQuantity</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; WALKER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+</ul>
+<p class="caption"><span class="caption-text">UTILS_TODO</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="slackdebug.html">Slackdebug</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slackab.html">Slacky’s Antiban Mixture</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SRL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Mouse</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/mouse.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="mouse">
+<h1>Mouse<a class="headerlink" href="#mouse" title="Permalink to this headline">¶</a></h1>
+<p>Methods to interact with the mouse.</p>
+<hr class="docutils" />
+<div class="section" id="emousedistribution">
+<h2>EMouseDistribution<a class="headerlink" href="#emousedistribution" title="Permalink to this headline">¶</a></h2>
+<p>The available distributions used to generate a point in a box.</p>
+<ul class="simple">
+<li><p><strong>MOUSE_DISTRIBUTION_RANDOM</strong>: Completely random point</p></li>
+<li><p><strong>MOUSE_DISTRIBUTION_GAUSS</strong>:  Weighted towards the center</p></li>
+<li><p><strong>MOUSE_DISTRIBUTION_SKEWED</strong>: Weighted torwards current mouse position</p></li>
+<li><p><strong>MOUSE_DISTRIBUTION_ROWP</strong>:   Weighted torwards current mouse position but more “rounded” compared to <strong>MOUSE_DISTRIBUTION_SKEWED</strong></p></li>
+</ul>
+<p><strong>MOUSE_DISTRIBUTION_DEFAULT</strong> will use <strong>Mouse.Distribution</strong> by default is <strong>MOUSE_DISTRIBUTION_ROWP</strong></p>
+</div>
+<hr class="docutils" />
+<div class="section" id="tmouse">
+<h2>TMouse<a class="headerlink" href="#tmouse" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Mouse.Speed: Overall speed of the mouse</p></li>
+<li><p>Mouse.MissChance: Chance % to “Miss” the destination</p></li>
+<li><p>Mouse.Distribution: Default mouse distribution to use when clicking boxes</p></li>
+</ul>
+<p><strong>Example</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// These are the default values that can be changed</span>
+<span class="n">Mouse</span><span class="o">.</span><span class="n">Speed</span> <span class="o">:=</span> <span class="mi">13</span><span class="o">;</span>
+<span class="n">Mouse</span><span class="o">.</span><span class="n">MissChance</span> <span class="o">:=</span> <span class="mi">10</span><span class="o">;</span> <span class="c1">// 10% chance each time the mouse is moved</span>
+<span class="n">Mouse</span><span class="o">.</span><span class="n">Distribution</span> <span class="o">:=</span> <span class="n">MOUSE_DISTRIBUTION_ROWP</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="mouse-teleport">
+<h2>Mouse.Teleport<a class="headerlink" href="#mouse-teleport" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Teleport</span><span class="p">(</span><span class="n">X</span><span class="o">,</span> <span class="n">Y</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Teleport the mouse to the desired X, Y coordinates.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id1">
+<h2>Mouse.Teleport<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Teleport</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Teleport the mouse to the desired point.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="mouse-position">
+<h2>Mouse.Position<a class="headerlink" href="#mouse-position" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Position</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns the mouse current position.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="mouse-hold">
+<h2>Mouse.Hold<a class="headerlink" href="#mouse-hold" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Hold</span><span class="p">(</span><span class="n">Button</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Holds the desired mouse button down. The button will continue to be held down until <cite>Mouse.Release</cite> is called.</p>
+<dl class="simple">
+<dt>Button can be either:</dt><dd><ul class="simple">
+<li><p>MOUSE_LEFT</p></li>
+<li><p>MOUSE_RIGHT</p></li>
+<li><p>MOUSE_SCROLL</p></li>
+<li><p>MOUSE_EXTRA_1</p></li>
+<li><p>MOUSE_EXTRA_2</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Mouse</span><span class="o">.</span><span class="n">Hold</span><span class="p">(</span><span class="n">MOUSE_LEFT</span><span class="p">)</span><span class="o">;</span> <span class="c1">// The mouse is now pressing down left click.</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="mouse-release">
+<h2>Mouse.Release<a class="headerlink" href="#mouse-release" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Release</span><span class="p">(</span><span class="n">Button</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Releases the desired mouse button which has been previously held.</p>
+<dl class="simple">
+<dt>Button can be either:</dt><dd><ul class="simple">
+<li><p>MOUSE_LEFT</p></li>
+<li><p>MOUSE_RIGHT</p></li>
+<li><p>MOUSE_SCROLL</p></li>
+<li><p>MOUSE_EXTRA_1</p></li>
+<li><p>MOUSE_EXTRA_2</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Mouse</span><span class="o">.</span><span class="n">Release</span><span class="p">(</span><span class="n">MOUSE_LEFT</span><span class="p">)</span><span class="o">;</span> <span class="c1">// The mouse is no longer pressing left click.</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="mouse-windmouse">
+<h2>Mouse.WindMouse<a class="headerlink" href="#mouse-windmouse" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Release</span><span class="p">(</span><span class="n">Button</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>The internal algorithm used by <cite>Mouse.Move</cite> to move the mouse in a human’ish way.</p>
+<p>Credit: BenLand100 (<a class="reference external" href="https://github.com/BenLand100/SMART/blob/master/src/EventNazi.java#L201">https://github.com/BenLand100/SMART/blob/master/src/EventNazi.java#L201</a>)</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="mouse-move">
+<h2>Mouse.Move<a class="headerlink" href="#mouse-move" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Move</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the mouse to the desired point.</p>
+<p><strong>Example</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>
+
+<span class="n">P</span><span class="o">.</span><span class="n">X</span> <span class="o">:=</span> <span class="mi">50</span><span class="o">;</span>
+<span class="n">P</span><span class="o">.</span><span class="n">Y</span> <span class="o">:=</span> <span class="mi">50</span><span class="o">;</span>
+
+<span class="n">Mouse</span><span class="o">.</span><span class="n">Move</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="o">;</span>
+
+<span class="nb">WriteLn</span><span class="p">(</span><span class="n">Mouse</span><span class="o">.</span><span class="n">Position</span><span class="p">())</span><span class="o">;</span> <span class="c1">// 50, 50</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h2>Mouse.Move<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Move</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the mouse to the desired X,Y coordinate.</p>
+<p><strong>Example</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Mouse</span><span class="o">.</span><span class="n">Move</span><span class="p">(</span><span class="mi">50</span><span class="o">,</span> <span class="mi">50</span><span class="p">)</span><span class="o">;</span>
+
+<span class="nb">WriteLn</span><span class="p">(</span><span class="n">Mouse</span><span class="o">.</span><span class="n">Position</span><span class="p">())</span><span class="o">;</span> <span class="c1">// 50, 50</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id3">
+<h2>Mouse.Move<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Move</span><span class="p">(</span><span class="n">Box</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">ForcedMove</span><span class="o">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="k">False</span><span class="o">;</span> <span class="n">Distribution</span><span class="o">:</span> <span class="n">EMouseDistribution</span> <span class="o">=</span> <span class="n">MOUSE_DISTRIBUTION_DEFAULT</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the mouse to a random point in the box.</p>
+<ul class="simple">
+<li><p><strong>ForcedMove</strong> determines if the mouse should be moved if already in the box. By default this is <strong>False</strong></p></li>
+<li><p><strong>Distribution</strong> determines the method to generate a random point. By default this uses <strong>Mouse.Distribution</strong></p></li>
+</ul>
+<p><strong>Example</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">B</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span>
+
+<span class="n">B</span><span class="o">.</span><span class="n">X1</span> <span class="o">:=</span> <span class="mi">100</span><span class="o">;</span>
+<span class="n">B</span><span class="o">.</span><span class="n">Y1</span> <span class="o">:=</span> <span class="mi">100</span><span class="o">;</span>
+<span class="n">B</span><span class="o">.</span><span class="n">X2</span> <span class="o">:=</span> <span class="mi">200</span><span class="o">;</span>
+<span class="n">B</span><span class="o">.</span><span class="n">Y2</span> <span class="o">:=</span> <span class="mi">200</span><span class="o">;</span>
+
+<span class="n">Mouse</span><span class="o">.</span><span class="n">Move</span><span class="p">(</span><span class="n">B</span><span class="p">)</span><span class="o">;</span>
+
+<span class="nb">WriteLn</span><span class="p">(</span><span class="n">Mouse</span><span class="o">.</span><span class="n">Position</span><span class="p">())</span><span class="o">;</span> <span class="c1">// The mouse is now randomly within 100,100,200,200</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id4">
+<h2>Mouse.Move<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Move</span><span class="p">(</span><span class="n">Circle</span><span class="o">:</span> <span class="n">TCircle</span><span class="o">;</span> <span class="n">ForcedMove</span><span class="o">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="k">False</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the mouse to a random point in an circle.</p>
+<ul class="simple">
+<li><p><strong>ForcedMove</strong> determines if the mouse should be moved if already in the circle. By default this is False.</p></li>
+</ul>
+<p><strong>Example</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">C</span><span class="o">:</span> <span class="n">TCircle</span><span class="o">;</span>
+
+<span class="n">C</span><span class="o">.</span><span class="n">X</span> <span class="o">:=</span> <span class="mi">100</span><span class="o">;</span>
+<span class="n">C</span><span class="o">.</span><span class="n">Y</span> <span class="o">:=</span> <span class="mi">100</span><span class="o">;</span>
+<span class="n">C</span><span class="o">.</span><span class="n">Radius</span> <span class="o">:=</span> <span class="mi">25</span><span class="o">;</span>
+
+<span class="n">Mouse</span><span class="o">.</span><span class="n">Move</span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="o">;</span>
+
+<span class="nb">WriteLn</span><span class="p">(</span><span class="n">Mouse</span><span class="o">.</span><span class="n">Position</span><span class="p">())</span><span class="o">;</span> <span class="c1">// The mouse is now randomly within 100,100 with a radius of 25.</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id5">
+<h2>Mouse.Move<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Move</span><span class="p">(</span><span class="nb">Rect</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span> <span class="n">ForcedMove</span><span class="o">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="k">False</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the mouse to a random point in an rectangle.</p>
+<ul class="simple">
+<li><p><strong>ForcedMove</strong> determines if the mouse should be moved if already in the rectangle. By default this is False.</p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="mouse-click">
+<h2>Mouse.Click<a class="headerlink" href="#mouse-click" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Click</span><span class="p">(</span><span class="n">Button</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Clicks the mouse with the desired button at the current mouse position.</p>
+<dl class="simple">
+<dt>Button can be either:</dt><dd><ul class="simple">
+<li><p>MOUSE_LEFT</p></li>
+<li><p>MOUSE_RIGHT</p></li>
+<li><p>MOUSE_SCROLL</p></li>
+<li><p>MOUSE_EXTRA_1</p></li>
+<li><p>MOUSE_EXTRA_2</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Left clicking at: &#39;</span><span class="o">,</span> <span class="n">Mouse</span><span class="o">.</span><span class="n">Position</span><span class="p">())</span><span class="o">;</span>
+
+<span class="n">Mouse</span><span class="o">.</span><span class="n">Click</span><span class="p">(</span><span class="n">MOUSE_LEFT</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="mouse-miss">
+<h2>Mouse.Miss<a class="headerlink" href="#mouse-miss" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Miss</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>“Misses” the target point <strong>P</strong>. Will stop somewhere along the path or overshoot.</p>
+<p>This can automatically be called depending on Mouse.MissChance.</p>
+<hr class="docutils" />
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="time.html" class="btn btn-neutral float-right" title="Time" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="string.html" class="btn btn-neutral float-left" title="String" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, SRL Group
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+
+
+</body>
+</html>

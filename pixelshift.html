@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Pixelshift &mdash; SRL  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Keyboard" href="keyboard.html" />
+    <link rel="prev" title="Color" href="color.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SRL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">UTILS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slacktree.html">Slacktree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pixelshift</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#srl-getpixelshift">SRL.GetPixelShift</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-getpixelshifttpa">SRL.GetPixelShiftTPA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-isanimating">SRL.IsAnimating</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bankscreen.html">BankScreen</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; ITEMFINDER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-depositquantity">BankScreen.DepositQuantity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#id1">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdraw">BankScreen.Withdraw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdrawquantity">BankScreen.WithdrawQuantity</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; WALKER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+</ul>
+<p class="caption"><span class="caption-text">UTILS_TODO</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="slackdebug.html">Slackdebug</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slackab.html">Slacky’s Antiban Mixture</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SRL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Pixelshift</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/pixelshift.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="pixelshift">
+<h1>Pixelshift<a class="headerlink" href="#pixelshift" title="Permalink to this headline">¶</a></h1>
+<p>Stuff that relate to checking the “pixelshift”, ie how many pixels changed in an area</p>
+<hr class="docutils" />
+<div class="section" id="srl-getpixelshift">
+<h2>SRL.GetPixelShift<a class="headerlink" href="#srl-getpixelshift" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">GetPixelShift</span><span class="p">(</span><span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">WaitTime</span><span class="o">:</span> <span class="n">UInt32</span><span class="p">)</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns how many pixels changed in the given area <code class="docutils literal notranslate"><span class="pre">Area</span></code> after <code class="docutils literal notranslate"><span class="pre">WaitTime</span></code> has passed.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-getpixelshifttpa">
+<h2>SRL.GetPixelShiftTPA<a class="headerlink" href="#srl-getpixelshifttpa" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">GetPixelShiftTPA</span><span class="p">(</span><span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">WaitTime</span><span class="o">:</span> <span class="n">UInt32</span><span class="o">;</span> <span class="n">Count</span><span class="o">:</span> <span class="n">Int32</span><span class="o">=</span><span class="mi">1</span><span class="o">;</span> <span class="n">AcceptLength</span><span class="o">:</span><span class="n">Int32</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns a TPA containing all the pixels that changed during the <code class="docutils literal notranslate"><span class="pre">WaitTime</span></code> period.</p>
+<p>The function can repeat the period <code class="docutils literal notranslate"><span class="pre">WaitTime</span></code> and continue building the result <code class="docutils literal notranslate"><span class="pre">Count</span></code> times.</p>
+<p>if <code class="docutils literal notranslate"><span class="pre">AcceptLength</span></code> is none-zero, it will return when / if this many pixels has changed.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-isanimating">
+<h2>SRL.IsAnimating<a class="headerlink" href="#srl-isanimating" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">IsAnimating</span><span class="p">(</span><span class="n">Area</span><span class="o">:</span><span class="n">TBox</span><span class="o">;</span> <span class="n">Shift</span><span class="o">,</span> <span class="n">WaitTime</span><span class="o">:</span><span class="n">UInt32</span><span class="o">;</span> <span class="n">Iter</span><span class="o">:</span><span class="n">UInt32</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Counts the pixels that changed in the period <code class="docutils literal notranslate"><span class="pre">WaitTime</span></code> and checks if <code class="docutils literal notranslate"><span class="pre">Shift</span></code> value was met if it was
+the it will return <code class="docutils literal notranslate"><span class="pre">True</span></code>. The check itself can be repeated several times <code class="docutils literal notranslate"><span class="pre">Iter</span></code></p>
+<p><strong>Example</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">srl</span><span class="o">.</span><span class="n">IsAnimating</span><span class="p">(</span><span class="n">Box</span><span class="p">(</span><span class="mi">10</span><span class="o">,</span><span class="mi">10</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span><span class="mi">100</span><span class="p">)</span><span class="o">,</span> <span class="mi">350</span><span class="o">,</span> <span class="mi">500</span><span class="o">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Shit changed&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>In the example we supply a random area, and checks if 350 pixels changed within 500ms, we repeat
+that test 3 times, or until the condition <code class="docutils literal notranslate"><span class="pre">350</span> <span class="pre">pixels</span></code> was met.</p>
+<hr class="docutils" />
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="keyboard.html" class="btn btn-neutral float-right" title="Keyboard" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="color.html" class="btn btn-neutral float-left" title="Color" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, SRL Group
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+
+
+</body>
+</html>

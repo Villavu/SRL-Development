@@ -1,0 +1,62 @@
+Welcome to SRLs documentation!
+===============================
+
+.. toctree::
+   :caption: UTILS
+
+   random
+   integerarrays
+   trectangle
+   wrappers
+   string
+   mouse
+   time
+   tpointarrays
+   slacktree
+   extendedarrays
+   color
+   pixelshift
+   keyboard
+   tboxarrays
+   tcircle
+   math
+   tbox
+   drawing
+   tpoint
+
+-----------
+
+.. toctree::
+   :caption: OSR
+
+   mainscreen
+   misc
+   mm2ms
+   bankscreen
+
+-----------
+
+.. toctree::
+   :caption: OSR -> ITEMFINDER
+
+   itemfinder
+
+-----------
+
+.. toctree::
+   :caption: OSR -> WALKER
+
+   walker
+   webgraph
+   webber
+
+-----------
+
+.. toctree::
+   :caption: UTILS_TODO
+
+   slackdebug
+   slackab
+
+-----------
+

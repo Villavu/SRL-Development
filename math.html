@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Math &mdash; SRL  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TBox" href="tbox.html" />
+    <link rel="prev" title="TCircle" href="tcircle.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SRL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">UTILS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slacktree.html">Slacktree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Math</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#srl-modulo">srl.Modulo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-crossproduct">srl.CrossProduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-deltaangle">srl.DeltaAngle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-disttoline">srl.DistToLine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-linesintersect">srl.LinesIntersect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-pointintriangle">srl.PointInTriangle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-pointinrect">srl.PointInRect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-pointincircle">srl.PointInCircle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-pointinellipse">srl.PointInEllipse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-pointinpoly">srl.PointInPoly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-pointincuboid">srl.PointInCuboid</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bankscreen.html">BankScreen</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; ITEMFINDER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-depositquantity">BankScreen.DepositQuantity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#id1">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdraw">BankScreen.Withdraw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdrawquantity">BankScreen.WithdrawQuantity</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; WALKER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+</ul>
+<p class="caption"><span class="caption-text">UTILS_TODO</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="slackdebug.html">Slackdebug</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slackab.html">Slacky’s Antiban Mixture</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SRL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Math</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/math.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="math">
+<h1>Math<a class="headerlink" href="#math" title="Permalink to this headline">¶</a></h1>
+<p>Math related methods</p>
+<hr class="docutils" />
+<div class="section" id="srl-modulo">
+<h2>srl.Modulo<a class="headerlink" href="#srl-modulo" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">Modulo</span><span class="p">(</span><span class="n">X</span><span class="o">,</span> <span class="n">Y</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+<span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">Modulo</span><span class="p">(</span><span class="n">X</span><span class="o">,</span> <span class="n">Y</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>This function returns the remainder from the division of the first argument by the second.
+It will always returns a result with the same sign as its second operand (or zero).</p>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="p">(</span><span class="n">srl</span><span class="o">.</span><span class="n">Modulo</span><span class="p">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-crossproduct">
+<h2>srl.CrossProduct<a class="headerlink" href="#srl-crossproduct" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">CrossProduct</span><span class="p">(</span><span class="n">ry</span><span class="o">,</span><span class="n">ry</span><span class="o">,</span> <span class="n">px</span><span class="o">,</span><span class="n">py</span><span class="o">,</span> <span class="n">qx</span><span class="o">,</span><span class="n">qy</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+<span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">CrossProduct</span><span class="p">(</span><span class="n">r</span><span class="o">,</span> <span class="n">p</span><span class="o">,</span> <span class="n">q</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Int64</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Cross-product of rp and rq vectors.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-deltaangle">
+<h2>srl.DeltaAngle<a class="headerlink" href="#srl-deltaangle" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">DeltaAngle</span><span class="p">(</span><span class="n">DegA</span><span class="o">,</span> <span class="n">DegB</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">R</span><span class="o">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="mi">360</span><span class="p">)</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns the shortest difference between two given angles.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-disttoline">
+<h2>srl.DistToLine<a class="headerlink" href="#srl-disttoline" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">DistToLineEx</span><span class="p">(</span><span class="n">Pt</span><span class="o">,</span> <span class="n">sA</span><span class="o">,</span> <span class="n">sB</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">out</span> <span class="n">Nearest</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+<span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">DistToLine</span><span class="p">(</span><span class="n">Pt</span><span class="o">,</span> <span class="n">sA</span><span class="o">,</span> <span class="n">sB</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns the distance to the nearest point on the line <cite>sA</cite>..`sB`</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-linesintersect">
+<h2>srl.LinesIntersect<a class="headerlink" href="#srl-linesintersect" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">LinesIntersect</span><span class="p">(</span><span class="n">p1</span><span class="o">,</span><span class="n">p2</span><span class="o">,</span> <span class="n">q1</span><span class="o">,</span><span class="n">q2</span><span class="o">:</span><span class="n">TPoint</span><span class="o">;</span> <span class="n">out</span> <span class="n">i</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-pointintriangle">
+<h2>srl.PointInTriangle<a class="headerlink" href="#srl-pointintriangle" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">PointInTriangle</span><span class="p">(</span><span class="n">PT</span><span class="o">,</span> <span class="n">p1</span><span class="o">,</span><span class="n">p2</span><span class="o">,</span><span class="n">p3</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns True if the TPoint ‘Pt’ is inside the triangle</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-pointinrect">
+<h2>srl.PointInRect<a class="headerlink" href="#srl-pointinrect" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">PointInRect</span><span class="p">(</span><span class="k">const</span> <span class="n">Pt</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="k">const</span> <span class="n">A</span><span class="o">,</span> <span class="n">B</span><span class="o">,</span> <span class="n">C</span><span class="o">,</span> <span class="n">D</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if the TPoint ‘Pt’ is in a rect (defined by four points).</p>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span><span class="p">(</span><span class="n">srl</span><span class="o">.</span><span class="n">PointInRect</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="p">)</span><span class="o">,</span> <span class="p">[</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="p">]</span><span class="o">,</span> <span class="p">[</span><span class="mi">200</span><span class="o">,</span><span class="mi">1</span><span class="p">]</span><span class="o">,</span> <span class="p">[</span><span class="mi">201</span><span class="o">,</span><span class="mi">201</span><span class="p">]</span><span class="o">,</span> <span class="p">[</span><span class="mi">0</span><span class="o">,</span><span class="mi">225</span><span class="p">]))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-pointincircle">
+<h2>srl.PointInCircle<a class="headerlink" href="#srl-pointincircle" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">PointInCircle</span><span class="p">(</span><span class="n">PT</span><span class="o">,</span> <span class="n">Center</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Radius</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns True if the TPoint ‘Pt’ is inside the circle</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-pointinellipse">
+<h2>srl.PointInEllipse<a class="headerlink" href="#srl-pointinellipse" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">PointInEllipse</span><span class="p">(</span><span class="n">PT</span><span class="o">,</span> <span class="n">Center</span><span class="o">:</span><span class="n">TPoint</span><span class="o">;</span> <span class="n">YRad</span><span class="o">,</span> <span class="n">XRad</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns True if the TPoint ‘Pt’ is inside the ellipse</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-pointinpoly">
+<h2>srl.PointInPoly<a class="headerlink" href="#srl-pointinpoly" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">PointInPoly</span><span class="p">(</span><span class="n">pt</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="nb">Poly</span><span class="o">:</span> <span class="n">TPointArray</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Check if a point is within a polygon/shape by the given outline points (poly)
+The points must be in order, as if you would draw a line trough each point.</p>
+<p>Note: Uses winding number algorithm</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-pointincuboid">
+<h2>srl.PointInCuboid<a class="headerlink" href="#srl-pointincuboid" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">PointInCuboid</span><span class="p">(</span><span class="n">pt</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Top</span><span class="o">,</span> <span class="n">Btm</span><span class="o">:</span> <span class="n">TRectangle</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Check if a point is within a cuboid defined by top and bottom rectangle.</p>
+<hr class="docutils" />
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tbox.html" class="btn btn-neutral float-right" title="TBox" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tcircle.html" class="btn btn-neutral float-left" title="TCircle" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, SRL Group
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+
+
+</body>
+</html>

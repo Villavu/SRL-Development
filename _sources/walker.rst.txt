@@ -1,0 +1,16 @@
+
+Walker
+======
+
+
+------------
+
+  Returns the tile position on the mainscreen as a rectangle
+
+
+------------
+
+  Same as the above, only you dont have to pass "MyPos" to it.
+
+
+------------

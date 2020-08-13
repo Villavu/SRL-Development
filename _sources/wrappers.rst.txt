@@ -1,0 +1,534 @@
+
+Wrappers
+========
+
+The wrappers include contains wrapper functions used throughout SRL, some of them to simplify coding while others are just fixes.
+
+The source for this file can be found `here <https://github.com/Olly-/SRL/blob/master/lib/utilities/wrappers.simba>`_.
+
+
+
+------------
+
+GetClientBounds
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function GetClientBounds(): TBox;
+
+Returns the clients bounds.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+   b := GetClientBounds();
+
+
+------------
+
+GetColor; overload
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function GetColor(const p: TPoint): Integer; overload;
+
+Takes a TPoint variable instead of x, y variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+     p := Point(350, 200);
+     WriteLn(GetColor(p));
+
+
+------------
+
+GetColors; overload
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function GetColors(const TPA: TPointArray; const ClearSame: boolean): TIntegerArray; overload;
+
+Takes an extra parameter, clearSame if true will clear the same integers in the result.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+     Colors := GetColors(TPA, True);
+
+
+------------
+
+FindColor; overload
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindColor(var x, y: integer; const Color: integer; const SearchBox: TBox): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Coh3n
+
+Example:
+
+.. code-block:: pascal
+
+    FindColor(x, y, clRed, Box);
+
+
+------------
+
+findColorTolerance; overload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindColorTolerance(var x, y: Integer; const Color: Integer; const SearchBox: TBox; const Tolerance: Integer): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    FindColorTolerance(x, y, 255, Box, 10);
+
+
+------------
+
+FindColors; overload
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindColors(var Points: TPointArray; const Color: Integer; const SearchBox: TBox): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Coh3n
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(FindColors(TPA, 255, Box));
+
+
+------------
+
+FindColorsTolerance; overload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindColorsTolerance(var Points: TPointArray; const Color: Integer; const SearchBox: TBox; const Tolerance: Integer): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Zyt3x
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(FindColorsTolerance(TPA, 255, Box, 10));
+
+
+------------
+
+FindColorSpiral; overload
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindColorSpiral(var x, y: Integer; Color: Integer; SearchBox: TBox): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(FindColorSpiral(x, y, 255, Box));
+
+
+------------
+
+FindColorSpiralTolerance; overload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindColorSpiralTolerance(var x, y: Integer; Color: Integer; SearchBox: TBox; Tol: Integer): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Coh3n
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(FindColorSpiralTolerance(x, y, 255, Box));
+
+
+------------
+
+FindColorsSpiralTolerance: overload;
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindColorsSpiralTolerance(var x, y: Integer; var Points: TPointArray; Color: Integer; SearchBox: TBox; Tolerance: Integer): boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    FindColorsSpiralTolerance(x, y, TPA, clWhite, mainScreen.GetBounds, 10);
+
+
+
+------------
+
+CountColor; overload
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function CountColor(const Color: Integer; const SearchBox: TBox): Integer; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Coh3n
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(CountColor(clRed, Box));
+
+
+------------
+
+CountColorTolerance: overload;
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function CountColorTolerance(Color: integer; searchBox: TBox; tol: integer): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Coh3n
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(CountColorTolerance(clRed, 10, Box));
+
+
+------------
+
+BitmapFromClient; overload
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function BitmapFromClient(const SearchBox: TBox): Integer; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    BMP := BitmapFromClient(Box);
+
+
+------------
+
+FindBitmapIn; overload
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: pascal
+
+    function FindBitmapIn(const BMP: Integer; var x, y: integer; const SearchBox: TBox): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    Result := FindBitmap(bmp, x, y, Box);
+
+
+------------
+
+FindBitmapToleranceIn; overload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindBitmapToleranceIn(const BMP: Integer; var x, y: Integer; const SearchBox: TBox; const Tolerance: Integer): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    Result := FindBitmapToleranceIn(BMP, x, y, Box, 20);
+
+
+------------
+
+FindBitmapTolerance
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindBitmapTolerance(const BMP: Integer; var x, y: Integer; const Tolerance: Integer): Boolean;
+
+Searches the whole client for a bitmap with tolerance.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(FindBitmapTolerance(bmp, x, y, 50));
+
+
+------------
+
+FindBitmapMaskTolerance; overload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindBitmapMaskTolerance(Mask: Integer; var p: TPoint; SearchBox: TBox; Tol, ContourTol: Integer): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Coh3n
+
+Example:
+
+.. code-block:: pascal
+
+    Result := FindBitmapMaskTolerance(s, p, Box, 30, 30);
+
+
+------------
+
+FindDeformedBitmapToleranceIn; overload
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindDeformedBitmapToleranceIn(const BMP: Integer; var x, y: Integer; SearchBox: TBox; Tolerance: Integer; Range: Integer; AllowPartialAccuracy: Boolean; var Accuracy: Extended): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    if (FindDeformedBitmapToleranceIn(BMP, x, y, Box, 10, 0, true, acc)) then
+      WriteLn('We found the bitmap at accuracy: ' floatToStr(acc));
+
+
+------------
+
+FindDTMRotatedSE; overload
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindDTMRotatedSE(const DTM: Integer; var x, y: Integer; SearchBox: TBox; sAngle, eAngle, aStep, aFound: Extended): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    if (FindDTMRotatedSE(aDTM, x, y, Box, -Pi/4, Pi/4, Pi/60, aFound)) then
+      WriteLn('Found the dtm!');
+
+
+------------
+
+FindDTMRotatedAlternating: overload;
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindDTMRotatedAlternating(DTM: Integer; var x, y: Integer; SearchBox: TBox; sAngle, eAngle, aStep, aFound: Extended): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    if (FindDTMRotatedAlternating(DTM, x, y, Box, -Pi/4, Pi/4, Pi/60, aFound)) then
+      WriteLn('Found the dtm!');
+
+
+------------
+
+FindDTMRotated
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindDTMRotated(const DTM: Integer; var x, y: Integer; const x1, y1, x2, y2: Integer; const sAngle, eAngle, aStep: Extended; out aFound: Extended): Boolean;
+
+Searches for a rotated DTM, A legacy method commonly used in past SRL versions.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    if (FindDTMRotated(DTM, x, y, 100, 100, 400, 400, -Pi/4, Pi/4, Pi/60, aFound)) then
+      WriteLn('Found the dtm!');
+
+
+------------
+
+FindDTMRotated; overload
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindDTMRotated(const DTM: Integer; var x, y: Integer; const SearchBox: TBox; const sAngle, eAngle, aStep: extended; out aFound: Extended): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    if (FindDTMRotated(aDTM, x, y, Box, -Pi/4, Pi/4, Pi/60, aFound)) then
+      WriteLn('found the dtm!');
+
+
+------------
+
+FindDTMs; overload
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindDTMs(const DTM: Integer; var TPA: TPointArray; const SearchBox: TBox): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    FindDTMs(DTM, TPA, Box);
+    WriteLn('Matches' + toString(TPA));
+
+
+------------
+
+FindDTM; overload
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function FindDTM(const DTM: Integer; var x, y: Integer; const SearchBox: TBox): Boolean; overload;
+
+Takes a TBox variable instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(FindDTM(DTM, x, y, Box));
+
+
+------------
+
+TPAFromText; overload
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+     function TPAFromText(const Text, Font: string): TPointArray; overload;
+
+Creates a TPA of the text without the need for the W and H params.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+  TPA := TPAFromText('Hello world', StatChars);
+
+
+
+------------
+
+InRange; overload
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function InRange(const Value, Min, Max: Extended): Boolean; overload;
+
+Takes a extended variable instead of an integer variable.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(InRange(15.0, 10.0, 20.0));
+
+
+------------
+
+Distance; overload
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function Distance(const p1, p2: TPoint): Integer; overload;
+
+Accepts two TPoints instead of x1, y1, x2 and y2 variables.
+
+.. note:: by Olly
+
+Example:
+
+.. code-block:: pascal
+
+    WriteLn(Distance(Point(100, 100), Point(200, 200)));
+
+
+------------

@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Random &mdash; SRL  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TIntegerArray" href="integerarrays.html" />
+    <link rel="prev" title="Welcome to SRLs documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SRL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">UTILS</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Random</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#srl-gaussrand">srl.GaussRand</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-truncatedgauss">srl.TruncatedGauss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">srl.TruncatedGauss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-skewedrand">srl.SkewedRand</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-normalrange">srl.NormalRange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">srl.NormalRange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-randompoint">srl.RandomPoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-randompoint-overload">srl.RandomPoint (overload)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">srl.RandomPoint (overload)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-randonpointex">srl.RandonPointEx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-rowp">srl.rowp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-dice">srl.Dice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wait-overload">Wait (overload)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#waitex">WaitEx</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slacktree.html">Slacktree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bankscreen.html">BankScreen</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; ITEMFINDER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-depositquantity">BankScreen.DepositQuantity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#id1">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdraw">BankScreen.Withdraw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdrawquantity">BankScreen.WithdrawQuantity</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; WALKER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+</ul>
+<p class="caption"><span class="caption-text">UTILS_TODO</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="slackdebug.html">Slackdebug</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slackab.html">Slacky’s Antiban Mixture</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SRL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Random</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/random.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="random">
+<h1>Random<a class="headerlink" href="#random" title="Permalink to this headline">¶</a></h1>
+<p>Random related methods</p>
+<hr class="docutils" />
+<div class="section" id="srl-gaussrand">
+<h2>srl.GaussRand<a class="headerlink" href="#srl-gaussrand" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">GaussRand</span><span class="p">(</span><span class="nb">Mean</span><span class="o">,</span> <span class="n">Dev</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Generates a random gaussian/normal number.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-truncatedgauss">
+<h2>srl.TruncatedGauss<a class="headerlink" href="#srl-truncatedgauss" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">TruncatedGauss</span><span class="p">(</span><span class="n">Left</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">Right</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Generates a random gaussian/normal number which is truncated and mapped within then
+given range <code class="docutils literal notranslate"><span class="pre">[left..right]</span></code> weighted towards <code class="docutils literal notranslate"><span class="pre">left</span></code></p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id1">
+<h2>srl.TruncatedGauss<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Generates a random gaussian/normal number which is truncated and mapped within then
+given range <code class="docutils literal notranslate"><span class="pre">[left..right]</span></code> weighted towards <code class="docutils literal notranslate"><span class="pre">left</span></code></p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-skewedrand">
+<h2>srl.SkewedRand<a class="headerlink" href="#srl-skewedrand" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">SkewedRand</span><span class="p">(</span><span class="n">Mode</span><span class="o">,</span> <span class="nb">Lo</span><span class="o">,</span> <span class="nb">Hi</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Random skewed distribution generation. <cite>Mode</cite> is a number between <cite>Lo</cite> and <cite>Hi</cite> which is
+where the most of the generated numbers will land.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-normalrange">
+<h2>srl.NormalRange<a class="headerlink" href="#srl-normalrange" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">NormalRange</span><span class="p">(</span><span class="nb">min</span><span class="o">,</span> <span class="nb">max</span><span class="o">:</span> <span class="kt">Int64</span><span class="p">)</span><span class="o">:</span> <span class="kt">Int64</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Generates a random integer in the given range, weighted towards the mean.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h2>srl.NormalRange<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">NormalRange</span><span class="p">(</span><span class="nb">Min</span><span class="o">,</span> <span class="nb">Max</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Generates a random float in the given range, weighted towards the mean.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-randompoint">
+<h2>srl.RandomPoint<a class="headerlink" href="#srl-randompoint" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">RandomPoint</span><span class="p">(</span><span class="nb">Mean</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">MaxRad</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Generates a random TPoint which weights around <code class="docutils literal notranslate"><span class="pre">Mean</span></code>, with a max distance
+from mean defined by <code class="docutils literal notranslate"><span class="pre">MaxRad</span></code>.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-randompoint-overload">
+<h2>srl.RandomPoint (overload)<a class="headerlink" href="#srl-randompoint-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">RandomPoint</span><span class="p">(</span><span class="n">Bounds</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Generates a random TPoint in the bounds of the given box <code class="docutils literal notranslate"><span class="pre">Bounds</span></code>,
+the point weights towards the middle of the box.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id3">
+<h2>srl.RandomPoint (overload)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">RandomPoint</span><span class="p">(</span><span class="nb">Rect</span><span class="o">:</span> <span class="n">TRectangle</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Generates a random TPoint in the given rectangle <code class="docutils literal notranslate"><span class="pre">Rect</span></code>,
+The point weights towards the middle of the rectangle.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-randonpointex">
+<h2>srl.RandonPointEx<a class="headerlink" href="#srl-randonpointex" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">RandonPointEx</span><span class="p">(</span><span class="n">From</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">B</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">Force</span><span class="o">:</span> <span class="kt">Double</span><span class="o">=</span><span class="mf">0.35</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Generates a random point within the bounds of the given box <cite>B</cite>, the point generated is skewed towards towards the <cite>From</cite>-point.
+The last parameter <cite>Force</cite> defines how much the generated point is to be skewed towards or away from <cite>From</cite> - Expects value in the range 0..2</p>
+<ul class="simple">
+<li><p>Force = 0: Result weighs heavily towrads the edge closest to <cite>From</cite></p></li>
+<li><p>Force = 1: Result in the middle of box is most common</p></li>
+<li><p>Force = 2: Result weighs heavily towrads the edge furthest away from <cite>From</cite></p></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-rowp">
+<h2>srl.rowp<a class="headerlink" href="#srl-rowp" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">rowp</span><span class="p">(</span><span class="n">From</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="nb">Rect</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span> <span class="n">Force</span><span class="o">:</span> <span class="kt">Double</span><span class="o">=-</span><span class="mf">0.9</span><span class="o">;</span> <span class="n">Smoothness</span><span class="o">:</span> <span class="kt">Double</span><span class="o">=</span><span class="nb">PI</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>
+<span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">rowp</span><span class="p">(</span><span class="n">From</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Box</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">Force</span><span class="o">:</span> <span class="kt">Double</span><span class="o">=-</span><span class="mf">0.9</span><span class="o">;</span> <span class="n">Smoothness</span><span class="o">:</span> <span class="kt">Double</span><span class="o">=</span><span class="nb">PI</span><span class="o">/</span><span class="mi">12</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>rowp, short for <cite>Random Olly Weighted Point</cite>. Generates a random point based on
+a rough formula that Olly came up with for weighting points towards “From” point.
+Final implementation and math done by slacky.</p>
+<p>Force ranges from -1 (close to) to 1 (away from), where 0 is mean, but with a bit of a skewiness…</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="srl-dice">
+<h2>srl.Dice<a class="headerlink" href="#srl-dice" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">Dice</span><span class="p">(</span><span class="n">ChancePercent</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">static</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Generates a random number and returns <code class="docutils literal notranslate"><span class="pre">True</span></code> whenever the value generated is within the chance (in percentage).</p>
+<p><strong>Example:</strong></p>
+<dl class="simple">
+<dt>pascal::</dt><dd><dl class="simple">
+<dt>if srl.Dice(10.5) then</dt><dd><p>WriteLn(‘This has a 10.5 percent chance of writing’)</p>
+</dd>
+<dt>else</dt><dd><p>WriteLn(‘No dice’);</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section" id="wait-overload">
+<h2>Wait (overload)<a class="headerlink" href="#wait-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nf">Wait</span><span class="p">(</span><span class="nb">Min</span><span class="o">,</span> <span class="nb">Max</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">Weight</span><span class="o">:</span> <span class="n">EWaitDir</span><span class="o">=</span><span class="n">wdMean</span><span class="p">)</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Waits … Weighted towards the mean of <cite>Min</cite> and <cite>Max</cite></p>
+</div>
+<hr class="docutils" />
+<div class="section" id="waitex">
+<h2>WaitEx<a class="headerlink" href="#waitex" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nf">WaitEx</span><span class="p">(</span><span class="nb">Mean</span><span class="o">,</span> <span class="n">Dev</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Waits … Regular gauss random</p>
+<hr class="docutils" />
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="integerarrays.html" class="btn btn-neutral float-right" title="TIntegerArray" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to SRLs documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, SRL Group
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+
+
+</body>
+</html>

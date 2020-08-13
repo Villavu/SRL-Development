@@ -1,0 +1,734 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Wrappers &mdash; SRL  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="String" href="string.html" />
+    <link rel="prev" title="TRectangle" href="trectangle.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> SRL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">UTILS</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Wrappers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getclientbounds">GetClientBounds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getcolor-overload">GetColor; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getcolors-overload">GetColors; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findcolor-overload">FindColor; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findcolortolerance-overload">findColorTolerance; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findcolors-overload">FindColors; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findcolorstolerance-overload">FindColorsTolerance; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findcolorspiral-overload">FindColorSpiral; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findcolorspiraltolerance-overload">FindColorSpiralTolerance; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findcolorsspiraltolerance-overload">FindColorsSpiralTolerance: overload;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#countcolor-overload">CountColor; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#countcolortolerance-overload">CountColorTolerance: overload;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bitmapfromclient-overload">BitmapFromClient; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findbitmapin-overload">FindBitmapIn; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findbitmaptolerancein-overload">FindBitmapToleranceIn; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findbitmaptolerance">FindBitmapTolerance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#findbitmapmasktolerance-overload">FindBitmapMaskTolerance; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finddeformedbitmaptolerancein-overload">FindDeformedBitmapToleranceIn; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finddtmrotatedse-overload">FindDTMRotatedSE; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finddtmrotatedalternating-overload">FindDTMRotatedAlternating: overload;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finddtmrotated">FindDTMRotated</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finddtmrotated-overload">FindDTMRotated; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finddtms-overload">FindDTMs; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finddtm-overload">FindDTM; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tpafromtext-overload">TPAFromText; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inrange-overload">InRange; overload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#distance-overload">Distance; overload</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slacktree.html">Slacktree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bankscreen.html">BankScreen</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; ITEMFINDER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-depositquantity">BankScreen.DepositQuantity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#id1">BankScreen.Deposit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdraw">BankScreen.Withdraw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html#bankscreen-withdrawquantity">BankScreen.WithdrawQuantity</a></li>
+</ul>
+<p class="caption"><span class="caption-text">OSR -&gt; WALKER</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+</ul>
+<p class="caption"><span class="caption-text">UTILS_TODO</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="slackdebug.html">Slackdebug</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slackab.html">Slacky’s Antiban Mixture</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SRL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Wrappers</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/wrappers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="wrappers">
+<h1>Wrappers<a class="headerlink" href="#wrappers" title="Permalink to this headline">¶</a></h1>
+<p>The wrappers include contains wrapper functions used throughout SRL, some of them to simplify coding while others are just fixes.</p>
+<p>The source for this file can be found <a class="reference external" href="https://github.com/Olly-/SRL/blob/master/lib/utilities/wrappers.simba">here</a>.</p>
+<hr class="docutils" />
+<div class="section" id="getclientbounds">
+<h2>GetClientBounds<a class="headerlink" href="#getclientbounds" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">GetClientBounds</span><span class="p">()</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns the clients bounds.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">b</span> <span class="o">:=</span> <span class="n">GetClientBounds</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="getcolor-overload">
+<h2>GetColor; overload<a class="headerlink" href="#getcolor-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">GetColor</span><span class="p">(</span><span class="k">const</span> <span class="n">p</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TPoint variable instead of x, y variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">:=</span> <span class="n">Point</span><span class="p">(</span><span class="mi">350</span><span class="o">,</span> <span class="mi">200</span><span class="p">)</span><span class="o">;</span>
+<span class="nb">WriteLn</span><span class="p">(</span><span class="n">GetColor</span><span class="p">(</span><span class="n">p</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="getcolors-overload">
+<h2>GetColors; overload<a class="headerlink" href="#getcolors-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">GetColors</span><span class="p">(</span><span class="k">const</span> <span class="n">TPA</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="k">const</span> <span class="n">ClearSame</span><span class="o">:</span> <span class="kt">boolean</span><span class="p">)</span><span class="o">:</span> <span class="n">TIntegerArray</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes an extra parameter, clearSame if true will clear the same integers in the result.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Colors</span> <span class="o">:=</span> <span class="n">GetColors</span><span class="p">(</span><span class="n">TPA</span><span class="o">,</span> <span class="k">True</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findcolor-overload">
+<h2>FindColor; overload<a class="headerlink" href="#findcolor-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindColor</span><span class="p">(</span><span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">Color</span><span class="o">:</span> <span class="kt">integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Coh3n</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">FindColor</span><span class="p">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">clRed</span><span class="o">,</span> <span class="n">Box</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findcolortolerance-overload">
+<h2>findColorTolerance; overload<a class="headerlink" href="#findcolortolerance-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindColorTolerance</span><span class="p">(</span><span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">Color</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="k">const</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">FindColorTolerance</span><span class="p">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="mi">255</span><span class="o">,</span> <span class="n">Box</span><span class="o">,</span> <span class="mi">10</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findcolors-overload">
+<h2>FindColors; overload<a class="headerlink" href="#findcolors-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindColors</span><span class="p">(</span><span class="k">var</span> <span class="n">Points</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="k">const</span> <span class="n">Color</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Coh3n</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">FindColors</span><span class="p">(</span><span class="n">TPA</span><span class="o">,</span> <span class="mi">255</span><span class="o">,</span> <span class="n">Box</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findcolorstolerance-overload">
+<h2>FindColorsTolerance; overload<a class="headerlink" href="#findcolorstolerance-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindColorsTolerance</span><span class="p">(</span><span class="k">var</span> <span class="n">Points</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="k">const</span> <span class="n">Color</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="k">const</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Zyt3x</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">FindColorsTolerance</span><span class="p">(</span><span class="n">TPA</span><span class="o">,</span> <span class="mi">255</span><span class="o">,</span> <span class="n">Box</span><span class="o">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findcolorspiral-overload">
+<h2>FindColorSpiral; overload<a class="headerlink" href="#findcolorspiral-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindColorSpiral</span><span class="p">(</span><span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">FindColorSpiral</span><span class="p">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="mi">255</span><span class="o">,</span> <span class="n">Box</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findcolorspiraltolerance-overload">
+<h2>FindColorSpiralTolerance; overload<a class="headerlink" href="#findcolorspiraltolerance-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindColorSpiralTolerance</span><span class="p">(</span><span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">Tol</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Coh3n</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">FindColorSpiralTolerance</span><span class="p">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="mi">255</span><span class="o">,</span> <span class="n">Box</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findcolorsspiraltolerance-overload">
+<h2>FindColorsSpiralTolerance: overload;<a class="headerlink" href="#findcolorsspiraltolerance-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindColorsSpiralTolerance</span><span class="p">(</span><span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">Points</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">:</span> <span class="kt">boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">FindColorsSpiralTolerance</span><span class="p">(</span><span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">TPA</span><span class="o">,</span> <span class="n">clWhite</span><span class="o">,</span> <span class="n">mainScreen</span><span class="o">.</span><span class="n">GetBounds</span><span class="o">,</span> <span class="mi">10</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="countcolor-overload">
+<h2>CountColor; overload<a class="headerlink" href="#countcolor-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">CountColor</span><span class="p">(</span><span class="k">const</span> <span class="n">Color</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Coh3n</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">CountColor</span><span class="p">(</span><span class="n">clRed</span><span class="o">,</span> <span class="n">Box</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="countcolortolerance-overload">
+<h2>CountColorTolerance: overload;<a class="headerlink" href="#countcolortolerance-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">CountColorTolerance</span><span class="p">(</span><span class="n">Color</span><span class="o">:</span> <span class="kt">integer</span><span class="o">;</span> <span class="n">searchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">tol</span><span class="o">:</span> <span class="kt">integer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Coh3n</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">CountColorTolerance</span><span class="p">(</span><span class="n">clRed</span><span class="o">,</span> <span class="mi">10</span><span class="o">,</span> <span class="n">Box</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="bitmapfromclient-overload">
+<h2>BitmapFromClient; overload<a class="headerlink" href="#bitmapfromclient-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">BitmapFromClient</span><span class="p">(</span><span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BMP</span> <span class="o">:=</span> <span class="n">BitmapFromClient</span><span class="p">(</span><span class="n">Box</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findbitmapin-overload">
+<h2>FindBitmapIn; overload<a class="headerlink" href="#findbitmapin-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindBitmapIn</span><span class="p">(</span><span class="k">const</span> <span class="n">BMP</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="bp">Result</span> <span class="o">:=</span> <span class="n">FindBitmap</span><span class="p">(</span><span class="n">bmp</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">Box</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findbitmaptolerancein-overload">
+<h2>FindBitmapToleranceIn; overload<a class="headerlink" href="#findbitmaptolerancein-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindBitmapToleranceIn</span><span class="p">(</span><span class="k">const</span> <span class="n">BMP</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="k">const</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="bp">Result</span> <span class="o">:=</span> <span class="n">FindBitmapToleranceIn</span><span class="p">(</span><span class="n">BMP</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">Box</span><span class="o">,</span> <span class="mi">20</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findbitmaptolerance">
+<h2>FindBitmapTolerance<a class="headerlink" href="#findbitmaptolerance" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindBitmapTolerance</span><span class="p">(</span><span class="k">const</span> <span class="n">BMP</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Searches the whole client for a bitmap with tolerance.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">FindBitmapTolerance</span><span class="p">(</span><span class="n">bmp</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="mi">50</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="findbitmapmasktolerance-overload">
+<h2>FindBitmapMaskTolerance; overload<a class="headerlink" href="#findbitmapmasktolerance-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindBitmapMaskTolerance</span><span class="p">(</span><span class="n">Mask</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">p</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">Tol</span><span class="o">,</span> <span class="n">ContourTol</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Coh3n</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="bp">Result</span> <span class="o">:=</span> <span class="n">FindBitmapMaskTolerance</span><span class="p">(</span><span class="n">s</span><span class="o">,</span> <span class="n">p</span><span class="o">,</span> <span class="n">Box</span><span class="o">,</span> <span class="mi">30</span><span class="o">,</span> <span class="mi">30</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="finddeformedbitmaptolerancein-overload">
+<h2>FindDeformedBitmapToleranceIn; overload<a class="headerlink" href="#finddeformedbitmaptolerancein-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindDeformedBitmapToleranceIn</span><span class="p">(</span><span class="k">const</span> <span class="n">BMP</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">Range</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">AllowPartialAccuracy</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="k">var</span> <span class="n">Accuracy</span><span class="o">:</span> <span class="kt">Extended</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">FindDeformedBitmapToleranceIn</span><span class="p">(</span><span class="n">BMP</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">Box</span><span class="o">,</span> <span class="mi">10</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="k">true</span><span class="o">,</span> <span class="n">acc</span><span class="p">))</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;We found the bitmap at accuracy: &#39;</span> <span class="nb">floatToStr</span><span class="p">(</span><span class="n">acc</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="finddtmrotatedse-overload">
+<h2>FindDTMRotatedSE; overload<a class="headerlink" href="#finddtmrotatedse-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindDTMRotatedSE</span><span class="p">(</span><span class="k">const</span> <span class="n">DTM</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">sAngle</span><span class="o">,</span> <span class="n">eAngle</span><span class="o">,</span> <span class="n">aStep</span><span class="o">,</span> <span class="n">aFound</span><span class="o">:</span> <span class="kt">Extended</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">FindDTMRotatedSE</span><span class="p">(</span><span class="n">aDTM</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">Box</span><span class="o">,</span> <span class="o">-</span><span class="nb">Pi</span><span class="o">/</span><span class="mi">4</span><span class="o">,</span> <span class="nb">Pi</span><span class="o">/</span><span class="mi">4</span><span class="o">,</span> <span class="nb">Pi</span><span class="o">/</span><span class="mi">60</span><span class="o">,</span> <span class="n">aFound</span><span class="p">))</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Found the dtm!&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="finddtmrotatedalternating-overload">
+<h2>FindDTMRotatedAlternating: overload;<a class="headerlink" href="#finddtmrotatedalternating-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindDTMRotatedAlternating</span><span class="p">(</span><span class="n">DTM</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">sAngle</span><span class="o">,</span> <span class="n">eAngle</span><span class="o">,</span> <span class="n">aStep</span><span class="o">,</span> <span class="n">aFound</span><span class="o">:</span> <span class="kt">Extended</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">FindDTMRotatedAlternating</span><span class="p">(</span><span class="n">DTM</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">Box</span><span class="o">,</span> <span class="o">-</span><span class="nb">Pi</span><span class="o">/</span><span class="mi">4</span><span class="o">,</span> <span class="nb">Pi</span><span class="o">/</span><span class="mi">4</span><span class="o">,</span> <span class="nb">Pi</span><span class="o">/</span><span class="mi">60</span><span class="o">,</span> <span class="n">aFound</span><span class="p">))</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Found the dtm!&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="finddtmrotated">
+<h2>FindDTMRotated<a class="headerlink" href="#finddtmrotated" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindDTMRotated</span><span class="p">(</span><span class="k">const</span> <span class="n">DTM</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">x1</span><span class="o">,</span> <span class="n">y1</span><span class="o">,</span> <span class="n">x2</span><span class="o">,</span> <span class="n">y2</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">sAngle</span><span class="o">,</span> <span class="n">eAngle</span><span class="o">,</span> <span class="n">aStep</span><span class="o">:</span> <span class="kt">Extended</span><span class="o">;</span> <span class="n">out</span> <span class="n">aFound</span><span class="o">:</span> <span class="kt">Extended</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Searches for a rotated DTM, A legacy method commonly used in past SRL versions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">FindDTMRotated</span><span class="p">(</span><span class="n">DTM</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="o">,</span> <span class="mi">400</span><span class="o">,</span> <span class="mi">400</span><span class="o">,</span> <span class="o">-</span><span class="nb">Pi</span><span class="o">/</span><span class="mi">4</span><span class="o">,</span> <span class="nb">Pi</span><span class="o">/</span><span class="mi">4</span><span class="o">,</span> <span class="nb">Pi</span><span class="o">/</span><span class="mi">60</span><span class="o">,</span> <span class="n">aFound</span><span class="p">))</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Found the dtm!&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="finddtmrotated-overload">
+<h2>FindDTMRotated; overload<a class="headerlink" href="#finddtmrotated-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindDTMRotated</span><span class="p">(</span><span class="k">const</span> <span class="n">DTM</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="k">const</span> <span class="n">sAngle</span><span class="o">,</span> <span class="n">eAngle</span><span class="o">,</span> <span class="n">aStep</span><span class="o">:</span> <span class="kt">extended</span><span class="o">;</span> <span class="n">out</span> <span class="n">aFound</span><span class="o">:</span> <span class="kt">Extended</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">FindDTMRotated</span><span class="p">(</span><span class="n">aDTM</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">Box</span><span class="o">,</span> <span class="o">-</span><span class="nb">Pi</span><span class="o">/</span><span class="mi">4</span><span class="o">,</span> <span class="nb">Pi</span><span class="o">/</span><span class="mi">4</span><span class="o">,</span> <span class="nb">Pi</span><span class="o">/</span><span class="mi">60</span><span class="o">,</span> <span class="n">aFound</span><span class="p">))</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;found the dtm!&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="finddtms-overload">
+<h2>FindDTMs; overload<a class="headerlink" href="#finddtms-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindDTMs</span><span class="p">(</span><span class="k">const</span> <span class="n">DTM</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">TPA</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">FindDTMs</span><span class="p">(</span><span class="n">DTM</span><span class="o">,</span> <span class="n">TPA</span><span class="o">,</span> <span class="n">Box</span><span class="p">)</span><span class="o">;</span>
+<span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Matches&#39;</span> <span class="o">+</span> <span class="n">toString</span><span class="p">(</span><span class="n">TPA</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="finddtm-overload">
+<h2>FindDTM; overload<a class="headerlink" href="#finddtm-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">FindDTM</span><span class="p">(</span><span class="k">const</span> <span class="n">DTM</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">var</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="k">const</span> <span class="n">SearchBox</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a TBox variable instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">FindDTM</span><span class="p">(</span><span class="n">DTM</span><span class="o">,</span> <span class="n">x</span><span class="o">,</span> <span class="n">y</span><span class="o">,</span> <span class="n">Box</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="tpafromtext-overload">
+<h2>TPAFromText; overload<a class="headerlink" href="#tpafromtext-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">TPAFromText</span><span class="p">(</span><span class="k">const</span> <span class="n">Text</span><span class="o">,</span> <span class="n">Font</span><span class="o">:</span> <span class="k">string</span><span class="p">)</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Creates a TPA of the text without the need for the W and H params.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">TPA</span> <span class="o">:=</span> <span class="n">TPAFromText</span><span class="p">(</span><span class="s">&#39;Hello world&#39;</span><span class="o">,</span> <span class="n">StatChars</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="inrange-overload">
+<h2>InRange; overload<a class="headerlink" href="#inrange-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">InRange</span><span class="p">(</span><span class="k">const</span> <span class="n">Value</span><span class="o">,</span> <span class="nb">Min</span><span class="o">,</span> <span class="nb">Max</span><span class="o">:</span> <span class="kt">Extended</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Takes a extended variable instead of an integer variable.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="nb">InRange</span><span class="p">(</span><span class="mi">1</span><span class="mf">5.0</span><span class="o">,</span> <span class="mi">1</span><span class="mf">0.0</span><span class="o">,</span> <span class="mi">2</span><span class="mf">0.0</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="distance-overload">
+<h2>Distance; overload<a class="headerlink" href="#distance-overload" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">Distance</span><span class="p">(</span><span class="k">const</span> <span class="n">p1</span><span class="o">,</span> <span class="n">p2</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Integer</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Accepts two TPoints instead of x1, y1, x2 and y2 variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>by Olly</p>
+</div>
+<p>Example:</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">Distance</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="p">)</span><span class="o">,</span> <span class="n">Point</span><span class="p">(</span><span class="mi">200</span><span class="o">,</span> <span class="mi">200</span><span class="p">)))</span><span class="o">;</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="string.html" class="btn btn-neutral float-right" title="String" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="trectangle.html" class="btn btn-neutral float-left" title="TRectangle" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, SRL Group
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+
+Time
+=======
+Time related methods
+
+
+------------
+
+TTimeFormat
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  type TTimeFormat = (Time_Formal, Time_Short, Time_Abbrev, Time_Bare, Time_FStop, Time_Formal_Long);
+
+Formats used when converting time to string.
+
+
+------------
+
+srl.MsToTime
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TSRL.MsToTime(const MS: UInt64; const Format: TTimeFormat): String; constref;
+
+Converts milliseconds to a string following the given time-format.
+
+
+------------
+
+srl.TimeRunning
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TSRL.TimeRunning(TheType: TTimeFormat = Time_Formal_Long): String; constref;
+
+Returns time the script has been running as a string with the given time-format.
+
+
+------------
+
+TCountDown
+~~~~~~~~~~~~~~~~~~~
+A neat and simple timer type.
+
+Example:
+
+.. code-block:: pascal
+
+  myTimer.Init(3000); //3000ms
+  while not myTimer.IsFinished() do
+    {do something};
+  
+  myTimer.Restart(Random(-200,200)); //3000 +/- 200ms
+  while not myTimer.IsFinished() do
+    {do something};
+
+
+------------

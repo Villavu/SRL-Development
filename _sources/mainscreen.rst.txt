@@ -1,0 +1,68 @@
+
+MainScreen
+==========
+
+
+------------
+
+MainScreen.ConvertDistance
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
+
+Converts a distance acquired from the **fixed client* and **default zoom(50)** to the
+current mainscreen.
+
+**Example**
+
+.. code-block:: pascal  
+
+  // 20 pixels on the fixed client and default zoom(50) is currently x pixels on the mainscreen.
+  WriteLn(MainScreen.TranslateDistance(20));
+
+
+------------
+
+MainScreen.GetPlayerBox
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.GetPlayerBox: TBox;
+
+Returns a box surrounding our player. Works at any zoom level.
+
+
+------------
+
+MainScreen.FacePoint
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
+
+Rotates the camera to face point `P`.
+
+
+------------
+
+Mainscreen.PointToMM
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32 = 0; Accuracy:Double = 0.2): Vector3;
+
+Takes a mainscreen point and converts it to a point on the minimap.
+
+Returns a Vector3 which includes input height. Conversion to a TPoint if that's what you need is simply
+done by calling `.ToPoint` on the result.
+
+**Example**
+
+.. code-block:: pascal  
+
+  WriteLn Mainscreen.PointToMM(Point(250,140), 2);           // as a vector (more accurate)
+  WriteLn Mainscreen.PointToMM(Point(250,140), 2).ToPoint(); // as a TPoint (lost accuracy)
+
+
+------------

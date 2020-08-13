@@ -1,0 +1,35 @@
+
+Color
+======
+Color finding related methods
+
+
+------------
+
+CTS0, CTS1, CTS2
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function CTS0(Color, Tolerance: Int32): TCTSColor;
+  function CTS1(Color, Tolerance: Int32): TCTS1Color;
+  function CTS2(Color, Tolerance: Int32; HueMod:Extended=0.2; SatMod:Extended=0.2): TCTS2Color;
+  
+Used for declaring colors using the different CTS settings.
+
+
+------------
+
+srl.FindColors
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TSRL.FindColors(out TPA: TPointArray; Color: TCTSColor;  Area: TBox): UInt32; constref;
+  function TSRL.FindColors(out TPA: TPointArray; Color: TCTS1Color; Area: TBox): UInt32; constref;
+  function TSRL.FindColors(out TPA: TPointArray; Color: TCTS2Color; Area: TBox): UInt32; constref;
+
+Searches for the given Color, returns the resulting points in the TPA.
+
+
+------------

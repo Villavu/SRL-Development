@@ -1,0 +1,76 @@
+
+Keyboard
+=========
+The Keyboard file holds functions and procedures that are related to the keyboard.
+
+
+------------
+
+Keyboard.PressKey
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TKeyboard.PressKey(Key: Integer);
+
+Presses the given virtual key. 
+
+Note: See `VK_` constants for values to pass it.
+
+
+------------
+
+Keyboard.KeyDown
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TKeyboard.KeyDown(Key: Integer);
+
+Presses down the given virtual key. 
+
+Note: See `VK_` constants for values to pass it.
+
+
+------------
+
+Keyboard.KeyUp
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TKeyboard.KeyUp(Key: Integer);
+
+Releases the given virtual key. 
+
+Note: See `VK_` constants for values to pass it.
+
+
+------------
+
+Keyboard.IsKeyDown
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TKeyboard.IsKeyDown(Key: Integer);
+
+Returns True if the given virtual key is currently down. 
+
+Note: See `VK_` constants for values to pass it.
+
+
+------------
+
+Keyboard.Send
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ 
+  procedure TKeyboard.Send(const Text: String; const KeyWait, KeyModWait, KeyPressWait: UInt32); overload;
+  procedure TKeyboard.Send(const Text: String); overload;
+  procedure TKeyboard.Send(const Text: String; KeyPressAfter: Integer); overload;
+  
+Writes the given text to whatever window is currently in focus. 
+
+First overload allows you to pass KeyWait, KeyModWait, and KeyPressWait, all are timing modifiers.
+Last overload allows you to pass a long a key to be pressed after the text has been typed, for example ``VK_ENTER``.
+
+
+------------

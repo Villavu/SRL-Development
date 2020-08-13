@@ -1,0 +1,13 @@
+
+Slacky's Antiban Mixture
+========================
+Overrides various internal methods for fancy antiban mistakes, timing offsets
+and various other effects, for example new mouse behaviour.
+
+Most stuff here uses your username to generate unique patterns. Other stuff
+only adds more AB related functionallity
+
+Remebmer to call ``SlackAB.Init();``
+
+
+------------

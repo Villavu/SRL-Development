@@ -1,0 +1,64 @@
+
+Misc
+====
+
+
+------------
+
+SRL.GetXPAtLevel
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.GetXPAtLevel(level:Int32): Int32;
+
+Given a level it returns the minimum XP needed for it.
+
+
+------------
+
+SRL.GetLevelAtXP
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.GetLevelAtXP(XP:UInt32): Int32;
+
+Given some XP, it returns what level that is.
+
+
+------------
+
+SRL.GetItemAmount
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.GetItemAmount(Area: TBox): Int32;
+
+For use with items in like bankscreen, inventory, shops and so on to
+get the number of stacked items there are.
+
+
+------------
+
+SRL.AvgBrightness
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.AvgBrightness(B: TBox): Int32;
+
+Returns the average brightness of a area on the screen. 
+Returns a value between ``0`` and ``100``, ``0`` being black.
+
+
+------------
+
+SRL.PeakBrightness
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.PeakBrightness(B: TBox): Int32;
+
+Returns the peak brightness of a area on the screen. 
+Returns a value between ``0`` and ``100``, ``0`` being black.
+
+
+------------

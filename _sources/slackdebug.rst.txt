@@ -1,0 +1,41 @@
+
+Slackdebug
+==========
+Slacky's little drawing util pack. 
+
+
+------------
+
+.. code-block:: pascal
+
+
+   const
+     clProgRed    = $1F2164;
+     clProgBlue   = $783F37;
+     clProgGreen  = $26B58A;
+     clProgGreen2 = $12A20D;
+     clProgBrown  = $76ADB8;
+     clProgLBlue  = $B49946;
+     clProgOrange = $1493E2;
+     clProgPink   = $A869C9;
+     clProgYellow = $16D4F4;
+     clProgGray   = $B4BCBE;
+
+
+------------
+
+TMufasaBitmap.DrawSkillReport
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ 
+  function TMufasaBitmap.DrawSkillReport(At: TPoint; Color:Int32; CurrentXP, GainedXP, Objectives: Int32; Skill:String=''): TBox;
+
+Draws a skill report at the given location. Color can be just about any color, it will be adjusted
+automatically to look as good as possible.
+ 
+You have to track your XP, gained XP, and how many "objects" you have complted yourself in your script. 
+This is only for debugging that.
+
+
+------------

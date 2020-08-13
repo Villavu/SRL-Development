@@ -1,0 +1,287 @@
+
+Mouse
+=======
+Methods to interact with the mouse.
+
+
+------------
+
+EMouseDistribution
+~~~~~~~~~~~~~~~~~~
+
+The available distributions used to generate a point in a box.
+
+- **MOUSE_DISTRIBUTION_RANDOM**: Completely random point
+- **MOUSE_DISTRIBUTION_GAUSS**:  Weighted towards the center
+- **MOUSE_DISTRIBUTION_SKEWED**: Weighted torwards current mouse position
+- **MOUSE_DISTRIBUTION_ROWP**:   Weighted torwards current mouse position but more "rounded" compared to **MOUSE_DISTRIBUTION_SKEWED**
+
+**MOUSE_DISTRIBUTION_DEFAULT** will use **Mouse.Distribution** by default is **MOUSE_DISTRIBUTION_ROWP**
+
+
+
+------------
+
+TMouse
+~~~~~~
+
+- Mouse.Speed: Overall speed of the mouse
+- Mouse.MissChance: Chance % to "Miss" the destination
+- Mouse.Distribution: Default mouse distribution to use when clicking boxes
+
+**Example**
+
+.. code-block:: pascal  
+
+  // These are the default values that can be changed
+  Mouse.Speed := 13;
+  Mouse.MissChance := 10; // 10% chance each time the mouse is moved
+  Mouse.Distribution := MOUSE_DISTRIBUTION_ROWP;
+
+
+------------
+
+Mouse.Teleport
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Teleport(X, Y: Int32);
+
+Teleport the mouse to the desired X, Y coordinates.
+
+
+------------
+
+Mouse.Teleport
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Teleport(P: TPoint);
+
+Teleport the mouse to the desired point.
+
+
+------------
+
+Mouse.Position
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TMouse.Position: TPoint;
+
+Returns the mouse current position.
+
+
+------------
+
+Mouse.Hold
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Hold(Button: Int32);
+
+Holds the desired mouse button down. The button will continue to be held down until `Mouse.Release` is called.
+
+Button can be either:
+ - MOUSE_LEFT
+ - MOUSE_RIGHT
+ - MOUSE_SCROLL
+ - MOUSE_EXTRA_1
+ - MOUSE_EXTRA_2
+
+**Example**
+
+.. code-block:: pascal  
+
+  Mouse.Hold(MOUSE_LEFT); // The mouse is now pressing down left click.
+
+
+------------
+
+Mouse.Release
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Release(Button: Int32);
+
+Releases the desired mouse button which has been previously held.
+
+Button can be either:
+ - MOUSE_LEFT
+ - MOUSE_RIGHT
+ - MOUSE_SCROLL
+ - MOUSE_EXTRA_1
+ - MOUSE_EXTRA_2
+
+**Example**
+
+.. code-block:: pascal  
+
+  Mouse.Release(MOUSE_LEFT); // The mouse is no longer pressing left click.
+
+
+------------
+
+Mouse.WindMouse
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Release(Button: Int32);
+
+The internal algorithm used by `Mouse.Move` to move the mouse in a human'ish way.
+
+Credit: BenLand100 (https://github.com/BenLand100/SMART/blob/master/src/EventNazi.java#L201)
+
+
+------------
+
+Mouse.Move
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Move(P: TPoint);
+
+Moves the mouse to the desired point.
+
+**Example**
+
+.. code-block:: pascal  
+
+  var P: TPoint;
+
+  P.X := 50;
+  P.Y := 50;
+
+  Mouse.Move(P);
+
+  WriteLn(Mouse.Position()); // 50, 50
+
+
+------------
+
+Mouse.Move
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Move(P: TPoint);
+
+Moves the mouse to the desired X,Y coordinate.
+
+**Example**
+
+.. code-block:: pascal  
+
+  Mouse.Move(50, 50);
+
+  WriteLn(Mouse.Position()); // 50, 50
+
+
+------------
+
+Mouse.Move
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Move(Box: TBox; ForcedMove: Boolean = False; Distribution: EMouseDistribution = MOUSE_DISTRIBUTION_DEFAULT);
+
+Moves the mouse to a random point in the box.
+
+- **ForcedMove** determines if the mouse should be moved if already in the box. By default this is **False**
+- **Distribution** determines the method to generate a random point. By default this uses **Mouse.Distribution**
+
+**Example**
+
+.. code-block:: pascal  
+
+  var B: TBox;
+
+  B.X1 := 100;
+  B.Y1 := 100;
+  B.X2 := 200;
+  B.Y2 := 200;
+
+  Mouse.Move(B);
+
+  WriteLn(Mouse.Position()); // The mouse is now randomly within 100,100,200,200
+
+
+------------
+
+Mouse.Move
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Move(Circle: TCircle; ForcedMove: Boolean = False);
+
+Moves the mouse to a random point in an circle.
+
+- **ForcedMove** determines if the mouse should be moved if already in the circle. By default this is False.
+
+**Example**
+
+.. code-block:: pascal  
+
+  var C: TCircle;
+
+  C.X := 100;
+  C.Y := 100;
+  C.Radius := 25;
+
+  Mouse.Move(C);
+
+  WriteLn(Mouse.Position()); // The mouse is now randomly within 100,100 with a radius of 25.
+
+
+------------
+
+Mouse.Move
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Move(Rect: TRectangle; ForcedMove: Boolean = False);
+
+Moves the mouse to a random point in an rectangle.
+
+- **ForcedMove** determines if the mouse should be moved if already in the rectangle. By default this is False.
+
+
+------------
+
+Mouse.Click
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Click(Button: Int32);
+
+Clicks the mouse with the desired button at the current mouse position.
+
+Button can be either:
+ - MOUSE_LEFT
+ - MOUSE_RIGHT
+ - MOUSE_SCROLL
+ - MOUSE_EXTRA_1
+ - MOUSE_EXTRA_2
+
+**Example**
+
+.. code-block:: pascal  
+
+  WriteLn('Left clicking at: ', Mouse.Position());
+
+  Mouse.Click(MOUSE_LEFT);
+
+
+------------
+
+Mouse.Miss
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Miss(P: TPoint);
+
+"Misses" the target point **P**. Will stop somewhere along the path or overshoot.
+
+This can automatically be called depending on Mouse.MissChance.
+
+
+------------

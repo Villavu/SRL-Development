@@ -1,0 +1,58 @@
+
+Pixelshift
+=============
+Stuff that relate to checking the "pixelshift", ie how many pixels changed in an area
+
+
+------------
+
+SRL.GetPixelShift
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.GetPixelShift(Area: TBox; WaitTime: UInt32): Int32;
+
+Returns how many pixels changed in the given area ``Area`` after ``WaitTime`` has passed.
+
+
+------------
+
+SRL.GetPixelShiftTPA
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.GetPixelShiftTPA(Area: TBox; WaitTime: UInt32; Count: Int32=1; AcceptLength:Int32=0): TPointArray;
+
+Returns a TPA containing all the pixels that changed during the ``WaitTime`` period.
+
+The function can repeat the period ``WaitTime`` and continue building the result ``Count`` times.
+
+if ``AcceptLength`` is none-zero, it will return when / if this many pixels has changed.
+
+
+------------
+
+SRL.IsAnimating
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.IsAnimating(Area:TBox; Shift, WaitTime:UInt32; Iter:UInt32=1): Boolean;
+
+Counts the pixels that changed in the period ``WaitTime`` and checks if ``Shift`` value was met if it was
+the it will return ``True``. The check itself can be repeated several times ``Iter``
+
+**Example**
+
+.. code-block:: pascal  
+
+.. code-block:: pascal
+
+
+  if srl.IsAnimating(Box(10,10, 100,100), 350, 500, 3) then
+    WriteLn('Shit changed');
+
+In the example we supply a random area, and checks if 350 pixels changed within 500ms, we repeat 
+that test 3 times, or until the condition ``350 pixels`` was met.
+
+
+------------
