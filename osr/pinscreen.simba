@@ -1,0 +1,149 @@
+{$DEFINE SRL_PINSCREEN_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSPinScreen = type TRSInterface;
+
+procedure TRSPinScreen.Setup(ClientMode: ERSClientMode);
+begin
+  Self.Name := 'Pin Screen';
+
+  case ClientMode of
+    RS_CLIENT_FIXED:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, 11];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2];
+        Self.Alignment.Center.MaxWidth := 488;
+        Self.Alignment.Center.MaxHeight := 305;
+      end;
+
+    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, 10];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2];
+        Self.Alignment.Center.MaxWidth := 488;
+        Self.Alignment.Center.MaxHeight := 305;
+      end;
+  end;
+end;
+
+function TRSPinScreen.GetDigitBoxes: TBoxArray;
+begin
+  Result := Grid(4, 3, 64, 64, [30, 8], [Self.X1 + 21, Self.Y1 + 83]);
+  Result[3].X1 -= 10;
+  Result[3].X2 -= 10;
+
+  Delete(Result, 7, 1);
+  Delete(Result, 10, 1);
+end;
+
+function TRSPinScreen.ClickDigit(Digit: Int32): Boolean;
+var
+  Boxes: TBoxArray;
+  Digits: TIntegerArray;
+  I, J: Int32;
+begin
+  Boxes := GetDigitBoxes();
+
+  SetLength(Digits, Length(Boxes));
+  for I := 0 to High(Digits) do
+    Digits[I] := -1;
+
+  for I := 0 to High(Boxes) do
+    for J := 0 to High(Boxes) do
+      if FindTextColor(ToString(J), RS_FONT_BOLD_12, 32767, 0, Boxes[I], 1) then
+        Digits[I] := J;
+
+  if (Length(Digits.FindAll(-1)) > 1) or (Digits.UniqueCount() <> Length(Digits)) then
+  begin
+    Self.Debug('Found invalid digits: ' + ToString(Digits));
+
+    Exit;
+  end;
+
+  I := Digits.Find(Digit);
+  if (I = -1) then
+    I := Digits.Find(-1);
+
+  if (I <> -1) then
+  begin
+    Mouse.Click(Boxes[I], MOUSE_LEFT);
+
+    Exit(True);
+  end;
+end;
+
+function TRSPinScreen.Enter(Pin: String): Boolean;
+var
+  I: Int32;
+begin
+  if (Length(Pin) <> 4) or (not Pin.IsDigit) then
+    Self.Fatal('Invalid pin: ' + ToString(Pin));
+
+  for 1 to 3 do // 3 attempts
+  begin
+    for I := 1 to 4 do
+      if FindTextColor(['FIRST', 'SECOND', 'THIRD', 'FOURTH'][I-1], RS_FONT_BOLD_12, $FFFFFF, 0, Self.Bounds, 1) then
+      begin
+        if ClickDigit(StrToInt(Pin[I])) then
+        begin
+          Wait(200, 2000, wdLeft);
+          if (I = 4) then
+            Exit(BankScreen.IsOpen(3000));
+        end;
+      end;
+
+    Wait(100, 200);
+  end;
+end;
+
+function TRSPinScreen.IsOpen: Boolean;
+begin
+  Result := FindTextColor('Bank of Gielinor', RS_FONT_BOLD_12, $0000FF, 0, Self.Bounds, 1);
+end;
+
+function TRSPinScreen.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(0, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+end;
+
+procedure TRSPinScreen.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if (not Self.IsOpen()) then
+    Exit;
+
+  inherited(Bitmap);
+
+  Bitmap.DrawBoxes(GetDigitBoxes(), False, $00FF00);
+end;
+
+var
+  PinScreen: TRSPinScreen;
+
+function TRSBankScreen.IsOpen(WaitForItems: Boolean = True): Boolean; override;
+begin
+  if PinScreen.IsOpen() then
+  begin
+    if (Length(Players) = 0) then
+      Self.Fatal('Pinscreen is open but no players are declared');
+    if (Players[CurrentPlayer].Pin = '') then
+      Self.Fatal('Pinscreen is open but current player has no pin');
+
+    Result := PinScreen.Enter(Players[CurrentPlayer].Pin);
+  end else
+    Result := inherited();
+end;
+
+begin
+  SRL.AddSetupMethod(@PinScreen.Setup);
+  SRL.AddDebugMethod(@PinScreen.Debug);
+end;
