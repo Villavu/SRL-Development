@@ -1,0 +1,96 @@
+
+Inventory
+=========
+Methods to interact with the inventory.
+
+
+------------
+
+Inventory.IsSlotSelected
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.IsSlotSelected(Slot: Int32): Boolean;
+
+Returns True if the slot is selected (white outline).
+
+**Example:**
+
+.. code-block:: pascal  
+
+  if Inventory.IsSlotSelected(1) then
+    WriteLn('Slot 1 is selected!');
+
+
+------------
+
+Inventory.GetSelectedSlot
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.GetSelectedSlot: Int32;
+
+Returns the index of the selected slot (white outline).
+**-1** is returned if no slot is selected.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  WriteLn(Inventory.GetSelectedSlot());
+
+
+------------
+
+Inventory.SetSelectedSlot
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.SetSelectedSlot(Slot: Int32): Boolean;
+
+Set the slot as selected (white outline).
+Slot can be **-1** to unselect the currently selected slot.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  WriteLn(Inventory.GetSelectedSlot());
+
+
+------------
+
+Inventory.Use
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.Use(Slot, OtherSlot: Int32): Boolean;
+
+Selects **Slot** and uses with **OtherSlot**.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  Inventory.Use(1, 5); // Use item in slot 1 on Item in slot 5
+
+
+------------
+
+Inventory.ShiftDrop
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.ShiftDrop(Items: TStringArray; Pattern: TIntegerArray): Boolean;
+
+Shift drops items following the desired pattern.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  // Shift drop maple & willow logs in the snake pattern
+  Inventory.ShiftDrop(['Maple logs', 'Willow logs'], DROP_PATTERN_SNAKE);
+
+
+------------

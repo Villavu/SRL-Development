@@ -31,8 +31,8 @@ type TMouse
 
 
   TMouse = record(TSRLBaseRecord)
-    Speed: Double;                     // Overall mouse speed. (Default: 11)
-    Gravity, Wind: Double;             // Gravity & Wind for generating mouse path (Default: 20 & 15)
+    Speed: Double;                     // Overall mouse speed. (Default: 12)
+    Gravity, Wind: Double;             // Gravity & Wind for generating mouse path (Default: 20 & 16)
     Distribution: EMouseDistribution;  // Default distribution to use. (Default: MOUSE_DISTRIBUTION_ROWP)
     MissChance: Double;                // Percentage chance to "Miss" the mouse (Default: 10)
     OnMoving: TMouseMovingEvent;       // Callback while mouse is being moved
@@ -49,7 +49,8 @@ Mouse.Setup
  procedure TMouse.Setup;
 
 Setups up the variables for the mouse.
-This is automatically called on the `Mouse` variable.
+
+.. note:: This is automatically called on the **Mouse** variable.
 
 
 ------------
@@ -497,7 +498,7 @@ Holds the desired button and moves the mouse to `P` coordinates.
   P.X := 50;
   P.Y := 50;
 
-  Mouse.DragTo(P); // Left click at 50,50
+  Mouse.DragTo(P); // Moves the mouse to 50,50 while holding MOUSE_LEFT
 
 
 ------------

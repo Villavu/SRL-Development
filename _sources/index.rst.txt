@@ -30,6 +30,7 @@ Welcome to SRLs documentation!
    :caption: OSR
 
    mainscreen
+   inventory
    misc
    mm2ms
    bankscreen

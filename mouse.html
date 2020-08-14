@@ -136,6 +136,7 @@
 <p class="caption"><span class="caption-text">OSR</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bankscreen.html">BankScreen</a></li>
@@ -240,8 +241,8 @@
 <div class="section" id="type-tmouse">
 <h2>type TMouse<a class="headerlink" href="#type-tmouse" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">TMouse</span> <span class="o">=</span> <span class="k">record</span><span class="p">(</span><span class="n">TSRLBaseRecord</span><span class="p">)</span>
-  <span class="n">Speed</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>                     <span class="c1">// Overall mouse speed. (Default: 11)</span>
-  <span class="n">Gravity</span><span class="o">,</span> <span class="n">Wind</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>             <span class="c1">// Gravity &amp; Wind for generating mouse path (Default: 20 &amp; 15)</span>
+  <span class="n">Speed</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>                     <span class="c1">// Overall mouse speed. (Default: 12)</span>
+  <span class="n">Gravity</span><span class="o">,</span> <span class="n">Wind</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>             <span class="c1">// Gravity &amp; Wind for generating mouse path (Default: 20 &amp; 16)</span>
   <span class="n">Distribution</span><span class="o">:</span> <span class="n">EMouseDistribution</span><span class="o">;</span>  <span class="c1">// Default distribution to use. (Default: MOUSE_DISTRIBUTION_ROWP)</span>
   <span class="n">MissChance</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>                <span class="c1">// Percentage chance to &quot;Miss&quot; the mouse (Default: 10)</span>
   <span class="n">OnMoving</span><span class="o">:</span> <span class="n">TMouseMovingEvent</span><span class="o">;</span>       <span class="c1">// Callback while mouse is being moved</span>
@@ -256,8 +257,11 @@
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Setup</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Setups up the variables for the mouse.
-This is automatically called on the <cite>Mouse</cite> variable.</p>
+<p>Setups up the variables for the mouse.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is automatically called on the <strong>Mouse</strong> variable.</p>
+</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="mouse-teleport">
@@ -639,7 +643,7 @@ This is automatically called on the <cite>Mouse</cite> variable.</p>
 <span class="n">P</span><span class="o">.</span><span class="n">X</span> <span class="o">:=</span> <span class="mi">50</span><span class="o">;</span>
 <span class="n">P</span><span class="o">.</span><span class="n">Y</span> <span class="o">:=</span> <span class="mi">50</span><span class="o">;</span>
 
-<span class="n">Mouse</span><span class="o">.</span><span class="n">DragTo</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Left click at 50,50</span>
+<span class="n">Mouse</span><span class="o">.</span><span class="n">DragTo</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Moves the mouse to 50,50 while holding MOUSE_LEFT</span>
 </pre></div>
 </div>
 </div>
