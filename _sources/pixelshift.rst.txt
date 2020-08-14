@@ -41,7 +41,7 @@ SRL.IsAnimating
 Counts the pixels that changed in the period ``WaitTime`` and checks if ``Shift`` value was met if it was
 the it will return ``True``. The check itself can be repeated several times ``Iter``
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 

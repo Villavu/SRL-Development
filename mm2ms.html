@@ -343,7 +343,7 @@ The static point is therefor gathered at north, and it will rotate it as expecte
 <p>Takes a mainscreen point and converts it to a point on the minimap.</p>
 <p>Returns a Vector3 which includes input height. Conversion to a TPoint if that’s what you need is simply
 done by calling <cite>.ToPoint</cite> on the result.</p>
-<p><strong>Example</strong></p>
+<p><strong>Example:</strong></p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="o">,</span><span class="mi">140</span><span class="p">)</span><span class="o">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">;</span>
 <span class="nb">WriteLn</span> <span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="o">,</span><span class="mi">140</span><span class="p">)</span><span class="o">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">ToPoint</span><span class="p">()</span><span class="o">;</span> <span class="c1">// as a TPoint (lost accuracy)</span>
 </pre></div>
@@ -357,7 +357,7 @@ done by calling <cite>.ToPoint</cite> on the result.</p>
 </div>
 <p>Converts a distance acquired from the <strong>fixed client* and **default zoom</strong> to the
 current mainscreen.</p>
-<p><strong>Example</strong></p>
+<p><strong>Example:</strong></p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom &amp; client size.</span>
 <span class="nb">WriteLn</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">TranslateDistance</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span><span class="o">;</span>
 </pre></div>

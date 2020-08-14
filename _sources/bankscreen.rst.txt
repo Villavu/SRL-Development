@@ -26,7 +26,7 @@ BankScreen.GetTitle
 
 Returns the title of the bankscreen. Useful when searching.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -44,7 +44,7 @@ BankScreen.Search
 Searches for an item.
 If no item is passed, the current search will be cleared.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -87,7 +87,7 @@ Withdraws the specified amount ``Amount`` of the item ``Item``.
 ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 ``BANK_WITHDRAW_ALL`` and ``BANK_WITHDRAW_ALL_BUT_ONE`` constants can be used for ``Amount``.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -109,7 +109,7 @@ The quantity buttons are used for picking the amount.
 ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 ``BANK_WITHDRAW_ALL`` constants can be used for ``Amount``.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -127,7 +127,7 @@ BankScreen.Deposit
 
 Deposits an array of slots.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -148,7 +148,7 @@ The quantity buttons are used for picking the amount.
 
 ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -169,7 +169,7 @@ The quantity buttons are used for picking the amount.
 
 ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -191,7 +191,7 @@ The quantity buttons are used for picking the amount.
 ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -210,7 +210,7 @@ BankScreen.Deposit
 Deposits an array of items.
 ``Items`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -231,7 +231,7 @@ The quantity buttons are used for picking the amount.
 ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -250,7 +250,7 @@ BankScreen.Close
 Closes the bank, Depending on `UseKeyboard` the function will either click the button
 or press backspace.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 

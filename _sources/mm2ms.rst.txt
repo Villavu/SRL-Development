@@ -182,7 +182,7 @@ Takes a mainscreen point and converts it to a point on the minimap.
 Returns a Vector3 which includes input height. Conversion to a TPoint if that's what you need is simply 
 done by calling `.ToPoint` on the result.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
@@ -201,7 +201,7 @@ MainScreen.ConvertDistance
 Converts a distance acquired from the **fixed client* and **default zoom** to the
 current mainscreen.
 
-**Example**
+**Example:**
 
 .. code-block:: pascal  
 
