@@ -289,7 +289,7 @@ var
   Slots, OtherSlots: TIntegerArray;
   Slot, OtherSlot: Int32;
 begin
-  Self.ClearActiveSlot(); // Item sprites change when activated.
+  Self.SetSelectedSlot(-1); // Item sprites change when selected.
 
   Slots := Self.FindAll(Item);
   if Length(Slots) = 0 then
@@ -305,6 +305,19 @@ begin
   Self.Use(Slot, OtherSlot);
 
   Result := True;
+end;
+
+function TRSInventory.ShiftDrop(Items: TStringArray; Pattern: TIntegerArray): Boolean; override;
+var
+  Slots, Order: TIntegerArray;
+  I: Int32;
+begin
+  Slots := Self.FindAll(Items);
+  for I := 0 to High(Pattern) do
+    if Slots.Find(Pattern[I]) > -1 then
+      Order += Pattern[I];
+
+  Result := Self.ShiftDrop(Order);
 end;
 
 function TRSBankScreen.Count(Identifer: String): Int32; override;

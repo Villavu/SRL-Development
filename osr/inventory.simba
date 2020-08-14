@@ -1,3 +1,9 @@
+(*
+Inventory
+=========
+Methods to interact with the inventory.
+*)
+
 {$DEFINE SRL_INVENTORY_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -70,12 +76,29 @@ begin
   Result := SRL.CountColor(CTS1(1118740, 35), Self.GetSlotBox(Slot)) > 0;
 end;
 
-function TRSInventory.IsSlotActive(Slot: Int32): Boolean;
+(*
+Inventory.IsSlotSelected
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.IsSlotSelected(Slot: Int32): Boolean;
+
+Returns True if the slot is selected (white outline).
+
+**Example**
+
+  if Inventory.IsSlotSelected(1) then
+    WriteLn('Slot 1 is selected!');
+*)
+function TRSInventory.IsSlotSelected(Slot: Int32): Boolean;
+var
+  B: TBox;
 begin
   if not Self.Open() then
     Exit(False);
 
-  Result := SRL.CountColor(CTS0($FFFFFF), Self.GetSlotBox(Slot)) > 0;
+  B := Self.GetSlotBox(Slot);
+  B.Y1 += 8; // Skip item text
+
+  Result := SRL.CountColor(CTS0($FFFFFF), B) > 0;
 end;
 
 function TRSInventory.IsFull: Boolean;
@@ -92,46 +115,74 @@ begin
       Exit(False);
 end;
 
-function TRSInventory.GetActiveSlot: Int32;
+(*
+Inventory.GetSelectedSlot
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.GetSelectedSlot: Int32;
+
+Returns the index of the selected slot (white outline).
+**-1** is returned if no slot is selected.
+
+**Example**
+
+  WriteLn(Inventory.GetSelectedSlot());
+*)
+function TRSInventory.GetSelectedSlot: Int32;
 var
   I: Int32;
 begin
+  if not Self.Open() then
+    Exit(-1);
+
+  for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+    if Self.IsSlotSelected(I) then
+      Exit(I);
+
   Result := -1;
-
-  if Self.Open() then
-  begin
-    for I := Self.LOW_SLOT to Self.HIGH_SLOT do
-      if IsSlotActive(I) then
-        Exit(I);
-  end;
 end;
 
-procedure TRSInventory.ClearActiveSlot();
+(*
+Inventory.SetSelectedSlot
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.SetSelectedSlot(Slot: Int32): Boolean;
+
+Set the slot as selected (white outline).
+Slot can be **-1** to unselect the currently selected slot.
+
+**Example**
+
+  WriteLn(Inventory.GetSelectedSlot());
+*)
+function TRSInventory.SetSelectedSlot(Slot: Int32): Boolean;
 var
-  I: Int32;
+  Selected: Int32;
 begin
-  if Self.Open() then
-  begin
-    for I := Self.LOW_SLOT to Self.HIGH_SLOT do
-      if IsSlotActive(I) then
-      begin
-        Mouse.Click(Self.GetSlotBox(I), MOUSE_LEFT);
+  Selected := Self.GetSelectedSlot();
+  if (Selected = Slot) then
+    Exit(True);
 
-        Break;
-      end;
-  end;
-end;
-
-procedure TRSInventory.Use(Slot, OtherSlot: Int32);
-var
-  Active: Int32;
-begin
-  Active := Self.GetActiveSlot();
-  if (Active > -1) and (Active <> Slot) then
-    Self.ClearActiveSlot();
-
-  if (Active <> Slot) then
+  if (Selected > -1) then
+    Mouse.Click(Self.GetSlotBox(Selected), MOUSE_LEFT);
+  if (Slot > -1) then
     Mouse.Click(Self.GetSlotBox(Slot), MOUSE_LEFT);
+
+  Result := WaitUntil(Self.GetSelectedSlot() = Slot, 50, SRL.TruncatedGauss(1000, 2000));
+end;
+
+(*
+Inventory.Use
+~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.Use(Slot, OtherSlot: Int32): Boolean;
+
+Selects **Slot** and uses with **OtherSlot**.
+
+**Example**
+
+  Inventory.Use(1, 5); // Use item in slot 1 on Item in slot 5
+*)
+function TRSInventory.Use(Slot, OtherSlot: Int32): Boolean;
+begin
+  Self.SetSelectedSlot(Slot);
 
   Wait(0, 1000, wdLeft);
 
@@ -173,7 +224,7 @@ function TRSInventory.ShiftDrop(Slots: TIntegerArray): Boolean;
 var
   Boxes: TBoxArray;
   I, Attempts: Int32;
-  Active: Int32;
+  Selected: Int32;
   Circle: TCircle;
 begin
   if (Length(Slots) = 0) then
@@ -190,12 +241,10 @@ begin
 
       while (I < Length(Slots)) do
       begin
-        Active := Self.GetActiveSlot();
-
-        if Active > -1 then
+        Selected := Self.GetSelectedSlot();
+        if (Selected > -1) then
         begin
-          Mouse.Move(Self.GetSlotBox(Active));
-          Mouse.Click(MOUSE_LEFT);
+          Self.SetSelectedSlot(-1);
 
           Break;
         end;
@@ -323,6 +372,22 @@ begin
   // Implemented in itemfinder.simba
 end;
 
+(*
+Inventory.ShiftDrop
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.ShiftDrop(Items: TStringArray; Pattern: TIntegerArray): Boolean;
+
+Shift drops items following the desired pattern.
+
+**Example**
+
+  // Shift drop maple & willow logs in the snake pattern
+  Inventory.ShiftDrop(['Maple logs', 'Willow logs'], DROP_PATTERN_SNAKE);
+*)
+function TRSInventory.ShiftDrop(Items: TStringArray; Pattern: TIntegerArray): Boolean; overload;
+begin
+  // Implemented in itemfinder.simba
+end;
 
 var
   Inventory: TRSInventory;
