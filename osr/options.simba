@@ -161,6 +161,8 @@ begin
 
   if Self.FindButton([Self.BUTTON_CONTROLS_ON, Self.BUTTON_CONTROLS_HOVER_ON]) then
     Exit(OPTIONS_TAB_CONTROLS);
+
+  Self.Fatal('Tab not detected');
 end;
 
 function TRSOptions.OpenTab(Tab: ERSOptionsTab): Boolean;
