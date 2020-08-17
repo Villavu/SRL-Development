@@ -107,10 +107,17 @@
 <p class="caption"><span class="caption-text">OSR</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">MainScreen</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#type-trsobjectfinder">type TRSObjectFinder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mainscreen-setup">MainScreen.Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mainscreen-getuptext">MainScreen.GetUpText</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mainscreen-isuptext">MainScreen.IsUpText</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">MainScreen.IsUpText</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-convertdistance">MainScreen.ConvertDistance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-getplayerbox">MainScreen.GetPlayerBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-facepoint">MainScreen.FacePoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-pointtomm">Mainscreen.PointToMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mainscreen-findobject">Mainscreen.FindObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Mainscreen.FindObject</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
@@ -200,12 +207,166 @@
   <div class="section" id="mainscreen">
 <h1>MainScreen<a class="headerlink" href="#mainscreen" title="Permalink to this headline">¶</a></h1>
 <hr class="docutils" />
+<div class="section" id="type-trsobjectfinder">
+<h2>type TRSObjectFinder<a class="headerlink" href="#type-trsobjectfinder" title="Permalink to this headline">¶</a></h2>
+<p>TRSObjectFinder is the record used in <strong>MainScreen.FindObject</strong>.</p>
+<ul>
+<li><p><strong>TRSObjectFinder.Zoom</strong></p>
+<p>When designing a object finder you <strong>must</strong> be at <strong>default zoom(50)</strong> in the <strong>fixed</strong> client mode.
+This allows SRL to convert the finder to work at any zoom and client mode once made.</p>
+<div class="figure align-default" id="id3">
+<img alt="_images/zoom.png" src="_images/zoom.png" />
+<p class="caption"><span class="caption-text">A finder working at different zoom levels producing similar results.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+</li>
+<li><p><strong>TRSObjectFinder.Colors</strong></p>
+<p>An color array which will searched for. Use ACA to acquire color(s).</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Finder</span><span class="o">.</span><span class="n">Colors</span> <span class="o">+=</span> <span class="n">CTS2</span><span class="p">(</span><span class="mi">2503237</span><span class="o">,</span> <span class="mi">20</span><span class="o">,</span> <span class="mf">0.10</span><span class="o">,</span> <span class="mf">0.14</span><span class="p">)</span><span class="o">;</span> <span class="c1">// brown</span>
+<span class="n">Finder</span><span class="o">.</span><span class="n">Colors</span> <span class="o">+=</span> <span class="n">CTS2</span><span class="p">(</span><span class="mi">5526875</span><span class="o">,</span> <span class="mi">15</span><span class="o">,</span> <span class="mf">0.19</span><span class="o">,</span> <span class="mf">0.06</span><span class="p">)</span><span class="o">;</span> <span class="c1">// grey</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id4">
+<img alt="_images/color_array.png" src="_images/color_array.png" />
+<p class="caption"><span class="caption-text">The two colors above found and merged together.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+</div>
+</li>
+<li><p><strong>TRSObjectFinder.ColorClusters</strong></p>
+<p>An array of “color clusters” which will be merged together. Use ACA to acquire color(s).</p>
+<p>A “color cluster” consists of a <cite>primary</cite> and <cite>secondary</cite> color and a <cite>distance</cite> value.
+When searched for only <cite>primary</cite> colors within <cite>distance</cite> of <cite>secondary</cite> colors are returned.</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Finder</span><span class="o">.</span><span class="n">ColorClusters</span> <span class="o">+=</span> <span class="p">[</span>
+  <span class="n">CTS2</span><span class="p">(</span><span class="mi">2503237</span><span class="o">,</span> <span class="mi">20</span><span class="o">,</span> <span class="mf">0.10</span><span class="o">,</span> <span class="mf">0.14</span><span class="p">)</span><span class="o">,</span> <span class="c1">// brown</span>
+  <span class="n">CTS2</span><span class="p">(</span><span class="mi">5526875</span><span class="o">,</span> <span class="mi">15</span><span class="o">,</span> <span class="mf">0.19</span><span class="o">,</span> <span class="mf">0.06</span><span class="p">)</span><span class="o">,</span> <span class="c1">// grey</span>
+  <span class="mi">2</span>                              <span class="c1">// distance</span>
+<span class="p">]</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id5">
+<img alt="_images/color_cluster.png" src="_images/color_cluster.png" />
+<p class="caption"><span class="caption-text">The above color cluster found where “brown” is within 2 pixels of “grey”.</span><a class="headerlink" href="#id5" title="Permalink to this image">¶</a></p>
+</div>
+</li>
+<li><p><strong>TRSObjectFinder.Erode</strong></p>
+<p>The amount to erode before clustering. This is useful for removing small amounts of noise.</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Finder</span><span class="o">.</span><span class="n">Erode</span> <span class="o">:=</span> <span class="mi">2</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id6">
+<img alt="_images/erode.png" src="_images/erode.png" />
+<p class="caption"><span class="caption-text">Erode before and after.</span><a class="headerlink" href="#id6" title="Permalink to this image">¶</a></p>
+</div>
+</li>
+<li><p><strong>TRSObjectFinder.Grow</strong></p>
+<p>The amount to grow <strong>before</strong> eroding. This is useful for filling gaps.</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Finder</span><span class="o">.</span><span class="n">Grow</span> <span class="o">:=</span> <span class="mi">2</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id7">
+<img alt="_images/grow.png" src="_images/grow.png" />
+<p class="caption"><span class="caption-text">Grow before and after.</span><a class="headerlink" href="#id7" title="Permalink to this image">¶</a></p>
+</div>
+<p>Grow can also be paired with erode which is quite powerful.</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Finder</span><span class="o">.</span><span class="n">Grow</span> <span class="o">:=</span> <span class="mi">3</span><span class="o">;</span>
+<span class="n">Finder</span><span class="o">.</span><span class="n">Erode</span> <span class="o">:=</span> <span class="mi">4</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id8">
+<img alt="_images/grow_erode.png" src="_images/grow_erode.png" />
+<p class="caption"><span class="caption-text">Grow paired with Erode.</span><a class="headerlink" href="#id8" title="Permalink to this image">¶</a></p>
+</div>
+</li>
+<li><p><strong>TRSObjectFinder.ClusterDistance</strong></p>
+<p>The distance to pass to <em>ClusterTPA</em>, this is how multiple objects are grouped up. <cite>Distance=5</cite> would mean that points that are closer than or equal to 5 pixels away are considered close enough to merge into a singular group.</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Finder</span><span class="o">.</span><span class="n">ClusterDistance</span> <span class="o">:=</span> <span class="mi">5</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id9">
+<img alt="_images/cluster_5.png" src="_images/cluster_5.png" />
+<p class="caption"><span class="caption-text">Cluster distance <strong>5</strong> produces four individual chairs</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Finder</span><span class="o">.</span><span class="n">ClusterDistance</span> <span class="o">:=</span> <span class="mi">20</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id10">
+<img alt="_images/cluster_20.png" src="_images/cluster_20.png" />
+<p class="caption"><span class="caption-text">Cluster distance <strong>20</strong> produces two sets of chairs</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
+</div>
+</li>
+<li><p><strong>TRSObjectFinder.MinLongSide, TRSObjectFinder.MaxLongSide, TRSObjectFinder.MinShortSide, TRSObjectFinder.MaxShortSide</strong></p></li>
+</ul>
+<blockquote>
+<div><p>Any match that exceeds these values will be removed.
+The bounding rectangle is used which has a <strong>long</strong> and a <strong>short</strong> side measured in pixels.</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// Removes matches where the short side isn&#39;t within 10 and 20 pixels</span>
+<span class="n">Finder</span><span class="o">.</span><span class="n">MinShortSide</span> <span class="o">:=</span> <span class="mi">10</span><span class="o">;</span>
+<span class="n">Finder</span><span class="o">.</span><span class="n">MaxShortSide</span> <span class="o">:=</span> <span class="mi">20</span><span class="o">;</span>
+<span class="c1">// Removes matches where the long side isn&#39;t within 20 and 40 pixels</span>
+<span class="n">Finder</span><span class="o">.</span><span class="n">MinLongSide</span> <span class="o">:=</span> <span class="mi">20</span><span class="o">;</span>
+<span class="n">Finder</span><span class="o">.</span><span class="n">MaxLongSide</span> <span class="o">:=</span> <span class="mi">40</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id11">
+<img alt="_images/bounding_rect.png" src="_images/bounding_rect.png" />
+<p class="caption"><span class="caption-text">Example bounding rectangle with a long and short side.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+</div>
+</div></blockquote>
+</div>
+<hr class="docutils" />
+<div class="section" id="mainscreen-setup">
+<h2>MainScreen.Setup<a class="headerlink" href="#mainscreen-setup" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">Setup</span><span class="p">(</span><span class="n">ClientMode</span><span class="o">:</span> <span class="n">ERSClientMode</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Setups the mainscreen.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is automatically called on the <strong>MainScreen</strong> variable.</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="mainscreen-getuptext">
+<h2>MainScreen.GetUpText<a class="headerlink" href="#mainscreen-getuptext" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">GetUpText</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns the current uptext.
+Uptext is the top left which appears when moving the mouse over a object.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">GetUpText</span><span class="p">())</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="mainscreen-isuptext">
+<h2>MainScreen.IsUpText<a class="headerlink" href="#mainscreen-isuptext" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">IsUpText</span><span class="p">(</span><span class="n">Text</span><span class="o">:</span> <span class="n">TStringArray</span><span class="o">;</span> <span class="n">Timeout</span><span class="o">:</span> <span class="n">Int32</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if the uptext is found <strong>anywhere</strong> in either of the <strong>Text</strong> strings.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">IsUpText</span><span class="p">([</span><span class="s">&#39;Chicken&#39;</span><span class="o">,</span> <span class="s">&#39;Wolf&#39;</span><span class="p">]))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id1">
+<h2>MainScreen.IsUpText<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">IsUpText</span><span class="p">(</span><span class="n">Text</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Timeout</span><span class="o">:</span> <span class="n">Int32</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if the uptext is found <strong>anywhere</strong> the <strong>Text</strong> string.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">IsUpText</span><span class="p">(</span><span class="s">&#39;Chicken&#39;</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
 <div class="section" id="mainscreen-convertdistance">
 <h2>MainScreen.ConvertDistance<a class="headerlink" href="#mainscreen-convertdistance" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">ConvertDistance</span><span class="p">(</span><span class="n">Dist</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">Accuracy</span><span class="o">:</span> <span class="kt">Single</span> <span class="o">=</span> <span class="mf">1.05</span><span class="p">)</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Converts a distance acquired from the <strong>fixed client* and **default zoom(50)</strong> to the
+<p>Converts a distance acquired from the <strong>fixed client</strong> and <strong>default zoom(50)</strong> to the
 current mainscreen.</p>
 <p><strong>Example:</strong></p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// 20 pixels on the fixed client and default zoom(50) is currently x pixels on the mainscreen.</span>
@@ -241,6 +402,40 @@ done by calling <cite>.ToPoint</cite> on the result.</p>
 <p><strong>Example:</strong></p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="o">,</span><span class="mi">140</span><span class="p">)</span><span class="o">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">;</span>           <span class="c1">// as a vector (more accurate)</span>
 <span class="nb">WriteLn</span> <span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="o">,</span><span class="mi">140</span><span class="p">)</span><span class="o">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">ToPoint</span><span class="p">()</span><span class="o">;</span> <span class="c1">// as a TPoint (lost accuracy)</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="mainscreen-findobject">
+<h2>Mainscreen.FindObject<a class="headerlink" href="#mainscreen-findobject" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">FindObject</span><span class="p">(</span><span class="n">Finder</span><span class="o">:</span> <span class="n">TRSObjectFinder</span><span class="o">;</span> <span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">T2DPointArray</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns all matches of an TRSObjectFinder in the desired area.</p>
+<p>See the top of this page page for documentation about the TRSObjectFinder record.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">MyFinder</span><span class="o">:</span> <span class="n">TRSObjectFinder</span><span class="o">;</span>
+
+<span class="c1">// Some chairs in varrock west bank</span>
+<span class="n">MyFinder</span><span class="o">.</span><span class="n">Colors</span> <span class="o">+=</span> <span class="n">CTS2</span><span class="p">(</span><span class="mi">1328725</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="mf">0.06</span><span class="o">,</span> <span class="mf">0.69</span><span class="p">)</span><span class="o">;</span>
+<span class="n">MyFinder</span><span class="o">.</span><span class="n">ClusterDistance</span> <span class="o">:=</span> <span class="mi">5</span><span class="o">;</span>
+<span class="n">MyFinder</span><span class="o">.</span><span class="n">Erode</span> <span class="o">:=</span> <span class="mi">2</span><span class="o">;</span>
+<span class="n">MyFinder</span><span class="o">.</span><span class="n">MinLongSide</span> <span class="o">:=</span> <span class="mi">10</span><span class="o">;</span>
+<span class="n">MyFinder</span><span class="o">.</span><span class="n">MaxLongSide</span> <span class="o">:=</span> <span class="mi">15</span><span class="o">;</span>
+
+<span class="n">Debug</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">FindObject</span><span class="p">(</span><span class="n">MyFinder</span><span class="o">,</span> <span class="n">MainScreen</span><span class="o">.</span><span class="n">Bounds</span><span class="p">()))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h2>Mainscreen.FindObject<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">FindObject</span><span class="p">(</span><span class="n">Finder</span><span class="o">:</span> <span class="n">TRSObjectFinder</span><span class="p">)</span><span class="o">:</span> <span class="n">T2DPointArray</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Overload which searches the entire MainScreen.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">FindObject</span><span class="p">(</span><span class="n">MyFinder</span><span class="p">))</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
