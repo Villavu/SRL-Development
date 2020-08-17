@@ -49,18 +49,12 @@ begin
   Result := Self.Find();
 end;
 
-function TRSChooseOption.IsOpen(WaitTime: Int32): Boolean; overload;
-var
-  T: UInt64;
+function TRSChooseOption.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
-  T := GetTickCount() + WaitTime;
-  while (T > GetTickCount()) do
-  begin
-    if Self.IsOpen() then
-      Exit(True);
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
 
-    Wait(0, 1000, wdLeft);
-  end;
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;
 
 function TRSChooseOption.Open: Boolean;
@@ -71,7 +65,7 @@ begin
   begin
     Mouse.Click(MOUSE_RIGHT);
 
-    Result := Self.IsOpen(1500);
+    Result := Self.IsOpen(3000);
   end;
 end;
 

@@ -200,7 +200,7 @@ end;
 function TRSChatbox.IsMakeOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
   if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(0, 1500);
+    Interval := SRL.TruncatedGauss(50, 1500);
 
   Result := WaitUntil(Self.IsMakeOpen(), Interval, WaitTime);
 end;

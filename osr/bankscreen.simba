@@ -123,7 +123,7 @@ end;
 function TRSBankScreen.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
   if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(0, 1500);
+    Interval := SRL.TruncatedGauss(50, 1500);
 
   Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;
@@ -765,13 +765,16 @@ begin
   end;
 end;
 
-function TRSBankScreen.Hover(Location: ERSBankLocation): Boolean;
+function TRSBankScreen.Hover(Location: ERSBankLocation; RightClick: Boolean): Boolean;
 begin
   case Location of
     BANK_LOCATION_CASTLE_WARS:    Result := Self._Hover(@MainScreen.FindObject, Self.FINDER_CASTLE_WARS_CHEST);
     BANK_LOCATION_FEROX:          Result := Self._Hover(@MainScreen.FindObject, Self.FINDER_FEROX_CHEST);
     BANK_LOCATION_GRAND_EXCHANGE: Result := Self._Hover(@GrandExchange.FindNPC, GrandExchange.FINDER_BANKER);
   end;
+
+  if RightClick then
+    ChooseOption.Hover(['Use Bank', 'Bank Bank']);
 end;
 
 function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; overload;

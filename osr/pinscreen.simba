@@ -43,13 +43,13 @@ begin
   Delete(Result, 10, 1);
 end;
 
-function TRSPinScreen.ClickDigit(Digit: Int32): Boolean;
+function TRSPinScreen.ClickDigit(Digit: Int32): Boolean; overload;
 var
-  Boxes: TBoxArray;
   Digits: TIntegerArray;
+  Boxes: TBoxArray;
   I, J: Int32;
 begin
-  Boxes := GetDigitBoxes();
+  Boxes := Self.GetDigitBoxes();
 
   SetLength(Digits, Length(Boxes));
   for I := 0 to High(Digits) do
@@ -60,47 +60,45 @@ begin
       if FindTextColor(ToString(J), RS_FONT_BOLD_12, 32767, 0, Boxes[I], 1) then
         Digits[I] := J;
 
-  if (Length(Digits.FindAll(-1)) > 1) or (Digits.UniqueCount() <> Length(Digits)) then
+  if (Length(Digits.FindAll(-1)) <= 1) and (Digits.UniqueCount() = Length(Digits)) then
   begin
-    Self.Debug('Found invalid digits: ' + ToString(Digits));
+    I := Digits.Find(Digit);
+    if (I = -1) then
+      I := Digits.Find(-1);
 
-    Exit;
+    Result := I <> -1;
+    if Result then
+      Mouse.Click(Boxes[I], MOUSE_LEFT);
   end;
+end;
 
-  I := Digits.Find(Digit);
-  if (I = -1) then
-    I := Digits.Find(-1);
-
-  if (I <> -1) then
-  begin
-    Mouse.Click(Boxes[I], MOUSE_LEFT);
-
-    Exit(True);
-  end;
+function TRSPinScreen.ValidatePin(Pin: String): Boolean;
+begin
+  Result := (Length(Pin) = 4) and Pin.IsDigit();
 end;
 
 function TRSPinScreen.Enter(Pin: String): Boolean;
 var
   I: Int32;
+  Digit: Int32;
 begin
-  if (Length(Pin) <> 4) or (not Pin.IsDigit) then
-    Self.Fatal('Invalid pin: ' + ToString(Pin));
-
-  for 1 to 3 do // 3 attempts
-  begin
+  for 1 to 3 do // 3 Attempts
     for I := 1 to 4 do
+    begin
       if FindTextColor(['FIRST', 'SECOND', 'THIRD', 'FOURTH'][I-1], RS_FONT_BOLD_12, $FFFFFF, 0, Self.Bounds, 1) then
       begin
-        if ClickDigit(StrToInt(Pin[I])) then
-        begin
-          Wait(200, 2000, wdLeft);
-          if (I = 4) then
-            Exit(BankScreen.IsOpen(3000));
-        end;
+        Digit := StrToInt(Pin[I]);
+        if not WaitUntil(Self.ClickDigit(Digit), SRL.TruncatedGauss(500, 2000), SRL.TruncatedGauss(4000, 6000)) then
+          Break;
       end;
 
-    Wait(100, 200);
-  end;
+      if (I = 4) then
+      begin
+        Result := BankScreen.IsOpen(3000);
+
+        Exit;
+      end;
+    end;
 end;
 
 function TRSPinScreen.IsOpen: Boolean;
@@ -130,17 +128,23 @@ var
   PinScreen: TRSPinScreen;
 
 function TRSBankScreen.IsOpen(WaitForItems: Boolean = True): Boolean; override;
+var
+  Pin: String;
 begin
   if PinScreen.IsOpen() then
   begin
     if (Length(Players) = 0) then
-      Self.Fatal('Pinscreen is open but no players are declared');
-    if (Players[CurrentPlayer].Pin = '') then
-      Self.Fatal('Pinscreen is open but current player has no pin');
+      Self.Fatal('Cannot enter bank pin: No players are declared!');
 
-    Result := PinScreen.Enter(Players[CurrentPlayer].Pin);
-  end else
-    Result := inherited();
+    Pin := Players[CurrentPlayer].Pin;
+    if not PinScreen.ValidatePin(Pin) then
+      Self.Fatal('Invalid bank pin: ' + Pin);
+
+    if not PinScreen.Enter(Pin) then
+      Self.Fatal('Failed to enter bank pin');
+  end;
+
+  Result := inherited();
 end;
 
 begin

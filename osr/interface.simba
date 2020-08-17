@@ -103,6 +103,7 @@ begin
   end else
     Result := Round(Self.Alignment.Left.Method() + Self.Alignment.Left.Offset)
 end;
+
 function TRSInterface.X2: Int32; constref;
 var
   Left, Right, Width, Center: Single;

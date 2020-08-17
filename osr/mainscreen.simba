@@ -10,6 +10,128 @@ MainScreen
 
 {.$DEFINE SRL_DEBUG_MOUSE} // Enable me print uptext recognition
 
+
+(*
+type TRSObjectFinder
+~~~~~~~~~~~~~~~~~~~~
+
+TRSObjectFinder is the record used in **MainScreen.FindObject**.
+
+* **TRSObjectFinder.Zoom**
+
+  When designing a object finder you **must** be at **default zoom(50)** in the **fixed** client mode.
+  This allows SRL to convert the finder to work at any zoom and client mode once made.
+
+  .. figure:: ../../images/zoom.png
+
+    A finder working at different zoom levels producing similar results.
+
+* **TRSObjectFinder.Colors**
+
+  An color array which will searched for. Use ACA to acquire color(s).
+
+  .. pascal::
+
+    Finder.Colors += CTS2(2503237, 20, 0.10, 0.14); // brown
+    Finder.Colors += CTS2(5526875, 15, 0.19, 0.06); // grey
+
+  .. figure:: ../../images/color_array.png
+
+    The two colors above found and merged together.
+
+* **TRSObjectFinder.ColorClusters**
+
+  An array of "color clusters" which will be merged together. Use ACA to acquire color(s).
+
+  A "color cluster" consists of a `primary` and `secondary` color and a `distance` value.
+  When searched for only `primary` colors within `distance` of `secondary` colors are returned.
+
+  .. pascal::
+
+    Finder.ColorClusters += [
+      CTS2(2503237, 20, 0.10, 0.14), // brown
+      CTS2(5526875, 15, 0.19, 0.06), // grey
+      2                              // distance
+    ];
+
+  .. figure:: ../../images/color_cluster.png
+
+    The above color cluster found where "brown" is within 2 pixels of "grey".
+
+* **TRSObjectFinder.Erode**
+
+  The amount to erode before clustering. This is useful for removing small amounts of noise.
+
+  .. pascal::
+
+     Finder.Erode := 2;
+
+  .. figure:: ../../images/erode.png
+
+    Erode before and after.
+
+* **TRSObjectFinder.Grow**
+
+  The amount to grow **before** eroding. This is useful for filling gaps.
+
+  .. pascal::
+
+     Finder.Grow := 2;
+
+  .. figure:: ../../images/grow.png
+
+    Grow before and after.
+
+  Grow can also be paired with erode which is quite powerful.
+
+  .. pascal::
+
+   Finder.Grow := 3;
+   Finder.Erode := 4;
+
+  .. figure:: ../../images/grow_erode.png
+
+    Grow paired with Erode.
+
+* **TRSObjectFinder.ClusterDistance**
+
+  The distance to pass to *ClusterTPA*, this is how multiple objects are grouped up. `Distance=5` would mean that points that are closer than or equal to 5 pixels away are considered close enough to merge into a singular group.
+
+  .. pascal::
+
+     Finder.ClusterDistance := 5;
+
+  .. figure:: ../../images/cluster_5.png
+
+    Cluster distance **5** produces four individual chairs
+
+  .. pascal::
+
+     Finder.ClusterDistance := 20;
+
+  .. figure:: ../../images/cluster_20.png
+
+    Cluster distance **20** produces two sets of chairs
+
+*  **TRSObjectFinder.MinLongSide, TRSObjectFinder.MaxLongSide, TRSObjectFinder.MinShortSide, TRSObjectFinder.MaxShortSide**
+
+  Any match that exceeds these values will be removed.
+  The bounding rectangle is used which has a **long** and a **short** side measured in pixels.
+
+  .. pascal::
+
+    // Removes matches where the short side isn't within 10 and 20 pixels
+    Finder.MinShortSide := 10;
+    Finder.MaxShortSide := 20;
+    // Removes matches where the long side isn't within 20 and 40 pixels
+    Finder.MinLongSide := 20;
+    Finder.MaxLongSide := 40;
+
+  .. figure:: ../../images/bounding_rect.png
+
+    Example bounding rectangle with a long and short side.
+*)
+
 type
   TRSObjectFinder = record
     Colors: array of TCTS2Color;
@@ -29,6 +151,15 @@ type
 var
   MainScreen: TRSMainScreen;
 
+(*
+MainScreen.Setup
+~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSMainScreen.Setup(ClientMode: ERSClientMode);
+
+Setups the mainscreen.
+
+.. note:: This is automatically called on the **MainScreen** variable.
+*)
 procedure TRSMainScreen.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'MainScreen';
@@ -62,7 +193,19 @@ begin
   Self.UpTextFilter.MinCharacterMatch := 18; // Filter out tiny characters (likely junk)
 end;
 
-function TRSMainScreen.GetUpText(): String;
+(*
+MainScreen.GetUpText
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.GetUpText: String;
+
+Returns the current uptext.
+Uptext is the top left which appears when moving the mouse over a object.
+
+**Example**
+
+  WriteLn(MainScreen.GetUpText());
+*)
+function TRSMainScreen.GetUpText: String;
 begin
   Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONTSET_BOLD_12_SHADOW, True);
 
@@ -71,6 +214,17 @@ begin
   {$ENDIF}
 end;
 
+(*
+MainScreen.IsUpText
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.IsUpText(Text: TStringArray; Timeout: Int32 = -1): Boolean;
+
+Returns true if the uptext is found **anywhere** in either of the **Text** strings.
+
+**Example**
+
+  WriteLn(MainScreen.MainScreen.IsUpText(['Chicken', 'Wolf']));
+*)
 function TRSMainScreen.IsUpText(Text: TStringArray; Timeout: Int32 = -1): Boolean; overload;
 
   function IsUpText: Boolean;
@@ -105,6 +259,17 @@ begin
   until (GetTickCount() >= T);
 end;
 
+(*
+MainScreen.IsUpText
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean;
+
+Returns true if the uptext is found **anywhere** the **Text** string.
+
+**Example**
+
+  WriteLn(MainScreen.IsUpText('Chicken'));
+*)
 function TRSMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean; overload;
 begin
   Result := Self.IsUpText([Text], Timeout);
@@ -115,7 +280,7 @@ MainScreen.ConvertDistance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
 
-Converts a distance acquired from the **fixed client* and **default zoom(50)** to the
+Converts a distance acquired from the **fixed client** and **default zoom(50)** to the
 current mainscreen.
 
 **Example**
@@ -127,7 +292,6 @@ function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): In
 begin
   // Implemented in minimaptoms.simba
 end;
-
 
 (*
 MainScreen.GetPlayerBox
@@ -173,6 +337,28 @@ begin
   // Implemented in minimaptoms.simba
 end;
 
+(*
+Mainscreen.FindObject
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.FindObject(Finder: TRSObjectFinder; Area: TBox): T2DPointArray;
+
+Returns all matches of an TRSObjectFinder in the desired area.
+
+See the top of this page page for documentation about the TRSObjectFinder record.
+
+**Example**
+
+  var MyFinder: TRSObjectFinder;
+
+  // Some chairs in varrock west bank
+  MyFinder.Colors += CTS2(1328725, 6, 0.06, 0.69);
+  MyFinder.ClusterDistance := 5;
+  MyFinder.Erode := 2;
+  MyFinder.MinLongSide := 10;
+  MyFinder.MaxLongSide := 15;
+
+  Debug(MainScreen.FindObject(MyFinder, MainScreen.Bounds()));
+*)
 function TRSMainScreen.FindObject(Finder: TRSObjectFinder; Area: TBox): T2DPointArray; overload;
 var
   TPA, Primary, Secondary: TPointArray;
@@ -255,6 +441,17 @@ begin
   end;
 end;
 
+(*
+Mainscreen.FindObject
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.FindObject(Finder: TRSObjectFinder): T2DPointArray;
+
+Overload which searches the entire MainScreen.
+
+**Example**
+
+  Debug(MainScreen.FindObject(MyFinder));
+*)
 function TRSMainScreen.FindObject(Finder: TRSObjectFinder): T2DPointArray; overload;
 begin
   Result := MainScreen.FindObject(Finder, Self.Bounds());
@@ -264,3 +461,4 @@ begin
   SRL.AddSetupMethod(@MainScreen.Setup);
   SRL.AddDebugMethod(@MainScreen.Debug);
 end;
+
