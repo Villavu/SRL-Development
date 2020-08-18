@@ -382,13 +382,21 @@ end;
 procedure TAntiban.LoseFocus;
 var
   Space: TBoxArray;
+  Temp: Double;
 begin
   // Self.Debug('Lose focus');
 
   {$IFDEF SRL_USE_REMOTEINPUT}
   Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(1000));
-  if Length(Space) > 0 then
+
+  if (Length(Space) > 0) then
+  begin
+    Temp := Mouse.IdleInterval; // don't count this
+
+    Mouse.IdleInterval := 0;
     Mouse.Click(Space[Random(Length(Space))], MOUSE_LEFT);
+    Mouse.IdleInterval := Temp;
+  end;
   {$ELSE}
   Self.Fatal('Lose focus not yet implemented for this target');
   {$ENDIF}

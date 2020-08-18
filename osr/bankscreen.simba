@@ -105,13 +105,11 @@ BankScreen.IsOpen
 .. pascal:: function TRSBankScreen.IsOpen(WaitForItems: Boolean = True): Boolean;
 
 Returns true if the bankscreen is visible.
-It is possible there can be a minor delay for the items to load. If ``True`` the parameter
-``WaitForItems`` will wait for 1-2 seconds for items to become visible.
+
+**WaitForItems** determines if the method waits 1-2 seconds items to load as there
+can be a small delay before items are visible.
 *)
 function TRSBankScreen.IsOpen(WaitForItems: Boolean = True): Boolean; overload;
-var
-  T: UInt64;
-  B: TBox;
 begin
   Result := Self.FindButton([Self.BUTTON_REARRANGE_SWAP_ON, Self.BUTTON_REARRANGE_SWAP_OFF]);
 
@@ -139,6 +137,15 @@ begin
   Bitmap.DrawBoxes(GetSlotBoxes(), False, $00FFFF);
 end;
 
+(*
+BankScreen.Setup
+~~~~~~~~~~~~~~~~
+.. pascal:: procedure BankScreen.Setup;
+
+Initializes bankscreen variables.
+
+.. note:: This is automatically called on the **BankScreen** variable.
+*)
 procedure TRSBankScreen.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'BankScreen';
@@ -845,15 +852,20 @@ begin
   // Implemented in itemfinder.simba
 end;
 
+(*
+var BankScreen
+~~~~~~~~~~~~~~
+  Global bankscreen variable.
+*)
 var
   BankScreen: TRSBankScreen;
 
 (*
 Inventory.IsOpen
 ~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.IsOpen: Boolean;
+.. pascal:: function TRSInventory.IsOpen: Boolean; override;
 
-Overrides the inventory function so it returns true if the bankscreen is open.
+Overrides **Inventory.IsOpen** to return true if the bankscreen is open.
 *)
 function TRSInventory.IsOpen: Boolean; override;
 begin

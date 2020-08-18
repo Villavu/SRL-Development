@@ -42,11 +42,15 @@ type
 type TMouse
 ~~~~~~~~~~~
 .. pascal::
+
   TMouse = record(TSRLBaseRecord)
-    Speed: Double;                     // Overall mouse speed. (Default: 12)
+    Speed: Double;                     // Overall mouse speed (Default: 15)
     Gravity, Wind: Double;             // Gravity & Wind for generating mouse path (Default: 20 & 16)
-    Distribution: EMouseDistribution;  // Default distribution to use. (Default: MOUSE_DISTRIBUTION_ROWP)
+    Distribution: EMouseDistribution;  // Default distribution to use (Default: MOUSE_DISTRIBUTION_ROWP)
     MissChance: Double;                // Percentage chance to "Miss" the mouse (Default: 10)
+    IdleInterval: Double;              // Distance to travel before calling Mouse.Idle() (Default: 0)
+    IdleProgress: Double;
+    IdleGoal: Double;
     OnMoving: TMouseMovingEvent;       // Callback while mouse is being moved
     OnTeleport: TMouseTeleportEvent;   // Callback when mouse is teleported
   end;
@@ -62,6 +66,9 @@ type
     Gravity, Wind: Double;
     Distribution: EMouseDistribution;
     MissChance: Double;
+    IdleInterval: Double;
+    IdleProgress: Double;
+    IdleGoal: Double;
     OnMoving: TMouseMovingEvent;
     OnTeleport: TMouseTeleportEvent;
 
@@ -101,14 +108,14 @@ Mouse.Setup
 ~~~~~~~~~~~
 .. pascal:: procedure TMouse.Setup;
 
-Setups up the variables for the mouse.
+Initializes mouse variables.
 
 .. note:: This is automatically called on the **Mouse** variable.
 *)
 procedure TMouse.Setup;
 begin
   Self.Name := 'Mouse';
-  Self.Speed := 12;
+  Self.Speed := 15;
   Self.Gravity := 20;
   Self.Wind := 16;
   Self.MissChance := 10;
@@ -313,6 +320,26 @@ begin
 end;
 
 (*
+Mouse.Idle
+~~~~~~~~~~
+.. pascal:: procedure TMouse.Idle;
+
+When **IdleInterval** is reached this is called. Override to change behavior.
+
+ - An **IdleInterval** of **1.0** equals to the distance between the top left and bottom right of the client.
+ - Assuming the client dimensions are 500,500 the distance between (0,0) and (500,500) is ~700.
+   With an **IdleInterval** of **2.0** this would automatically be called every time the mouse has travelled ~1400 pixels.
+*)
+procedure TMouse.Idle;
+var
+  T: UInt64 := SRL.TruncatedGauss(1000, 20000);
+begin
+  Self.Debug('Idle: ' + ToString(T));
+
+  Wait(T);
+end;
+
+(*
 Mouse.Move
 ~~~~~~~~~~
 .. pascal:: procedure TMouse.Move(P: TPoint);
@@ -330,15 +357,43 @@ Moves the mouse to the desired point.
 *)
 procedure TMouse.Move(P: TPoint); overload;
 var
+  Start: TPoint;
+  W, H: Int32;
   RandSpeed: Double;
 begin
+  Start := Self.Position();
+
+  if (Self.IdleInterval > 0) then
+  begin
+    GetClientDimensions(W, H);
+
+    if (W > 0) and (H > 0) then
+    begin
+      if Self.IdleProgress = 0 then
+        Self.IdleGoal := SRL.GaussRand(Self.IdleInterval, Self.IdleInterval * 0.20)
+      else
+      if Self.IdleProgress > Self.IdleGoal then
+      begin
+        Self.Idle();
+        Self.IdleProgress := 0;
+
+        if SRL.Dice(10) then // rarely throw a short interval in
+          Self.IdleGoal := SRL.GaussRand(Self.IdleInterval / 2, Self.IdleInterval / 2 * 0.20)
+        else
+          Self.IdleGoal := SRL.GaussRand(Self.IdleInterval, Self.IdleInterval * 0.20);
+      end;
+
+      Self.IdleProgress += Hypot(Start.X - P.X, Start.Y - P.Y) / Hypot(W, H);
+    end;
+  end;
+
   if SRL.Dice(Self.MissChance) then
-    Self.Miss(P);
+    Start := Self.Miss(P);
 
   RandSpeed := SRL.TruncatedGauss(Self.Speed, Self.Speed * 2) / 10.0;
 
   Self.WindMouse(
-    Self.Position.X, Self.Position.Y, P.X, P.Y,
+    Start.X, Start.Y, P.X, P.Y,
     Self.Gravity, Self.Wind,
     10 / RandSpeed, 20 / RandSpeed, 20 * RandSpeed, 50 * RandSpeed
   );
@@ -622,15 +677,15 @@ end;
 (*
 Mouse.Miss
 ~~~~~~~~~~
-.. pascal:: procedure TMouse.Miss(P: TPoint);
+.. pascal:: function TMouse.Miss(P: TPoint): TPoint;
 
 "Misses" the destination point **P**. Will stop somewhere along the path or overshoot.
+Returns the position the mouse was moved to.
 
 This could automatically be called depending on **Mouse.MissChance**.
 *)
-procedure TMouse.Miss(P: TPoint);
+function TMouse.Miss(P: TPoint): TPoint;
 var
-  MissPoint: TPoint;
   Range: Int32;
   Miss: Double;
   Temp: Double := Self.MissChance;
@@ -641,13 +696,13 @@ begin
     Range := Trunc(Power(Self.Position().DistanceTo(P), 0.80)); // how much possible range to miss
     Miss := SRL.SkewedRand(0.9, 0.1, 1.5); // Where miss will happen. 1 = destination (P).
 
-    MissPoint.X := Trunc((1-Miss)*Self.Position().X + Miss*P.X);
-    MissPoint.Y := Trunc((1-Miss)*Self.Position().Y + Miss*P.Y);
+    Result.X := Trunc((1-Miss)*Self.Position().X + Miss*P.X);
+    Result.Y := Trunc((1-Miss)*Self.Position().Y + Miss*P.Y);
 
-    MissPoint.X += SRL.NormalRange(-Range, Range);
-    MissPoint.Y += SRL.NormalRange(-Range, Range);
+    Result.X += SRL.NormalRange(-Range, Range);
+    Result.Y += SRL.NormalRange(-Range, Range);
 
-    Self.Move(MissPoint);
+    Self.Move(Result);
 
     if SRL.Dice(20) then
       Wait(0, 3000, wdLeft);
