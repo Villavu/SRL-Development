@@ -12,8 +12,9 @@ BankScreen.IsOpen
  function TRSBankScreen.IsOpen(WaitForItems: Boolean = True): Boolean;
 
 Returns true if the bankscreen is visible.
-It is possible there can be a minor delay for the items to load. If ``True`` the parameter
-``WaitForItems`` will wait for 1-2 seconds for items to become visible.
+
+**WaitForItems** determines if the method waits 1-2 seconds items to load as there
+can be a small delay before items are visible.
 
 
 ------------
@@ -296,7 +297,7 @@ Inventory.IsOpen
 
  function TRSInventory.IsOpen: Boolean; override;
 
-Overrides the Inventory.IsOpen to return true if the bankscreen is open.
+Overrides **Inventory.IsOpen** to return true if the bankscreen is open.
 
 
 ------------

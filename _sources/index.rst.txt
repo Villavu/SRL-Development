@@ -1,4 +1,4 @@
-Welcome to SRLs documentation!
+Welcome to SRL documentation!
 ===============================
 
 .. toctree::

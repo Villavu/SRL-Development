@@ -182,11 +182,11 @@ Mouse.Idle
 
  procedure TMouse.Idle;
 
-When IdleInterval is reached this is called. Override to change behavior.
+When **IdleInterval** is reached this is called. Override to change behavior.
 
- - IdleInterval of **1.0** equals to the distance between the top left and bottom right of the client.
+ - An **IdleInterval** of **1.0** equals to the distance between the top left and bottom right of the client.
  - Assuming the client dimensions are 500,500 the distance between (0,0) and (500,500) is ~700.
-   With an IdleInterval of **2.0** this would automatically be called every time the mouse has travelled 1400 pixels.
+   With an **IdleInterval** of **2.0** this would automatically be called every time the mouse has travelled ~1400 pixels.
 
 
 ------------
