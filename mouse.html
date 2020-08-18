@@ -99,6 +99,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#mouse-hold">Mouse.Hold</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mouse-release">Mouse.Release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mouse-windmouse">Mouse.WindMouse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mouse-idle">Mouse.Idle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mouse-move">Mouse.Move</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id2">Mouse.Move</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id3">Mouse.Move</a></li>
@@ -241,10 +242,13 @@
 <div class="section" id="type-tmouse">
 <h2>type TMouse<a class="headerlink" href="#type-tmouse" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">TMouse</span> <span class="o">=</span> <span class="k">record</span><span class="p">(</span><span class="n">TSRLBaseRecord</span><span class="p">)</span>
-  <span class="n">Speed</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>                     <span class="c1">// Overall mouse speed. (Default: 12)</span>
+  <span class="n">Speed</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>                     <span class="c1">// Overall mouse speed (Default: 15)</span>
   <span class="n">Gravity</span><span class="o">,</span> <span class="n">Wind</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>             <span class="c1">// Gravity &amp; Wind for generating mouse path (Default: 20 &amp; 16)</span>
-  <span class="n">Distribution</span><span class="o">:</span> <span class="n">EMouseDistribution</span><span class="o">;</span>  <span class="c1">// Default distribution to use. (Default: MOUSE_DISTRIBUTION_ROWP)</span>
+  <span class="n">Distribution</span><span class="o">:</span> <span class="n">EMouseDistribution</span><span class="o">;</span>  <span class="c1">// Default distribution to use (Default: MOUSE_DISTRIBUTION_ROWP)</span>
   <span class="n">MissChance</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>                <span class="c1">// Percentage chance to &quot;Miss&quot; the mouse (Default: 10)</span>
+  <span class="n">IdleInterval</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>              <span class="c1">// Distance to travel before calling Mouse.Idle() (Default: 0)</span>
+  <span class="n">IdleProgress</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>
+  <span class="n">IdleGoal</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span>
   <span class="n">OnMoving</span><span class="o">:</span> <span class="n">TMouseMovingEvent</span><span class="o">;</span>       <span class="c1">// Callback while mouse is being moved</span>
   <span class="n">OnTeleport</span><span class="o">:</span> <span class="n">TMouseTeleportEvent</span><span class="o">;</span>   <span class="c1">// Callback when mouse is teleported</span>
 <span class="k">end</span><span class="o">;</span>
@@ -257,7 +261,7 @@
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Setup</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Setups up the variables for the mouse.</p>
+<p>Initializes mouse variables.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is automatically called on the <strong>Mouse</strong> variable.</p>
@@ -356,6 +360,21 @@
 </div>
 <p>The internal algorithm used by <strong>Mouse.Move</strong> to move the mouse in a human’ish way.</p>
 <p>Credit: BenLand100 (<a class="reference external" href="https://github.com/BenLand100/SMART/blob/master/src/EventNazi.java#L201">https://github.com/BenLand100/SMART/blob/master/src/EventNazi.java#L201</a>)</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="mouse-idle">
+<h2>Mouse.Idle<a class="headerlink" href="#mouse-idle" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Idle</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>When IdleInterval is reached this is called. Override to change behavior.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>IdleInterval of <strong>1.0</strong> equals to the distance between the top left and bottom right of the client.</p></li>
+<li><p>Assuming the client dimensions are 500,500 the distance between (0,0) and (500,500) is ~700.
+With an IdleInterval of <strong>2.0</strong> this would automatically be called every time the mouse has travelled 1400 pixels.</p></li>
+</ul>
+</div></blockquote>
 </div>
 <hr class="docutils" />
 <div class="section" id="mouse-move">
@@ -602,10 +621,11 @@
 <hr class="docutils" />
 <div class="section" id="mouse-miss">
 <h2>Mouse.Miss<a class="headerlink" href="#mouse-miss" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Miss</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TMouse</span><span class="o">.</span><span class="nf">Miss</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>“Misses” the destination point <strong>P</strong>. Will stop somewhere along the path or overshoot.</p>
+<p>“Misses” the destination point <strong>P</strong>. Will stop somewhere along the path or overshoot.
+Returns the position the mouse was moved to.</p>
 <p>This could automatically be called depending on <strong>Mouse.MissChance</strong>.</p>
 </div>
 <hr class="docutils" />

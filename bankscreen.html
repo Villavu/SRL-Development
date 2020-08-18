@@ -112,6 +112,7 @@
 <li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">BankScreen</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-isopen">BankScreen.IsOpen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-setup">BankScreen.Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-gettitle">BankScreen.GetTitle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-search">BankScreen.Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-withdraw">BankScreen._Withdraw</a></li>
@@ -126,6 +127,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#id6">BankScreen.Deposit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-close">BankScreen.Close</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-depositall">BankScreen.DepositAll</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#var-bankscreen">var BankScreen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-isopen">Inventory.IsOpen</a></li>
 </ul>
 </li>
@@ -220,6 +222,18 @@
 <p>Returns true if the bankscreen is visible.
 It is possible there can be a minor delay for the items to load. If <code class="docutils literal notranslate"><span class="pre">True</span></code> the parameter
 <code class="docutils literal notranslate"><span class="pre">WaitForItems</span></code> will wait for 1-2 seconds for items to become visible.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="bankscreen-setup">
+<h2>BankScreen.Setup<a class="headerlink" href="#bankscreen-setup" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">BankScreen</span><span class="o">.</span><span class="nf">Setup</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Initializes bankscreen variables.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is automatically called on the <strong>BankScreen</strong> variable.</p>
+</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="bankscreen-gettitle">
@@ -404,12 +418,19 @@ or press backspace.</p>
 <p>Depositis your inventory by clicking the deposit inventory button</p>
 </div>
 <hr class="docutils" />
+<div class="section" id="var-bankscreen">
+<h2>var BankScreen<a class="headerlink" href="#var-bankscreen" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Global bankscreen variable.</p>
+</div></blockquote>
+</div>
+<hr class="docutils" />
 <div class="section" id="inventory-isopen">
 <h2>Inventory.IsOpen<a class="headerlink" href="#inventory-isopen" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSInventory</span><span class="o">.</span><span class="nf">IsOpen</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSInventory</span><span class="o">.</span><span class="nf">IsOpen</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Overrides the inventory function so it returns true if the bankscreen is open.</p>
+<p>Overrides the Inventory.IsOpen to return true if the bankscreen is open.</p>
 <hr class="docutils" />
 </div>
 </div>

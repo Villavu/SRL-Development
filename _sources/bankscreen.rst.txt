@@ -18,6 +18,19 @@ It is possible there can be a minor delay for the items to load. If ``True`` the
 
 ------------
 
+BankScreen.Setup
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure BankScreen.Setup;
+
+Initializes bankscreen variables.
+
+.. note:: This is automatically called on the **BankScreen** variable.
+
+
+------------
+
 BankScreen.GetTitle
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -270,13 +283,20 @@ Depositis your inventory by clicking the deposit inventory button
 
 ------------
 
+var BankScreen
+~~~~~~~~~~~~~~
+  Global bankscreen variable.
+
+
+------------
+
 Inventory.IsOpen
 ~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSInventory.IsOpen: Boolean;
+ function TRSInventory.IsOpen: Boolean; override;
 
-Overrides the inventory function so it returns true if the bankscreen is open.
+Overrides the Inventory.IsOpen to return true if the bankscreen is open.
 
 
 ------------

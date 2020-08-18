@@ -30,11 +30,15 @@ type TMouse
 .. code-block:: pascal
 
 
+
   TMouse = record(TSRLBaseRecord)
-    Speed: Double;                     // Overall mouse speed. (Default: 12)
+    Speed: Double;                     // Overall mouse speed (Default: 15)
     Gravity, Wind: Double;             // Gravity & Wind for generating mouse path (Default: 20 & 16)
-    Distribution: EMouseDistribution;  // Default distribution to use. (Default: MOUSE_DISTRIBUTION_ROWP)
+    Distribution: EMouseDistribution;  // Default distribution to use (Default: MOUSE_DISTRIBUTION_ROWP)
     MissChance: Double;                // Percentage chance to "Miss" the mouse (Default: 10)
+    IdleInterval: Double;              // Distance to travel before calling Mouse.Idle() (Default: 0)
+    IdleProgress: Double;
+    IdleGoal: Double;
     OnMoving: TMouseMovingEvent;       // Callback while mouse is being moved
     OnTeleport: TMouseTeleportEvent;   // Callback when mouse is teleported
   end;
@@ -48,7 +52,7 @@ Mouse.Setup
 
  procedure TMouse.Setup;
 
-Setups up the variables for the mouse.
+Initializes mouse variables.
 
 .. note:: This is automatically called on the **Mouse** variable.
 
@@ -168,6 +172,21 @@ Mouse.WindMouse
 The internal algorithm used by **Mouse.Move** to move the mouse in a human'ish way.
 
 Credit: BenLand100 (https://github.com/BenLand100/SMART/blob/master/src/EventNazi.java#L201)
+
+
+------------
+
+Mouse.Idle
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TMouse.Idle;
+
+When IdleInterval is reached this is called. Override to change behavior.
+
+ - IdleInterval of **1.0** equals to the distance between the top left and bottom right of the client.
+ - Assuming the client dimensions are 500,500 the distance between (0,0) and (500,500) is ~700.
+   With an IdleInterval of **2.0** this would automatically be called every time the mouse has travelled 1400 pixels.
 
 
 ------------
@@ -451,9 +470,10 @@ Mouse.Miss
 ~~~~~~~~~~
 .. code-block:: pascal
 
- procedure TMouse.Miss(P: TPoint);
+ function TMouse.Miss(P: TPoint): TPoint;
 
 "Misses" the destination point **P**. Will stop somewhere along the path or overshoot.
+Returns the position the mouse was moved to.
 
 This could automatically be called depending on **Mouse.MissChance**.
 
