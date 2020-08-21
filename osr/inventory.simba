@@ -57,6 +57,37 @@ begin
   Result := Self.GetSlotBoxes()[Slot];
 end;
 
+(*
+Inventory.PointToSlot
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.PointToSlot(P: TPoint): Int32;
+
+Returns the inventory slot index which contains the TPoint `P`.
+Returns -1 if the point does not fall in any slots.
+
+**Example**
+
+  var P: TPoint;
+  var Slot: Int32;
+
+  P := Inventory.GetSlotBox(15).Middle; // Example point
+
+  Slot := Inventory.PointToSlot(P);
+  WriteLn(Slot); // 15
+*)
+function TRSInventory.PointToSlot(P: TPoint): Int32;
+var
+  I: Int32;
+  Slots: TBoxArray;
+begin
+  Slots := Self.GetSlotBoxes();
+  for I := 0 to High(Slots) do
+    if Slots[I].Contains(P) then
+      Exit(I);
+
+  Result := -1;
+end;
+
 function TRSInventory.IsOpen: Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = TAB_INVENTORY);
@@ -302,24 +333,37 @@ begin
       Inc(Result);
 end;
 
+(*
+Inventory.RandomSlotNearby
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.RandomSlotNearby(Slot: Int32; Slots: TIntegerArray): Int32;
+
+Randomly returns one of the **Slots** weighted towards **Slot** by distance.
+
+**Example**
+
+  var Slot: Int32;
+
+  Slot := Inventory.RandomSlotNearby(0, [0..27]);
+  WriteLn('This slot is likely nearby slot 0:');
+  WriteLn(Slot);
+*)
 function TRSInventory.RandomSlotNearby(Slot: Int32; Slots: TIntegerArray): Int32;
 var
-  I, J: Int32;
-  Middles: TPointArray;
-  From: TPoint;
+  I: Int32;
+  Points: TPointArray;
 begin
-  if Length(Slots) = 0 then
-    Self.Fatal('RandomSlotNearby: No slots');
+  Slots.Remove(Slot);
+  if (Length(Slots) = 0) then
+    Self.Fatal('RandomSlotNearby: No slots to choose from');
 
-  Middles := Self.GetSlotBoxes().Middles();
-  From := Middles[Slot];
+  SetLength(Points, Length(Slots));
+  for I := 0 to High(Points) do
+    Points[I] := SRL.RandomPoint(Self.GetSlotBox(Slots[I]));
 
-  for I := 0 to High(Slots) do
-    for J := 0 to High(Slots) do
-      if Distance(Middles[Slots[J]], From) > Distance(Middles[Slots[I]], From) then
-        Swap(Slots[J], Slots[I]);
+  Points.Sort(Self.GetSlotBox(Slot).Middle);
 
-  Result := Slots[SRL.TruncatedGauss(0, High(Slots))];
+  Result := Self.PointToSlot(Points[SRL.TruncatedGauss(0, High(Slots))]);
 end;
 
 function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; overload;

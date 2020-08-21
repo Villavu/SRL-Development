@@ -47,6 +47,7 @@ type
     Tasks: array of TAntibanTask;
 
     Skills: array of ERSSkill;
+    MinZoom, MaxZoom: Int32;
 
     OnStartSleep: procedure(Task: PSleepTask);
     OnFinishSleep: procedure(Task: PSleepTask);
@@ -319,6 +320,21 @@ begin
   end;
 end;
 
+procedure TAntiban.SmallRandomMouse;
+var
+  B: TBox;
+  P: TPoint;
+begin
+  Self.Debug('Random Mouse (Small)');
+
+  B := Box(Mouse.Position(), 350, 350);
+  repeat
+    P := SRL.RandomPoint(B);
+  until P.DistanceTo(B.Middle) < 50; // Make sure we move at least 50 distance
+
+  Mouse.Move(P);
+end;
+
 procedure TAntiban.RandomMouse;
 var
   CustomMouse: TMouse;
@@ -398,7 +414,7 @@ begin
     Mouse.IdleInterval := Temp;
   end;
   {$ELSE}
-  Self.Fatal('Lose focus not yet implemented for this target');
+  Self.Debug('Lose focus not yet implemented for this target!');
   {$ENDIF}
 end;
 
@@ -446,6 +462,29 @@ begin
 
     ChooseOption.Close();
   end;
+end;
+
+procedure TAntiban.AdjustZoom;
+var
+  Zoom, NewZoom: Int32;
+  Attempts: Int32;
+begin
+  if (Self.MaxZoom = 0) then
+    Self.MaxZoom := 100;
+
+  Zoom := Options.GetZoomLevel();
+
+  repeat
+    Inc(Attempts);
+    if Attempts > 100 then
+      Exit;
+
+    NewZoom := SRL.SkewedRand(Zoom, Self.MinZoom - 10, Self.MaxZoom + 10);
+  until (NewZoom >= Self.MinZoom) and (NewZoom <= Self.MaxZoom) and (Abs(Zoom - NewZoom) > 15);
+
+  Self.Debug('Adjust zoom: ' + ToString(NewZoom));
+
+  Options.SetZoomLevel(NewZoom);
 end;
 
 function TAntiban.DismissRandom: Boolean;
