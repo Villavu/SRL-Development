@@ -1,23 +1,23 @@
 
 Random
 =======
-Random related methods
+Random related methods.
 
 
 ------------
 
-srl.GaussRand
+SRL.GaussRand
 ~~~~~~~~~~~~~
 .. code-block:: pascal
 
-  function TSRL.GaussRand(Mean, Dev: Double): Double;
+ function TSRL.GaussRand(Mean, Dev: Double): Double;
 
 Generates a random gaussian/normal number.
 
 
 ------------
 
-srl.TruncatedGauss
+SRL.TruncatedGauss
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
@@ -29,7 +29,7 @@ given range ``[left..right]`` weighted towards ``left``
 
 ------------
 
-srl.TruncatedGauss
+SRL.TruncatedGauss
 ~~~~~~~~~~~~~~~~~~
 .. pascal function TSRL.TruncatedGauss(Left:Int64=0; Right:Int64=1; CUTOFF:Single=0): Int64;
 
@@ -39,11 +39,11 @@ given range ``[left..right]`` weighted towards ``left``
 
 ------------
 
-srl.SkewedRand
+SRL.SkewedRand
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-  function TSRL.SkewedRand(Mode, Lo, Hi: Double): Double; static;
+ function TSRL.SkewedRand(Mode, Lo, Hi: Double): Double; static;
 
 Random skewed distribution generation. `Mode` is a number between `Lo` and `Hi` which is 
 where the most of the generated numbers will land.
@@ -51,33 +51,44 @@ where the most of the generated numbers will land.
 
 ------------
 
-srl.NormalRange
+SRL.SkewedRand
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-  function TSRL.NormalRange(min, max: Int64): Int64;
+ function TSRL.SkewedRand(Mode, Lo, Hi: Double): Double; static;
 
-Generates a random integer in the given range, weighted towards the mean.
+Integer overload.
 
 
 ------------
 
-srl.NormalRange
+SRL.NormalRange
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-  function TSRL.NormalRange(Min, Max: Double): Double;
+ function TSRL.NormalRange(Min, Max: Double): Double;
 
 Generates a random float in the given range, weighted towards the mean.
 
 
 ------------
 
-srl.RandomPoint
+SRL.NormalRange
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-  function TSRL.RandomPoint(Mean: TPoint; MaxRad: Int32): TPoint;
+ function TSRL.NormalRange(min, max: Int64): Int64;
+
+Integer overload.
+
+
+------------
+
+SRL.RandomPoint
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TSRL.RandomPoint(Mean: TPoint; MaxRad: Int32): TPoint;
 
 Generates a random TPoint which weights around ``Mean``, with a max distance 
 from mean defined by ``MaxRad``.
@@ -85,11 +96,11 @@ from mean defined by ``MaxRad``.
 
 ------------
 
-srl.RandomPoint (overload)
+SRL.RandomPoint (overload)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-  function TSRL.RandomPoint(Bounds: TBox): TPoint; overload;
+ function TSRL.RandomPoint(Bounds: TBox): TPoint; overload;
 
 Generates a random TPoint in the bounds of the given box ``Bounds``, 
 the point weights towards the middle of the box.
@@ -97,11 +108,11 @@ the point weights towards the middle of the box.
 
 ------------
 
-srl.RandomPoint (overload)
+SRL.RandomPoint (overload)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-  function TSRL.RandomPoint(Rect: TRectangle): TPoint; overload;
+ function TSRL.RandomPoint(Rect: TRectangle): TPoint; overload;
 
 Generates a random TPoint in the given rectangle ``Rect``,
 The point weights towards the middle of the rectangle.
@@ -109,11 +120,11 @@ The point weights towards the middle of the rectangle.
 
 ------------
 
-srl.RandonPointEx
+SRL.RandonPointEx
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-  function TSRL.RandonPointEx(From: TPoint; B: TBox; Force: Double=0.35): TPoint; constref;
+ function TSRL.RandonPointEx(From: TPoint; B: TBox; Force: Double=0.35): TPoint; constref;
 
 Generates a random point within the bounds of the given box `B`, the point generated is skewed towards towards the `From`-point.
 The last parameter `Force` defines how much the generated point is to be skewed towards or away from `From` - Expects value in the range 0..2
@@ -125,9 +136,11 @@ The last parameter `Force` defines how much the generated point is to be skewed 
 
 ------------
 
-srl.rowp
+SRL.rowp
 ~~~~~~~~~
 .. code-block:: pascal
+
+
 
   function TSRL.rowp(From: TPoint; Rect: TRectangle; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint;
   function TSRL.rowp(From: TPoint; Box: TBox; Force: Double=-0.9; Smoothness: Double=PI/12): TPoint;
@@ -141,7 +154,7 @@ Force ranges from -1 (close to) to 1 (away from), where 0 is mean, but with a bi
 
 ------------
 
-srl.Dice
+SRL.Dice
 ~~~~~~~~~
 .. code-block:: pascal
 
@@ -151,8 +164,7 @@ Generates a random number and returns ``True`` whenever the value generated is w
 
 **Example:**
 
-pascal:: 
-  if srl.Dice(10.5) then
+  if SRL.Dice(10.5) then
     WriteLn('This has a 10.5 percent chance of writing')
   else
     WriteLn('No dice');
@@ -164,7 +176,7 @@ Wait (overload)
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-  procedure Wait(Min, Max: Double; Weight: EWaitDir=wdMean); overload;
+ procedure Wait(Min, Max: Double; Weight: EWaitDir=wdMean); overload;
 
 Waits ... Weighted towards the mean of `Min` and `Max`
 
@@ -175,7 +187,7 @@ WaitEx
 ~~~~~~~
 .. code-block:: pascal
 
-  procedure WaitEx(Mean, Dev: Double);
+ procedure WaitEx(Mean, Dev: Double);
 
 Waits ... Regular gauss random
 

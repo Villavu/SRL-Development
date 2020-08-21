@@ -6,6 +6,30 @@ Methods to interact with the inventory.
 
 ------------
 
+Inventory.PointToSlot
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.PointToSlot(P: TPoint): Int32;
+
+Returns the inventory slot index which contains the TPoint `P`.
+Returns -1 if the point does not fall in any slots.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  var P: TPoint;
+  var Slot: Int32;
+
+  P := Inventory.GetSlotBox(15).Middle; // Example point
+
+  Slot := Inventory.PointToSlot(P);
+  WriteLn(Slot); // 15
+
+
+------------
+
 Inventory.IsSlotSelected
 ~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -73,6 +97,27 @@ Selects **Slot** and uses with **OtherSlot**.
 .. code-block:: pascal  
 
   Inventory.Use(1, 5); // Use item in slot 1 on Item in slot 5
+
+
+------------
+
+Inventory.RandomSlotNearby
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.RandomSlotNearby(Slot: Int32; Slots: TIntegerArray): Int32;
+
+Randomly returns one of the **Slots** weighted towards **Slot** by distance.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  var Slot: Int32;
+
+  Slot := Inventory.RandomSlotNearby(0, [0..27]);
+  WriteLn('This slot is likely nearby slot 0:');
+  WriteLn(Slot);
 
 
 ------------

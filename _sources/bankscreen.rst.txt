@@ -1,6 +1,7 @@
 
 BankScreen
 ==========
+Methods to interact with the bankscreen.
 
 
 ------------
