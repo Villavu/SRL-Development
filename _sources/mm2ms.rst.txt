@@ -4,7 +4,7 @@ Minimap to Mainscreen
 The core for our minimap to mainscreen projection.
 Supports rotation, and zoom, and resizable client.
 
-MM2MS extends the Minimap interface as well as the mainscreen interface with 
+MM2MS extends the Minimap interface as well as the mainscreen interface with
 functionality to convert coordinates to & from the minimap to the mainscreen.
 
 
@@ -229,6 +229,17 @@ MainScreen.FacePoint
  function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;
 
 Rotates the camera to face point `P`.
+
+
+------------
+
+Options.SetZoomLevel
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSOptions.SetZoomLevel(Level: Int32): Boolean; override;
+
+Override to automatically update MM2MS.ZoomLevel.
 
 
 ------------

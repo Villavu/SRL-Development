@@ -328,14 +328,12 @@ Final implementation and math done by slacky.</p>
 </div>
 <p>Generates a random number and returns <code class="docutils literal notranslate"><span class="pre">True</span></code> whenever the value generated is within the chance (in percentage).</p>
 <p><strong>Example:</strong></p>
-<blockquote>
-<div><dl class="simple">
-<dt>if SRL.Dice(10.5) then</dt><dd><p>WriteLn(‘This has a 10.5 percent chance of writing’)</p>
-</dd>
-<dt>else</dt><dd><p>WriteLn(‘No dice’);</p>
-</dd>
-</dl>
-</div></blockquote>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">SRL</span><span class="o">.</span><span class="n">Dice</span><span class="p">(</span><span class="mi">1</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;This has a 10.5 percent chance of writing&#39;</span><span class="p">)</span>
+<span class="k">else</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;No dice&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="wait-overload">

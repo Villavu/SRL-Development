@@ -112,6 +112,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-getuptext">MainScreen.GetUpText</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-isuptext">MainScreen.IsUpText</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id1">MainScreen.IsUpText</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mainscreen-sethighestpitch">MainScreen.SetHighestPitch</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-convertdistance">MainScreen.ConvertDistance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-getplayerbox">MainScreen.GetPlayerBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-facepoint">MainScreen.FacePoint</a></li>
@@ -354,9 +355,22 @@ Uptext is the top left which appears when moving the mouse over a object.</p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">IsUpText</span><span class="p">(</span><span class="n">Text</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Timeout</span><span class="o">:</span> <span class="n">Int32</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Returns true if the uptext is found <strong>anywhere</strong> the <strong>Text</strong> string.</p>
+<p>Overloaded function that accepts a string rather than a TStringArray.</p>
 <p><strong>Example:</strong></p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">IsUpText</span><span class="p">(</span><span class="s">&#39;Chicken&#39;</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="mainscreen-sethighestpitch">
+<h2>MainScreen.SetHighestPitch<a class="headerlink" href="#mainscreen-sethighestpitch" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">SetHighestPitch</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the camera to the highest pitch.
+There is no way to detect the camera pitch reliably using color, this is why SRL only provides this method.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">MainScreen</span><span class="o">.</span><span class="n">SetHighestPitch</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 </div>

@@ -197,13 +197,31 @@ MainScreen.IsUpText
 
  function TRSMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean;
 
-Returns true if the uptext is found **anywhere** the **Text** string.
+Overloaded function that accepts a string rather than a TStringArray.
 
 **Example:**
 
 .. code-block:: pascal  
 
   WriteLn(MainScreen.IsUpText('Chicken'));
+
+
+------------
+
+MainScreen.SetHighestPitch
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMainScreen.SetHighestPitch;
+
+Moves the camera to the highest pitch.
+There is no way to detect the camera pitch reliably using color, this is why SRL only provides this method.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  MainScreen.SetHighestPitch();
 
 
 ------------
