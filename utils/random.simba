@@ -272,7 +272,7 @@ SRL.Dice
 
 Generates a random number and returns ``True`` whenever the value generated is within the chance (in percentage).
 
-**Example:**
+**Example**
 
   if SRL.Dice(10.5) then
     WriteLn('This has a 10.5 percent chance of writing')

@@ -264,7 +264,7 @@ MainScreen.IsUpText
 ~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean;
 
-Returns true if the uptext is found **anywhere** the **Text** string.
+Overloaded function that accepts a string rather than a TStringArray.
 
 **Example**
 
@@ -273,6 +273,34 @@ Returns true if the uptext is found **anywhere** the **Text** string.
 function TRSMainScreen.IsUpText(Text: String; Timeout: Int32 = -1): Boolean; overload;
 begin
   Result := Self.IsUpText([Text], Timeout);
+end;
+
+(*
+MainScreen.SetHighestPitch
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSMainScreen.SetHighestPitch;
+
+Moves the camera to the highest pitch.
+There is no way to detect the camera pitch reliably using color, this is why SRL only provides this method.
+
+**Example**
+
+  MainScreen.SetHighestPitch();
+*)
+procedure TRSMainScreen.SetHighestPitch;
+begin
+  Keyboard.KeyDown(VK_UP);
+
+  try
+    for 1 to 10 do // 2500ms timeout
+      if (SRL.GetPixelShift(MainScreen.Bounds, 250) / MainScreen.Bounds.Area * 100) < 10 then // less than 10% of the screen changed in 250ms
+      begin
+        Writeln('Break early');
+        Break;
+      end;
+  finally
+    Keyboard.KeyUp(VK_UP);
+  end;
 end;
 
 (*

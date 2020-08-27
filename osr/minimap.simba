@@ -199,13 +199,19 @@ end;
 
 procedure TRSMinimap.Free;
 begin
-  FreeBitmap(Self.FlagBitmap);
+  if Self.FlagBitmap > 0 then
+    FreeBitmap(Self.FlagBitmap);
 end;
 
 procedure TRSMinimap.Setup(ClientMode: ERSClientMode);
 begin
   Self.Name := 'Minimap';
-  Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
+  if Self.FlagBitmap = 0 then
+  begin
+    Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
+
+    AddOnTerminate(@Self.Free);
+  end;
 
   case ClientMode of
     RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
@@ -236,8 +242,6 @@ begin
         Self.PolygonOffset := [[21, -71], [39, -62], [55, -49], [67, -32], [70, 0], [66, 19], [57, 32], [41, 43], [20, 58], [12, 71], [0, 74], [-11, 72], [-24, 55], [-47, 39], [-60, 31], [-66, 22], [-71, 0], [-72, -14], [-67, -32], [-55, -49], [-39, -62], [-21, -71], [0, -74]];
       end;
   end;
-
-  AddOnTerminate(@Self.Free);
 end;
 
 function TRSMinimap.IsPointOn(P: TPoint): Boolean;

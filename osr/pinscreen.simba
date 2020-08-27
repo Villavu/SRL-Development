@@ -103,7 +103,7 @@ end;
 
 function TRSPinScreen.IsOpen: Boolean;
 begin
-  Result := FindTextColor('Bank of Gielinor', RS_FONT_BOLD_12, $0000FF, 0, Self.Bounds, 1);
+  Result := FindTextColor('Please enter your PIN', RS_FONT_BOLD_12, $1F98FF , 0, Self.Bounds, 1);
 end;
 
 function TRSPinScreen.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;

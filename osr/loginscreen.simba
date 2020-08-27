@@ -262,11 +262,14 @@ var
   Message: String;
   Attempts: Int32;
 begin
-  Debug('Logging in player');
+  Self.Debug('Logging in player');
+
+  if (User = '') or (Pass = '') then
+    Self.Fatal('Player has no username or password');
 
   while Self.IsOpen() and (Attempts < 10) do
   begin
-    Debug('Attempt: ' + ToString(Attempts));
+    Self.Debug('Attempt: ' + ToString(Attempts));
 
     while Self.IsOpen() do
     begin
@@ -295,7 +298,7 @@ begin
     Inc(Attempts);
   end;
 
-  if LobbyScreen.IsOpen() then
+  if LobbyScreen.IsOpen(3000) then
     LobbyScreen.Play();
 
   Result := SRL.IsLoggedIn();

@@ -324,13 +324,21 @@ begin
   Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
 end;
 
-function TRSInventory.Count: Int32;
+function TRSInventory.Count: Int32; overload;
 var
   I: Int32;
 begin
   for I := Self.LOW_SLOT to Self.HIGH_SLOT do
     if Self.IsSlotUsed(I) then
       Inc(Result);
+end;
+
+function TRSInventory.IsCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.Count() = Count, Interval, WaitTime);
 end;
 
 (*

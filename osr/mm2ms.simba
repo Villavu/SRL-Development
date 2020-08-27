@@ -1,17 +1,17 @@
-{$DEFINE SRL_MM2MS_INCLUDED}
-{$IFNDEF SRL_OSR}
-  {$I SRL/osr.simba}
-{$ENDIF}
-
 (*
 Minimap to Mainscreen
 =====================
 The core for our minimap to mainscreen projection.
 Supports rotation, and zoom, and resizable client.
 
-MM2MS extends the Minimap interface as well as the mainscreen interface with 
+MM2MS extends the Minimap interface as well as the mainscreen interface with
 functionality to convert coordinates to & from the minimap to the mainscreen.
 *)
+
+{$DEFINE SRL_MM2MS_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
 
 (*
 type TMM2MS
@@ -487,6 +487,20 @@ begin
   Angle += Random(-Randomness, Randomness);
 
   Minimap.SetCompassAngle(Angle);
+end;
+
+(*
+Options.SetZoomLevel
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSOptions.SetZoomLevel(Level: Int32): Boolean; override;
+
+Override to automatically update MM2MS.ZoomLevel.
+*)
+function TRSOptions.SetZoomLevel(Level: Int32): Boolean; override;
+begin
+  Result := inherited();
+  if Result then
+    MM2MS.ZoomLevel := Level;
 end;
 
 begin

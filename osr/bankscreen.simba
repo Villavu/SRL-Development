@@ -775,6 +775,9 @@ end;
 
 function TRSBankScreen.Hover(Location: ERSBankLocation; RightClick: Boolean): Boolean;
 begin
+  if ChooseOption.IsOpen() then
+    Exit(True);
+
   case Location of
     BANK_LOCATION_CASTLE_WARS:    Result := Self._Hover(@MainScreen.FindObject, Self.FINDER_CASTLE_WARS_CHEST);
     BANK_LOCATION_FEROX:          Result := Self._Hover(@MainScreen.FindObject, Self.FINDER_FEROX_CHEST);
@@ -822,7 +825,6 @@ begin
   Result := WaitUntil(not Self.IsOpen(False), SRL.TruncatedGauss(0, 1500), Random(2500, 5000));
 end;
 
-
 (*
 BankScreen.DepositAll
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -835,7 +837,7 @@ begin
   if (Inventory.Count = 0) then
     Exit(True);
 
-  Result := Self.ClickButton(Self.BUTTON_DEPOSIT_INVENTORY, MOUSE_LEFT);
+  Result := Self.ClickButton(Self.BUTTON_DEPOSIT_INVENTORY, MOUSE_LEFT) and Inventory.IsCount(0, 3000);
 end;
 
 function TRSBankScreen.Count(Identifer: String): Int32;
