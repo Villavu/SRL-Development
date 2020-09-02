@@ -46,21 +46,81 @@ begin
   end;
 end;
 
+function TRSGrandExchange.GetTitle: String;
+var
+  B: TBox;
+  Filter: TCompareRules;
+begin
+  B := Self.Bounds;
+  B.X1 += 50;
+  B.Y1 += 10;
+  B.X2 -= 50;
+  B.Y2 := B.Y1 + 15;
+  B.LimitTo(Self.Bounds);
+
+  Result := OCR.Recognize(B, [2070783], RS_FONTSET_BOLD_12);
+end;
+
+function TRSGrandExchange.IsOpen: Boolean;
+begin
+  Result := 'Grand Exchange' in GetTitle();
+end;
+
+procedure TRSGrandExchange.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+end;
+
 procedure TRSGrandExchange.Setup;
 begin
   Self.Name := 'Grand Exchange';
+  Self.Mode := RSClient.Mode;
 
   Self.FINDER_BANKER.ColorClusters += [CTS2(6710894, 12, 0.19, 0.07), CTS2(2110788, 11, 0.29, 0.84), 10]; // grey, brown
   Self.FINDER_BANKER.ClusterDistance := 3;
   Self.FINDER_BANKER.Grow := 3;
   Self.FINDER_BANKER.Erode := 3;
   Self.FINDER_BANKER.MinLongSide := 10;
+
+  case Self.Mode of
+    RS_CLIENT_FIXED:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2];
+        Self.Alignment.Center.MaxWidth := 484;
+        Self.Alignment.Center.MaxHeight := 304;
+      end;
+
+    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, -1];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2];
+        Self.Alignment.Center.MaxWidth := 484;
+        Self.Alignment.Center.MaxHeight := 304;
+      end;
+  end;
 end;
 
 var
   GrandExchange: TRSGrandExchange;
 
+procedure TSRL.Setup; override;
 begin
   GrandExchange.Setup();
+
+  inherited;
 end;
 
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  GrandExchange.Debug(Bitmap);
+end;

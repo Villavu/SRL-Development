@@ -438,7 +438,7 @@ var
   end;
   P: TPoint;
 begin
-  if not SRL.IsLoggedIn() then
+  if not RSClient.IsLoggedIn() then
     Exit(False);
 
   MinimapPoint := Self.WorldToMM(PlayerPoint, WorldPoint, Minimap.GetCompassAngle(False));
@@ -490,7 +490,7 @@ begin
   // - Been walking for over 20 seconds
   // - Within `WaitUntilDistance` to the destination
   repeat
-    if not SRL.IsLoggedIn() then
+    if not RSClient.IsLoggedIn() then
       Exit(False);
 
     if (not Minimap.IsRunEnabled()) and (Minimap.GetRunEnergy() > Self.EnableRunAtEnergy) then
@@ -604,7 +604,7 @@ var
 begin
   Path := BuildPath([Self.GetMyPos()] + Path, 4, 12);
 
-  while SRL.IsLoggedIn() do
+  while RSClient.IsLoggedIn() do
   begin
     PlayerPoint := Self.GetMyPos();
 

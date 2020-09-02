@@ -11,6 +11,10 @@ Methods to interact with the mouse.
 
 {.$DEFINE SRL_DEBUG_MOUSE} // Enable me to record mouse path + clicks. Will be displayed when script terminates.
 
+{$IFDEF SIMBAHEADLESS}
+  {$UNDEF SRL_DEBUG_MOUSE}
+{$ENDIF}
+
 const
   MOUSE_MOVE = -1;
 
@@ -418,6 +422,27 @@ end;
 (*
 Mouse.Move
 ~~~~~~~~~~
+.. pascal:: procedure TMouse.Move(Center: TPoint; Radius: Int32; ForcedMove: Boolean = False);
+
+Moves the mouse to a random point in an circle defined by **Center** and **Radius**.
+
+- **ForcedMove** determines if the mouse should be moved if already inside the circle. By default this is **False**.
+
+**Example**
+
+  Mouse.Move([100, 100], 25); // The mouse is now randomly within 100,100 with a radius of 25.
+*)
+procedure TMouse.Move(Center: TPoint; Radius: Int32; ForcedMove: Boolean = False); overload;
+begin
+  if SRL.PointInCircle(Self.Position(), Center, Radius) and (not ForcedMove) then
+    Exit;
+
+  Self.Move(SRL.RandomPoint(Center, Radius));
+end;
+
+(*
+Mouse.Move
+~~~~~~~~~~
 .. pascal:: procedure TMouse.Move(Box: TBox; ForcedMove: Boolean = False; Distribution: EMouseDistribution = MOUSE_DISTRIBUTION_DEFAULT);
 
 Moves the mouse to a random point in the box.
@@ -472,13 +497,8 @@ Moves the mouse to a random point in an circle.
   Mouse.Move(C); // The mouse is now randomly within 100,100 with a radius of 25.
 *)
 procedure TMouse.Move(Circle: TCircle; ForcedMove: Boolean = False); overload;
-var
-  P: TPoint;
 begin
-  if Circle.Contains(Self.Position()) and (not ForcedMove) then
-    Exit;
-
-  Self.Move(SRL.RandomPoint(Circle.Mean(), Circle.Radius));
+  Self.Move(Circle.Mean(), Circle.Radius, ForcedMove);
 end;
 
 (*
@@ -588,6 +608,25 @@ Available buttons:
 procedure TMouse.Click(P: TPoint; Button: Int32); overload;
 begin
   Self.Move(P.X, P.Y);
+  Self.Click(Button);
+end;
+
+(*
+Mouse.Click
+~~~~~~~~~~~
+.. pascal:: TMouse.Click(Circle: TCircle; Button: Int32; ForcedMove: Boolean = False);
+
+Moves the mouse to a random point in an circle defined by **Center** and **Radius** and clicks the desired button.
+
+ - **ForcedMove** determines if the mouse should be moved if already in the circle. By default this is **False**.
+
+**Example**
+
+  Mouse.Click([100, 100], 25, MOUSE_LEFT); // Left clicked somewhere nearby 100,100 with a radius of 25.
+*)
+procedure TMouse.Click(Center: TPoint; Radius: Int32; Button: Int32; ForcedMove: Boolean = False); overload;
+begin
+  Self.Move(Center, Radius, ForcedMove);
   Self.Click(Button);
 end;
 

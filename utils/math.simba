@@ -9,6 +9,18 @@ Math
 Math related methods
 *)
 
+type
+  TRectangle = record
+    Top, Right, Btm, Left: TPoint;
+  end;
+  TRectArray = array of TRectangle;
+
+  TCircle = record
+    X,Y:Int32;
+    Radius: Int32;
+  end;
+  TCircleArray = array of TCircle;
+
 (*
 srl.Modulo
 ~~~~~~~~~~
@@ -38,7 +50,7 @@ end;
 
 (*
 srl.CrossProduct
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 .. pascal::
     function TSRL.CrossProduct(ry,ry, px,py, qx,qy: Double): Double; static;
     function TSRL.CrossProduct(r, p, q: TPoint): Int64; static; overload;
@@ -138,7 +150,7 @@ end;
 
 (*
 srl.PointInTriangle
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 .. pascal::
     function TSRL.PointInTriangle(PT, p1,p2,p3: TPoint): Boolean; static;
 
@@ -188,7 +200,7 @@ end;
 
 (*
 srl.PointInCircle
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 .. pascal::
     function TSRL.PointInCircle(PT, Center: TPoint; Radius: Double): Boolean; static;
 
@@ -202,7 +214,7 @@ end;
   
 (*
 srl.PointInEllipse
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 .. pascal::
     function TSRL.PointInEllipse(PT, Center:TPoint; YRad, XRad: Double): Boolean; static;
     
@@ -219,7 +231,7 @@ end;
 
 (*
 srl.PointInPoly
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 .. pascal::
     function TSRL.PointInPoly(pt: TPoint; Poly: TPointArray): Boolean; static;
     
@@ -253,7 +265,7 @@ end;
 
 (*
 srl.PointInCuboid
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 .. pascal::
     function TSRL.PointInCuboid(pt: TPoint; Top, Btm: TRectangle): Boolean; static;
 

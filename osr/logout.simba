@@ -12,9 +12,10 @@ type
     BUTTON_WORLD_SWITCHER_CLOSE_HOVER: TRSInterfaceButton;
   end;
 
-procedure TRSLogout.Setup(ClientMode: ERSClientMode);
+procedure TRSLogout.Setup;
 begin
   Self.Name := 'Options';
+  Self.Mode := RSClient.Mode;
 
   Self.BUTTON_LOGOUT := Self.AddOCRButton('Click here to logout', RS_FONT_BOLD_12, -1);
   Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('World Switcher', RS_FONT_BOLD_12, -1);
@@ -22,13 +23,10 @@ begin
   Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddBitmapButton('logout_worldswitcher_close.png');
   Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER := Self.AddBitmapButton('logout_worldswitcher_close_hover.png');
 
-  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
-  begin
-    Self.Alignment.Left := [@GameTab.X1, -3];
-    Self.Alignment.Right := [@GameTab.X2, 3];
-    Self.Alignment.Top := [@GameTab.Y1];
-    Self.Alignment.Bottom := [@GameTab.Y2];
-  end;
+  Self.Alignment.Left := [@GameTab.X1, -3];
+  Self.Alignment.Right := [@GameTab.X2, 3];
+  Self.Alignment.Top := [@GameTab.Y1];
+  Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
 function TRSLogout.IsOpen: Boolean;
@@ -85,7 +83,7 @@ begin
       T := GetTickCount() + Interval + SRL.NormalRange(-2000, 2000);
       while (T > GetTickCount()) do
       begin
-        if not SRL.IsLoggedIn() then
+        if not RSClient.IsLoggedIn() then
           Exit(True);
 
         Wait(100, 200);
@@ -97,7 +95,16 @@ end;
 var
   Logout: TRSLogout;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@Logout.Setup);
-  SRL.AddDebugMethod(@Logout.Debug);
+  Logout.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Logout.Debug(Bitmap);
 end;

@@ -102,7 +102,7 @@ end;
 
 (*
 TCountDown
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
 A neat and simple timer type.
 
 Example:

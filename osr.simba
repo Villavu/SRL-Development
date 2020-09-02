@@ -1,72 +1,48 @@
-{$HINTS OFF}
-
 {$DEFINE SRL_OSR}
-{$DEFINE SRL_USE_SLACKTREE}
 
-type
-  ERSClientMode = (RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM);
+{$IFNDEF SRL_HINTS}
+  {$IFDEF HINTS}
+    {$DEFINE HAD_HINTS}
+  {$ENDIF}
 
-  TSRLSetupMethod = procedure(ClientMode: ERSClientMode) of object;
-  TSRLDebugMethod = procedure(Bitmap: TMufasaBitmap) of object;
-
-  TSRL = record
-    ClientMode: ERSClientMode;
-
-    SetupMethods: array of TSRLSetupMethod;
-    DebugMethods: array of TSRLDebugMethod;
-  end;
-
-var
-  SRL: TSRL;
+  {$HINTS OFF}
+{$ENDIF}
 
 {$I utils.simba}
 
-procedure TSRL.AddSetupMethod(Method: TSRLSetupMethod);
+procedure TSRL.Setup;
 begin
-  Self.SetupMethods := Self.SetupMethods + @Method;
+  { override me to setup things }
 end;
 
-procedure TSRL.AddDebugMethod(Method: TSRLDebugMethod);
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); overload;
 begin
-  Self.DebugMethods := Self.DebugMethods + @Method;
+  { override me to debug things }
 end;
 
-procedure TSRL.Setup(ClientMode: ERSClientMode);
-var
-  I: Int32;
-begin
-  Self.ClientMode := ClientMode;
-
-  for I := 0 to High(Self.SetupMethods) do
-    Self.SetupMethods[i](Self.ClientMode);
-
-  {$IFDEF SRL_USE_REMOTEINPUT}
-  RemoteInput.Setup();
-  {$ENDIF}
-end;
-
-procedure TSRL.Debug;
+procedure TSRL.Debug; overload;
 var
   Bitmap: TMufasaBitmap;
-  I: Int32;
 begin
   Freeze();
 
-  Bitmap.FromClient();
+  try
+    Bitmap.FromClient();
 
-  for I := 0 to High(Self.DebugMethods) do
-    Self.DebugMethods[I](Bitmap);
+    Self.Debug(Bitmap);
 
-  Bitmap.Debug();
-  Bitmap.Free();
-
-  UnFreeze();
+    Bitmap.Debug();
+    Bitmap.Free();
+  finally
+    Unfreeze();
+  end;
 end;
 
 // The following allows individual include files to compile on their own with just having {$I SRL/osr.simba}
-// Summary: It includes until the current file is reached.
+// Summary: It includes this file until the current file is reached.
 
 {$IFNDEF SRL_OCR_INCLUDED}             {$I osr/ocr.simba}
+{$IFNDEF SRL_RSCLIENT_INCLUDED}        {$I osr/rsclient.simba}
 {$IFNDEF SRL_INTERFACE_INCLUDED}       {$I osr/interface.simba}
 {$IFNDEF SRL_ROOT_INTERFACE_INCLUDED}  {$I osr/rootinterface.simba}
 {$IFNDEF SRL_CHATBUTTONS_INCLUDED}     {$I osr/chatbuttons.simba}
@@ -125,3 +101,20 @@ end;
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
+{$ELSE}{$ENDIF}
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  SRL.Setup();
+end;
+
+begin
+  SRL.Setup();
+end;
+
+{$IFDEF HAD_HINTS}
+  {$HINTS ON}
+{$ENDIF}
+

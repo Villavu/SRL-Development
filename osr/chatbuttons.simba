@@ -14,9 +14,6 @@ type
     BUTTON_REPORT: TRSInterfaceButton;
   end;
 
-var
-  ChatButtons: TRSChatButtons;
-
 function TRSChatButtons.IsOpen: Boolean;
 begin
   Result := Self.FindButton(Self.BUTTON_ALL);
@@ -30,9 +27,10 @@ begin
   inherited();
 end;
 
-procedure TRSChatButtons.Setup(ClientMode: ERSClientMode);
+procedure TRSChatButtons.Setup;
 begin
   Self.Name := 'Chat Buttons';
+  Self.Mode := RSClient.Mode;
 
   Self.BUTTON_ALL := Self.AddOCRButton('All', RS_FONT_PLAIN_11, $FFFFFF);
   Self.BUTTON_GAME := Self.AddOCRButton('Game', RS_FONT_PLAIN_11, $FFFFFF);
@@ -42,16 +40,25 @@ begin
   Self.BUTTON_TRADE := Self.AddOCRButton('Trade', RS_FONT_PLAIN_11, $FFFFFF);
   Self.BUTTON_REPORT := Self.AddOCRButton('Report', RS_FONT_PLAIN_11, $FFFFFF);
 
-  if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
-  begin
-    Alignment.Left := [@RootInterface.X1];
-    Alignment.Right := [@RootInterface.X1, 518];
-    Alignment.Top := [@RootInterface.Y2, -22];
-    Alignment.Bottom := [@RootInterface.Y2];
-  end;
+  Self.Alignment.Left := [@RootInterface.X1];
+  Self.Alignment.Right := [@RootInterface.X1, 518];
+  Self.Alignment.Top := [@RootInterface.Y2, -22];
+  Self.Alignment.Bottom := [@RootInterface.Y2];
 end;
 
+var
+  ChatButtons: TRSChatButtons;
+
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@ChatButtons.Setup);
-  SRL.AddDebugMethod(@ChatButtons.Debug);
+  inherited;
+
+  ChatButtons.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  ChatButtons.Debug(Bitmap);
 end;

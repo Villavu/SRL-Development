@@ -31,20 +31,18 @@ type
     HIGH_SLOT: Int32;
   end;
 
-procedure TRSInventory.Setup(ClientMode: ERSClientMode);
+procedure TRSInventory.Setup;
 begin
   Self.Name := 'Inventory';
+  Self.Mode := RSClient.Mode;
 
   Self.LOW_SLOT := 0;
   Self.HIGH_SLOT := 27;
 
-  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
-  begin
-    Self.Alignment.Left := [@GameTab.X1];
-    Self.Alignment.Right := [@GameTab.X2];
-    Self.Alignment.Top := [@GameTab.Y1];
-    Self.Alignment.Bottom := [@GameTab.Y2];
-  end;
+  Self.Alignment.Left := [@GameTab.X1];
+  Self.Alignment.Right := [@GameTab.X2];
+  Self.Alignment.Top := [@GameTab.Y1];
+  Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
 function TRSInventory.GetSlotBoxes: TBoxArray;
@@ -444,8 +442,16 @@ end;
 var
   Inventory: TRSInventory;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@Inventory.Setup);
-  SRL.AddDebugMethod(@Inventory.Debug);
+  Inventory.Setup();
+
+  inherited;
 end;
 
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Inventory.Debug(Bitmap);
+end;

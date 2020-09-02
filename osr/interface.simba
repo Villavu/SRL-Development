@@ -3,8 +3,8 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
-var
-  RS_INTERFACE_BITMAP_PATH: String := IncludeTrailingPathDelimiter({$macro CURRENT_DIRECTORY}) + 'bitmaps/';
+const
+  RS_INTERFACE_BITMAP_PATH = {$macro CURRENT_DIRECTORY} + DirectorySeparator + 'bitmaps' + DirectorySeparator;
 
 type
   TRSInterfaceButton = record
@@ -23,18 +23,19 @@ type
 
   TRSInterfaceAlignment = record
     Method: function: Int32 of object;
-    Offset: Single;
+    Offset: Int32;
   end;
 
   TRSInterface = record(TSRLBaseRecord)
+    Mode: ERSClientMode;
     Buttons: array of TRSInterfaceButton;
 
     Alignment: record
       Left, Right, Top, Bottom: TRSInterfaceAlignment;
 
       Center: record
-        MaxWidth: Single;
-        MaxHeight: Single;
+        MaxWidth: Int32;
+        MaxHeight: Int32;
       end;
     end;
   end;

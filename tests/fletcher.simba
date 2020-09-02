@@ -1,9 +1,10 @@
 {$DEFINE SRL_USE_REMOTEINPUT}
+{.$DEFINE SRL_DEBUG_MOUSE}
 
 {$I SRL/osr.simba}
 
 type
-  EFletchTask = (
+  EFletchItem = (
     FLETCH_ARROW_SHAFTS,
     FLETCH_OAK_LONGBOW_UNSTRUNG,
     FLETCH_WILLOW_SHORTBOW_UNSTRUNG,
@@ -13,13 +14,44 @@ type
     FLETCH_YEW_LONGBOW
   );
 
-const
-  ITEM_TO_FLETCH = FLETCH_ARROW_SHAFTS;
-  BANK_TO_USE    = BANK_LOCATION_GRAND_EXCHANGE;
+  TScriptConfig = record
+    Bank: ERSBankLocation;
+
+    Tasks: array of record
+      Item: EFletchItem;
+      Amount: Int32;
+    end;
+
+    User: String;
+    Pass: String;
+    Pin: String;
+  end;
+
+var
+  Config: TScriptConfig;
+
+begin
+  Config.Bank := BANK_LOCATION_GRAND_EXCHANGE;
+
+  Config.User := '';
+  Config.Pass := '';
+  Config.Pin := '';
+
+  // Config.Tasks += [FLETCH_YEW_LONGBOW, 100];
+  Config.Tasks += [FLETCH_MAPLE_LONGBOW_UNSTRUNG, 50000];
+end;
+
+// Alternatively you can above in a file
+{$IFHASFILE ../../../credentials.simba}
+  {$I ../../../credentials.simba}
+{$ENDIF}
 
 type
   TScript = record
-    Task: EFletchTask;
+    Config: TScriptConfig;
+
+    HighestPitch: Boolean;
+    TaskChanged: Boolean;
     EarlyBank: Int32;
 
     Activity: record
@@ -27,20 +59,23 @@ type
       XP: Int32;
     end;
 
-    CurrentTool: String;
-    CurrentItem: String;
-    CurrentItemXP: Single;
-    CurrentItemMaterials: array of record
-      Item: String; Amount: Int32;
+    Task: record
+      FinishXP: Int32;
+      Tool: String;
+      Item: String;
+      ItemXP: Single;
+      Materials: array of record
+        Item: String; Amount: Int32;
+      end;
     end;
   end;
 
-procedure TScript.DoAntiban;
+function TScript.DoAntiban: Boolean;
 begin
   Self.Activity.Countdown.Pause();
 
   try
-    Antiban.DoAntiban();
+    Result := Antiban.DoAntiban();
   finally
     Self.Activity.Countdown.Resume();
   end;
@@ -50,134 +85,160 @@ procedure TScript.Antiban_HoverBank;
 begin
   Antiban.Debug('Hover bank');
 
-  if BankScreen.Hover(BANK_TO_USE) and SRL.Dice(50) then
-  begin
-    ChooseOption.Open();
-
-    if SRL.Dice(50) then
-    begin
-      Wait(0, 2500, wdLeft);
-
-      ChooseOption.Hover(['Use Bank', 'Bank Bank']);
-    end;
-  end;
+  BankScreen.Hover(Self.Config.Bank, SRL.Dice(50));
 end;
 
 procedure TScript.Antiban_EarlyBank;
 begin
-  Self.EarlyBank := SRL.TruncatedGauss(Self.CountMaterials(), 1);
+  Self.EarlyBank := SRL.TruncatedGauss(Self.Task.Materials[0].Amount, 1);
 
   Antiban.Debug('Early bank: ' + ToString(Self.EarlyBank));
 end;
 
-procedure TScript.Antiban_AFK;
-var
-  Time: Int32 := SRL.TruncatedGauss(1000, 60000);
+procedure TScript.Antiban_Randomness;
 begin
-  Antiban.Debug('AFK for ' + ToString(Time div 1000) + ' seconds');
-
-  if Random() < 0.50 then
-    Antiban.LoseFocus();
-
-  Wait(Time);
+  case Random(5) of
+    0: Antiban.RandomRotate();
+    1: Antiban.RandomTab();
+    2: Antiban.HoverSkills();
+    3: Antiban.SmallRandomMouse();
+    4: Antiban.AdjustZoom();
+  end;
 end;
 
-procedure TScript.Setup(Task: EFletchTask);
+procedure TScript.NextTask;
 begin
-  Self.Task := Task;
+  if BankScreen.IsOpen() then
+    BankScreen.Close();
 
-  case Self.Task of
-    FLETCH_ARROW_SHAFTS:
-      begin
-        Self.CurrentItemXP := 5;
-        Self.CurrentItem := 'arrow shaft';
-        Self.CurrentItemMaterials += ['Logs', 27];
-        Self.CurrentTool := 'knife';
-      end;
+  if (XPBar.Read() >= Self.Task.FinishXP) then
+  begin
+    Self.Debug('Switching tasks');
+    Self.TaskChanged := True;
 
-    FLETCH_OAK_LONGBOW_UNSTRUNG:
-      begin
-        Self.CurrentItemXP := 25;
-        Self.CurrentItem := 'Oak longbow (u)';
-        Self.CurrentItemMaterials += ['Oak Logs', 27];
-        Self.CurrentTool := 'knife';
-      end;
+    if Self.Task <> [] then
+    begin
+      if Length(Self.Config.Tasks) = 1 then
+        Self.Fatal('Tasks completed');
 
-    FLETCH_WILLOW_SHORTBOW_UNSTRUNG:
-      begin
-        Self.CurrentItemXP := 33;
-        Self.CurrentItem := 'Willow shortbow (u)';
-        Self.CurrentItemMaterials += ['Willow Logs', 27];
-        Self.CurrentTool := 'knife';
-      end;
+      Self.Config.Tasks := Copy(Self.Config.Tasks, 1);
+    end;
 
-    FLETCH_WILLOW_LONGBOW_UNSTRUNG:
-      begin
-        Self.CurrentItemXP := 41.5;
-        Self.CurrentItem := 'Willow longbow (u)';
-        Self.CurrentItemMaterials += ['Willow Logs', 27];
-        Self.CurrentTool := 'knife';
-      end;
+    case Self.Config.Tasks[0].Item of
+      FLETCH_ARROW_SHAFTS:
+        begin
+          Self.Task.ItemXP := 5;
+          Self.Task.Item := 'arrow shaft';
+          Self.Task.Materials := [
+            ['Logs', BANK_WITHDRAW_ALL]
+          ];
+          Self.Task.Tool := 'knife';
+        end;
 
-    FLETCH_MAPLE_LONGBOW_UNSTRUNG:
-      begin
-        Self.CurrentItemXP := 58.5;
-        Self.CurrentItem := 'Maple longbow (u)';
-        Self.CurrentItemMaterials += ['Maple Logs', 27];
-        Self.CurrentTool := 'knife';
-      end;
+      FLETCH_OAK_LONGBOW_UNSTRUNG:
+        begin
+          Self.Task.ItemXP := 25;
+          Self.Task.Item := 'Oak longbow (u)';
+          Self.Task.Materials := [
+            ['Oak Logs', 27]
+          ];
+          Self.Task.Tool := 'knife';
+        end;
 
-    FLETCH_YEW_LONGBOW_UNSTRUNG:
-      begin
-        Self.CurrentItemXP := 75;
-        Self.CurrentItem := 'Yew longbow (u)';
-        Self.CurrentItemMaterials += ['Yew Logs', 27];
-        Self.CurrentTool := 'knife';
-      end;
+      FLETCH_WILLOW_SHORTBOW_UNSTRUNG:
+        begin
+          Self.Task.ItemXP := 33;
+          Self.Task.Item := 'Willow shortbow (u)';
+          Self.Task.Materials := [
+            ['Willow Logs', 27]
+          ];
+          Self.Task.Tool := 'knife';
+        end;
 
-    FLETCH_YEW_LONGBOW:
-      begin
-        Self.CurrentItemXP := 75;
-        Self.CurrentItem := 'Yew longbow';
-        Self.CurrentItemMaterials += ['Yew longbow (u)', 14];
-        Self.CurrentItemMaterials += ['Bow string', 14];
-        Self.CurrentTool := '';
-      end;
+      FLETCH_WILLOW_LONGBOW_UNSTRUNG:
+        begin
+          Self.Task.ItemXP := 41.5;
+          Self.Task.Item := 'Willow longbow (u)';
+          Self.Task.Materials := [
+            ['Willow Logs', 27]
+          ];
+          Self.Task.Tool := 'knife';
+        end;
+
+      FLETCH_MAPLE_LONGBOW_UNSTRUNG:
+        begin
+          Self.Task.ItemXP := 58.5;
+          Self.Task.Item := 'Maple longbow (u)';
+          Self.Task.Materials := [
+            ['Maple Logs', 27]
+          ];
+          Self.Task.Tool := 'knife';
+        end;
+
+      FLETCH_YEW_LONGBOW_UNSTRUNG:
+        begin
+          Self.Task.ItemXP := 75;
+          Self.Task.Item := 'Yew longbow (u)';
+          Self.Task.Materials := [
+            ['Yew Logs', 27]
+          ];
+          Self.Task.Tool := 'knife';
+        end;
+
+      FLETCH_YEW_LONGBOW:
+        begin
+          Self.Task.ItemXP := 75;
+          Self.Task.Item := 'Yew longbow';
+          Self.Task.Materials := [
+            ['Yew longbow (u)', 14],
+            ['Bow string', 14]
+          ];
+          Self.Task.Tool := '';
+        end;
+    end;
+
+    Self.Task.FinishXP := XPBar.Read() + (Floor(Self.Task.ItemXP) * Self.Config.Tasks[0].Amount);
+
+    Self.Debug('New task: ' + Self.Task.Item + ' x ' + ToString(Self.Config.Tasks[0].Amount));
+    Self.Debug('Task finish: ' + ToString(Self.Task.FinishXP));
   end;
+end;
+
+procedure TScript.Setup(constref Config: TScriptConfig);
+begin
+  Self.Config := Config;
+
+  ItemFinder.AddItemName('arrow shaft', '6443');
+
+  Mouse.IdleInterval := 12.5;
 
   Antiban.Skills := [SKILL_FLETCHING];
+  Antiban.MinZoom := 0;
+  Antiban.MaxZoom := 75;
 
-  // AFK tasks are paused 95% of the time which is why the interval is very low.
-  Antiban.AddTask(0.5 * ONE_MINUTE, @Self.Antiban_AFK);
-  Antiban.AddTask(1.0 * ONE_MINUTE, @Self.Antiban_AFK);
-  Antiban.AddTask(1.5 * ONE_MINUTE, @Self.Antiban_AFK);
-  Antiban.AddTask(2.0 * ONE_MINUTE, @Self.Antiban_AFK);
+  Antiban.AddSleep('04:00', 6 * ONE_HOUR);
 
-  Antiban.AddTask(10 * ONE_MINUTE, @Self.Antiban_EarlyBank);
-  Antiban.AddTask(20 * ONE_MINUTE, @Self.Antiban_EarlyBank);
-
-  Antiban.AddTask(10 * ONE_MINUTE, @Self.Antiban_HoverBank);
-  Antiban.AddTask(20 * ONE_MINUTE, @Self.Antiban_HoverBank);
+  Antiban.AddBreak(30  * ONE_MINUTE,  5  * ONE_MINUTE, 0.30, 0.10);
+  Antiban.AddBreak(45  * ONE_MINUTE,  1  * ONE_MINUTE, 0.30, 0.10);
+  Antiban.AddBreak(60  * ONE_MINUTE,  5  * ONE_MINUTE, 0.30, 0.10);
+  Antiban.AddBreak(120 * ONE_MINUTE,  20 * ONE_MINUTE, 0.30);
 
   Antiban.AddTask(10 * ONE_MINUTE, @Antiban.LoseFocus);
   Antiban.AddTask(20 * ONE_MINUTE, @Antiban.LoseFocus);
 
-  Antiban.AddTask(10 * ONE_MINUTE, @Antiban.RandomMouse);
-  Antiban.AddTask(20 * ONE_MINUTE, @Antiban.RandomMouse);
+  Antiban.AddTask(10 * ONE_MINUTE, @Self.Antiban_EarlyBank);
+  Antiban.AddTask(30 * ONE_MINUTE, @Self.Antiban_EarlyBank);
 
-  Antiban.AddTask(20 * ONE_MINUTE, @Antiban.RandomTab);
-  Antiban.AddTask(40 * ONE_MINUTE, @Antiban.RandomTab);
+  Antiban.AddTask(10 * ONE_MINUTE, @Self.Antiban_HoverBank);
+  Antiban.AddTask(30 * ONE_MINUTE, @Self.Antiban_HoverBank);
 
-  Antiban.AddTask(20 * ONE_MINUTE, @Antiban.RandomRightClick);
-  Antiban.AddTask(40 * ONE_MINUTE, @Antiban.RandomRightClick);
-
-  Antiban.AddTask(30 * ONE_MINUTE, @Antiban.RandomRotate);
-  Antiban.AddTask(60 * ONE_MINUTE, @Antiban.RandomRotate);
-
-  Antiban.AddTask(50  * ONE_MINUTE, @Antiban.HoverSkills);
-  Antiban.AddTask(100 * ONE_MINUTE, @Antiban.HoverSkills);
+  Antiban.AddTask(20 * ONE_MINUTE, @Self.Antiban_Randomness);
+  Antiban.AddTask(40 * ONE_MINUTE, @Self.Antiban_Randomness);
 
   Activity.Countdown.Init(90000);
+
+  if RSClient.IsLoggedIn() then
+    Players[CurrentPlayer].LoggedIn();
 end;
 
 procedure TScript.Debug(S: String);
@@ -209,8 +270,8 @@ var
   I: Int32;
   Amounts: TIntegerArray;
 begin
-  for I := 0 to High(Self.CurrentItemMaterials) do
-    Amounts += Inventory.Count(Self.CurrentItemMaterials[I].Item);
+  for I := 0 to High(Self.Task.Materials) do
+    Amounts += Inventory.Count(Self.Task.Materials[I].Item);
 
   Result := Amounts.Min();
 end;
@@ -223,17 +284,26 @@ end;
 function TScript.HasMaterials(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
 begin
   if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(0, 1500);
+    Interval := SRL.TruncatedGauss(50, 1500);
 
   Result := WaitUntil(Self.HasMaterials(), Interval, WaitTime);
+end;
+
+function TScript.HasMaterialsInBank: Boolean;
+var
+  I: Int32;
+begin
+  Result := True;
+
+  for I := 0 to High(Self.Task.Materials) do
+    if (BankScreen.CountStack(Self.Task.Materials[I].Item) < Self.Task.Materials[I].Amount) and BankScreen.IsOpen() then
+      Result := False;
 end;
 
 function TScript.Bank: Boolean;
 var
   I: Int32;
 begin
-  Antiban.PauseTask(@Self.Antiban_HoverBank);
-
   if (Self.EarlyBank = 0) and Self.HasMaterials() then
   begin
     Result := BankScreen.Close();
@@ -243,27 +313,32 @@ begin
     Exit;
   end;
 
-  if not BankScreen.Open(BANK_TO_USE) then
+  if not BankScreen.Open(Self.Config.Bank) then
   begin
     Self.Debug('Failed to open bank');
 
     Exit;
   end;
 
-  Antiban.ResumeTask(@Self.Antiban_AFK);
+  if Self.TaskChanged and (not BankScreen.DepositAll()) then
+  begin
+    Self.Debug('Failed to deposit all after task change');
 
-  if (Inventory.Count(Self.CurrentItem) > 0) and (not BankScreen.DepositQuantity(Self.CurrentItem, Self.CurrentItemMaterials[0].Amount)) then
+    Exit;
+  end;
+
+  if (Inventory.Count(Self.Task.Item) > 0) and (not BankScreen.DepositQuantity(Self.Task.Item, Self.Task.Materials[0].Amount)) then
   begin
     Self.Debug('Failed to deposit current item');
 
     Exit;
   end;
 
-  if (Self.CurrentTool <> '') and (Inventory.Count(Self.CurrentTool) = 0) then
+  if (Self.Task.Tool <> '') and (Inventory.Count(Self.Task.Tool) = 0) then
   begin
     BankScreen.DepositAll();
 
-    if (not BankScreen.Search(Self.CurrentTool)) and (not BankScreen.Withdraw(Self.CurrentTool, 1, False)) then
+    if (not BankScreen.Search(Self.Task.Tool)) and (not BankScreen.Withdraw(Self.Task.Tool, 1, False)) then
     begin
       Self.Fatal('Failed to withdraw tool');
 
@@ -278,11 +353,11 @@ begin
     Exit;
   end;
 
-  for I := 0 to High(Self.CurrentItemMaterials) do
+  for I := 0 to High(Self.Task.Materials) do
   begin
-    if not BankScreen.WithdrawQuantity(Self.CurrentItemMaterials[I].Item, Self.CurrentItemMaterials[I].Amount, False) then
+    if not BankScreen.WithdrawQuantity(Self.Task.Materials[I].Item, Self.Task.Materials[I].Amount, False) then
     begin
-      Self.Debug('Failed to withdraw: ' + Self.CurrentItemMaterials[I].Item);
+      Self.Debug('Failed to withdraw: ' + Self.Task.Materials[I].Item);
 
       Break;
     end;
@@ -290,10 +365,12 @@ begin
     Wait(0, 2500, wdLeft);
   end;
 
-  if (not Self.HasMaterials(Random(3000, 5000))) then
+  if not Self.HasMaterials(3500) then
   begin
-    Self.Debug('Failed to withdraw materials');
-    Self.Debug('Depositing all.');
+    if not Self.HasMaterialsInBank() then
+      Self.Fatal('Out of materials')
+    else
+      Self.Debug('Failed to withdraw materials');
 
     BankScreen.DepositAll(); // Clean attempt next time
 
@@ -308,29 +385,31 @@ begin
   end;
 
   Self.EarlyBank := 0;
+  Self.TaskChanged := False;
 
   Result := True;
 end;
 
 function TScript.Fletch: Boolean;
 var
-  TargetXP: Int32;
+  Materials, TargetXP, HoverXP: Int32;
   Timeout: TCountDown;
 begin
-  Antiban.ResumeTask(@Self.Antiban_AFK);
-
+  Materials := Self.CountMaterials();
   if (Self.EarlyBank > 0) then
-    TargetXP := XPBar.Read() + Round(Self.EarlyBank * Floor(Self.CurrentItemXP))
-  else
-    TargetXP := XPBar.Read() + Round(Self.CountMaterials() * Floor(Self.CurrentItemXP));
+    Materials := Self.EarlyBank;
 
-  if not ((Self.CurrentTool <> '') and Inventory.Use(Self.CurrentTool, Self.CurrentItemMaterials[0].Item)) and
-     not ((Self.CurrentTool = '')  and Inventory.Use(Self.CurrentItemMaterials[0].Item, Self.CurrentItemMaterials[1].Item)) then
-    begin
-      Self.Debug('Failed to use material');
+  TargetXP := XPBar.Read() + Round(Materials * Floor(Self.Task.ItemXP));
+  if SRL.Dice(20) then
+    HoverXP := TargetXP - (Floor(Self.Task.ItemXP) * SRL.TruncatedGauss(1, 6));
 
-      Exit;
-    end;
+  if not ((Self.Task.Tool <> '') and Inventory.Use(Self.Task.Tool, Self.Task.Materials[0].Item)) and
+     not ((Self.Task.Tool = '')  and Inventory.Use(Self.Task.Materials[0].Item, Self.Task.Materials[1].Item)) then
+  begin
+    Self.Debug('Failed to use material');
+
+    Exit;
+  end;
 
   if not Chatbox.IsMakeOpen(Random(3000, 6000)) then
   begin
@@ -339,61 +418,55 @@ begin
     Exit;
   end;
 
-  if not Chatbox.ClickMakeButton(Self.CurrentItem.Replace('(u)', '').Strip(), 'All') then
+  if not Chatbox.ClickMakeButton(Self.task.Item.Replace('(u)', '').Strip(), 'All') then
   begin
     Self.Debug('Failed to handle make interface');
 
     Exit;
   end;
 
-  Antiban.PauseTask(@Self.Antiban_AFK);
-  Antiban.ResumeTask(@Self.Antiban_HoverBank);
-
-  if Random() < 0.65 then
-  begin
-    if Random() < 0.50 then
-      Wait(0, 10000, wdLeft)
-    else
-      Wait(0, 1000, wdLeft);
-
+  if SRL.Dice(50) then
     Antiban.LoseFocus();
-  end;
+
+  Antiban.ResumeTask(@Self.Antiban_HoverBank);
 
   Timeout.Init(5000);
 
-  while (TargetXP > XPBar.Read()) and (not Chatbox.HasLevelUp()) do
-  begin
-    if Self.CheckActivity() then
-      Timeout.Restart();
-
-    if Timeout.IsFinished() then
-    begin
-      Self.Debug('Timed out while fletching: ' + ToString(XPBar.Read()) + ', ' + ToString(TargetXP));
-
-      Exit;
-    end;
-
+  repeat
     Self.DoAntiban();
 
-    Wait(500, 5000, wdLeft);
-  end;
+    Wait(1000, 10000, wdLeft);
 
-  if (Self.EarlyBank = 0) and SRL.Dice(50) then // ANTIBAN: little AFK 50% of the time
-    Wait(0, 15000, wdLeft);
+    if (HoverXP > 0) and (XPBar.Read() >= HoverXP) then
+    begin
+      BankScreen.Hover(Self.Config.Bank, SRL.Dice(80));
 
-  Result := True;
+      HoverXP := 0;
+    end;
+
+    if Self.CheckActivity() then
+      Timeout.Restart();
+  until Timeout.IsFinished() or Chatbox.HasLevelUp() or (XPBar.Read() >= TargetXP);
+
+  Result := not Timeout.IsFinished();
+  if not Result then
+    Self.Debug('Timed out while fletching: ' + ToString(XPBar.Read()) + ', ' + ToString(TargetXP));
 end;
 
 procedure TScript.Run;
 var
   I: Int32;
 begin
-  while SRL.IsLoggedIn() do
+  while True do
   begin
+    if not RSClient.IsLoggedIn() and (not Players[CurrentPlayer].Login) then
+      Self.Fatal('Failed to login player');
+
+    Self.NextTask();
+
     // Randomize material order each loop
-    if Length(Self.CurrentItemMaterials) > 1 then
-      for I := 0 to High(Self.CurrentItemMaterials) do
-        Swap(Self.CurrentItemMaterials[I], Self.CurrentItemMaterials[Random(Length(Self.CurrentItemMaterials))]);
+    for I := 0 to High(Self.Task.Materials) do
+      Swap(Self.Task.Materials[I], Self.Task.Materials[Random(Length(Self.Task.Materials))]);
 
     Self.CheckActivity();
     if (not Self.Bank()) or (not Self.Fletch()) then
@@ -401,78 +474,78 @@ begin
   end;
 end;
 
-procedure TerminateScript; override;
-begin
-  SaveScreenshot('fletcher-fatal.png');
-
-  inherited();
-end;
-
 var
   Script: TScript;
 
-// ANTIBAN: Check antiban before we move the mouse. This means the script could do a random task at any action.
-procedure TMouse.Move(P: TPoint); override;
+procedure TRSPlayer.LoggedIn; override;
 begin
-  if SRL.Dice(50) then
-    Wait(0, 5000, wdLeft);
+  Script.Activity.Countdown.Restart();
 
-  inherited(P);
-end;
-
-{
-// ANTIBAN: Check antiban before we press a key
-procedure TKeyboard.PressKey(Key: Integer); override;
-begin
-  Script.DoAntiban();
-
-  inherited(Key);
-end;
-
-// ANTIBAN: 10% chance of deposit normally
-function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean; override;
-begin
-  if SRL.Dice(10) then
+  if not Script.HighestPitch then
   begin
-    Result := Self.Deposit(Item, Amount);
-    if not Result then
-      Self.Debug('NORMAL DEPOSIT FAILED');
-  end else
-  begin
-    Result := inherited();
-    if not Result then
-      Self.Debug('DEPOSIT QUANTITY FAILED');
+    Script.HighestPitch := True;
+
+    MainScreen.SetHighestPitch();
   end;
 end;
 
-// ANTIBAN: 10% chance of withdrawing normally
+// ANTIBAN: 5% chance of deposit normally
+function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean; override;
+begin
+  if SRL.Dice(5) then
+    Result := Self.Deposit(Item, Amount)
+  else
+    Result := inherited();
+end;
+
+// ANTIBAN: 5% chance of withdrawing normally
 function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean; override;
 begin
-  if SRL.Dice(10) then
+  if SRL.Dice(5) then
     Result := Self.Withdraw(Item, Amount, Noted)
   else
     Result := inherited();
 end;
 
+// ANTIBAN: 25% chance of losing focus when idling
+procedure TMouse.Idle; override;
+begin
+  if SRL.Dice(25) then
+    Antiban.LoseFocus();
+
+  inherited();
+end;
+
+// ANTIBAN: Check antiban before mouse move
+procedure TMouse.Move(P: TPoint); override;
+begin
+  Script.DoAntiban();
+
+  inherited(P);
+end;
+
 // ANTIBAN: 10% chance of clicking the close button
 function TRSBankScreen.Close(UseKeyboard: Boolean = False): Boolean; override;
 begin
-  Result := inherited(SRL.Dice(90));
+  UseKeyboard := SRL.Dice(90);
+
+  Result := inherited();
 end;
 
-// ANTIBAN: 20% chance of clicking make
+// ANTIBAN: 10% chance of clicking make
 function TRSChatBox.ClickMakeButton(Item: String; Quantity: String; UseKeyboard: Boolean = False): Boolean; override;
 begin
-  Result := inherited(Item, Quantity, SRL.Dice(80));
-end;    }
+  UseKeyboard := SRL.Dice(90);
+  if UseKeyboard then
+    Wait(0, 1500, wdLeft);
+
+  Result := inherited();
+end;
 
 begin
-  SRL.Setup(RS_CLIENT_RESIZABLE_CLASSIC);
+  Players.Add(Config.User, Config.Pass, Config.Pin);
 
-  writeln(Inventory.find('arrow shaft'));
-
- // BankScreen.DepositQuantity('arrow shaft', 27);
-  {
-  Script.Setup(ITEM_TO_FLETCH);
-  Script.Run(); }
+  Script.Setup(Config);
+  Script.Run();
 end.
+

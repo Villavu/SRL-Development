@@ -131,7 +131,6 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
 
     Example bounding rectangle with a long and short side.
 *)
-
 type
   TRSObjectFinder = record
     Colors: array of TCTS2Color;
@@ -148,9 +147,6 @@ type
     UpTextFilter: TCompareRules;
   end;
 
-var
-  MainScreen: TRSMainScreen;
-
 (*
 MainScreen.Setup
 ~~~~~~~~~~~~~~~~
@@ -160,11 +156,12 @@ Setups the mainscreen.
 
 .. note:: This is automatically called on the **MainScreen** variable.
 *)
-procedure TRSMainScreen.Setup(ClientMode: ERSClientMode);
+procedure TRSMainScreen.Setup;
 begin
   Self.Name := 'MainScreen';
+  Self.Mode := RSClient.Mode;
 
-  case ClientMode of
+  case Self.Mode of
     RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
       begin
         Self.Alignment.Left := [@RootInterface.X1];
@@ -293,11 +290,8 @@ begin
 
   try
     for 1 to 10 do // 2500ms timeout
-      if (SRL.GetPixelShift(MainScreen.Bounds, 250) / MainScreen.Bounds.Area * 100) < 10 then // less than 10% of the screen changed in 250ms
-      begin
-        Writeln('Break early');
+      if (SRL.GetPixelShift(Self.Bounds(), 250) / Self.Bounds.Area() * 100) < 10 then // less than 10% of the screen changed in 250ms
         Break;
-      end;
   finally
     Keyboard.KeyUp(VK_UP);
   end;
@@ -482,11 +476,23 @@ Overload which searches the entire MainScreen.
 *)
 function TRSMainScreen.FindObject(Finder: TRSObjectFinder): T2DPointArray; overload;
 begin
-  Result := MainScreen.FindObject(Finder, Self.Bounds());
+  Result := Self.FindObject(Finder, Self.Bounds());
 end;
 
+var
+  MainScreen: TRSMainScreen;
+
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@MainScreen.Setup);
-  SRL.AddDebugMethod(@MainScreen.Debug);
+  inherited;
+
+  MainScreen.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  MainScreen.Debug(Bitmap);
 end;
 

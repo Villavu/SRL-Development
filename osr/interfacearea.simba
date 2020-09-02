@@ -6,11 +6,12 @@
 type
   TRSInterfaceArea = type TRSInterface;
 
-procedure TRSInterfaceArea.Setup(ClientMode: ERSClientMode);
+procedure TRSInterfaceArea.Setup;
 begin
   Self.Name := 'Interface Area';
+  Self.Mode := RSClient.Mode;
 
-  case ClientMode of
+  case Self.Mode of
     RS_CLIENT_FIXED:
       begin
         Self.Alignment.Left := [@MainScreen.X1];
@@ -40,7 +41,16 @@ end;
 var
   InterfaceArea: TRSInterfaceArea;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@InterfaceArea.Setup);
-  SRL.AddDebugMethod(@InterfaceArea.Debug);
+  InterfaceArea.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  InterfaceArea.Debug(Bitmap);
 end;

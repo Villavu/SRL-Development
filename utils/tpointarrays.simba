@@ -200,7 +200,7 @@ begin
   Result.y := y / Length(Self);
 end;
 
-function TPointArray.Median: TPoint;
+function TPointArray.Median: TPoint; constref;
 begin
   Result := MedianTPA(Self);
 end;
@@ -1039,6 +1039,33 @@ end;
 function TPointArray.Erode(constref Amount: Int32): TPointArray; constref;
 begin
   Result := TPAErode(Self, Amount);
+end;
+
+(*
+TPointArray.PointsInRangeOf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal::
+  function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref;
+
+Returns all the points from `self` that are within range of any point in `other`.
+The parameters `mindist` and `maxdist` determine what "within range" means.
+*)
+function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref; overload;
+begin
+  Result := System.PointsInRangeOf(Self, Other, MinDist, MinDist, MaxDist, MaxDist);
+end;
+
+(*
+TPointArray.PointsInRangeOf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal::
+  function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDistX, MinDistY, MaxDistX, MaxDistY: Double): TPointArray; constref; overload;
+
+Same as the above but lets you specify X- and Y-wise min & max distance separately.
+*)
+function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDistX, MinDistY, MaxDistX, MaxDistY: Double): TPointArray; constref; overload;
+begin
+  Result := System.PointsInRangeOf(Self, Other, MinDistX, MinDistY, MaxDistX, MaxDistY);
 end;
 
 procedure T2DPointArray.Append(const Value: TPointArray);

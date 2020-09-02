@@ -147,9 +147,10 @@ Initializes bankscreen variables.
 
 .. note:: This is automatically called on the **BankScreen** variable.
 *)
-procedure TRSBankScreen.Setup(ClientMode: ERSClientMode);
+procedure TRSBankScreen.Setup;
 begin
   Self.Name := 'BankScreen';
+  Self.Mode := RSClient.Mode;
 
   Self.FINDER_CASTLE_WARS_CHEST.ColorClusters += [CTS2(2503237, 40, 0.10, 0.14), CTS2(5526875, 35, 0.19, 0.06), 8]; //brown, grey
   Self.FINDER_CASTLE_WARS_CHEST.ClusterDistance := 3;
@@ -213,7 +214,7 @@ begin
 
   Self.BUTTON_SCROLLED_TOP := Self.AddBitmapButton('bank_scrolled_top.png');
 
-  case ClientMode of
+  case Self.Mode of
     RS_CLIENT_FIXED:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
@@ -875,8 +876,17 @@ begin
   Result := inherited() or BankScreen.IsOpen();
 end;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@BankScreen.Setup);
-  SRL.AddDebugMethod(@BankScreen.Debug);
+  BankScreen.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  BankScreen.Debug(Bitmap);
 end;
 

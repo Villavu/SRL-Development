@@ -6,11 +6,12 @@
 type
   TRSGameTab = type TRSInterface;
 
-procedure TRSGameTab.Setup(ClientMode: ERSClientMode);
+procedure TRSGameTab.Setup;
 begin
   Self.Name := 'GameTab';
+  Self.Mode := RSClient.Mode;
 
-  case ClientMode of
+  case Self.Mode of
     RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC:
       begin
         Self.Alignment.Left := [@GameTabs.X1, 28];
@@ -32,8 +33,17 @@ end;
 var
   GameTab: TRSGameTab;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@GameTab.Setup);
-  SRL.AddDebugMethod(@GameTab.Debug);
+  GameTab.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  GameTab.Debug(Bitmap);
 end;
 

@@ -39,7 +39,7 @@ function TRSGameTabs.Y1: Int32; constref; override;
 begin
   Result := inherited;
 
-  if (SRL.ClientMode = RS_CLIENT_RESIZABLE_BOTTOM) and (RootInterface.Width >= 948) then
+  if (Self.Mode = RS_CLIENT_RESIZABLE_BOTTOM) and (RootInterface.Width >= 948) then
     Result += 36;
 end;
 
@@ -55,7 +55,7 @@ function TRSGameTabs.Y2: Int32; constref; override;
 begin
   Result := inherited;
 
-  if (SRL.ClientMode = RS_CLIENT_RESIZABLE_BOTTOM) and (RootInterface.Width >= 948) then
+  if (Self.Mode = RS_CLIENT_RESIZABLE_BOTTOM) and (RootInterface.Width >= 948) then
     Result += 36;
 end;
 
@@ -63,7 +63,7 @@ function TRSGameTabs.GetTabBoxes: TBoxArray;
 var
   I: Int32;
 begin
-  case SRL.ClientMode of
+  case Self.Mode of
     RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC:
       begin
         Result := Grid(7, 2, 30, 33, [3, 265], [Self.X1 + 6, Self.Y1 + 1]);
@@ -103,7 +103,7 @@ begin
 
   for i := 0 to High(Boxes) do
     if (SRL.CountColor(CTS1(1778534, 22), Boxes[i]) > 50) or
-       ((SRL.ClientMode = RS_CLIENT_RESIZABLE_BOTTOM) and (SRL.CountColor(CTS0(8639715), Boxes[i]) > 50)) then
+       ((Self.Mode = RS_CLIENT_RESIZABLE_BOTTOM) and (SRL.CountColor(CTS0(8639715), Boxes[i]) > 50)) then
       Exit(ERSGameTab(i));
 end;
 
@@ -136,11 +136,12 @@ begin
   Bitmap.DrawBoxes(GetTabBoxes(), False, $00FFFF);
 end;
 
-procedure TRSGameTabs.Setup(ClientMode: ERSClientMode);
+procedure TRSGameTabs.Setup;
 begin
   Self.Name := 'GameTabs';
+  Self.Mode := RSClient.Mode;
 
-  case ClientMode of
+  case Self.Mode of
     RS_CLIENT_FIXED:
       begin
         Self.Alignment.Left := [@RootInterface.X2, -242];
@@ -170,8 +171,17 @@ end;
 var
   GameTabs: TRSGameTabs;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@GameTabs.Setup);
-  SRL.AddDebugMethod(@GameTabs.Debug);
+  GameTabs.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  GameTabs.Debug(Bitmap);
 end;
 

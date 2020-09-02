@@ -199,21 +199,22 @@ end;
 
 procedure TRSMinimap.Free;
 begin
-  if Self.FlagBitmap > 0 then
-    FreeBitmap(Self.FlagBitmap);
+  FreeBitmap(Self.FlagBitmap);
 end;
 
-procedure TRSMinimap.Setup(ClientMode: ERSClientMode);
+procedure TRSMinimap.Setup;
 begin
-  Self.Name := 'Minimap';
-  if Self.FlagBitmap = 0 then
+  if Self.Name = '' then
   begin
+    Self.Name := 'Minimap';
     Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
 
     AddOnTerminate(@Self.Free);
   end;
 
-  case ClientMode of
+  Self.Mode := RSClient.Mode;
+
+  case Self.Mode of
     RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
       begin
         Self.Alignment.Left := [@RootInterface.X2, -157];
@@ -222,7 +223,7 @@ begin
         Self.Alignment.Bottom := [@RootInterface.Y1, 159];
 
         Self.CompassCircleOffset := [-2, 14];
-        self.RunCircleOffset := [-3, 121];
+        Self.RunCircleOffset := [-3, 121];
         Self.PrayerCircleOffset := [-13, 90];
         Self.HitpointsCircleOffset := [-13, 55];
         Self.PolygonOffset := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [52, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
@@ -294,7 +295,7 @@ end;
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
-  Result := FindBitmapTolerance(Self.FlagBitmap, P.X, P.Y, 5);
+  Result := FindBitmapToleranceIn(Self.FlagBitmap, P.X, P.Y, Self.Bounds, 5);
 end;
 
 function TRSMinimap.HasFlag: Boolean; overload;
@@ -462,7 +463,16 @@ end;
 var
   Minimap: TRSMinimap;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@Minimap.Setup);
-  SRL.AddDebugMethod(@Minimap.Debug);
+  Minimap.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Minimap.Debug(Bitmap);
 end;

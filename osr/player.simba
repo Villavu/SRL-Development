@@ -6,8 +6,6 @@
 type
   PRSPlayer = ^TRSPlayer;
 
-  TRSPlayerLoginEvent = procedure(Player: PRSPlayer);
-
   TRSPlayer = record
     LoginName: String;
     Password: String;
@@ -20,8 +18,6 @@ type
     // User Data
     Data: Pointer;
     Variants: TVariantArray;
-
-    OnLogin: TRSPlayerLoginEvent;
   end;
 
   TRSPlayerArray = array of TRSPlayer;
@@ -32,7 +28,7 @@ var
 var
   CurrentPlayer: Int32;
 
-procedure TRSPlayerArray.Add(LoginName: String; Password: String; Pin: String; Member: Boolean; Worlds: TIntegerArray = []);
+procedure TRSPlayerArray.Add(LoginName: String; Password: String; Pin: String = ''; Member: Boolean = True; Worlds: TIntegerArray = []);
 var
   Player: TRSPlayer;
 begin
@@ -47,17 +43,14 @@ begin
   Self := Self + Player;
 end;
 
-procedure TRSPlayerArray.AddLoginHandler(Handler: TRSPlayerLoginEvent);
-var
-  I: Int32;
+procedure TRSPlayer.LoggedIn;
 begin
-  for I := 0 to High(Self) do
-    Self[I].OnLogin := @Handler;
+  { override me to know when a player was logged in }
 end;
 
 function TRSPlayer.Login: Boolean;
 begin
-  if SRL.IsLoggedIn() then
+  if RSClient.IsLoggedIn() then
     Exit(True);
 
   if LoginScreen.IsOpen() then
@@ -74,10 +67,5 @@ begin
     Result := LobbyScreen.Play();
 
   if Result then
-  begin
-    if (@Self.OnLogin <> nil) then
-      Self.OnLogin(@Self);
-
-    Exit(True);
-  end;
+    Self.LoggedIn();
 end;

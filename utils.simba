@@ -1,24 +1,10 @@
 {$DEFINE SRL_UTILS}
 
-{$IFNDECL TSRL}
-type 
+type
   TSRL = type Pointer;
 
 var
   SRL: TSRL;
-{$ENDIF}
-
-type
-  TRectangle = record
-    Top, Right, Btm, Left: TPoint;
-  end;
-  TRectArray = array of TRectangle;
-
-  TCircle = record
-    X,Y:Int32;
-    Radius: Int32;
-  end;
-  TCircleArray = array of TCircle;
 
 {$IFNDEF SRL_WRAPPERS_INCLUDED}      {$I utils/wrappers.simba}
 {$IFNDEF SRL_MATH_INCLUDED}          {$I utils/math.simba}
@@ -35,24 +21,14 @@ type
 {$IFNDEF SRL_INTEGERARRAY_INCLUDED}  {$I utils/integerarrays.simba}
 {$IFNDEF SRL_TPOINTARRAY_INCLUDED}   {$I utils/tpointarrays.simba}
 
-{$IFNDEF SRL_TIME_INCLUDED}        {$I utils/time.simba}
-{$IFNDEF SRL_BASE_INCLUDED}        {$I utils/base.simba}
-{$IFNDEF SRL_PIXELSHIFT_INCLUDED}  {$I utils/pixelshift.simba}
-{$IFNDEF SRL_MOUSE_INCLUDED}       {$I utils/mouse.simba}
-{$IFNDEF SRL_KEYBOARD_INCLUDED}    {$I utils/keyboard.simba}
-{$IFNDEF SRL_COLOR_INCLUDED}       {$I utils/color.simba}
-{$IFNDEF SRL_DRAWING_INCLUDED}     {$I utils/drawing.simba}
+{$IFNDEF SRL_TIME_INCLUDED}          {$I utils/time.simba}
+{$IFNDEF SRL_BASE_INCLUDED}          {$I utils/base.simba}
+{$IFNDEF SRL_PIXELSHIFT_INCLUDED}    {$I utils/pixelshift.simba}
+{$IFNDEF SRL_MOUSE_INCLUDED}         {$I utils/mouse.simba}
+{$IFNDEF SRL_KEYBOARD_INCLUDED}      {$I utils/keyboard.simba}
+{$IFNDEF SRL_COLOR_INCLUDED}         {$I utils/color.simba}
+{$IFNDEF SRL_DRAWING_INCLUDED}       {$I utils/drawing.simba}
 
-{$IFDEF SRL_USE_SLACKTREE}
-  {$IFNDEF SRL_SLACKTREE_INCLUDED}   {$I utils/slacktree.simba}
-{$ENDIF}
-
-{$IFDEF SRL_USE_REMOTEINPUT}
-  {$IFNDEF SRL_REMOTEINPUT_INCLUDED} {$I utils/remoteinput.simba}
-{$ENDIF}
-
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}

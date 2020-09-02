@@ -31,9 +31,10 @@ type
 
   ERSOptionsTab = (OPTIONS_TAB_DISPLAY, OPTIONS_TAB_AUDIO, OPTIONS_TAB_CHAT, OPTIONS_TAB_CONTROLS);
 
-procedure TRSOptions.Setup(ClientMode: ERSClientMode);
+procedure TRSOptions.Setup;
 begin
   Self.Name := 'Options';
+  Self.Mode := RSClient.Mode;
 
   Self.BUTTON_DISPLAY_OFF := Self.AddBitmapButton('options_display_off.png');
   Self.BUTTON_DISPLAY_HOVER_OFF := Self.AddBitmapButton('options_display_off_hover.png');
@@ -58,13 +59,10 @@ begin
   Self.BUTTON_SHIFT_DROP_ON := Self.AddBitmapButton('options_shift_drop_on.png');
   Self.BUTTON_SHIFT_DROP_OFF := Self.AddBitmapButton('options_shift_drop_off.png');
 
-  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
-  begin
-    Self.Alignment.Left := [@GameTab.X1];
-    Self.Alignment.Right := [@GameTab.X2];
-    Self.Alignment.Top := [@GameTab.Y1];
-    Self.Alignment.Bottom := [@GameTab.Y2];
-  end;
+  Self.Alignment.Left := [@GameTab.X1];
+  Self.Alignment.Right := [@GameTab.X2];
+  Self.Alignment.Top := [@GameTab.Y1];
+  Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
 function TRSOptions.IsOpen: Boolean;
@@ -229,7 +227,16 @@ end;
 var
   Options: TRSOptions;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@Options.Setup);
-  SRL.AddDebugMethod(@Options.Debug);
+  Options.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Options.Debug(Bitmap);
 end;

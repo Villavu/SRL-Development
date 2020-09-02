@@ -8,19 +8,17 @@ type
     ButtonOffset: TPoint;
   end;
 
-procedure TRSXPBar.Setup(ClientMode: ERSClientMode);
+procedure TRSXPBar.Setup;
 begin
   Self.Name := 'XPBar';
+  Self.Mode := RSClient.Mode;
 
-  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
-  begin
-    Self.Alignment.Left := [@InterfaceArea.X2, -120];
-    Self.Alignment.Right := [@InterfaceArea.X2, -2];
-    Self.Alignment.Top := [@InterfaceArea.Y1, 2];
-    Self.Alignment.Bottom := [@InterfaceArea.Y1, 30];
-  end;
+  Self.Alignment.Left := [@InterfaceArea.X2, -120];
+  Self.Alignment.Right := [@InterfaceArea.X2, -2];
+  Self.Alignment.Top := [@InterfaceArea.Y1, 2];
+  Self.Alignment.Bottom := [@InterfaceArea.Y1, 30];
 
-  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
+  if Self.Mode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
     Self.ButtonOffset := [173, 38]
   else
     Self.ButtonOffset := [134, 28];
@@ -63,7 +61,16 @@ end;
 var
   XPBar: TRSXPBar;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@XPBar.Setup);
-  SRL.AddDebugMethod(@XPBar.Debug);
+  XPBar.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  XPBar.Debug(Bitmap);
 end;

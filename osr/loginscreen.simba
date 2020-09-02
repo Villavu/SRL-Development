@@ -271,28 +271,20 @@ begin
   begin
     Self.Debug('Attempt: ' + ToString(Attempts));
 
-    while Self.IsOpen() do
+    Self.CloseDialogs();
+    Self.EnterLogin(User);
+    Self.EnterPassword(Pass);
+
+    Keyboard.PressKey(VK_ENTER);
+
+    while Self.IsOpen() and (Self.GetLoginMessage() in [LOGIN_MESSAGE_CONNECTING, LOGIN_MESSAGE_NONE]) do
+      Wait(500);
+
+    if Self.IsOpen() then
     begin
-      Self.CloseDialogs();
-      Self.EnterLogin(User);
-      Self.EnterPassword(Pass);
-
-      Keyboard.PressKey(VK_ENTER);
-
-      // Wait for connecting message
-      while (Self.GetLoginMessage() <> LOGIN_MESSAGE_CONNECTING) do
-        Wait(500);
-
-      // Wait for connecting message to disapear
-      while (Self.GetLoginMessage() = LOGIN_MESSAGE_CONNECTING) do
-        Wait(500);
-
-      if Self.IsOpen() then
-      begin
-        Message := Self.GetLoginMessage();
-        if not Self.HandleMessage(Message) then
-          Exit(False);
-      end;
+      Message := Self.GetLoginMessage();
+      if not Self.HandleMessage(Message) then
+        Exit(False);
     end;
 
     Inc(Attempts);
@@ -301,7 +293,7 @@ begin
   if LobbyScreen.IsOpen(3000) then
     LobbyScreen.Play();
 
-  Result := SRL.IsLoggedIn();
+  Result := RSClient.IsLoggedIn();
 end;
 
 function TRSLoginScreen.GetCurrentWorld: Int32;
@@ -327,9 +319,10 @@ begin
   inherited;
 end;
 
-procedure TRSLoginScreen.Setup(ClientMode: ERSClientMode);
+procedure TRSLoginScreen.Setup;
 begin
   Self.Name := 'Login Screen';
+  Self.Mode := RSClient.Mode;
 
   Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('Click to switch', RS_FONT_PLAIN_11, $FFFFFF);
   Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddOCRButton('Cancel', RS_FONT_PLAIN_11, $FFFFFF);
@@ -340,20 +333,26 @@ begin
   Self.BUTTON_OK := Self.AddOCRButton(' Ok ', RS_FONT_BOLD_12, $FFFFFF);
   Self.BUTTON_TRY_AGAIN := Self.AddOCRButton('Try again', RS_FONT_PLAIN_12, $FFFFFF);
 
-  if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
-  begin
-    Self.Alignment.Left := [@RootInterface.X1];
-    Self.Alignment.Right := [@RootInterface.X2];
-    Self.Alignment.Top := [@RootInterface.Y1];
-    Self.Alignment.Bottom := [@RootInterface.Y1, 502];
-    Self.Alignment.Center := [764, 0];
-  end;
+  Self.Alignment.Left := [@RootInterface.X1];
+  Self.Alignment.Right := [@RootInterface.X2];
+  Self.Alignment.Top := [@RootInterface.Y1];
+  Self.Alignment.Bottom := [@RootInterface.Y1, 502];
+  Self.Alignment.Center := [764, 0];
 end;
 
 var
   LoginScreen: TRSLoginScreen;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@LoginScreen.Setup);
-  SRL.AddDebugMethod(@LoginScreen.Debug);
+  LoginScreen.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  LoginScreen.Debug(Bitmap);
 end;

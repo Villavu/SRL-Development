@@ -12,20 +12,15 @@ type
     MakeCache: array of record Item: String; Index: Int32; end;
   end;
 
-var
-  Chatbox: TRSChatBox;
-
-procedure TRSChatBox.Setup(ClientMode: ERSClientMode);
+procedure TRSChatBox.Setup;
 begin
   Self.Name := 'Chatbox';
+  Self.Mode := RSClient.Mode;
 
-  if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
-  begin
-    Alignment.Left := [@RootInterface.X1];
-    Alignment.Right := [@ChatButtons.X2];
-    Alignment.Top := [@ChatButtons.Y1, -142];
-    Alignment.Bottom := [@ChatButtons.Y1, -1];
-  end;
+  Self.Alignment.Left := [@RootInterface.X1];
+  Self.Alignment.Right := [@ChatButtons.X2];
+  Self.Alignment.Top := [@ChatButtons.Y1, -142];
+  Self.Alignment.Bottom := [@ChatButtons.Y1, -1];
 end;
 
 procedure TRSChatbox.Debug(Bitmap: TMufasaBitmap); override;
@@ -52,12 +47,12 @@ end;
 
 function TRSChatBox.GetQuery: String;
 begin
-  Result := OCR.Recognize(Chatbox.Bounds(), [$000000], RS_FONTSET_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds(), [$000000], RS_FONTSET_BOLD_12);
 end;
 
 function TRSChatbox.GetQueryAnswer: String;
 begin
-  Result := OCR.Recognize(Chatbox.Bounds(), [8388608], RS_FONTSET_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds(), [8388608], RS_FONTSET_BOLD_12);
 end;
 
 function TRSChatbox.WaitQuery(Query: String; WaitTime: Int32): Boolean;
@@ -90,7 +85,7 @@ end;
 
 function TRSChatbox.HasLevelUp: Boolean;
 begin
-  with Chatbox.Bounds() do
+  with Self.Bounds() do
     Result := FindTextColor('Congratulations', RS_FONT_QUILL_8, 8388608, 0, X1, Y1, X2, Y2, 1);
 end;
 
@@ -98,7 +93,7 @@ function TRSChatbox.GetDisplayName: String;
 var
   Text: String;
 begin
-  Text := OCR.Recognize(Chatbox.GetLineBoxes[CHATBOX_INPUT_LINE], [$000000], RS_FONTSET_PLAIN_12);
+  Text := OCR.Recognize(Self.GetLineBoxes[CHATBOX_INPUT_LINE], [$000000], RS_FONTSET_PLAIN_12);
   if Text.EndsWith(':') then
     Result := Copy(Text, 1, Length(Text) - 1);
 end;
@@ -108,12 +103,12 @@ var
   TPA: TPointArray;
   ATPA: T2DPointArray;
 begin
-  if SRL.FindColors(TPA, CTS0(6191241), Chatbox.Bounds()) then
+  if SRL.FindColors(TPA, CTS0(6191241), Self.Bounds()) then
     ATPA += TPA;
-  if SRL.FindColors(TPA, CTS0(8101298), Chatbox.Bounds()) then
+  if SRL.FindColors(TPA, CTS0(8101298), Self.Bounds()) then
     ATPA += TPA;
 
-  ATPA := ATPA.Merge().Cluster(Chatbox.Width, 5);
+  ATPA := ATPA.Merge().Cluster(Self.Width, 5);
   ATPA.SortByY();
 
   if (Length(ATPA) = 2) then
@@ -235,7 +230,19 @@ begin
   end;
 end;
 
+var
+  Chatbox: TRSChatBox;
+
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@Chatbox.Setup);
-  SRL.AddDebugMethod(@Chatbox.Debug);
+  Chatbox.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Chatbox.Debug(Bitmap);
 end;

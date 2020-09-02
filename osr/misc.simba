@@ -11,25 +11,6 @@ Misc
 type
   ERSClickType = (RS_CLICK_RED, RS_CLICK_YELLOW);
 
-function TSRL.IsLoggedIn: Boolean; constref; overload;
-begin
-  Result := ChatButtons.IsOpen();
-end;
-
-function TSRL.IsLoggedIn(WaitTime: Int32): Boolean; constref; overload;
-var
-  T: UInt64;
-begin
-  T := GetTickCount() + WaitTime;
-  while (T > GetTickCount()) do
-  begin
-    if Self.IsLoggedIn() then
-      Exit(True);
-
-    Wait(100, 200);
-  end;
-end;
-
 function TSRL.DidClick(ClickType: ERSClickType): Boolean; constref;
 var
   BMP: TMufasaBitmap;

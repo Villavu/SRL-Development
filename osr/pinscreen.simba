@@ -6,11 +6,12 @@
 type
   TRSPinScreen = type TRSInterface;
 
-procedure TRSPinScreen.Setup(ClientMode: ERSClientMode);
+procedure TRSPinScreen.Setup;
 begin
   Self.Name := 'Pin Screen';
+  Self.Mode := RSClient.Mode;
 
-  case ClientMode of
+  case Self.Mode of
     RS_CLIENT_FIXED:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
@@ -147,7 +148,16 @@ begin
   Result := inherited();
 end;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@PinScreen.Setup);
-  SRL.AddDebugMethod(@PinScreen.Debug);
+  PinScreen.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  PinScreen.Debug(Bitmap);
 end;

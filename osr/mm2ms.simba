@@ -94,7 +94,7 @@ begin
     Self.Debug('Current zoom level: ' + ToString(Self.ZoomLevel));
   end;
 
-  case SRL.ClientMode of
+  case RSClient.Mode of
     RS_CLIENT_FIXED:
       Projector := MM2MS_PROJECTOR_FIXED;
 
@@ -114,7 +114,7 @@ begin
   Result := Projector.Run(Arr, Vec3(0, 0, PI*2 - Roll));
 end;
 
-procedure TMM2MS.Setup(ClientMode: ERSClientMode);
+procedure TMM2MS.Setup;
 begin
   Self.Name := 'MM2MS';
   Self.ZoomLevel := -1;
@@ -504,6 +504,5 @@ begin
 end;
 
 begin
-  SRL.AddSetupMethod(@MM2MS.Setup);
-  // SRL.AddDebugMethod(@MM2MS.Debug);
+  MM2MS.Setup();
 end;

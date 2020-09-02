@@ -70,17 +70,15 @@ type
 type
   TRSStats = type TRSInterface;
 
-procedure TRSStats.Setup(ClientMode: ERSClientMode);
+procedure TRSStats.Setup;
 begin
   Self.Name := 'Inventory';
+  Self.Mode := RSClient.Mode;
 
-  if ClientMode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM, RS_CLIENT_FIXED] then
-  begin
-    Self.Alignment.Left := [@GameTab.X1];
-    Self.Alignment.Right := [@GameTab.X2];
-    Self.Alignment.Top := [@GameTab.Y1];
-    Self.Alignment.Bottom := [@GameTab.Y2];
-  end;
+  Self.Alignment.Left := [@GameTab.X1];
+  Self.Alignment.Right := [@GameTab.X2];
+  Self.Alignment.Top := [@GameTab.Y1];
+  Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
 function TRSStats.GetSkillBoxes: TBoxArray;
@@ -184,8 +182,17 @@ end;
 var
   Stats: TRSStats;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@Stats.Setup);
-  SRL.AddDebugMethod(@Stats.Debug);
+  Stats.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Stats.Debug(Bitmap);
 end;
 

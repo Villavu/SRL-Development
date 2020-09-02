@@ -29,31 +29,38 @@ begin
   inherited;
 end;
 
-procedure TRSLobbyScreen.Setup(ClientMode: ERSClientMode);
+procedure TRSLobbyScreen.Setup;
 begin
   Self.Name := 'Login Screen';
+  Self.Mode := RSClient.Mode;
   Self.BUTTON_PLAY := Self.AddOCRButton('CLICK HERE TO PLAY', RS_FONT_BOLD_12, $FFFFFF);
 
-  if ClientMode in [RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
-  begin
-    Self.Alignment.Left := [@RootInterface.X1];
-    Self.Alignment.Right := [@RootInterface.X2];
-    Self.Alignment.Top := [@RootInterface.Y1];
-    Self.Alignment.Bottom := [@RootInterface.Y1, 502];
-    Self.Alignment.Center := [764, 0];
-  end;
+  Self.Alignment.Left := [@RootInterface.X1];
+  Self.Alignment.Right := [@RootInterface.X2];
+  Self.Alignment.Top := [@RootInterface.Y1];
+  Self.Alignment.Bottom := [@RootInterface.Y1, 502];
+  Self.Alignment.Center := [764, 0];
 end;
 
 function TRSLobbyScreen.Play: Boolean;
 begin
   if Self.IsOpen() and Self.ClickButton(Self.BUTTON_PLAY, MOUSE_LEFT) then
-    Result := SRL.IsLoggedIn(5000);
+    Result := RSClient.IsLoggedIn(5000);
 end;
 
 var
   LobbyScreen: TRSLobbyScreen;
 
+procedure TSRL.Setup; override;
 begin
-  SRL.AddSetupMethod(@LobbyScreen.Setup);
-  SRL.AddDebugMethod(@LobbyScreen.Debug);
+  LobbyScreen.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  LobbyScreen.Debug(Bitmap);
 end;
