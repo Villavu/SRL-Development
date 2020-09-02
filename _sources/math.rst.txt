@@ -27,7 +27,7 @@ Example:
 ------------
 
 srl.CrossProduct
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
 
@@ -75,7 +75,7 @@ srl.LinesIntersect
 ------------
 
 srl.PointInTriangle
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
 
@@ -106,7 +106,7 @@ Example:
 ------------
 
 srl.PointInCircle
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
 
@@ -118,7 +118,7 @@ Returns True if the TPoint 'Pt' is inside the circle
 ------------
 
 srl.PointInEllipse
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
 
@@ -130,7 +130,7 @@ Returns True if the TPoint 'Pt' is inside the ellipse
 ------------
 
 srl.PointInPoly
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
 
@@ -145,7 +145,7 @@ Note: Uses winding number algorithm
 ------------
 
 srl.PointInCuboid
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
 

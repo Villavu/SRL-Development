@@ -43,7 +43,7 @@ Returns time the script has been running as a string with the given time-format.
 ------------
 
 TCountDown
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
 A neat and simple timer type.
 
 Example:

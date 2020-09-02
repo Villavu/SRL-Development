@@ -1,0 +1,71 @@
+
+RSClient
+========
+Methods relating to targeting the RS client and detecting client states.
+
+
+------------
+
+type ERSClientMode
+~~~~~~~~~~~~~~~~~~
+The modes of the client.
+
+.. code-block:: pascal
+
+
+
+  RS_CLIENT_UNKNOWN            // Unable to detect mode (likely not logged in)
+  RS_CLIENT_FIXED              // Fixed mode
+  RS_CLIENT_RESIZABLE_CLASSIC  // Resizable with "classic" gametabs or "fixed mode gametabs"
+  RS_CLIENT_RESIZABLE_BOTTOM   // Resizable with gametabs being grouped together at the bottom
+
+
+------------
+
+RSClient.SetupRemoteInput
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSClient.SetupRemoteInput;
+
+If `SRL_USE_REMOTEINPUT` has been defined this method will be automatically called to setup the remote input plugin.
+
+
+------------
+
+RSClient.DetectClientMode
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSClient.DetectClientMode(Update: Boolean): ERSClientMode;
+
+Detects the client mode. If **Update** is True ClientModeChanged will be called.
+Uses the music tab so will return RS_CLIENT_UNKNOWN when not logged in.
+Are there any other cases where music tab won't be visible?
+
+
+------------
+
+RSClient.LoseFocus
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSClient.LoseFocus;
+
+Loses focus. Maybe useful for antiban.
+
+
+------------
+
+RSClient.Setup
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSClient.Setup;
+
+Setup method.
+
+.. note:: This is automatically called on the **RSClient** variable.
+
+
+------------

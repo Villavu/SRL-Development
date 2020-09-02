@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Color &mdash; SRL  documentation</title>
+  <title>RSClient &mdash; SRL  documentation</title>
   
 
   
@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="TRectangle" href="trectangle.html" />
-    <link rel="prev" title="TExtendedArray" href="extendedarrays.html" /> 
+    <link rel="next" title="Inventory" href="inventory.html" />
+    <link rel="prev" title="Misc" href="misc.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -83,7 +83,7 @@
             
             
               <p class="caption"><span class="caption-text">UTILS</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
@@ -93,11 +93,7 @@
 <li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Color</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#cts0-cts1-cts2">CTS0, CTS1, CTS2</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#srl-findcolors">srl.FindColors</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
 <li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
@@ -108,10 +104,17 @@
 <li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
 </ul>
 <p class="caption"><span class="caption-text">OSR</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rsclient.html">RSClient</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">RSClient</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#type-ersclientmode">type ERSClientMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rsclient-setupremoteinput">RSClient.SetupRemoteInput</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rsclient-detectclientmode">RSClient.DetectClientMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rsclient-losefocus">RSClient.LoseFocus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rsclient-setup">RSClient.Setup</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bankscreen.html">BankScreen</a></li>
@@ -176,13 +179,13 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Color</li>
+      <li>RSClient</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/color.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/rsclient.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -195,28 +198,57 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="color">
-<h1>Color<a class="headerlink" href="#color" title="Permalink to this headline">¶</a></h1>
-<p>Color finding related methods</p>
+  <div class="section" id="rsclient">
+<h1>RSClient<a class="headerlink" href="#rsclient" title="Permalink to this headline">¶</a></h1>
+<p>Methods relating to targeting the RS client and detecting client states.</p>
 <hr class="docutils" />
-<div class="section" id="cts0-cts1-cts2">
-<h2>CTS0, CTS1, CTS2<a class="headerlink" href="#cts0-cts1-cts2" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">CTS0</span><span class="p">(</span><span class="n">Color</span><span class="o">,</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="n">TCTSColor</span><span class="o">;</span>
-<span class="k">function</span> <span class="nf">CTS1</span><span class="p">(</span><span class="n">Color</span><span class="o">,</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="n">TCTS1Color</span><span class="o">;</span>
-<span class="k">function</span> <span class="nf">CTS2</span><span class="p">(</span><span class="n">Color</span><span class="o">,</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">HueMod</span><span class="o">:</span><span class="kt">Extended</span><span class="o">=</span><span class="mf">0.2</span><span class="o">;</span> <span class="n">SatMod</span><span class="o">:</span><span class="kt">Extended</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">:</span> <span class="n">TCTS2Color</span><span class="o">;</span>
+<div class="section" id="type-ersclientmode">
+<h2>type ERSClientMode<a class="headerlink" href="#type-ersclientmode" title="Permalink to this headline">¶</a></h2>
+<p>The modes of the client.</p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">RS_CLIENT_UNKNOWN</span>            <span class="c1">// Unable to detect mode (likely not logged in)</span>
+<span class="n">RS_CLIENT_FIXED</span>              <span class="c1">// Fixed mode</span>
+<span class="n">RS_CLIENT_RESIZABLE_CLASSIC</span>  <span class="c1">// Resizable with &quot;classic&quot; gametabs or &quot;fixed mode gametabs&quot;</span>
+<span class="n">RS_CLIENT_RESIZABLE_BOTTOM</span>   <span class="c1">// Resizable with gametabs being grouped together at the bottom</span>
 </pre></div>
 </div>
-<p>Used for declaring colors using the different CTS settings.</p>
 </div>
 <hr class="docutils" />
-<div class="section" id="srl-findcolors">
-<h2>srl.FindColors<a class="headerlink" href="#srl-findcolors" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">FindColors</span><span class="p">(</span><span class="n">out</span> <span class="n">TPA</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="n">TCTSColor</span><span class="o">;</span>  <span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">UInt32</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
-<span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">FindColors</span><span class="p">(</span><span class="n">out</span> <span class="n">TPA</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="n">TCTS1Color</span><span class="o">;</span> <span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">UInt32</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
-<span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">FindColors</span><span class="p">(</span><span class="n">out</span> <span class="n">TPA</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="n">TCTS2Color</span><span class="o">;</span> <span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">UInt32</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
+<div class="section" id="rsclient-setupremoteinput">
+<h2>RSClient.SetupRemoteInput<a class="headerlink" href="#rsclient-setupremoteinput" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSClient</span><span class="o">.</span><span class="nf">SetupRemoteInput</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Searches for the given Color, returns the resulting points in the TPA.</p>
+<p>If <cite>SRL_USE_REMOTEINPUT</cite> has been defined this method will be automatically called to setup the remote input plugin.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="rsclient-detectclientmode">
+<h2>RSClient.DetectClientMode<a class="headerlink" href="#rsclient-detectclientmode" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSClient</span><span class="o">.</span><span class="nf">DetectClientMode</span><span class="p">(</span><span class="n">Update</span><span class="o">:</span> <span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span> <span class="n">ERSClientMode</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Detects the client mode. If <strong>Update</strong> is True ClientModeChanged will be called.
+Uses the music tab so will return RS_CLIENT_UNKNOWN when not logged in.
+Are there any other cases where music tab won’t be visible?</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="rsclient-losefocus">
+<h2>RSClient.LoseFocus<a class="headerlink" href="#rsclient-losefocus" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSClient</span><span class="o">.</span><span class="nf">LoseFocus</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Loses focus. Maybe useful for antiban.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="rsclient-setup">
+<h2>RSClient.Setup<a class="headerlink" href="#rsclient-setup" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSClient</span><span class="o">.</span><span class="nf">Setup</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Setup method.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is automatically called on the <strong>RSClient</strong> variable.</p>
+</div>
 <hr class="docutils" />
 </div>
 </div>
@@ -229,10 +261,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="trectangle.html" class="btn btn-neutral float-right" title="TRectangle" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="inventory.html" class="btn btn-neutral float-right" title="Inventory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="extendedarrays.html" class="btn btn-neutral float-left" title="TExtendedArray" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="misc.html" class="btn btn-neutral float-left" title="Misc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

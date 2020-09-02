@@ -234,6 +234,25 @@ Mouse.Move
 ~~~~~~~~~~
 .. code-block:: pascal
 
+ procedure TMouse.Move(Center: TPoint; Radius: Int32; ForcedMove: Boolean = False);
+
+Moves the mouse to a random point in an circle defined by **Center** and **Radius**.
+
+- **ForcedMove** determines if the mouse should be moved if already inside the circle. By default this is **False**.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  Mouse.Move([100, 100], 25); // The mouse is now randomly within 100,100 with a radius of 25.
+
+
+------------
+
+Mouse.Move
+~~~~~~~~~~
+.. code-block:: pascal
+
  procedure TMouse.Move(Box: TBox; ForcedMove: Boolean = False; Distribution: EMouseDistribution = MOUSE_DISTRIBUTION_DEFAULT);
 
 Moves the mouse to a random point in the box.
@@ -379,6 +398,25 @@ Available buttons:
   P.Y := 50;
 
   Mouse.Click(P, MOUSE_LEFT); // Left click at 50,50
+
+
+------------
+
+Mouse.Click
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ TMouse.Click(Circle: TCircle; Button: Int32; ForcedMove: Boolean = False);
+
+Moves the mouse to a random point in an circle defined by **Center** and **Radius** and clicks the desired button.
+
+ - **ForcedMove** determines if the mouse should be moved if already in the circle. By default this is **False**.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  Mouse.Click([100, 100], 25, MOUSE_LEFT); // Left clicked somewhere nearby 100,100 with a radius of 25.
 
 
 ------------

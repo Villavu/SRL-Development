@@ -36,8 +36,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Slacktree" href="slacktree.html" />
-    <link rel="prev" title="Time" href="time.html" /> 
+    <link rel="next" title="TBoxArray" href="tboxarrays.html" />
+    <link rel="prev" title="Pixelshift" href="pixelshift.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,13 +84,7 @@
             
               <p class="caption"><span class="caption-text">UTILS</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
-<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">TPointArray</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#tpointarray-mean">TPointArray.Mean</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tpointarray-meanex">TPointArray.MeanEx</a></li>
@@ -121,25 +115,33 @@
 <li class="toctree-l2"><a class="reference internal" href="#tpointarray-minarearect">TPointArray.MinAreaRect</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tpointarray-minareacircle">TPointArray.MinAreaCircle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#expandpolygon">ExpandPolygon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tpointarray-pointsinrangeof">TPointArray.PointsInRangeOf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">TPointArray.PointsInRangeOf</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="slacktree.html">Slacktree</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
 </ul>
 <p class="caption"><span class="caption-text">OSR</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
-<li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsclient.html">RSClient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bankscreen.html">BankScreen</a></li>
 </ul>
@@ -149,14 +151,14 @@
 </ul>
 <p class="caption"><span class="caption-text">OSR -&gt; WALKER</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
 <li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
 <li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
-<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
 </ul>
 <p class="caption"><span class="caption-text">UTILS_TODO</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="slackdebug.html">Slackdebug</a></li>
 <li class="toctree-l1"><a class="reference internal" href="slackab.html">Slacky’s Antiban Mixture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="slackdebug.html">Slackdebug</a></li>
 </ul>
 
             
@@ -510,6 +512,23 @@ Four points (which are in order) are always returned.</p>
 <p class="admonition-title">Note</p>
 <p>by slacky</p>
 </div>
+</div>
+<hr class="docutils" />
+<div class="section" id="tpointarray-pointsinrangeof">
+<h2>TPointArray.PointsInRangeOf<a class="headerlink" href="#tpointarray-pointsinrangeof" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TPointArray</span><span class="o">.</span><span class="nf">PointsInRangeOf</span><span class="p">(</span><span class="n">constref</span> <span class="n">Other</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">MinDist</span><span class="o">,</span> <span class="n">MaxDist</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns all the points from <cite>self</cite> that are within range of any point in <cite>other</cite>.
+The parameters <cite>mindist</cite> and <cite>maxdist</cite> determine what “within range” means.</p>
+</div>
+<hr class="docutils" />
+<div class="section" id="id2">
+<h2>TPointArray.PointsInRangeOf<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TPointArray</span><span class="o">.</span><span class="nf">PointsInRangeOf</span><span class="p">(</span><span class="n">constref</span> <span class="n">Other</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">MinDistX</span><span class="o">,</span> <span class="n">MinDistY</span><span class="o">,</span> <span class="n">MaxDistX</span><span class="o">,</span> <span class="n">MaxDistY</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Same as the above but lets you specify X- and Y-wise min &amp; max distance separately.</p>
 <hr class="docutils" />
 </div>
 </div>
@@ -522,10 +541,10 @@ Four points (which are in order) are always returned.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="slacktree.html" class="btn btn-neutral float-right" title="Slacktree" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tboxarrays.html" class="btn btn-neutral float-right" title="TBoxArray" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="time.html" class="btn btn-neutral float-left" title="Time" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="pixelshift.html" class="btn btn-neutral float-left" title="Pixelshift" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

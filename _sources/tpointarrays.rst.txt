@@ -381,3 +381,28 @@ A method for increasing the size of any convex polygon.
 
 
 ------------
+
+TPointArray.PointsInRangeOf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref;
+
+Returns all the points from `self` that are within range of any point in `other`.
+The parameters `mindist` and `maxdist` determine what "within range" means.
+
+
+------------
+
+TPointArray.PointsInRangeOf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDistX, MinDistY, MaxDistX, MaxDistY: Double): TPointArray; constref; overload;
+
+Same as the above but lets you specify X- and Y-wise min & max distance separately.
+
+
+------------
