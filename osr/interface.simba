@@ -5,6 +5,7 @@
 
 const
   RS_INTERFACE_BITMAP_PATH = {$macro CURRENT_DIRECTORY} + DirectorySeparator + 'bitmaps' + DirectorySeparator;
+  RS_INTERFACE_BITMAP_TOLERANCE = 30;
 
 type
   TRSInterfaceButton = record
@@ -202,7 +203,7 @@ function TRSInterface.FindButton(var Button: TRSInterfaceButton; out Bounds: TBo
   begin
     if (Button.Bitmap <> nil) then
     begin
-      Result := FindBitmapToleranceIn(Button.Bitmap.GetIndex(), X, Y, Area, 5);
+      Result := FindBitmapToleranceIn(Button.Bitmap.GetIndex(), X, Y, Area, RS_INTERFACE_BITMAP_TOLERANCE);
       if Result then
         Bounds := Bounds := [X, Y, X + Button.Bitmap.GetWidth() - 1, Y + Button.Bitmap.GetHeight() - 1];
     end else
