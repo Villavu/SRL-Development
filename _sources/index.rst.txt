@@ -2,38 +2,14 @@ Welcome to SRL documentation!
 ===============================
 
 .. toctree::
-   :caption: UTILS
-
-   pixelshift
-   tpointarrays
-   tboxarrays
-   string
-   mouse
-   tcircle
-   time
-   tpoint
-   extendedarrays
-   color
-   trectangle
-   keyboard
-   math
-   random
-   tbox
-   wrappers
-   drawing
-   integerarrays
-
------------
-
-.. toctree::
    :caption: OSR
 
    mainscreen
-   misc
-   rsclient
    inventory
+   rsclient
    mm2ms
    bankscreen
+   misc
 
 -----------
 
@@ -48,8 +24,32 @@ Welcome to SRL documentation!
    :caption: OSR -> WALKER
 
    webber
-   walker
    webgraph
+   walker
+
+-----------
+
+.. toctree::
+   :caption: UTILS
+
+   integerarrays
+   extendedarrays
+   trectangle
+   drawing
+   random
+   tpointarrays
+   tpoint
+   wrappers
+   tbox
+   pixelshift
+   tcircle
+   color
+   keyboard
+   tboxarrays
+   string
+   math
+   mouse
+   time
 
 -----------
 

@@ -116,17 +116,6 @@ Wraps Simba's GetTPABounds
 
 ------------
 
-TPointArray.Density
-~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function TPointArray.Density(): Double; constref;
-
-Returns the TPA's density (Length(TPA)/(width*height))
-
-
-------------
-
 TPointArray.Edges
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -364,6 +353,17 @@ Computes the minimum bounding circle around the given shape.
 See: https://en.wikipedia.org/wiki/Smallest-circle_problem for more information.
 
 Implementation is a mixture of a few implementations I've seen.
+
+
+------------
+
+TPointArray.Density
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function TPointArray.Density(): Double; constref;
+
+Returns the TPA's density (Length(TPA)/(width*height))
 
 
 ------------
