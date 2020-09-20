@@ -60,13 +60,15 @@ begin
   begin
     if MessageDlg('SRL', 'Simba has no target. Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) then
     begin
-      RIInject('JagexLauncher.exe');
+      RIInject({$IFDEF WINDOWS}'JagexLauncher.exe'{$ELSE}'java'{$ENDIF});
 
       if EIOS_GetClients(True) > 0 then
         Self.PID := EIOS_GetClientPID(0);
     end;
   end else
     RIInject(Self.PID);
+
+  Wait(500); // Allow time to injection to kick in
 
   if Self.PID = 0 then
     Self.Fatal('No OSRS clients found. You might need ' + {$IFDEF CPU32}'64'{$ELSE}'32'{$ENDIF} + ' bit Simba for this RS client');

@@ -360,25 +360,6 @@ begin
 end;
 
 (*
-TPointArray.Density
-~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function TPointArray.Density(): Double; constref;
-
-Returns the TPA's density (Length(TPA)/(width*height))
-*)
-function TPointArray.Density(): Double; constref;
-var
-  TMP: TPointArray;
-begin
-  TMP := Copy(self);
-  ClearDoubleTPA(TMP);
-  with TMP.Bounds() do
-    Result := Length(tmp) / ((X2 - X1 + 1) * (Y2 - Y1 + 1));
-end;
-
-(*
 TPointArray.Edges
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -466,27 +447,14 @@ TPointArray.Offset
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    procedure TPointArray.Offset(off: TPoint);
+    function TPointArray.Offset(off: TPoint): TPointArray;
 
 Wraps Simba's `OffsetTPA`
 *)
-procedure TPointArray.Offset(off: TPoint);
-begin
-  OffsetTPA(self, off);
-end;
-
-(*
-TPointArray.OffsetFunc
-~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function TPointArray.OffsetFunc(off: TPoint): TPointArray;
-
-Wraps Simba's `OffsetTPA`, but offsets a copy, and returns it.
-*)
-function TPointArray.OffsetFunc(off: TPoint): TPointArray;
+function TPointArray.Offset(off: TPoint): TPointArray; constref;
 begin
   Result := Copy(Self);
+
   OffsetTPA(Result, off);
 end;
 
@@ -946,6 +914,27 @@ begin
   end;
 end;
 
+(*
+TPointArray.Density
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function TPointArray.Density(): Double; constref;
+
+Returns the TPA's density (Length(TPA)/(width*height))
+*)
+function TPointArray.Density: Double; constref;
+var
+  Area: Int32;
+begin
+  if Length(Self) = 0 then
+    Exit;
+
+  Area := Self.MinAreaRect().Expand(1).Area;
+  if (Area > 0) then
+    Result := Length(Self) / Area;
+end;
+
 
 //--| Other TPA methods |------------------------------------------------------>
 //----------------------------------------------------------------------------->
@@ -998,11 +987,6 @@ begin
     end else
       Result[i div 2] := Point(Round(p2.x), Round(p2.y));
   end;
-end;
-
-procedure TPointArray.Shorten(Distance: Int32);
-begin
-  RAaSTPA(Self, Distance);
 end;
 
 function RandomTPA(n:Int32; B:TBox): TPointArray;
@@ -1283,6 +1267,56 @@ end;
 procedure T2DPointArray.SortBySize(Size:Int32=0; ClosestFirst: Boolean=False);
 begin
   SortATPAFromSize(Self, Size, ClosestFirst);
+end;
+
+procedure T2DPointArray.SortByArea(LowToHi: Boolean = False);
+var
+  i: Int32;
+  weight: TIntegerArray;
+begin
+  if (Length(self) <= 1) then Exit;
+  SetLength(weight, Length(self));
+  for i:=0 to High(self) do
+  begin
+    if Length(Self[i]) = 0 then
+      Continue;
+    weight[i] := Self[i].MinAreaRect.Area;
+  end;
+  QuickATPASort(weight, self, 0, High(Self), LowToHi);
+end;
+
+procedure T2DPointArray.SortByLongSide(LowToHi: Boolean = False);
+var
+  i, Long, Short: Int32;
+  weight: TIntegerArray;
+begin
+  if (Length(self) <= 1) then Exit;
+  SetLength(weight, Length(self));
+  for i:=0 to High(self) do
+  begin
+    if Length(Self[i]) = 0 then
+      Continue;
+    Self[i].MinAreaRectEx(Long, Short);
+    weight[i] := Long;
+  end;
+  QuickATPASort(weight, self, 0, High(Self), LowToHi);
+end;
+
+procedure T2DPointArray.SortByDensity(LowToHi: Boolean = False);
+var
+  i, Long, Short: Int32;
+  weight: TIntegerArray;
+begin
+  if (Length(self) <= 1) then Exit;
+  SetLength(weight, Length(self));
+  for i:=0 to High(self) do
+  begin
+    if Length(Self[i]) = 0 then
+      Continue;
+
+    weight[i] := Round(Self[i].Density * 100);
+  end;
+  QuickATPASort(weight, self, 0, High(Self), LowToHi);
 end;
 
 procedure T2DPointArray.SortByX(LowToHi: Boolean = True);

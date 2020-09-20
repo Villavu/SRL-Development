@@ -308,7 +308,7 @@ begin
   end;
 end;
 
-function TIntegerArray.UniqueCount: Int32;
+function TIntegerArray.UniqueCount: Int32; constref;
 var
   Arr: TIntegerArray;
 begin

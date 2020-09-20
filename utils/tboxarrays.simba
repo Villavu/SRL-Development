@@ -223,15 +223,17 @@ begin
     end;
 end;
 
-procedure TBoxArray.Offset(pt:TPoint);
+function TBoxArray.Offset(pt:TPoint): TBoxArray;
 var i:Int32;
 begin
+  SetLength(Result, Length(Self));
+  
   for i:=0 to High(self) do
   begin
-    self[i].x1 += pt.x;
-    self[i].y1 += pt.y;
-    self[i].x2 += pt.x;
-    self[i].y2 += pt.y;
+    Result[i].X1 := Self[I].X1 + pt.x;
+    Result[i].Y1 := Self[I].Y1 + pt.y;
+    Result[i].X2 := Self[I].X2 + pt.x;
+    Result[i].Y2 := Self[I].Y2 + pt.y;
   end;
 end;
 

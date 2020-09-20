@@ -1,0 +1,230 @@
+// Very simple firemaker at falador east bank.
+// Has *no* recovery if cannot light a fire. Will just terminate.
+// XP bar *must* be on total and *permanently* showing.
+// Scroll down to first begin..end to add tasks.
+
+{$DEFINE SRL_USE_REMOTEINPUT}
+
+{$I SRL/osr.simba}
+
+type
+  EFiremakingTask = (
+    FIREMAKE_TASK_NORMAL,
+    FIREMAKE_TASK_OAK,
+    FIREMAKE_TASK_WILLOW
+  );
+
+  TScript = record
+    Walker: TRSWalker;
+    StartPoints: array[0..1] of TPoint;
+
+    Activity: record
+      Countdown: TCountdown;
+      XP: Int32;
+    end;
+
+    Tasks: array of record
+      Item: EFiremakingTask;
+      Amount: Int32;
+    end;
+
+    Task: record
+      FinishXP: Int32;
+      Item: String;
+      ItemXP: Int32;
+    end;
+  end;
+
+var
+  Script: TScript;
+
+begin
+  // Add your tasks here
+  Script.Tasks += [FIREMAKE_TASK_NORMAL, 300]; // burn 300 normal logs
+  Script.Tasks += [FIREMAKE_TASK_WILLOW, 500]; // then 500 willow logs
+end;
+
+function TScript.CheckActivity: Boolean;
+begin
+  if Result := XPBar.Read() > Activity.XP then
+  begin
+    Activity.Countdown.Restart();
+    Activity.XP := XPBar.Read();
+  end;
+
+  if Activity.Countdown.IsFinished() then
+    Self.Fatal('Haven''t gained any experience in ' + ToString(Activity.Countdown.Length div 1000) + ' seconds');
+end;
+
+procedure TScript.Debug(S: String);
+begin
+  WriteLn(SRL.TimeStamp() + ':[Script]: ' + S);
+end;
+
+procedure TScript.Fatal(S: String);
+begin
+  Self.Debug(S);
+
+  TerminateScript();
+end;
+
+procedure TScript.NextTask;
+begin
+  if BankScreen.IsOpen() then
+    BankScreen.Close();
+
+  if (XPBar.Read() >= Self.Task.FinishXP) then
+  begin
+    Self.Debug('Switching tasks');
+
+    if Self.Task <> [] then
+    begin
+      if Length(Self.Tasks) = 1 then
+        Self.Fatal('Tasks completed');
+
+      Self.Tasks := Copy(Self.Tasks, 1);
+    end;
+
+    case Self.Tasks[0].Item of
+      FIREMAKE_TASK_NORMAL:
+        begin
+          Self.Task.Item := 'Logs';
+          Self.Task.ItemXP := 40;
+        end;
+
+      FIREMAKE_TASK_OAK:
+        begin
+          Self.Task.Item := 'Oak logs';
+          Self.Task.ItemXP := 60;
+        end;
+
+      FIREMAKE_TASK_WILLOW:
+        begin
+          Self.Task.Item := 'Willow logs';
+          Self.Task.ItemXP := 90;
+        end;
+    end;
+
+    Self.Task.FinishXP := XPBar.Read() + (Floor(Self.Task.ItemXP) * Self.Tasks[0].Amount);
+
+    Self.Debug('New task: ' + Self.Task.Item + ' x ' + ToString(Self.Tasks[0].Amount));
+    Self.Debug('Task finish: ' + ToString(Self.Task.FinishXP));
+  end;
+end;
+
+procedure TScript.Burn;
+var
+  XP: Int32;
+  Timeout: TCountDown;
+  Logs: TIntegerArray;
+  Tinderbox: Int32;
+  Used: Boolean;
+begin
+  Walker.WebWalk(Self.StartPoints[0]);
+
+  Tinderbox := Inventory.Find('tinderbox');
+
+  while True do
+  begin
+    XP := XPBar.Read();
+
+    Logs := Inventory.FindAll(Self.Task.Item);
+    if Length(Logs) = 0 then
+      Break;
+
+    if Inventory.PointToSlot(Mouse.Position) = Tinderbox then
+    begin
+      Used := Inventory.SetSelectedSlot(Tinderbox);
+      if Used then
+      begin
+        Wait(0, 1000, wdLeft);
+
+        Mouse.Click(Inventory.GetSlotBox(Logs[0]), MOUSE_LEFT);
+
+        if SRL.Dice(75) and (Length(Logs) > 1) then
+        begin
+          Wait(0, 3000, wdLeft);
+
+          if SRL.Dice(20) then
+            Mouse.Miss(Inventory.GetSlotBox(Logs[1]).Middle)
+          else
+            Mouse.Move(Inventory.GetSlotBox(Logs[1]));
+        end;
+      end;
+    end else
+    begin
+      Used := Inventory.SetSelectedSlot(Logs[0]);
+      if Used then
+      begin
+        Wait(0, 1000, wdLeft);
+
+        Mouse.Click(Inventory.GetSlotBox(Tinderbox), MOUSE_LEFT);
+      end;
+    end;
+
+    if Used then
+    begin
+      Used := WaitUntil(not Inventory.IsSlotUsed(Logs[0]), 100, 3000);
+
+      if Used then
+      begin
+        Timeout.Init(25000);
+        while RSClient.IsLoggedIn() do
+        begin
+          if XPBar.Read() > XP then
+            Break;
+          if Timeout.IsFinished() then
+            Self.Fatal('Timed out. Can''t light a fire?');
+
+          Wait(100);
+        end;
+
+        Wait(0, 1500, wdLeft);
+        if SRL.Dice(5) then
+          Antiban.LoseFocus(SRL.TruncatedGauss(2000, 16000));
+      end;
+    end;
+
+    Self.CheckActivity();
+  end;
+
+  Swap(Self.StartPoints[0], Self.StartPoints[1]);
+end;
+
+procedure TScript.Bank;
+begin
+  if Walker.WebWalk(LOCATION_FALADOR_EBANK) and BankScreen.Open(BANK_LOCATION_FALADOR_EAST) then
+  begin
+    if BankScreen.Count(Self.Task.Item) = 0 then
+      Self.Fatal('Out of logs: ' + Self.Task.Item);
+
+    if BankScreen.WithdrawQuantity(Self.Task.Item, BANK_WITHDRAW_ALL, False) then
+      WaitUntil(Inventory.Count(Self.Task.Item) > 0, SRL.TruncatedGauss(100, 1000), 3000);
+  end;
+end;
+
+procedure TScript.Run;
+begin
+  Mouse.IdleInterval := 12.5;
+
+  Self.Activity.Countdown.Init(40000);
+  Self.Walker.Setup('world');
+
+  Self.StartPoints[0] := [3934, 3009];
+  Self.StartPoints[1] := [3934, 3003];
+
+  while RSClient.IsLoggedIn() do
+  begin
+    Self.CheckActivity();
+    Self.NextTask();
+
+    if Inventory.Count(Self.Task.Item) > 0 then
+      Burn()
+    else
+      Bank();
+  end;
+end;
+
+begin
+  Script.Run();
+end.

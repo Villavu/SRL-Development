@@ -395,9 +395,16 @@ begin
   HoverSkill(Self.Skills[Random(Length(Self.Skills))], SRL.TruncatedGauss(1000, 10000), SRL.Dice(50));
 end;
 
-procedure TAntiban.LoseFocus;
+procedure TAntiban.LoseFocus; overload;
 begin
   RSClient.LoseFocus();
+end;
+
+procedure TAntiban.LoseFocus(Idle: Int32); overload;
+begin
+  RSClient.LoseFocus();
+
+  Wait(Idle);
 end;
 
 procedure TAntiban.RandomTab;

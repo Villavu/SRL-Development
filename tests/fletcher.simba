@@ -1,5 +1,7 @@
+// Full fletching script, Antiban, Breaks, Sleeps.
+// Scroll down to first begin..end to configure.
+
 {$DEFINE SRL_USE_REMOTEINPUT}
-{.$DEFINE SRL_DEBUG_MOUSE}
 
 {$I SRL/osr.simba}
 

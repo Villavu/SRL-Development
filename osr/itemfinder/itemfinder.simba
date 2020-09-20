@@ -256,6 +256,15 @@ begin
     Result := SRL.GetItemAmount(Self.GetSlotBox(Slot));
 end;
 
+function TRSInventory.Hover(Identifer: String): Boolean;
+var
+  Slot: Int32 := Self.Find(Identifer);
+begin
+  Result := (Slot > -1);
+  if Result then
+    Mouse.Move(Self.GetSlotBox(Slot));
+end;
+
 function TRSInventory.Click(Identifers: TStringArray; Option: String = ''): Boolean; override;
 var
   Slot: Int32;
@@ -272,10 +281,7 @@ begin
 
       Exit(True);
     end else
-    begin
-      if ChooseOption.Select(Option) then
-        Exit(False);
-    end;
+      Result := ChooseOption.Select(Option);
   end;
 end;
 

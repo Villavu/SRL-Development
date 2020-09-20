@@ -132,9 +132,8 @@ begin
 
   for I := 0 to High(Dots) do
   begin
-    ATPA[I] := Copy(Template);
-    ATPA[I].Offset(Dots[I]);
-
+    ATPA[I] := Template.Offset(Dots[I]);
+	
     Bitmap.DrawTPA(ATPA[I], clFuchsia);
   end;
 
@@ -173,7 +172,7 @@ begin
 
   Poly := TPAFromPolygon(Minimap.GetPolygon());
   Poly := Poly.Invert(Bounds);
-  Poly.Offset([-Bounds.X1, -Bounds.Y1]);
+  Poly := Poly.Offset([-Bounds.X1, -Bounds.Y1]);
 
   Result.Init(Client.GetMBitmaps());
 
@@ -444,23 +443,28 @@ begin
   MinimapPoint := Self.WorldToMM(PlayerPoint, WorldPoint, Minimap.GetCompassAngle(False));
   if (not Minimap.IsPointOn(MinimapPoint)) then
     Exit(False);
+  if (Minimap.Center.DistanceTo(MinimapPoint) <= 4) then
+    Exit(True);
 
-  if WaitUntilDistance = -1 then
+  if (WaitUntilDistance = -1) then
   begin
     WaitUntilDistance := Distance(Minimap.Center, MinimapPoint);
 
     // 50% chance for clicking again near instantly.
-    // 45% change for value weighted towards mean
-    // 5% chance for wait until player has stopped moving.
+    // 35% change for value weighted towards mean
+    // 15% chance for wait until player has nearly stopped moving.
 
     if Random() < 0.50 then
       WaitUntilDistance := Round(SRL.TruncatedGauss(WaitUntilDistance - 10, WaitUntilDistance + 20))
     else
-    if Random() < 0.05 then
+    if Random() < 0.15 then
       WaitUntilDistance := Round(SRL.TruncatedGauss(0, 15))
     else
       WaitUntilDistance := Round(SRL.SkewedRand(WaitUntilDistance div 2, 0, WaitUntilDistance));
   end;
+
+  if (WaitUntilDistance < 2) then
+    WaitUntilDistance := 2;
 
   if Self.ScreenWalk then
   begin
@@ -482,8 +486,11 @@ begin
 
   Timeout.Init(Round(SRL.TruncatedGauss(20000, 25000)));
 
-  Countdown.Init(Round(SRL.TruncatedGauss(400, 1000)));
+  Countdown.Init(Round(SRL.TruncatedGauss(500, 1500)));
   Countdown.Timeout := GetTickCount() + Round(SRL.TruncatedGauss(2500, 3500));
+
+  Position.Previous := PlayerPoint;
+  Position.Current := PlayerPoint;
 
   // Break from the loop if:
   // - Haven't moved for 2.5 seconds

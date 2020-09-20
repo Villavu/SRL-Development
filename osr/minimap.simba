@@ -78,8 +78,7 @@ end;
 
 function TRSMinimap.GetPolygon: TPointArray;
 begin
-  Result := Copy(Self.PolygonOffset);
-  Result.Offset(Self.Center);
+  Result := Self.PolygonOffset.Offset(Self.Center);
 end;
 
 function TRSMinimap.GetCompassAngle(AsDegrees: Boolean = True): Double;
@@ -430,7 +429,7 @@ begin
   BMP.FromClient(Self.Bounds());
 
   Result := GetDotsBitmap(BMP, Dots);
-  Result.Offset([Self.X1, Self.Y1]);
+  Result := Result.Offset([Self.X1, Self.Y1]);
 
   BMP.Free();
 end;

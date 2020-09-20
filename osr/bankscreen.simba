@@ -28,7 +28,8 @@ type
   ERSBankLocation = (
     BANK_LOCATION_CASTLE_WARS,
     BANK_LOCATION_FEROX,
-    BANK_LOCATION_GRAND_EXCHANGE
+    BANK_LOCATION_GRAND_EXCHANGE,
+    BANK_LOCATION_FALADOR_EAST
   );
 
   TRSBankScreen = record(TRSInterface)
@@ -77,10 +78,6 @@ type
     BUTTON_CLOSE_HOVER: TRSInterfaceButton;
 
     BUTTON_SCROLLED_TOP: TRSInterfaceButton;
-
-    FINDER_CASTLE_WARS_CHEST: TRSObjectFinder;
-    FINDER_FEROX_CHEST: TRSObjectFinder;
-    FINDER_EDGE_BOOTH: TRSObjectFinder;
 
     FINDER_UPTEXT: TStringArray;
     FINDER_OPTION: TStringArray;
@@ -151,19 +148,6 @@ procedure TRSBankScreen.Setup;
 begin
   Self.Name := 'BankScreen';
   Self.Mode := RSClient.Mode;
-
-  Self.FINDER_CASTLE_WARS_CHEST.ColorClusters += [CTS2(2503237, 40, 0.10, 0.14), CTS2(5526875, 35, 0.19, 0.06), 8]; //brown, grey
-  Self.FINDER_CASTLE_WARS_CHEST.ClusterDistance := 3;
-  Self.FINDER_CASTLE_WARS_CHEST.Erode := 2;
-
-  Self.FINDER_FEROX_CHEST.Colors += CTS2(931652, 12, 0.07, 0.89);
-  Self.FINDER_FEROX_CHEST.ClusterDistance := 1;
-  Self.FINDER_FEROX_CHEST.Erode := 1;
-
-  Self.FINDER_EDGE_BOOTH.ColorClusters += [CTS2(5265760, 4, 1.64, 1.29), CTS2(1068392, 15, 0.06, 2.57), 8]; //grey, brown
-  Self.FINDER_EDGE_BOOTH.ClusterDistance := 5;
-  Self.FINDER_EDGE_BOOTH.Grow := 2;
-  Self.FINDER_EDGE_BOOTH.Erode := 4;
 
   Self.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
   Self.FINDER_OPTION := ['Use Bank', 'Bank Bank'];
@@ -710,35 +694,98 @@ begin
   end;
 end;
 
-function TRSBankScreen._Open(FinderFunc: function(Finder: TRSObjectFinder): T2DPointArray of object; Finder: TRSObjectFinder): Boolean;
+function TRSBankScreen._FindFaladorEast: T2DPointArray;
+var
+  Finder: TRSObjectFinder;
+begin
+  Finder.Colors += CTS2(4086642, 5, 0.08, 0.55);
+  Finder.ClusterDistance := 15;
+  Finder.Erode := 2;
+  Finder.Grow := 3;
+
+  Result := MainScreen.FindObject(Finder);
+  if Length(Result) = 0 then
+    Exit;
+
+  Result.SortByLongSide();
+  Result := Result[0].Cluster(5);
+  Result.SortByMiddle(Result.Merge.Mean());
+end;
+
+function TRSBankScreen._FindCastleWars: T2DPointArray;
+var
+  TPA, ChestTPA: TPointArray;
+  ATPA: T2DPointArray;
+  I: Int32;
+begin
+  if SRL.FindColors(TPA, CTS2(5526875, 35, 0.19, 0.06), MainScreen.Bounds) > 0 then
+  begin
+    ATPA := TPA.Cluster(1);
+
+    for I := 0 to High(ATPA) do
+      if SRL.FindColors(TPA, CTS2(2503237, 40, 0.10, 0.14), ATPA[I].Bounds) > 5 then
+      begin
+        TPA := ATPA[I].MinAreaRect.Filter(TPA);
+        TPA := TPA.Erode(MainScreen.ConvertDistance(3));
+        if Length(TPA) > 0 then
+          ChestTPA += TPA;
+      end;
+
+    Result := ChestTPA.Cluster(2);
+  end;
+end;
+
+function TRSBankScreen._FindFerox: T2DPointArray;
+var
+  Finder: TRSObjectFinder;
+begin
+  Finder.Colors += CTS2(931652, 12, 0.07, 0.89);
+  Finder.ClusterDistance := 1;
+  Finder.Erode := 1;
+
+  Result := MainScreen.FindObject(Finder);
+end;
+
+function TRSBankScreen._FindGrandExchange: T2DPointArray;
+begin
+  Result := GrandExchange.FindNPC(GrandExchange.FINDER_BANKER);
+end;
+
+function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; overload;
 var
   ATPA: T2DPointArray;
   TPA: TPointArray;
   P: TPoint;
-  Attempt, I: Int32;
-  Direction: Boolean;
+  Attempt: Int32;
 begin
-  Direction := SRL.Dice(50);
+  if Self.IsOpen() or Self.Open(Mouse.Position()) then
+    Exit(True);
 
-  for Attempt := 1 to 5 do
+  for Attempt := 1 to 3 do
   begin
-    if Attempt in [2, 4] then
+    if Attempt = 2 then
     begin
-      Debug('Bank not found, rotating...');
+      Self.Debug('Bank not found, rotating...');
 
-      if Direction then
-        Minimap.SetCompassAngle(Minimap.GetCompassAngle() + Random(80, 200))
+      if SRL.Dice(50) then
+        Minimap.SetCompassAngle(Minimap.GetCompassAngle() + Random(100, 200))
       else
-        Minimap.SetCompassAngle(Minimap.GetCompassAngle() - Random(80, 200));
+        Minimap.SetCompassAngle(Minimap.GetCompassAngle() - Random(100, 200));
     end;
 
-    ATPA := FinderFunc(Finder);
+    case Location of
+      BANK_LOCATION_FALADOR_EAST:   ATPA := Self._FindFaladorEast();
+      BANK_LOCATION_CASTLE_WARS:    ATPA := Self._FindCastleWars();
+      BANK_LOCATION_FEROX:          ATPA := Self._FindFerox();
+      BANK_LOCATION_GRAND_EXCHANGE: ATPA := Self._FindGrandExchange();
+    end;
 
-    // Check four largest groups
-    for I := 0 to Min(High(ATPA), 3) do
+    // Check three largest clusters
+    ATPA.SortBySize();
+    ATPA := Copy(ATPA, 0, 3);
+
+    for TPA in ATPA do
     begin
-      TPA := ATPA[I];
-
       P := TPA[Random(Length(TPA))];
       P.X += Random(-2, 2);
       P.Y += Random(-2, 2);
@@ -749,55 +796,39 @@ begin
   end;
 end;
 
-function TRSBankScreen._Hover(FinderFunc: function(Finder: TRSObjectFinder): T2DPointArray of object; Finder: TRSObjectFinder): Boolean;
+function TRSBankScreen.Hover(Location: ERSBankLocation; RightClick: Boolean): Boolean;
 var
   ATPA: T2DPointArray;
   TPA: TPointArray;
   P: TPoint;
-  I: Int32;
 begin
-  ATPA := FinderFunc(Finder);
+  if ChooseOption.IsOpen() or MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    Exit(True);
 
-  // Check four largest groups
-  for I := 0 to Min(High(ATPA), 3) do
+  case Location of
+    BANK_LOCATION_FALADOR_EAST:   ATPA := Self._FindFaladorEast();
+    BANK_LOCATION_CASTLE_WARS:    ATPA := Self._FindCastleWars();
+    BANK_LOCATION_FEROX:          ATPA := Self._FindFerox();
+    BANK_LOCATION_GRAND_EXCHANGE: ATPA := Self._FindGrandExchange();
+  end;
+
+  // Check three largest clusters
+  ATPA.SortBySize();
+  ATPA := Copy(ATPA, 0, 3);
+
+  for TPA in ATPA do
   begin
-    TPA := ATPA[I];
-
     P := TPA[Random(Length(TPA))];
     P.X += Random(-2, 2);
     P.Y += Random(-2, 2);
 
-    Mouse.Move(P);
+   if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+   begin
+     if RightClick then
+       ChooseOption.Hover(['Use Bank', 'Bank Bank']);
 
-    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
-      Exit(True);
-  end;
-end;
-
-function TRSBankScreen.Hover(Location: ERSBankLocation; RightClick: Boolean): Boolean;
-begin
-  if ChooseOption.IsOpen() then
-    Exit(True);
-
-  case Location of
-    BANK_LOCATION_CASTLE_WARS:    Result := Self._Hover(@MainScreen.FindObject, Self.FINDER_CASTLE_WARS_CHEST);
-    BANK_LOCATION_FEROX:          Result := Self._Hover(@MainScreen.FindObject, Self.FINDER_FEROX_CHEST);
-    BANK_LOCATION_GRAND_EXCHANGE: Result := Self._Hover(@GrandExchange.FindNPC, GrandExchange.FINDER_BANKER);
-  end;
-
-  if RightClick then
-    ChooseOption.Hover(['Use Bank', 'Bank Bank']);
-end;
-
-function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; overload;
-begin
-  if Self.IsOpen() or Self.Open(Mouse.Position()) then
-    Exit(True);
-
-  case Location of
-    BANK_LOCATION_CASTLE_WARS:    Result := Self._Open(@MainScreen.FindObject, Self.FINDER_CASTLE_WARS_CHEST);
-    BANK_LOCATION_FEROX:          Result := Self._Open(@MainScreen.FindObject, Self.FINDER_FEROX_CHEST);
-    BANK_LOCATION_GRAND_EXCHANGE: Result := Self._Open(@GrandExchange.FindNPC, GrandExchange.FINDER_BANKER);
+     Exit(True);
+   end;
   end;
 end;
 

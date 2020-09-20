@@ -353,15 +353,17 @@ begin
   end;
 end;
 
-procedure Vector3Array.Offset(Vec: Vector3);
+function Vector3Array.Offset(Vec: Vector3): Vector3Array;
 var
   i: Int32;
 begin
+  SetLength(Result, Length(Self));
+  
   for i:=0 to High(Self) do
   begin
-    Self[i].x := Self[i].x + Vec.x;
-    Self[i].y := Self[i].y + Vec.y;
-    Self[i].z := Self[i].z + Vec.z;
+    Result[i].x := Self[i].x + Vec.x;
+    Result[i].y := Self[i].y + Vec.y;
+    Result[i].z := Self[i].z + Vec.z;
   end;
 end;
 

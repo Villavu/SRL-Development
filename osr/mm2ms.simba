@@ -451,6 +451,9 @@ begin
 
   Result := Distance(Minimap.VecToMs([Minimap.Center.X, Minimap.Center.Y], 0),
                      Minimap.VecToMs([Minimap.Center.X + mean, Minimap.Center.Y], 0));
+
+  if Result < 1 then
+    Result := 1;
 end;
 
 (*

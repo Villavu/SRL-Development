@@ -45,6 +45,16 @@ begin
   Result[8].Y2 += 2;
 end;
 
+function TRSChatbox.FindNPCChat(Text: String): Boolean;
+begin
+  Result := FindTextColor(Text, RS_FONT_QUILL_8, $000000, 0, Self.Bounds, 1);
+end;
+
+function TRSChatbox.GetTitle: String;
+begin
+  Result := OCR.Recognize(Self.Bounds(), [$000080], RS_FONTSET_QUILL_8);
+end;
+
 function TRSChatBox.GetQuery: String;
 begin
   Result := OCR.Recognize(Self.Bounds(), [$000000], RS_FONTSET_BOLD_12);
@@ -227,6 +237,28 @@ begin
 
     if (Index > -1) then
       Result := ClickMakeButton(Index, Quantity, UseKeyboard);
+  end;
+end;
+
+function TRSChatbox.ClickContinue(UseKeyboard: Boolean = True): Boolean;
+var
+  B: TBox;
+begin
+  Result := (FindTextColor('Click here to continue', RS_FONT_QUILL_8, 16711680, 0, Self.Bounds, B) = 1) or
+            (FindTextColor('Click here to continue', RS_FONT_QUILL_8, $FFFFFF, 0, Self.Bounds, B) = 1);
+
+  if Result then
+  begin
+    if UseKeyboard then
+      Keyboard.PressKey(VK_SPACE)
+    else
+      Mouse.Click(B, MOUSE_LEFT);
+
+    Wait(50, 250, wdLeft);
+
+    while (FindTextColor('Please wait', RS_FONT_QUILL_8, 16711680, 0, Self.Bounds, B) = 1) or
+          (FindTextColor('Please wait', RS_FONT_QUILL_8, $FFFFFF, 0, Self.Bounds, B) = 1) do
+      Wait(50, 250, wdLeft);
   end;
 end;
 

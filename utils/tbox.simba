@@ -112,15 +112,7 @@ begin
   Result := Self.Contains(Other.Top) and Self.Contains(Other.Left) and Self.Contains(Other.Btm) and Self.Contains(Other.Right);
 end;
 
-procedure TBox.Offset(pt: TPoint);
-begin
-  self.x1 += pt.x;
-  self.y1 += pt.y;
-  self.x2 += pt.x;
-  self.y2 += pt.y;
-end;
-
-function TBox.OffsetFunc(pt: TPoint): TBox; constref;
+function TBox.Offset(pt: TPoint): TBox; constref;
 begin
   Result.x1 := self.x1 + pt.x;
   Result.y1 := self.y1 + pt.y;
@@ -194,12 +186,6 @@ function TBox.EqualDimensions(const Other: TBox): Boolean; constref;
 begin
   Result := ((Self.X2 - Self.X1) = (Other.X2 - Other.X1)) and
             ((Self.Y2 - Self.Y1) = (Other.Y2 - Other.Y1));
-end;
-
-function TBox.Equals(const Other: TBox): Boolean; constref;
-begin
-  Result := (Self.X1 = Other.X1) and (Self.X2 = Other.X2) and
-            (Self.Y1 = Other.Y1) and (Self.Y2 = Other.Y2);
 end;
 
 function TBox.InnerBorder(Size: Integer): TBoxArray; constref;
