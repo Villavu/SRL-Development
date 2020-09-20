@@ -169,20 +169,9 @@ TPointArray.Offset
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    procedure TPointArray.Offset(off: TPoint);
+    function TPointArray.Offset(off: TPoint): TPointArray;
 
 Wraps Simba's `OffsetTPA`
-
-
-------------
-
-TPointArray.OffsetFunc
-~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function TPointArray.OffsetFunc(off: TPoint): TPointArray;
-
-Wraps Simba's `OffsetTPA`, but offsets a copy, and returns it.
 
 
 ------------

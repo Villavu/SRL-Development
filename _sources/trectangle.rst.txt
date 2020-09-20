@@ -128,13 +128,13 @@ Break the rectangle into smaller rectangles. Goes well along with `DirByLen`
 
 ------------
 
-TRectangle.OffsetFunc
-~~~~~~~~~~~~~~~~~~~~~~
+TRectangle.Offset
+~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TRectangle.OffsetFunc(pt: TPoint): TRectangle; constref;
+    function TRectangle.Offset(pt: TPoint): TRectangle; constref;
 
-Offset the rectangle, named ``OffsetFunc`` to match it's brother ``TBox``.
+Offset the rectangle.
 
 
 ------------
