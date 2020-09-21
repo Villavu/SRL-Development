@@ -25,42 +25,7 @@ begin
   Webber.Map := TRSWalker.FindMap('world');
 
   // Comment out for a new graph ...
-  Webber.Graph.Names := WorldGraph.Names;
-  Webber.Graph.Nodes := WorldGraph.Nodes;
-  Webber.Graph.Paths := WorldGraph.Paths;
-  Webber.Graph.Blocking := WorldGraph.Blocking;
-end;
-
-function ToString(X: TPoint): String; override;
-begin
-  Result := '[' + ToString(X.X) + ', ' + ToString(X.Y) + ']';
-end;
-
-function ToString(X: TPointArray): String; override;
-var
-  i: Int32;
-begin
-  Result := '"[';
-  for i := 0 to High(X) - 1 do Result += ToString(X[i])+',';
-  Result += ToString(X[High(X)]);
-  Result += ']"';
-end;
-
-function ToString(X: TStringArray): String; override;
-var
-  i: Int32;
-begin
-  Result := '"[';
-  for i := 0 to High(X) - 1 do Result += ''''+X[i]+''',';
-  Result += '''' + X[High(X)] + '''';
-  Result += ']"';
-end;
-
-function ToString(X: T2DIntegerArray): String; override;
-begin
-  {%codetools off} // Parser does not like this...
-  Result := '"' + inherited() + '"';
-  {%codetools on}
+  Webber.Graph := WorldWeb;
 end;
 
 procedure TWebberForm.OnMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Int32);
@@ -331,29 +296,67 @@ end;
 
 procedure TWebberForm.OnPrintGraph(Sender: TObject);
 var
-  I: Int32;
+  I, J: Int32;
   Locations: TStringArray;
+  Points: TPointArray;
+  Name: String;
 begin
+  Name := 'TWorldWeb';
+  if not InputQuery('Webber', 'Web name?', Name) then
+    Exit;
+
+  ClearDebug();
+
   for I := 0 to High(Graph.Names) do
     if Graph.Names[I] <> '' then
-      Locations += '  ' + UpperCase('LOCATION_' + Graph.Names[I]).Replace(' ', '_') + ': TPoint = ' + ToString(Self.Graph.Nodes[I]) + ';';
+    begin
+      Locations += UpperCase('LOCATION_' + Graph.Names[I]).Replace(' ', '_');
+      Points += Graph.Nodes[I];
+    end;
 
-  if Length(Locations) > 0 then
-  begin
-    WriteLn('const');
-    WriteLn(Locations.Merge(LineEnding));
-    Writeln('');
-  end;
+  for I := 0 to High(Locations) do
+    for J := 0 to High(Locations) do
+      if (Locations[I] < Locations[J]) then
+      begin
+        Swap(Locations[I], Locations[J]);
+        Swap(Points[I], Points[J]);
+      end;
 
-  // Lape is slow with parsing large open arrays. Store and parse a string at runtime to avoid this.
+  WriteLn('type');
+  WriteLn('  ', Name, ' = record(TWebGraph)');
+  for I := 0 to High(Locations) do
+    WriteLn('    ', Locations[I], ': TPoint;');
+  WriteLn('  end;');
 
-  WriteLn('var Graph: TWebGraph;');
   WriteLn('');
+  WriteLn('var');
+  WriteLn('  ', Name.After('T'), ': ', Name, ';');
+
+  WriteLn('');
+  WriteLn('procedure ', Name, '.Load;');
   WriteLn('begin');
-  WriteLn('  Graph.Nodes := TWebGraph.StringToTPA(' + ToStr(Graph.Nodes) + ');');
-  WriteLn('  Graph.Paths := TWebGraph.StringToTIA(' + ToStr(Graph.Paths) + ');');
-  WriteLn('  Graph.Names := TWebGraph.StringToTSA(' + ToStr(Graph.Names) + ');');
-  Writeln('end;');
+  WriteLn('  Self.LoadNodesFromString(' + #39 + Graph.NodesToString() + #39 + ');');
+  WriteLn('  Self.LoadPathsFromString(' + #39 + Graph.PathsToString() + #39 + ');');
+  WriteLn('  Self.LoadNamesFromString(' + #39 + Graph.NamesToString() + #39 + ');');
+  WriteLn('');
+  for I := 0 to High(Locations) do
+    WriteLn('  Self.', Locations[I], ' := ', '[', Points[I].X, ', ', Points[I].Y, '];');
+  WriteLn('end;');
+
+  WriteLn('');
+  WriteLn('operator := (var Left: TWebGraph; var Right: ', Name, '): TWebGraph;');
+  WriteLn('begin');
+  WriteLn('  Right.Load();');
+  WriteLn('');
+  WriteLn('  Left.Nodes := Right.Nodes;');
+  WriteLn('  Left.Paths := Right.Paths;');
+  WriteLn('  Left.Names := Right.Names;');
+  WriteLn('');
+  WriteLn('  Result.Nodes := Right.Nodes;');
+  WriteLn('  Result.Paths := Right.Paths;');
+  WriteLn('  Result.Names := Right.Names;');
+  WriteLn('end;');
+  WriteLn('');
 end;
 
 procedure TWebberForm.OnFormShow(Sender: TObject);

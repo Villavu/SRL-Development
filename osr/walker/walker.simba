@@ -100,8 +100,8 @@ begin
   Self.Cache.Enabled := True;
 
   case Map.Lower() of
-    'world': Self.Web := WorldGraph;
-    'zeah':  Self.Web := ZeahGraph;
+    'world': Self.Web := WorldWeb;
+    'zeah':  Self.Web := ZeahWeb;
   end;
 
   Self.WorldSample.Init(Client.GetMBitmaps());

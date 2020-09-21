@@ -40,8 +40,8 @@ var
 
 begin
   // Add your tasks here
-  Script.Tasks += [FIREMAKE_TASK_NORMAL, 300]; // burn 300 normal logs
-  Script.Tasks += [FIREMAKE_TASK_WILLOW, 500]; // then 500 willow logs
+  //Script.Tasks += [FIREMAKE_TASK_NORMAL, 300]; // burn 300 normal logs
+  Script.Tasks += [FIREMAKE_TASK_WILLOW, 2000]; // then 2000 willow logs
 end;
 
 function TScript.CheckActivity: Boolean;
@@ -171,6 +171,8 @@ begin
         Timeout.Init(25000);
         while RSClient.IsLoggedIn() do
         begin
+          if Chatbox.HasLevelUp() then
+            Break;
           if XPBar.Read() > XP then
             Break;
           if Timeout.IsFinished() then
