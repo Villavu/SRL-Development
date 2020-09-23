@@ -1,0 +1,117 @@
+{$DEFINE SRL_STATS_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSEquipment = type TRSInterface;
+
+procedure TRSEquipment.Setup;
+begin
+  Self.Name := 'Equipment';
+  Self.Mode := RSClient.Mode;
+
+  Self.Alignment.Left := [@GameTab.X1];
+  Self.Alignment.Right := [@GameTab.X2];
+  Self.Alignment.Top := [@GameTab.Y1];
+  Self.Alignment.Bottom := [@GameTab.Y2];
+end;
+
+function TRSEquipment.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = TAB_EQUIPMENT);
+end;
+
+function TRSEquipment.Open: Boolean;
+begin
+  Result := GameTabs.Open(TAB_EQUIPMENT);
+end;
+
+function TRSEquipment.GetSlotBoxes: TBoxArray;
+var
+  TPA: TPointArray;
+  I: Int32;
+begin
+  TPA := TPointArray([
+    [92, 23], [133, 62], [92, 62],[51, 62], [148, 101], [92, 101],
+    [36, 101], [92, 141],  [148, 181], [92, 181], [36, 181]
+  ]).Offset(X1, Y1);
+
+  SetLength(Result, Length(TPA));
+
+  for I := 0 to High(TPA) do
+  begin
+    Result[I].X1 := TPA[I].X - 16;
+    Result[I].Y1 := TPA[I].Y - 16;
+    Result[I].X2 := TPA[I].X + 15;
+    Result[I].Y2 := TPA[I].Y + 15;
+  end;
+end;
+
+function TRSEquipment.GetSlotBox(Index: Int32): TBox;
+begin
+  Result := Self.GetSlotBoxes[Index];
+end;
+
+function TRSEquipment.Find(Item: String): Int32;
+var
+  Slots: TIntegerArray;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Result := -1;
+
+  Slots := ItemFinder.Find(Item, Self.GetSlotBoxes());
+  if Length(Slots) > 0 then
+    Result := Slots[0];
+end;
+
+function TRSEquipment.IsEquipped(Item: String): Boolean;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Result := Self.Find(Item) > -1;
+end;
+
+function TRSEquipment.Click(Item: String; Option: String = ''): Boolean;
+var
+  Slot: Int32;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Slot := Self.Find(Item);
+
+  if Slot > -1 then
+  begin
+    Mouse.Move(Self.GetSlotBox(Slot));
+
+    if Option <> '' then
+      Result := ChooseOption.Select(Option)
+    else
+    begin
+      Result := True;
+
+      Mouse.Click(MOUSE_LEFT);
+    end;
+  end;
+end;
+
+var
+  Equipment: TRSEquipment;
+
+procedure TSRL.Setup; override;
+begin
+  Equipment.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Equipment.Debug(Bitmap);
+end;
