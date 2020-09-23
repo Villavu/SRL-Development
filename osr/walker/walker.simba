@@ -4,6 +4,8 @@ Walker
 *)
 
 {$DEFINE SRL_WALKER_INCLUDED}
+{$DEFINE SRL_DEBUG_WALKER_CACHE}
+
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
@@ -12,12 +14,26 @@ Walker
 {$I world.graph}
 {$I zeah.graph}
 
-const
-  RSW_PATH := IncludeTrailingPathDelimiter({$MACRO CURRENT_DIRECTORY});
-  RSW_MAP_PATH := IncludeTrailingPathDelimiter(RSW_PATH + 'maps');
-
 type
+  TRSWalkerCache = record
+    World: TMufasaBitmap;
+    WorldSample: TMufasaBitmap;
+    Speed: Int32;
+
+    Rotation: Single;
+    Position: TPoint;
+    Radius: Int32;
+
+    LastUsed: UInt64;
+  end;
+
   TRSWalker = record(TSRLBaseRecord)
+    Cache: array of TRSWalkerCache;
+    CacheSize: Int32;
+    CacheRadius: Int32;
+
+    Rotation: Single;
+
     World: TMufasaBitmap;
     WorldSample: TMufasaBitmap;
     Web: TWebGraph;
@@ -27,15 +43,6 @@ type
     Speed: Int32;
     Similarity: Single;
     ScreenWalk: Boolean;
-    Cache: record
-      Similarity: Single;
-      Position: TPoint;
-      CompassAngle: Single;
-      CompassOffset: Single;
-      Size: Int32;
-      Enabled: Boolean;
-      Used: Boolean;
-    end;
   end;
 
 function TRSWalker.FindMap(Map: String): String; static;
@@ -49,7 +56,7 @@ begin
     Exit(Map);
 
   Files := FindFile(ExtractFileDir(Map), Mask, False, False) +
-           FindFile(RSW_MAP_PATH,        Mask, False, False);
+           FindFile({$MACRO CURRENT_DIRECTORY}, Mask, True, False);
 
   if Length(Files) > 0 then
     Result := Files[0];
@@ -61,19 +68,19 @@ var
 begin
   Result.Init(Client.GetMBitmaps());
 
-  // Save as bitmaps for faster loading
-  if ExtractFileDir(Path) in RSW_MAP_PATH then
+  if ExtractFileExt(Path) <> '.bmp' then
   begin
-    Cache := RSW_MAP_PATH + SHA1String(ExtractFileName(Path)) + '.bmp';
-    if FileExists(Cache) then
-      Path := Cache
-    else
-    begin
-      WriteLn('[WALKER]: Caching "' + ExtractFileName(Path) + '"');
+    Cache := ExtractFileDir(Path) + DirectorySeparator + SHA1File(Path) + '.bmp';
 
+    // Save as bitmap for much faster loading
+    if not FileExists(Cache) then
+    begin
       Result.LoadFromFile(Path);
       Result.SaveToFile(Cache);
     end;
+
+    if FileExists(Cache) then
+      Path := Cache;
   end;
 
   Result.LoadFromFile(Path);
@@ -85,7 +92,7 @@ begin
   Self.World.Free();
 end;
 
-procedure TRSWalker.Setup(Map: String; Speed: Int32 = 6);
+procedure TRSWalker.Setup(Map: String; Speed: Int32 = 10);
 var
   Path: String;
 begin
@@ -96,12 +103,12 @@ begin
     Self.Fatal('Unable to find map: ' + Map);
 
   Self.Speed := Speed;
-  Self.Cache.Size := 200;
-  Self.Cache.Enabled := True;
+  Self.CacheSize := 3;
+  Self.CacheRadius := 200;
 
   case Map.Lower() of
-    'world': Self.Web := WorldWeb;
-    'zeah':  Self.Web := ZeahWeb;
+    'world': Self.Web  := WorldWeb;
+    'zeah':  Self.Web  := ZeahWeb;
   end;
 
   Self.WorldSample.Init(Client.GetMBitmaps());
@@ -155,7 +162,7 @@ begin
   end;
 end;
 
-function TRSWalker.GetMinimap(out CenterOffset: TPoint; out Crop: TBox): TMufasaBitmap;
+function TRSWalker.GetMinimap(out CenterOffset: TPoint): TMufasaBitmap;
 var
   Bounds: TBox;
   Raw, Templ: TMufasaBitmap;
@@ -259,7 +266,6 @@ begin
     Result.Rectangle(Column, Templ.GetPixel(Column.X1, Column.Y1 - 1));
   end;
 
-  Crop := B.Expand(-1);
   Result.Crop(B.X1 + 1, B.Y1 + 1, B.X2 - 1, B.Y2 - 1);
 
   Templ.Free();
@@ -269,15 +275,7 @@ begin
   CenterOffset.Y := Bounds.Middle.Y - (Bounds.Y1 + B.Middle.Y);
 end;
 
-procedure TRSWalker.ClearCache;
-begin
-  Self.Cache.Position := [];
-  Self.Cache.CompassAngle := -1;
-  Self.Cache.CompassOffset := -1;
-  Self.Cache.Similarity := -1;
-end;
-
-function TRSWalker.FindImageNear(p:TPoint; Large, Sub: TMufasaBitmap; Area:Int32; Offsets: TSingleArray; out match: Single; out Offset: Single): TPoint;
+function TRSWalker.FindImageNear(p:TPoint; Large, Sub: TMufasaBitmap; Area:Int32; Offsets: TSingleArray; out match: Single; out Offset: Single): TPoint; static;
 var
   W,H: Int32;
   Slice: TMufasaBitmap;
@@ -297,6 +295,8 @@ begin
   B := [max(0,B.x1),max(0,B.y1),min(W,B.x2),min(H,B.y2)];
 
   Slice := Large.Copy(B.x1, B.y1, B.x2, B.y2);
+  Slice.SetSize(Max(Slice.GetWidth(), Sub.GetWidth()), Max(Slice.GetHeight(), Sub.GetHeight()));
+
   client.getMBitmaps.AddBMP(Slice);
   Tmp.init(Client.getMBitmaps());
 
@@ -317,99 +317,156 @@ begin
   Tmp.Free();
 end;
 
+function TRSWalkerCache.GetMyPos(Minimap: TMufasaBitmap; MinimapSample: TMufasaBitmap; MinimapOffset: TPoint; out Similarity: Single): TPoint;
+var
+  P: TPoint;
+  Sample: TMufasaBitmap;
+  Matrix: TSingleMatrix;
+  _: Single;
+  B: TBox;
+begin
+  P.X := Self.Position.X div Self.Speed;
+  P.Y := Self.Position.Y div Self.Speed;
+
+  // Get scaled world map around last known position
+  B.X1 := Max(P.X - (Self.Radius div Self.Speed), 0);
+  B.Y1 := Max(P.Y - (Self.Radius div Self.Speed), 0);
+  B.X2 := Min(P.X + (Self.Radius div Self.Speed), WorldSample.GetWidth()  - 1);
+  B.Y2 := Min(P.Y + (Self.Radius div Self.Speed), WorldSample.GetHeight() - 1);
+
+  Sample := WorldSample.Copy(B.X1, B.Y1, B.X2, B.Y2);
+
+  // Find scaled minimap on scaled world map around last known position
+  Matrix := Sample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
+
+  Result.X := B.X1 * Self.Speed;
+  Result.Y := B.Y1 * Self.Speed;
+  Result   += Matrix.ArgMax() * Self.Speed;
+
+  // Now search the world map around our match without scaling
+  Result   := TRSWalker.FindImageNear(Result, Self.World, Minimap, 20, [Self.Rotation], Similarity, _);
+  Result   += MinimapOffset;
+  Result.X += Minimap.GetWidth() div 2;
+  Result.Y += Minimap.GetHeight() div 2;
+
+  Sample.Free();
+end;
+
+procedure TRSWalker.AddCache(Position: TPoint);
+var
+  Cache: TRSWalkerCache;
+  I, J: Int32;
+begin
+  if Self.CacheSize = 0 then
+  begin
+    if Length(Self.Cache) > 0 then
+      SetLength(Self.Cache, 0);
+
+    Exit;
+  end;
+
+  {$IFDEF SRL_DEBUG_WALKER_CACHE}
+  Self.Debug('New cache: ' + ToString(Position));
+  {$ENDIF}
+
+  Cache.Position := Position;
+  Cache.Radius := Self.CacheRadius;
+  Cache.Speed := Self.Speed;
+  Cache.World := Self.World;
+  Cache.WorldSample := Self.WorldSample;
+  Cache.Rotation := Self.Rotation;
+  Cache.LastUsed := GetTickCount();
+
+  if Length(Self.Cache) = Self.CacheSize then
+  begin
+    for I := 0 to High(Self.Cache) do
+      for J := 0 to High(Self.Cache) do
+        if Self.Cache[I].LastUsed < Self.Cache[J].LastUsed then
+          Swap(Self.Cache[I], Self.Cache[J]);
+
+    {$IFDEF SRL_DEBUG_WALKER_CACHE}
+    Self.Debug('Evicting cache: ' + ToString(Self.Cache[0].Position));
+    {$ENDIF}
+
+    Self.Cache[0] := Cache;
+  end else
+    Self.Cache := Self.Cache + Cache;
+end;
+
 function TRSWalker.GetMyPos: TPoint;
 var
-  MinimapSample, MinimapBitmap, CacheSample: TMufasaBitmap;
+  MinimapSample, MinimapBitmap: TMufasaBitmap;
   Matrix: TSingleMatrix;
-  Offset: TPoint;
-  P: TPoint;
-  Offsets: TSingleArray;
-  Compass: Single;
-  B: TBox;
+  MinimapOffset: TPoint;
   I: Int32;
   TPA: TPointArray;
-  Best: Single;
-  Match: TPoint;
+  Match, Rotation: Single;
+  P: TPoint;
+  T: UInt64;
 begin
+  T := GetTickCount();
+
   MinimapSample.Init(Client.GetMBitmaps());
 
-  MinimapBitmap := GetMinimap(Offset, B);
+  MinimapBitmap := GetMinimap(MinimapOffset);
   MinimapBitmap.Downsample(Self.Speed, MinimapSample);
 
   try
-    // If available scan around where our last known position was
-    if Self.Cache.Enabled and (Self.Cache.Position <> []) then
+    Self.Similarity := 0;
+
+    // Try cache first
+    for I := 0 to High(Self.Cache) do
     begin
-      P.X := Self.Cache.Position.X div Self.Speed;
-      P.Y := Self.Cache.Position.Y div Self.Speed;
+      P := Self.Cache[I].GetMyPos(MinimapBitmap, MinimapSample, MinimapOffset, Match);
 
-      CacheSample := WorldSample.Copy(
-        Max(0, P.X - (Self.Cache.Size div Self.Speed)),
-        Max(0, P.Y - (Self.Cache.Size div Self.Speed)),
-        Min(WorldSample.GetWidth()  - 1, P.X + (Self.Cache.Size div Self.Speed)),
-        Min(WorldSample.GetHeight() - 1, P.Y + (Self.Cache.Size div Self.Speed))
-      );
-
-      Matrix := CacheSample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
-      Match   := Matrix.ArgMax() * self.speed;
-      Match.x += self.Cache.Position.x-Self.Cache.Size;
-      Match.y += self.Cache.Position.y-Self.Cache.Size;
-
-      Compass := System.Minimap.GetCompassAngle();
-
-      if Compass <> Self.Cache.CompassAngle then
-        Offsets := [-4.5, -1.5, -3, 0, 1.5, 3, 4.5]
-      else
-        Offsets := [Self.Cache.CompassOffset];
-
-      Result   := Self.FindImageNear(Match, Self.World, MinimapBitmap, 20, Offsets, Self.Similarity, Self.Cache.CompassOffset);
-      Result   += Offset;
-      Result.X += MinimapBitmap.getWidth() div 2;
-      Result.Y += MinimapBitmap.getHeight() div 2;
-
-      Self.Cache.CompassAngle := Compass;
-      Self.Cache.Used := Self.Similarity > 0.40;
-
-      if Self.Cache.Used then
+      if Match > Self.Similarity then
       begin
-        Self.Cache.Similarity := Self.Similarity;
-        Self.Cache.Position := Result;
+        Self.Similarity := Match;
+        Self.Rotation := Rotation;
 
-        Exit;
-      end else
-      begin
-        Self.Debug(Format('Performing full scan. (%f)', [Self.Similarity]));
-
-        Self.ClearCache();
+        Result := P;
       end;
     end;
 
-    // If couldn't cache, perform a full scan.
+    // Good cache hit?
+    if Self.Similarity > 0.40 then
+      Exit;
+
+    {$IFDEF SRL_DEBUG_WALKER_CACHE}
+    if Length(Self.Cache) > 0 then
+      Self.Debug('No cache hit: ' + ToString(Self.Similarity));
+    {$ENDIF}
+
     Matrix := WorldSample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
 
+    // Inspect 3 best hits on the scaled map without scaling and pick the best
     TPA := Matrix.Indices(Matrix.Max() - 0.05, __GT__);
-    TPA := TPA.Cluster(5).Means();
+    TPA := TPA.Split(5).Means();
 
-    for I := 0 to Min(High(TPA), 5) do
+    for I := 0 to Min(High(TPA), 2) do
     begin
-      Match   := Self.FindImageNear(TPA[I] * Self.Speed, Self.World, MinimapBitmap, 20,[-2.25, 0, 2.25], Self.Similarity, Self.cache.CompassOffset);
-      Match   += Offset;
-      Match.X += MinimapBitmap.getWidth() div 2;
-      Match.Y += MinimapBitmap.getHeight() div 2;
+      P   := Self.FindImageNear(TPA[I] * Self.Speed, Self.World, MinimapBitmap, 20, [-2, 0, 2], Match, Rotation);
+      P   += MinimapOffset;
+      P.X += MinimapBitmap.getWidth() div 2;
+      P.Y += MinimapBitmap.getHeight() div 2;
 
-      if Self.Similarity > Best then
+      if Match > Self.Similarity then
       begin
-        Best := Self.Similarity;
+        Self.Similarity := Match;
+        Self.Rotation := Rotation;
 
-        Result := Match;
+        Result := P;
       end;
     end;
 
-    Self.Cache.Similarity := Self.Similarity;
-    Self.Cache.Position := Result;
+    // Add to cache if good hit
+    if Self.Similarity > 0.40 then
+      AddCache(Result);
+
+    {$IFDEF SRL_DEBUG_WALKER_CACHE}
+    Self.Debug('Full scan: ' + ToString(Self.Similarity));
+    {$ENDIF}
   finally
-    if CacheSample <> nil then
-      CacheSample.Free();
     if MinimapBitmap <> nil then
       MinimapBitmap.Free();
     if MinimapSample <> nil then
@@ -670,62 +727,54 @@ end;
 
 procedure TRSWalker.DebugPosition;
 var
-  mx,my,x1,y1,x2,y2: Int32;
-  BMP, BMP1: TMufasaBitmap;
-  timeUsed: Double;
-  glob: TPoint;
-  P: tpOINT;
-  I: Int32;
+  X1, Y1, X2, Y2, X, Y: Int32;
+  Bitmap, WorldBitmap, MinimapBitmap: TMufasaBitmap;
+  Time: Double;
+  Position: TPoint;
+  _: TPoint;
   Lines: TStringArray;
-  B: TBox;
 begin
+  Time := PerformanceTimer();
+  Position := Self.GetMyPos();
+  Time := PerformanceTimer() - Time;
 
-    timeUsed := PerformanceTimer;
-    glob := Self.GetMyPos();
-    timeUsed := PerformanceTimer - timeUsed;
+  X1 := Max(0, Position.X - 200);
+  Y1 := Max(0, Position.Y - 200);
+  X2 := Min(X1 + 400, Self.World.GetWidth()  - 1);
+  Y2 := Min(Y1 + 400, Self.World.GetHeight() - 1);
 
-  x1 := Max(0, glob.x-200);
-  y1 := Max(0, glob.y-200);
-  x2 := Min(x1+400, Self.World.GetWidth()-1);
-  y2 := Min(y1+400, Self.World.GetHeight()-1);
+  X := Position.X - X1;
+  Y := Position.Y - Y1;
 
-  mx := glob.x - x1;
-  my := glob.y - y1;
+  WorldBitmap := Self.World.Copy(X1, Y1, X2, Y2);
+  WorldBitmap.LineTo(Point(0, Y), Point(X2 - X1, Y), $00FF00);
+  WorldBitmap.LineTo(Point(X, 0), Point(X, Y2 - Y1), $00FF00);
+  WorldBitmap.DrawBox(Box(X - 2, Y - 2, X + 2, Y + 2), False, $FFFFFF);
 
-  BMP1 := Self.World.Copy(x1,y1,x2,y2);
-  client.getMBitmaps().AddBMP(BMP1);
-  BMP1.LineTo(Point(0,my), Point(x2-x1,my), $00FF00);
-  BMP1.LineTo(Point(mx,0), Point(mx,y2-y1), $00FF00);
-  BMP1.DrawBox(Box(mx-2,my-2,mx+2,my+2), False, $FFFFFF);
+  MinimapBitmap := GetMinimap(_);
 
-  BMP.Init(client.GetMBitmaps);
-  BMP.SetSize(620,420);
-  BMP.DrawClear($403027);
-  BMP1.DrawTransparent(10,10, BMP);
-  BMP1.Free();
+  Bitmap.Init();
+  Bitmap.SetSize(560, 420);
+  Bitmap.DrawClear($403027);
 
-  BMP.DrawSystemText(
-    '('+ToStr(glob.x)+', '+ToStr(glob.y)+')',
-    'Consolas', 12,
-    Point(422,16),
-    True, $FFFFFF);
+  Lines := [
+    '('      + ToStr(Position.X, ', ', Position.Y) + ')',
+    'Acc: '  + ToStr(Round(Self.Similarity, 3)),
+    'Time: ' + ToStr(Round(Time)) + ' ms'
+  ];
 
-  BMP1 := GetMinimap(p, B);
-  BMP1.DrawTransparent(426,40, BMP);
-  BMP1.Free();
+  Bitmap.DrawSystemText(Lines[0], 'Consolas', 12, [420, 20 + MinimapBitmap.GetHeight()], False, $FFFFFF);
+  Bitmap.DrawSystemText(Lines[1], 'Consolas', 12, [420, 370], False, $FFFFFF);
+  Bitmap.DrawSystemText(Lines[2], 'Consolas', 12, [420, 390], False, $FFFFFF);
 
-  Lines := ['Cache: '          + ToStr(Self.Cache.Used),
-            'Compass Offset: ' + ToStr(Round(Self.Cache.CompassOffset, 2)),
-            'Acc '             + ToStr(Round(Self.Similarity, 3)),
-            'Used '            + ToStr(Round(timeUsed))+' ms'
-            ];
+  WorldBitmap.DrawTransparent(10, 10, Bitmap);
+  WorldBitmap.Free();
 
-  for I := 0 to High(Lines) do
-    BMP.DrawSystemText(Lines[I], 'Consolas', 12, Point(422, 410 - (Length(Lines) - I) * 20), True, $FFFFFF);
+  MinimapBitmap.DrawTransparent(420, 10, Bitmap);
+  MinimapBitmap.Free();
 
-  DisplayDebugImgWindow(BMP.GetWidth(), BMP.GetHeight());
-  DrawBitmapDebugImg(BMP.GetIndex());
-  BMP.Free();
+  Bitmap.Debug();
+  Bitmap.Free();
 end;
 
 (*

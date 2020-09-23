@@ -45,10 +45,16 @@ begin
   Result := SRL.Modulo(Degrees(ArcTan2(other.Y - self.Y, other.X - self.X)) - 90, 360);
 end;
 
-function TPoint.Offset(P: TPoint): TPoint; constref;
+function TPoint.Offset(P: TPoint): TPoint; constref; overload;
 begin
   Result.X := Self.X + P.X;
   Result.Y := Self.Y + P.Y;
+end;
+
+function TPoint.Offset(X, Y: Int32): TPoint; constref; overload;
+begin
+  Result.X := Self.X + X;
+  Result.Y := Self.Y + Y;
 end;
 
 function TPoint.Random(Min, Max: Integer; Gauss: Boolean = False): TPoint; constref;

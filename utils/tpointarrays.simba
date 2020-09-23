@@ -451,11 +451,16 @@ TPointArray.Offset
 
 Wraps Simba's `OffsetTPA`
 *)
-function TPointArray.Offset(off: TPoint): TPointArray; constref;
+function TPointArray.Offset(X, Y: Int32): TPointArray; constref; overload;
 begin
   Result := Copy(Self);
 
-  OffsetTPA(Result, off);
+  OffsetTPA(Result, [X, Y]);
+end;
+
+function TPointArray.Offset(off: TPoint): TPointArray; constref; overload;
+begin
+  Result := Offset(Off.X, Off.Y);
 end;
 
 (*

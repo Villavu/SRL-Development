@@ -170,10 +170,12 @@ var
 begin
   n1 := Self.FindNearestNode(p);
   n2 := Self.FindNearestNode(q);
-  nodes := Self.FindPath(n1,n2,Rnd);
-  if (Length(nodes) = 0) then
-    RaiseException('Points `'+ToStr(p)+'` and `'+ToStr(q)+'` does not connect');
-
+  if (n1 <> n2) then
+  begin
+    nodes := Self.FindPath(n1,n2,Rnd);
+    if (Length(nodes) = 0) then
+      RaiseException('Points `'+ToStr(p)+'` and `'+ToStr(q)+'` does not connect');
+  end;
   // if distance between nodes > ??? then Unreliable result
 
   Result += p;
