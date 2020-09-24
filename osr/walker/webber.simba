@@ -82,9 +82,9 @@ begin
   end;
 
   c := Length(Graph.Nodes);
-  SetLength(Graph.Nodes, c+1);
-  SetLength(Graph.Paths, c+1);
-  SetLength(Graph.Names, c+1);
+  SetLength(Graph.Nodes, c + 1);
+  SetLength(Graph.Paths, c + 1);
+  SetLength(Graph.Names, c + 1);
 
   Graph.Nodes[c] := p;
   if Self.SelectedNode > -1 then
@@ -294,6 +294,12 @@ begin
   end;
 end;
 
+procedure TWebberForm.OnUnSelectNode(Sender: TObject);
+begin
+  Self.SelectedNode := -1;
+  Self.ImageBox.Update();
+end;
+
 procedure TWebberForm.OnPrintGraph(Sender: TObject);
 var
   I, J: Int32;
@@ -399,6 +405,13 @@ begin
     Button.SetAutoSize(True);
     Button.SetCaption('Name Node');
     Button.SetOnClick(@Self.OnNameSelectedNode);
+    Button.SetAlign(alLeft);
+
+    Button.Init(Panel);
+    Button.SetParent(Panel);
+    Button.SetAutoSize(True);
+    Button.SetCaption('UnSelect node');
+    Button.SetOnClick(@Self.OnUnSelectNode);
     Button.SetAlign(alLeft);
 
     Button.Init(Panel);

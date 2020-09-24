@@ -298,27 +298,26 @@ begin
 end;
 
 function TWebGraph.NodesToString: String;
+var
+  I: Int32;
 begin
-  Result := ToString(Self.Nodes);
-  Result := Result.Replace('X = ', '');
-  Result := Result.Replace('Y = ', '');
+  for I := 0 to High(Self.Nodes) do
+    Result := Result + '[' + IntToStr(Self.Nodes[I].X) + ' ' + IntToStr(Self.Nodes[I].Y) + ']';
   Result := Base64Encode(CompressString(Result));
 end;
 
-procedure TWebGraph.LoadNodesFromString(Data: String);
+procedure TWebGraph.LoadNodesFromString(S: String);
 var
-  Values: TStringArray;
-  Elements: TStringArray;
-  I: Int32;
+  Elements, Values: TStringArray;
+  I, J: Int32;
 begin
-  Data := DecompressString(Base64Decode(Data));
-  Elements := MultiBetween(Data, '{', '}');
+  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
 
   SetLength(Self.Nodes, Length(Elements));
 
   for I := 0 to High(Elements) do
   begin
-    Values := Explode(', ', Elements[I]);
+    Values := Explode(' ', Elements[I]);
 
     Self.Nodes[I].X := StrToInt(Values[0]);
     Self.Nodes[I].Y := StrToInt(Values[1]);
@@ -326,24 +325,43 @@ begin
 end;
 
 function TWebGraph.PathsToString: String;
-begin
-  Result := Base64Encode(CompressString(ToString(Paths)));
-end;
-
-procedure TWebGraph.LoadPathsFromString(Data: String);
 var
-  Values: TStringArray;
-  Elements: TStringArray;
   I, J: Int32;
 begin
-  Data := DecompressString(Base64Decode(Data));
-  Elements := MultiBetween(Data, '[', ']');
+  for I := 0 to High(Self.Paths) do
+  begin
+    Result := Result + '[';
+    if Length(Self.Paths[I]) = 0 then
+      Result += ' ';
+
+    for J := 0 to High(Self.Paths[I]) do
+    begin
+      if (J > 0) then
+        Result += ' ';
+      Result += IntToStr(Self.Paths[I][J]);
+    end;
+
+    Result := Result + ']';
+  end;
+
+  Result := Base64Encode(CompressString(Result));
+end;
+
+procedure TWebGraph.LoadPathsFromString(S: String);
+var
+  Elements, Values: TStringArray;
+  I, J: Int32;
+begin
+  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
 
   SetLength(Self.Paths, Length(Elements));
 
   for I := 0 to High(Elements) do
   begin
-    Values := Explode(', ', Elements[I]);
+    if Elements[I] = ' ' then
+      Continue;
+
+    Values := Explode(' ', Elements[I]);
 
     SetLength(Self.Paths[I], Length(Values));
     for J := 0 to High(Values) do
@@ -352,19 +370,28 @@ begin
 end;
 
 function TWebGraph.NamesToString: String;
-begin
-  Result := Base64Encode(CompressString(ToString(Self.Names)));
-end;
-
-procedure TWebGraph.LoadNamesFromString(Data: String);
 var
   I: Int32;
 begin
-  Data := DecompressString(Base64Decode(Data));
-  Data := Data.Strip('[]');
-
-  Self.Names := Data.Explode(',');
   for I := 0 to High(Self.Names) do
-    Self.Names[I] := Self.Names[I].Strip();
+    if Self.Names[I] = '' then
+      Result := Result + '[#0]'
+    else
+      Result := Result + '[' + Self.Names[I] + ']';
+
+  Result := Base64Encode(CompressString(Result));
 end;
 
+procedure TWebGraph.LoadNamesFromString(S: String);
+var
+  Elements: TStringArray;
+  I: Int32;
+begin
+  Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
+
+  SetLength(Self.Names, Length(Elements));
+
+  for I := 0 to High(Elements) do
+    if (Elements[I] <> '#0') then
+      Self.Names[I] := Elements[I];
+end;
