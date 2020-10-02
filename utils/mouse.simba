@@ -15,6 +15,8 @@ Methods to interact with the mouse.
   {$UNDEF SRL_DEBUG_MOUSE}
 {$ENDIF}
 
+{$loadlib ../plugins/libasyncmouse}
+
 const
   MOUSE_MOVE = -1;
 
@@ -66,7 +68,7 @@ type
   TMouseTeleportEvent = procedure(Sender: PMouse; X, Y: Int32);
 
   TMouse = record(TSRLBaseRecord)
-    Speed: Double;
+    Speed: Int32;
     Gravity, Wind: Double;
     Distribution: EMouseDistribution;
     MissChance: Double;
@@ -119,10 +121,10 @@ Initializes mouse variables.
 procedure TMouse.Setup;
 begin
   Self.Name := 'Mouse';
-  Self.Speed := 15;
-  Self.Gravity := 20;
-  Self.Wind := 16;
-  Self.MissChance := 10;
+  Self.Speed := 6;
+  Self.Gravity := 10;
+  Self.Wind := 8;
+  Self.MissChance := 15;
   Self.Distribution := MOUSE_DISTRIBUTION_ROWP;
 
   {$IFDEF SRL_DEBUG_MOUSE}
@@ -338,7 +340,7 @@ procedure TMouse.Idle;
 var
   T: UInt64 := SRL.TruncatedGauss(1000, 20000);
 begin
-  Self.Debug('Idle: ' + ToString(T));
+  Self.Debug('Idle: ' + ToString(T) + ' ms');
 
   Wait(T);
 end;
@@ -346,7 +348,7 @@ end;
 (*
 Mouse.Move
 ~~~~~~~~~~
-.. pascal:: procedure TMouse.Move(P: TPoint);
+.. pascal:: procedure TMouse.Move(Destination: TPoint);
 
 Moves the mouse to the desired point.
 
@@ -359,11 +361,11 @@ Moves the mouse to the desired point.
 
   Mouse.Move(P); // The mouse is now at 50,50
 *)
-procedure TMouse.Move(P: TPoint); overload;
+procedure TMouse.Move(Destination: TPoint); overload;
 var
   Start: TPoint;
   W, H: Int32;
-  RandSpeed: Double;
+  RandSpeed, Exponential: Double;
 begin
   Start := Self.Position();
 
@@ -387,17 +389,23 @@ begin
           Self.IdleGoal := SRL.GaussRand(Self.IdleInterval, Self.IdleInterval * 0.20);
       end;
 
-      Self.IdleProgress += Hypot(Start.X - P.X, Start.Y - P.Y) / Hypot(W, H);
+      Self.IdleProgress += Hypot(Start.X - Destination.X, Start.Y - Destination.Y) / Hypot(W, H);
     end;
   end;
 
   if SRL.Dice(Self.MissChance) then
-    Start := Self.Miss(P);
+    Start := Self.Miss(Destination);
 
-  RandSpeed := SRL.TruncatedGauss(Self.Speed, Self.Speed * 2) / 10.0;
+  // Further the distance, faster we move
+  Exponential := Hypot(Start.X - Destination.X, Start.Y - Destination.Y);
+  Exponential := Pow(Exponential, 0.30);
+
+  RandSpeed := SRL.TruncatedGauss(Self.Speed, Self.Speed * 1.5);
+  RandSpeed += Exponential;
+  RandSpeed /= 10;
 
   Self.WindMouse(
-    Start.X, Start.Y, P.X, P.Y,
+    Start.X, Start.Y, Destination.X, Destination.Y,
     Self.Gravity, Self.Wind,
     10 / RandSpeed, 20 / RandSpeed, 20 * RandSpeed, 50 * RandSpeed
   );
@@ -743,8 +751,8 @@ begin
 
     Self.Move(Result);
 
-    if SRL.Dice(20) then
-      Wait(0, 3000, wdLeft);
+    if SRL.Dice(25) then
+      Wait(0, 5000, wdLeft);
   finally
     Self.MissChance := Temp;
   end;
