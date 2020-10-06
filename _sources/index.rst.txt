@@ -2,7 +2,9 @@ Welcome to SRL documentation!
 ===============================
 
 .. toctree::
-   :caption: OSR
+   :maxdepth: 2
+
+	:caption: OSR
 
    mainscreen
    inventory
@@ -14,14 +16,18 @@ Welcome to SRL documentation!
 -----------
 
 .. toctree::
-   :caption: OSR -> ITEMFINDER
+   :maxdepth: 2
+
+	:caption: OSR -> ITEMFINDER
 
    itemfinder
 
 -----------
 
 .. toctree::
-   :caption: OSR -> WALKER
+   :maxdepth: 2
+
+	:caption: OSR -> WALKER
 
    webber
    webgraph
@@ -30,7 +36,9 @@ Welcome to SRL documentation!
 -----------
 
 .. toctree::
-   :caption: UTILS
+   :maxdepth: 2
+
+	:caption: UTILS
 
    integerarrays
    extendedarrays
