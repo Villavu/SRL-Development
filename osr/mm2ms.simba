@@ -330,7 +330,8 @@ Takes a mainscreen point and converts it to a point on the minimap.
 Returns a Vector3 which includes input height. Conversion to a TPoint if that's what you need is simply 
 done by calling `.ToPoint` on the result.
 
-**Example**
+Example
+-------
 
   WriteLn Mainscreen.PointToMM(Point(250,140), 2);
   WriteLn Mainscreen.PointToMM(Point(250,140), 2).ToPoint(); // as a TPoint (lost accuracy)
@@ -394,7 +395,8 @@ MainScreen.ConvertDistance
 Converts a distance acquired from the **fixed client* and **default zoom** to the
 current mainscreen.
 
-**Example**
+Example
+-------
 
   // 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom & client size.
   WriteLn(MainScreen.TranslateDistance(20));

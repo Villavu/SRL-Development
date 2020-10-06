@@ -12,7 +12,7 @@ DOCNAME         = 'SRL'
 IGNORE_FOLDERS  = ['.git', 'docgen']
 FILE_EXTENSIONS = ['.simba'] 
 SHORT_RST       = [('.. code-block:: pascal\n\n', '.. pascal::'), 
-                   ('**Example:**\n\n.. code-block:: pascal  ', '**Example**')]
+                   ('Example\n-------\n.. code-block:: pascal  ', 'Example\n-------')]
 
 commentregex = re.compile('\(\*.+?\*\)', re.DOTALL)
 
@@ -44,7 +44,7 @@ def generate_index_rst(TOC):
     
     for dir,value in TOC:
       # print('Linking: ' + dir)
-      index += '.. toctree::\n   :caption: %s\n\n' % (dir.upper().replace(os.sep,' -> '),)
+      index += '.. toctree::\n   :maxdepth: 2\n\n	:caption: %s\n\n' % (dir.upper().replace(os.sep,' -> '),)
       
       for name in value:
         # print('   * ' + name)
