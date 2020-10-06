@@ -53,11 +53,3 @@ Welcome to SRL documentation!
 
 -----------
 
-.. toctree::
-   :caption: UTILS_TODO
-
-   slackab
-   slackdebug
-
------------
-

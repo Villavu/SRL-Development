@@ -97,6 +97,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-pointtomm">Mainscreen.PointToMM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-findobject">Mainscreen.FindObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id2">Mainscreen.FindObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mainscreen-isvisible">Mainscreen.IsVisible</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
@@ -135,11 +136,6 @@
 <li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
-</ul>
-<p class="caption"><span class="caption-text">UTILS_TODO</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="slackab.html">Slacky’s Antiban Mixture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="slackdebug.html">Slackdebug</a></li>
 </ul>
 
             
@@ -450,6 +446,21 @@ done by calling <cite>.ToPoint</cite> on the result.</p>
 <p>Overload which searches the entire MainScreen.</p>
 <p><strong>Example:</strong></p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">FindObject</span><span class="p">(</span><span class="n">MyFinder</span><span class="p">))</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="mainscreen-isvisible">
+<h2>Mainscreen.IsVisible<a class="headerlink" href="#mainscreen-isvisible" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">IsVisible</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true if the TPoint is visible (not hidden by any other interfaces)
+on the mainscreen.</p>
+<p>This is only useful in resizable mode. The interfaces checked are Chatbox, Minimap and Gametabs.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">MainScreen</span><span class="o">.</span><span class="n">IsVisible</span><span class="p">([</span><span class="mi">100</span><span class="o">,</span> <span class="mi">100</span><span class="p">])</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;The point is not hidden behind Chatbox, Minimap, or Gametabs.&#39;</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />

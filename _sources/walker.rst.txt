@@ -5,6 +5,122 @@ Walker
 
 ------------
 
+TRSWalker.Setup
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 10);
+
+Setup a RSWalker variable.
+This only needs calling once per variable so it's suggested to use a global variable.
+
+``Map`` can be a path to a image or a map name found in ``SRL/osr/walker/maps/``
+
+**Example:**
+
+.. code-block:: pascal  
+
+  var Walker: TRSWalker;
+
+  Walker.Setup('world'); // Setup using the world map found in the maps directory.
+
+
+------------
+
+TRSWalker.GetMyPos
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSWalker.GetMyPos: TPoint;
+
+Returns the players current position on the loaded map.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  WriteLn(Walker.GetMyPos());
+
+
+------------
+
+TRSWalker.WalkPath
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Boolean;
+
+Walks a path of points taken from the loaded map.
+Points must be ordered with the final point being the destinaton.
+
+WaitUntilDistance parameter determines when the method returns once the final point as been clicked:
+
+``WaitUntilDistance=0`` Will wait until the player has stopped moving.
+``WaitUntilDistance=20`` will wait until the players distance to destination is less than 20.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  Walker.WalkPath([[100,100],[120,120],[140,140],[160,160],[180,180]]);
+
+
+------------
+
+TRSWalker.WalkBlind
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSWalker.WalkBlind(Destination: TPoint; WaitUntilDistance: Int32 = 0): Boolean;
+
+"Blindly" walks to a point taken from the loaded map.
+A straight line is generated between the player's position and destination which is then walked.
+
+WaitUntilDistance parameter determines when the method returns once the final point as been clicked:
+
+``WaitUntilDistance=0`` Will wait until the player has stopped moving.
+``WaitUntilDistance=20`` will wait until the players distance to destination is less than 20.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  Walker.WalkBlind([300, 300]);
+
+
+------------
+
+TRSWalker.WebWalk
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSWalker.WebWalk(Destination: TPoint; WaitUntilDistance: Int32 = 0; PathRandomness: Extended = 0): Boolean;
+
+Web walks to the destination point on the loaded map. Does **not** handle any obstacles.
+Please run ``webber.simba`` to see how webgraphs are built.
+
+Pre built webgraphs are available for "World" and "Zeah" when used.
+
+WaitUntilDistance parameter determines when the method returns once the final point as been clicked:
+
+``WaitUntilDistance=0`` Will wait until the player has stopped moving.
+``WaitUntilDistance=20`` will wait until the players distance to destination is less than 20.
+
+**Example:**
+
+.. code-block:: pascal  
+
+  var Walker: TRSWalker;
+
+  Walker.Setup('world');
+  Walker.WebWalk([4595, 3575]); // Lumbridge...
+
+  // Or use a location from the webgraph
+  Walker.WebWalk(WorldWeb.LOCATION_LUMBRIDGE);
+
+
+------------
+
   Returns the tile position on the mainscreen as a rectangle
 
 

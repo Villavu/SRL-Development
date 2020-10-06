@@ -195,7 +195,7 @@ Mouse.Move
 ~~~~~~~~~~
 .. code-block:: pascal
 
- procedure TMouse.Move(P: TPoint);
+ procedure TMouse.Move(Destination: TPoint);
 
 Moves the mouse to the desired point.
 
