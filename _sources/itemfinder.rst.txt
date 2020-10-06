@@ -14,8 +14,8 @@ BankScreen.Deposit
 Deposits an array of items.
 ``Items`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   BankScreen.Deposit(['logs', 'lobster']);
@@ -35,8 +35,8 @@ The quantity buttons are used for picking the amount.
 ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   BankScreen.DepositQuantity('logs', 10); // Deposit 10 logs using using the `10` quantity button.
@@ -57,8 +57,8 @@ The quantity buttons are used for picking the amount.
 ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 ``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   BankScreen.Deposit('lobster', 10); // Deposit 10 logs using the `10` quantity button.
@@ -78,8 +78,8 @@ Withdraws the specified amount ``Amount`` of the item ``Item``.
 ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 ``BANK_WITHDRAW_ALL`` and ``BANK_WITHDRAW_ALL_BUT_ONE`` constants can be used for ``Amount``.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   BankScreen.Withdraw('logs', 10, False); // Withdraw 10 logs
@@ -100,8 +100,8 @@ The quantity buttons are used for picking the amount.
 ``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
 ``BANK_WITHDRAW_ALL`` constants can be used for ``Amount``.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   BankScreen.WithdrawQuantity('logs', 10, False); // Withdraw 10 logs using the `10` quantity button

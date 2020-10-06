@@ -91,19 +91,52 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">BankScreen</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-isopen">BankScreen.IsOpen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-setup">BankScreen.Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bankscreen-gettitle">BankScreen.GetTitle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bankscreen-search">BankScreen.Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-gettitle">BankScreen.GetTitle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-search">BankScreen.Search</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Example</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-withdraw">BankScreen._Withdraw</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-withdrawquantity">BankScreen._WithdrawQuantity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">BankScreen.Withdraw</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">BankScreen.WithdrawQuantity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bankscreen-deposit">BankScreen.Deposit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">BankScreen.Deposit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bankscreen-depositquantity">BankScreen.DepositQuantity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">BankScreen.DepositQuantity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">BankScreen.Deposit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">BankScreen.Deposit</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#bankscreen-close">BankScreen.Close</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">BankScreen.Withdraw</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">BankScreen.WithdrawQuantity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-deposit">BankScreen.Deposit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">BankScreen.Deposit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-depositquantity">BankScreen.DepositQuantity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">BankScreen.DepositQuantity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">BankScreen.Deposit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id14">BankScreen.Deposit</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bankscreen-close">BankScreen.Close</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Example</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#bankscreen-depositall">BankScreen.DepositAll</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#var-bankscreen">var BankScreen</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-isopen">Inventory.IsOpen</a></li>
@@ -238,9 +271,11 @@ can be a small delay before items are visible.</p>
 </pre></div>
 </div>
 <p>Returns the title of the bankscreen. Useful when searching.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">BankScreen</span><span class="o">.</span><span class="n">GetTitle</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -251,10 +286,12 @@ can be a small delay before items are visible.</p>
 </div>
 <p>Searches for an item.
 If no item is passed, the current search will be cleared.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BankScreen</span><span class="o">.</span><span class="n">Search</span><span class="p">(</span><span class="s">&#39;logs&#39;</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Search for logs</span>
 <span class="n">BankScreen</span><span class="o">.</span><span class="n">Search</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Clear current search</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -274,23 +311,25 @@ If no item is passed, the current search will be cleared.</p>
 <p>Internal functon.</p>
 </div>
 <hr class="docutils" />
-<div class="section" id="id1">
-<h2>BankScreen.Withdraw<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h2>BankScreen.Withdraw<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">Withdraw</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Amount</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">Noted</span><span class="o">:</span> <span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Withdraws the specified amount <code class="docutils literal notranslate"><span class="pre">Amount</span></code> of the item <code class="docutils literal notranslate"><span class="pre">Item</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Item</span></code> can be either name or ID. An item list is available at <code class="docutils literal notranslate"><span class="pre">Includes\SRL\osr\itemfinder\items</span></code>.
 <code class="docutils literal notranslate"><span class="pre">BANK_WITHDRAW_ALL</span></code> and <code class="docutils literal notranslate"><span class="pre">BANK_WITHDRAW_ALL_BUT_ONE</span></code> constants can be used for <code class="docutils literal notranslate"><span class="pre">Amount</span></code>.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BankScreen</span><span class="o">.</span><span class="n">Withdraw</span><span class="p">(</span><span class="s">&#39;logs&#39;</span><span class="o">,</span> <span class="mi">10</span><span class="o">,</span> <span class="k">False</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Withdraw 10 logs</span>
 <span class="n">BankScreen</span><span class="o">.</span><span class="n">Withdraw</span><span class="p">(</span><span class="s">&#39;lobster&#39;</span><span class="o">,</span> <span class="n">WITHDRAW_ALL</span><span class="o">,</span> <span class="k">True</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Withdraw all lobsters as noted</span>
 </pre></div>
 </div>
 </div>
+</div>
 <hr class="docutils" />
-<div class="section" id="id2">
-<h2>BankScreen.WithdrawQuantity<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>BankScreen.WithdrawQuantity<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">WithdrawQuantity</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Amount</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">Noted</span><span class="o">:</span> <span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -298,10 +337,12 @@ If no item is passed, the current search will be cleared.</p>
 The quantity buttons are used for picking the amount.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Item</span></code> can be either name or ID. An item list is available at <code class="docutils literal notranslate"><span class="pre">Includes\SRL\osr\itemfinder\items</span></code>.
 <code class="docutils literal notranslate"><span class="pre">BANK_WITHDRAW_ALL</span></code> constants can be used for <code class="docutils literal notranslate"><span class="pre">Amount</span></code>.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id5">
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BankScreen</span><span class="o">.</span><span class="n">WithdrawQuantity</span><span class="p">(</span><span class="s">&#39;logs&#39;</span><span class="o">,</span> <span class="mi">10</span><span class="o">,</span> <span class="k">False</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Withdraw 10 logs using the `10` quantity button</span>
 <span class="n">BankScreen</span><span class="o">.</span><span class="n">Withdraw</span><span class="p">(</span><span class="s">&#39;lobster&#39;</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="k">True</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Withdraw all lobsters as noted using the `X` quantity button</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -311,25 +352,29 @@ The quantity buttons are used for picking the amount.</p>
 </pre></div>
 </div>
 <p>Deposits an array of slots.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id6">
+<h3>Example<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BankScreen</span><span class="o">.</span><span class="n">Deposit</span><span class="p">([</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">;</span> <span class="c1">// Deposit the items in inventory slot 0 &amp; 1.</span>
 <span class="n">BankScreen</span><span class="o">.</span><span class="n">Deposit</span><span class="p">([</span><span class="mi">1</span><span class="o">..</span><span class="mi">10</span><span class="p">])</span><span class="o">;</span> <span class="c1">// Deposit the items in inventory slots 1 to 10.</span>
 </pre></div>
 </div>
 </div>
+</div>
 <hr class="docutils" />
-<div class="section" id="id3">
-<h2>BankScreen.Deposit<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h2>BankScreen.Deposit<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">Deposit</span><span class="p">(</span><span class="n">Slot</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">Amount</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Deposits the specified amount <code class="docutils literal notranslate"><span class="pre">Amount</span></code> of the item in the inventory slot <code class="docutils literal notranslate"><span class="pre">Slot</span></code>.
 The quantity buttons are used for picking the amount.</p>
 <p><code class="docutils literal notranslate"><span class="pre">BANK_DEPOSIT_ALL</span></code> constant can be used for <code class="docutils literal notranslate"><span class="pre">Amount</span></code>.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id8">
+<h3>Example<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BankScreen</span><span class="o">.</span><span class="n">Deposit</span><span class="p">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">10</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Deposit 10 logs using inventory slot 1 using the `10` quantity button.</span>
 <span class="n">BankScreen</span><span class="o">.</span><span class="n">Deposit</span><span class="p">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">BANK_DEPOSIT_ALL</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Deposit all logs using inventory slot 1 using the `ALL` quantity button.</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -341,15 +386,17 @@ The quantity buttons are used for picking the amount.</p>
 <p>Deposits the specified amount <code class="docutils literal notranslate"><span class="pre">Amount</span></code> of the item in the inventory slot <code class="docutils literal notranslate"><span class="pre">Slot</span></code>.
 The quantity buttons are used for picking the amount.</p>
 <p><code class="docutils literal notranslate"><span class="pre">BANK_DEPOSIT_ALL</span></code> constant can be used for <code class="docutils literal notranslate"><span class="pre">Amount</span></code>.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id9">
+<h3>Example<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BankScreen</span><span class="o">.</span><span class="n">DepositQuantity</span><span class="p">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">10</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Deposit 10 logs using inventory slot 1 using the `10` quantity button.</span>
 <span class="n">BankScreen</span><span class="o">.</span><span class="n">DepositQuantity</span><span class="p">(</span><span class="mi">0</span><span class="o">,</span> <span class="n">BANK_DEPOSIT_ALL</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Deposit all logs using inventory slot 1 using the `ALL` quantity button.</span>
 </pre></div>
 </div>
 </div>
+</div>
 <hr class="docutils" />
-<div class="section" id="id4">
-<h2>BankScreen.DepositQuantity<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h2>BankScreen.DepositQuantity<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">DepositQuantity</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Amount</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -357,28 +404,32 @@ The quantity buttons are used for picking the amount.</p>
 The quantity buttons are used for picking the amount.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Item</span></code> can be either name or ID. An item list is available at <code class="docutils literal notranslate"><span class="pre">Includes\SRL\osr\itemfinder\items</span></code>.
 <code class="docutils literal notranslate"><span class="pre">BANK_DEPOSIT_ALL</span></code> constant can be used for <code class="docutils literal notranslate"><span class="pre">Amount</span></code>.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id11">
+<h3>Example<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BankScreen</span><span class="o">.</span><span class="n">DepositQuantity</span><span class="p">(</span><span class="s">&#39;logs&#39;</span><span class="o">,</span> <span class="mi">10</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Deposit 10 logs using using the `10` quantity button.</span>
 <span class="n">BankScreen</span><span class="o">.</span><span class="n">DepositQuantity</span><span class="p">(</span><span class="s">&#39;lobster&#39;</span><span class="o">,</span> <span class="n">BANK_DEPOSIT_ALL</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Deposit all lobsters using inventory slot 1 using the `ALL` quantity button.</span>
 </pre></div>
 </div>
 </div>
+</div>
 <hr class="docutils" />
-<div class="section" id="id5">
-<h2>BankScreen.Deposit<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id12">
+<h2>BankScreen.Deposit<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">Deposit</span><span class="p">(</span><span class="n">Items</span><span class="o">:</span> <span class="n">TStringArray</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Deposits an array of items.
 <code class="docutils literal notranslate"><span class="pre">Items</span></code> can be either name or ID. An item list is available at <code class="docutils literal notranslate"><span class="pre">Includes\SRL\osr\itemfinder\items</span></code>.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id13">
+<h3>Example<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BankScreen</span><span class="o">.</span><span class="n">Deposit</span><span class="p">([</span><span class="s">&#39;logs&#39;</span><span class="o">,</span> <span class="s">&#39;lobster&#39;</span><span class="p">])</span><span class="o">;</span>
 </pre></div>
 </div>
 </div>
+</div>
 <hr class="docutils" />
-<div class="section" id="id6">
-<h2>BankScreen.Deposit<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id14">
+<h2>BankScreen.Deposit<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSBankScreen</span><span class="o">.</span><span class="nf">Deposit</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">Amount</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -386,10 +437,12 @@ The quantity buttons are used for picking the amount.</p>
 The quantity buttons are used for picking the amount.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Item</span></code> can be either name or ID. An item list is available at <code class="docutils literal notranslate"><span class="pre">Includes\SRL\osr\itemfinder\items</span></code>.
 <code class="docutils literal notranslate"><span class="pre">BANK_DEPOSIT_ALL</span></code> constant can be used for <code class="docutils literal notranslate"><span class="pre">Amount</span></code>.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id15">
+<h3>Example<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">BankScreen</span><span class="o">.</span><span class="n">Deposit</span><span class="p">(</span><span class="s">&#39;lobster&#39;</span><span class="o">,</span> <span class="mi">10</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Deposit 10 logs using the `10` quantity button.</span>
 <span class="n">BankScreen</span><span class="o">.</span><span class="n">Deposit</span><span class="p">(</span><span class="s">&#39;logs&#39;</span><span class="o">,</span> <span class="n">BANK_DEPOSIT_ALL</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Deposit 10 logs using the `ALL` quantity button.</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -400,9 +453,11 @@ The quantity buttons are used for picking the amount.</p>
 </div>
 <p>Closes the bank, Depending on <cite>UseKeyboard</cite> the function will either click the button
 or press backspace.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id16">
+<h3>Example<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">BankScreen</span><span class="o">.</span><span class="n">Close</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />

@@ -15,8 +15,8 @@ Inventory.PointToSlot
 Returns the inventory slot index which contains the TPoint `P`.
 Returns -1 if the point does not fall in any slots.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var P: TPoint;
@@ -38,8 +38,8 @@ Inventory.IsSlotSelected
 
 Returns True if the slot is selected (white outline).
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   if Inventory.IsSlotSelected(1) then
@@ -57,8 +57,8 @@ Inventory.GetSelectedSlot
 Returns the index of the selected slot (white outline).
 **-1** is returned if no slot is selected.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   WriteLn(Inventory.GetSelectedSlot());
@@ -75,8 +75,8 @@ Inventory.SetSelectedSlot
 Set the slot as selected (white outline).
 Slot can be **-1** to unselect the currently selected slot.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   WriteLn(Inventory.GetSelectedSlot());
@@ -92,8 +92,8 @@ Inventory.Use
 
 Selects **Slot** and uses with **OtherSlot**.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Inventory.Use(1, 5); // Use item in slot 1 on Item in slot 5
@@ -109,8 +109,8 @@ Inventory.RandomSlotNearby
 
 Randomly returns one of the **Slots** weighted towards **Slot** by distance.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var Slot: Int32;
@@ -130,8 +130,8 @@ Inventory.ShiftDrop
 
 Shift drops items following the desired pattern.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   // Shift drop maple & willow logs in the snake pattern

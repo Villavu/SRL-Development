@@ -100,11 +100,30 @@
 <li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
 <li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Walker</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#trswalker-setup">TRSWalker.Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#trswalker-getmypos">TRSWalker.GetMyPos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#trswalker-walkpath">TRSWalker.WalkPath</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#trswalker-walkblind">TRSWalker.WalkBlind</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#trswalker-webwalk">TRSWalker.WebWalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trswalker-setup">TRSWalker.Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#trswalker-getmypos">TRSWalker.GetMyPos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#trswalker-walkpath">TRSWalker.WalkPath</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#trswalker-walkblind">TRSWalker.WalkBlind</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#trswalker-webwalk">TRSWalker.WebWalk</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Example</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -203,12 +222,22 @@
 </div>
 <p>Setup a RSWalker variable.
 This only needs calling once per variable so it’s suggested to use a global variable.</p>
-<p><code class="docutils literal notranslate"><span class="pre">Map</span></code> can be a path to a image or a map name found in <code class="docutils literal notranslate"><span class="pre">SRL/osr/walker/maps/</span></code></p>
-<p><strong>Example:</strong></p>
+<div class="section" id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
+<dl class="simple">
+<dt>Map</dt><dd><p>File path to an image or a map name found in <em>SRL/osr/walker/maps</em>.</p>
+</dd>
+<dt>Scaling</dt><dd><p>Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 10)</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">Walker</span><span class="o">:</span> <span class="n">TRSWalker</span><span class="o">;</span>
 
-<span class="n">Walker</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Setup using the world map found in the maps directory.</span>
+<span class="n">Walker</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Setup using the world map found in the maps directory</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -218,9 +247,14 @@ This only needs calling once per variable so it’s suggested to use a global va
 </pre></div>
 </div>
 <p>Returns the players current position on the loaded map.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">Walker</span><span class="o">.</span><span class="n">GetMyPos</span><span class="p">())</span><span class="o">;</span>
+
+<span class="c1">// Check to see the match percentage if needed</span>
+<span class="nb">WriteLn</span><span class="p">(</span><span class="n">Walker</span><span class="o">.</span><span class="n">Similarity</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -229,14 +263,25 @@ This only needs calling once per variable so it’s suggested to use a global va
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkPath</span><span class="p">(</span><span class="n">Path</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">WaitUntilDistance</span><span class="o">:</span> <span class="n">Int32</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Walks a path of points taken from the loaded map.
-Points must be ordered with the final point being the destinaton.</p>
-<p>WaitUntilDistance parameter determines when the method returns once the final point as been clicked:</p>
-<p><code class="docutils literal notranslate"><span class="pre">WaitUntilDistance=0</span></code> Will wait until the player has stopped moving.
-<code class="docutils literal notranslate"><span class="pre">WaitUntilDistance=20</span></code> will wait until the players distance to destination is less than 20.</p>
-<p><strong>Example:</strong></p>
+<p>Walks a path of points taken from the loaded map.</p>
+<div class="section" id="id2">
+<h3>Parameters<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<dl>
+<dt>Path</dt><dd><p>Array of points taken from the loaded map to walk. Must be ordered from start to finish.</p>
+</dd>
+<dt>WaitUntilDistance</dt><dd><p>Determines when the method returns once the final point has been clicked. Default value: 0.</p>
+<div class="line-block">
+<div class="line"><em>WaitUntilDistance=0</em> waits until the player has reached the final point.</div>
+<div class="line"><em>WaitUntilDistance=20</em> waits until the player is within 20 pixels of the final point.</div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="section" id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Walker</span><span class="o">.</span><span class="n">WalkPath</span><span class="p">([[</span><span class="mi">100</span><span class="o">,</span><span class="mi">100</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">120</span><span class="o">,</span><span class="mi">120</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">140</span><span class="o">,</span><span class="mi">140</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">160</span><span class="o">,</span><span class="mi">160</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">180</span><span class="o">,</span><span class="mi">180</span><span class="p">]])</span><span class="o">;</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -247,12 +292,24 @@ Points must be ordered with the final point being the destinaton.</p>
 </div>
 <p>“Blindly” walks to a point taken from the loaded map.
 A straight line is generated between the player’s position and destination which is then walked.</p>
-<p>WaitUntilDistance parameter determines when the method returns once the final point as been clicked:</p>
-<p><code class="docutils literal notranslate"><span class="pre">WaitUntilDistance=0</span></code> Will wait until the player has stopped moving.
-<code class="docutils literal notranslate"><span class="pre">WaitUntilDistance=20</span></code> will wait until the players distance to destination is less than 20.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id4">
+<h3>Parameters<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<dl>
+<dt>Destination</dt><dd><p>Destination point taken from the loaded map.</p>
+</dd>
+<dt>WaitUntilDistance</dt><dd><p>Determines when the method returns once the final point has been clicked. Default value: 0.</p>
+<div class="line-block">
+<div class="line"><em>WaitUntilDistance=0</em> waits until the player has reached the final point.</div>
+<div class="line"><em>WaitUntilDistance=20</em> waits until the player is within 20 pixels of the final point.</div>
+</div>
+</dd>
+</dl>
+</div>
+<div class="section" id="id5">
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Walker</span><span class="o">.</span><span class="n">WalkBlind</span><span class="p">([</span><span class="mi">300</span><span class="o">,</span> <span class="mi">300</span><span class="p">])</span><span class="o">;</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />
@@ -264,28 +321,34 @@ A straight line is generated between the player’s position and destination whi
 <p>Web walks to the destination point on the loaded map. Does <strong>not</strong> handle any obstacles.
 Please run <code class="docutils literal notranslate"><span class="pre">webber.simba</span></code> to see how webgraphs are built.</p>
 <p>Pre built webgraphs are available for “World” and “Zeah” when used.</p>
-<p>WaitUntilDistance parameter determines when the method returns once the final point as been clicked:</p>
-<p><code class="docutils literal notranslate"><span class="pre">WaitUntilDistance=0</span></code> Will wait until the player has stopped moving.
-<code class="docutils literal notranslate"><span class="pre">WaitUntilDistance=20</span></code> will wait until the players distance to destination is less than 20.</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="id6">
+<h3>Parameters<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<dl>
+<dt>Destination</dt><dd><p>Destination point taken from the loaded map.</p>
+</dd>
+<dt>WaitUntilDistance</dt><dd><p>Determines when the method returns once the final point has been clicked. Default value: 0.</p>
+<div class="line-block">
+<div class="line"><em>WaitUntilDistance=0</em> waits until the player has reached the final point.</div>
+<div class="line"><em>WaitUntilDistance=20</em> waits until the player is within 20 pixels of the final point.</div>
+</div>
+</dd>
+<dt>PathRandomness</dt><dd><p>Randomness to add to the path so the absoulte shortest path isn’t always taken. Must be between 0..1</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="id7">
+<h3>Example<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">Walker</span><span class="o">:</span> <span class="n">TRSWalker</span><span class="o">;</span>
 
 <span class="n">Walker</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">)</span><span class="o">;</span>
-<span class="n">Walker</span><span class="o">.</span><span class="n">WebWalk</span><span class="p">([</span><span class="mi">4595</span><span class="o">,</span> <span class="mi">3575</span><span class="p">])</span><span class="o">;</span> <span class="c1">// Lumbridge...</span>
+<span class="n">Walker</span><span class="o">.</span><span class="n">WebWalk</span><span class="p">([</span><span class="mi">4595</span><span class="o">,</span> <span class="mi">3575</span><span class="p">])</span><span class="o">;</span> <span class="c1">// Lumbridge</span>
 
 <span class="c1">// Or use a location from the webgraph</span>
 <span class="n">Walker</span><span class="o">.</span><span class="n">WebWalk</span><span class="p">(</span><span class="n">WorldWeb</span><span class="o">.</span><span class="n">LOCATION_LUMBRIDGE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
-<blockquote>
-<div><p>Returns the tile position on the mainscreen as a rectangle</p>
-</div></blockquote>
-<hr class="docutils" />
-<blockquote>
-<div><p>Same as the above, only you dont have to pass “MyPos” to it.</p>
-</div></blockquote>
-<hr class="docutils" />
+</div>
 </div>
 </div>
 

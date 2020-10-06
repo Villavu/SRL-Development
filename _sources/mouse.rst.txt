@@ -67,8 +67,8 @@ Mouse.Teleport
 
 Teleport the mouse to the desired X,Y coordinates.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Teleport(50, 50);
@@ -84,8 +84,8 @@ Mouse.Teleport
 
 Teleport the mouse to the desired point.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Teleport(50, 50);
@@ -101,8 +101,8 @@ Mouse.Position
 
 Returns the mouse current position.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var P: TPoint;
@@ -130,8 +130,8 @@ Available buttons:
  - MOUSE_EXTRA_1
  - MOUSE_EXTRA_2
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Hold(MOUSE_LEFT); // The mouse is now holding down left click.
@@ -154,8 +154,8 @@ Available buttons:
  - MOUSE_EXTRA_1
  - MOUSE_EXTRA_2
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Release(MOUSE_LEFT); // The mouse is no holding left click.
@@ -199,8 +199,8 @@ Mouse.Move
 
 Moves the mouse to the desired point.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var P: TPoint;
@@ -221,8 +221,8 @@ Mouse.Move
 
 Moves the mouse to the desired X,Y coordinate.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Move(50, 50); // The mouse is now at 50,50
@@ -240,8 +240,8 @@ Moves the mouse to a random point in an circle defined by **Center** and **Radiu
 
 - **ForcedMove** determines if the mouse should be moved if already inside the circle. By default this is **False**.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Move([100, 100], 25); // The mouse is now randomly within 100,100 with a radius of 25.
@@ -260,8 +260,8 @@ Moves the mouse to a random point in the box.
 - **ForcedMove** determines if the mouse should be moved if already in the box. By default this is **False**
 - **Distribution** determines the method to generate a random point. By default this uses **Mouse.Distribution**
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var B: TBox;
@@ -286,8 +286,8 @@ Moves the mouse to a random point in an circle.
 
 - **ForcedMove** determines if the mouse should be moved if already in the circle. By default this is **False**.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var C: TCircle;
@@ -311,8 +311,8 @@ Moves the mouse to a random point in an rectangle.
 
 - **ForcedMove** determines if the mouse should be moved if already in the rectangle. By default this is **False**.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var TPA: TPointArray;
@@ -340,8 +340,8 @@ Available buttons:
  - MOUSE_EXTRA_1
  - MOUSE_EXTRA_2
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Click(MOUSE_LEFT); // Left click the current mouse position
@@ -364,8 +364,8 @@ Available buttons:
  - MOUSE_EXTRA_1
  - MOUSE_EXTRA_2
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Click(50, 50, MOUSE_LEFT); // Left click at 50,50
@@ -388,8 +388,8 @@ Available buttons:
  - MOUSE_EXTRA_1
  - MOUSE_EXTRA_2
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var P: TPoint;
@@ -412,8 +412,8 @@ Moves the mouse to a random point in an circle defined by **Center** and **Radiu
 
  - **ForcedMove** determines if the mouse should be moved if already in the circle. By default this is **False**.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Click([100, 100], 25, MOUSE_LEFT); // Left clicked somewhere nearby 100,100 with a radius of 25.
@@ -439,8 +439,8 @@ Available buttons:
  - MOUSE_EXTRA_1
  - MOUSE_EXTRA_2
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var B: TBox;
@@ -465,8 +465,8 @@ Moves the mouse to a random point in an circle and clicks the desired button.
 
  - **ForcedMove** determines if the mouse should be moved if already in the circle. By default this is **False**.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var C: TCircle;
@@ -490,8 +490,8 @@ Moves the mouse to a random point in an rectangle then clicks the desired button
 
  - **ForcedMove** determines if the mouse should be moved if already in the rectangle. By default this is **False**.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var TPA: TPointArray;
@@ -528,8 +528,8 @@ Holds the desired button and moves the mouse to X,Y coordinates.
 
  - **Button** by default is MOUSE_LEFT.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.DragTo(50, 50); // Moves the mouse to 50,50 while holding MOUSE_LEFT
@@ -547,8 +547,8 @@ Holds the desired button and moves the mouse to `P` coordinates.
 
  - **Button** by default is MOUSE_LEFT.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var P: TPoint;
@@ -569,8 +569,8 @@ Mouse.Scroll
 
 Scrolls the mouse X amount of times at the current mouse position.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   Mouse.Scroll(5, True);  // Scroll 5 times down
@@ -587,8 +587,8 @@ Mouse.Scroll
 
 Moves the mouse to desired position `P` then scrolls X amount of times.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var P: TPoint;
@@ -610,8 +610,8 @@ Mouse.Scroll
 
 Moves the mouse to a random point in the box then scrolls X amount of times.
 
-**Example:**
-
+Example
+-------
 .. code-block:: pascal  
 
   var B: TBox;

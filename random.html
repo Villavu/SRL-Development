@@ -120,7 +120,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#id4">SRL.RandomPoint (overload)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#srl-randonpointex">SRL.RandonPointEx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#srl-rowp">SRL.rowp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#srl-dice">SRL.Dice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-dice">SRL.Dice</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#wait-overload">Wait (overload)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#waitex">WaitEx</a></li>
 </ul>
@@ -322,12 +325,14 @@ Final implementation and math done by slacky.</p>
 </pre></div>
 </div>
 <p>Generates a random number and returns <code class="docutils literal notranslate"><span class="pre">True</span></code> whenever the value generated is within the chance (in percentage).</p>
-<p><strong>Example:</strong></p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">SRL</span><span class="o">.</span><span class="n">Dice</span><span class="p">(</span><span class="mi">1</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">then</span>
   <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;This has a 10.5 percent chance of writing&#39;</span><span class="p">)</span>
 <span class="k">else</span>
   <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;No dice&#39;</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
+</div>
 </div>
 </div>
 <hr class="docutils" />

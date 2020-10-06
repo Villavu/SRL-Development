@@ -115,7 +115,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Pixelshift</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#srl-getpixelshift">SRL.GetPixelShift</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#srl-getpixelshifttpa">SRL.GetPixelShiftTPA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#srl-isanimating">SRL.IsAnimating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#srl-isanimating">SRL.IsAnimating</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
@@ -220,7 +223,8 @@
 </div>
 <p>Counts the pixels that changed in the period <code class="docutils literal notranslate"><span class="pre">WaitTime</span></code> and checks if <code class="docutils literal notranslate"><span class="pre">Shift</span></code> value was met if it was
 the it will return <code class="docutils literal notranslate"><span class="pre">True</span></code>. The check itself can be repeated several times <code class="docutils literal notranslate"><span class="pre">Iter</span></code></p>
-<p><strong>Example:</strong></p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
@@ -231,6 +235,7 @@ the it will return <code class="docutils literal notranslate"><span class="pre">
 <p>In the example we supply a random area, and checks if 350 pixels changed within 500ms, we repeat
 that test 3 times, or until the condition <code class="docutils literal notranslate"><span class="pre">350</span> <span class="pre">pixels</span></code> was met.</p>
 <hr class="docutils" />
+</div>
 </div>
 </div>
 
