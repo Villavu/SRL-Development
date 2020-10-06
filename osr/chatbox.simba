@@ -45,9 +45,16 @@ begin
   Result[8].Y2 += 2;
 end;
 
-function TRSChatbox.FindNPCChat(Text: String): Boolean;
+function TRSChatbox.FindNPCChat(Text: String; out B: TBox): Boolean; overload;
 begin
-  Result := FindTextColor(Text, RS_FONT_QUILL_8, $000000, 0, Self.Bounds, 1);
+  Result := FindTextColor(Text, RS_FONT_QUILL_8, $000000, 0, Self.Bounds, B) = 1;
+end;
+
+function TRSChatbox.FindNPCChat(Text: String): Boolean; overload;
+var
+  B: TBox;
+begin
+  Result := Self.FindNPCChat(Text, B);
 end;
 
 function TRSChatbox.GetTitle: String;
@@ -164,7 +171,6 @@ const
 var
   QuantityButtons, ItemButtons: TBoxArray;
   B: TBox;
-  I: Int32;
 begin
   if Self.FindMakeButtons(QuantityButtons, ItemButtons) and (Index < Length(ItemButtons)) then
   begin
@@ -260,6 +266,84 @@ begin
           (FindTextColor('Please wait', RS_FONT_QUILL_8, $FFFFFF, 0, Self.Bounds, B) = 1) do
       Wait(50, 250, wdLeft);
   end;
+end;
+
+type
+  TRSChatboxOption = record
+    Text: String;
+    Bounds: TBox;
+    Number: Int32;
+  end;
+  TRSChatboxOptionArray = array of TRSChatboxOption;
+
+function TRSChatbox.GetOptions: TRSChatboxOptionArray;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  B: TBox;
+  I: Int32;
+begin
+  if SRL.FindColors(TPA, [$000000], Self.Bounds) > 0 then
+  begin
+    // Get characters that are not tiny and not connected, get the means then cluster to get lines
+    ATPA := TPA.Split(1);
+    TPA := [];
+    for I := 0 to High(ATPA) do
+      if InRange(ATPA[I].Bounds.Height(), 4, 12) then
+        TPA += ATPA[I].Mean();
+
+    ATPA := TPA.Cluster(100, 5);
+    ATPA.SortByY(True);
+
+    SetLength(Result, Length(ATPA));
+
+    for I := 0 to High(ATPA) do
+    begin
+      B := ATPA[I].Bounds();
+      B := B.Expand(50, 10);
+      B.LimitTo(Self.Bounds());
+
+      Result[I].Text := OCR.Recognize(B, [$000000], RS_FONTSET_QUILL_8, False);
+      Result[I].Bounds := ATPA[I].Bounds;
+      Result[I].Number := I + 1;
+    end;
+  end;
+end;
+
+function TRSChatbox.FindOption(Text: String): Boolean;
+var
+  Option: TRSChatboxOption;
+begin
+  for Option in GetOptions() do
+    if Text in Option.Text then
+      Exit(True);
+end;
+
+function TRSChatbox.ClickOption(Text: String; UseKeyboard: Boolean = True): Boolean;
+var
+  Option: TRSChatboxOption;
+begin
+  for Option in GetOptions() do
+    if Text in Option.Text then
+    begin
+      if UseKeyboard then
+        Keyboard.PressKey(VK_0 + Option.Number)
+      else
+        Mouse.Click(Option.Bounds, MOUSE_LEFT);
+
+      Exit(True);
+    end;
+end;
+
+function TRSChatBox.ChatToOption(Option: String): Boolean;
+var
+  Timeout: TCountdown;
+begin
+  Timeout.Init(10000);
+  while (not Timeout.IsFinished) and (not Self.FindOption(Option)) and Self.ClickContinue() do
+    Wait(0, 2500, wdLeft);
+
+  Result := Self.ClickOption(Option);
 end;
 
 var
