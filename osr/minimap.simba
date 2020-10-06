@@ -124,33 +124,38 @@ var
   MousePosition: TPoint;
   Pixels: Int32;
   T: UInt64;
+  CustomMouse: TMouse;
 begin
-  T := GetTickCount() + Round(SRL.TruncatedGauss(6000, 8000));
+  CustomMouse := Mouse;
+  CustomMouse.MissChance := 0;
+  CustomMouse.IdleInterval := 0;
 
   Available := GetClientBounds().Expand(-10);
   Degrees := FixD(Degrees);
   Remaining := Round(Self.GetCompassAngle() - Degrees);
 
+  T := GetTickCount() + Round(SRL.TruncatedGauss(6000, 8000));
+
   while (Abs(Remaining) > Accuracy) do
   begin
     if (GetTickCount() > T) then
     begin
-      WriteLn('Minimap.SetCompassAngle timed out');
+      Self.Debug('SetCompassAngle timed out');
       Exit;
     end;
 
     Pixels := Round(Abs(SRL.DeltaAngle(Self.GetCompassAngle(), Degrees)) * DEG_PER_PIXEL);
     LeftToRight := ((Remaining > 0) and (Abs(Remaining) <= 180)) or ((Remaining < 0) and (Abs(Remaining) > 180));
 
-    MousePosition := Mouse.Position();
+    MousePosition := CustomMouse.Position();
 
     if LeftToRight then
     begin
       if (not Available.Contains(MousePosition)) or ((MousePosition.Y + 200 > Available.Y2) or (MousePosition.X + Pixels > Available.X2)) then
       begin
-        Mouse.Move([Available.X1, Available.Y1, Available.X1 + 200, Available.Y1 + 200]);
+        CustomMouse.Move([Available.X1, Available.Y1, Available.X1 + 200, Available.Y1 + 200]);
 
-        MousePosition := Mouse.Position();
+        MousePosition := CustomMouse.Position();
       end;
 
       Destination.X := MousePosition.X + Pixels;
@@ -159,18 +164,18 @@ begin
     begin
       if (not Available.Contains(MousePosition)) or ((MousePosition.Y + 200 > Available.Y2) or (MousePosition.X - Pixels < Available.X1)) then
       begin
-        Mouse.Move([Available.X2 - 200, Available.Y1, Available.X2, Available.Y1 + 200]);
+        CustomMouse.Move([Available.X2 - 200, Available.Y1, Available.X2, Available.Y1 + 200]);
 
-        MousePosition := Mouse.Position();
+        MousePosition := CustomMouse.Position();
       end;
 
       Destination.X := MousePosition.X - Pixels;
       Destination.Y := Random(MousePosition.Y + 200, Available.Y2);
     end;
 
-    Mouse.Hold(MOUSE_MIDDLE);
-    Mouse.Move(Destination);
-    Mouse.Release(MOUSE_MIDDLE);
+    CustomMouse.Hold(MOUSE_MIDDLE);
+    CustomMouse.Move(Destination);
+    CustomMouse.Release(MOUSE_MIDDLE);
 
     Wait(100, 1000, wdLeft);
 
@@ -244,9 +249,14 @@ begin
   end;
 end;
 
-function TRSMinimap.IsPointOn(P: TPoint): Boolean;
+function TRSMinimap.IsPointOn(P: TPoint): Boolean; overload;
 begin
   Result := SRL.PointInPoly(P, Self.GetPolygon());
+end;
+
+function TRSMinimap.IsPointOn(P: TPoint; Expand: Int32): Boolean; overload;
+begin
+  Result := SRL.PointInPoly(P, ExpandPolygon(Self.GetPolygon(), Expand));
 end;
 
 function TRSMinimap.IsRunEnabled: Boolean;

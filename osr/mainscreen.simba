@@ -479,6 +479,38 @@ begin
   Result := Self.FindObject(Finder, Self.Bounds());
 end;
 
+(*
+Mainscreen.IsVisible
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.IsVisible(P: TPoint): Boolean;
+
+Returns true if the TPoint is visible (not hidden by any other interfaces)
+on the mainscreen.
+
+This is only useful in resizable mode. The interfaces checked are Chatbox, Minimap and Gametabs.
+
+**Example**
+
+  if MainScreen.IsVisible([100, 100]) then
+    WriteLn('The point is not hidden behind Chatbox, Minimap, or Gametabs.');
+*)
+function TRSMainScreen.IsVisible(P: TPoint): Boolean;
+begin
+  if P.InBox(Self.Bounds) then
+  begin
+    if Chatbox.IsOpen() and P.InBox(Chatbox.Bounds) then
+      Exit;
+    if P.InBox(ChatButtons.Bounds) then
+      Exit;
+    if P.InBox(Minimap.Bounds.Expand(50)) then
+      Exit;
+    if P.InBox(GameTabs.Bounds) then
+      Exit;
+
+    Result := True;
+  end;
+end;
+
 var
   MainScreen: TRSMainScreen;
 

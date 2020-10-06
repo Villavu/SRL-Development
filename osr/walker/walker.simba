@@ -3,8 +3,9 @@ Walker
 ======
 *)
 
+{.$DEFINE SRL_DEBUG_WALKER}
+
 {$DEFINE SRL_WALKER_INCLUDED}
-{$DEFINE SRL_DEBUG_WALKER_CACHE}
 
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -18,32 +19,79 @@ type
   TRSWalkerCache = record
     World: TMufasaBitmap;
     WorldSample: TMufasaBitmap;
-    Speed: Int32;
+    Scaling: Int32;
 
-    Rotation: Single;
     Position: TPoint;
     Radius: Int32;
 
     LastUsed: UInt64;
   end;
 
+  PRSWalker = ^TRSWalker;
+
+  TRSWalker_OnWalkEvent = procedure(Walker: PRSWalker; PlayerPoint: TPoint; WorldPoint: TPoint);
+  TRSWalker_OnWalkEventEx = procedure(Walker: PRSWalker; PlayerPoint: TPoint; WorldPoint: TPoint) of object;
+
   TRSWalker = record(TSRLBaseRecord)
     Cache: array of TRSWalkerCache;
     CacheSize: Int32;
     CacheRadius: Int32;
 
-    Rotation: Single;
-
     World: TMufasaBitmap;
     WorldSample: TMufasaBitmap;
-    Web: TWebGraph;
+    WebGraph: TWebGraph;
 
     EnableRunAtEnergy: Int32;
 
-    Speed: Int32;
+    Scaling: Int32;
     Similarity: Single;
     ScreenWalk: Boolean;
+
+    ClickRandomness: Int32;
+
+    Path: TPointArray;
+    PathIndex: Int32;
+
+    Enabled: Boolean;
+
+    OnWalkEvent: TRSWalker_OnWalkEvent;
+    OnWalkEventEx: TRSWalker_OnWalkEventEx;
   end;
+
+function TRSWalkerCache.GetMyPos(Minimap: TMufasaBitmap; MinimapSample: TMufasaBitmap; MinimapOffset: TPoint; out Similarity: Single): TPoint;
+var
+  P: TPoint;
+  Sample: TMufasaBitmap;
+  Matrix: TSingleMatrix;
+  _: Single;
+  B: TBox;
+begin
+  P.X := Self.Position.X div Self.Scaling;
+  P.Y := Self.Position.Y div Self.Scaling;
+
+  // Get scaled world map around last known position
+  B.X1 := Max(P.X - (Self.Radius div Self.Scaling), 0);
+  B.Y1 := Max(P.Y - (Self.Radius div Self.Scaling), 0);
+  B.X2 := Min(P.X + (Self.Radius div Self.Scaling), WorldSample.GetWidth()  - 1);
+  B.Y2 := Min(P.Y + (Self.Radius div Self.Scaling), WorldSample.GetHeight() - 1);
+
+  Sample := WorldSample.Copy(B.X1, B.Y1, B.X2, B.Y2);
+
+  // Find scaled minimap on scaled world map around last known position
+  Matrix := Sample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
+
+  Result.X := B.X1 * Self.Scaling;
+  Result.Y := B.Y1 * Self.Scaling;
+  Result   += Matrix.ArgMax() * Self.Scaling;
+
+  // Now search the world map around our match without scaling
+  Result   := TRSWalker.FindImageNear(Result, Self.World, Minimap, 20, [-2, 0, 2], Similarity, _);
+  Result   += MinimapOffset;
+  Result.X += Minimap.GetWidth() div 2;
+  Result.Y += Minimap.GetHeight() div 2;
+
+  Sample.Free();
+end;
 
 function TRSWalker.FindMap(Map: String): String; static;
 var
@@ -92,7 +140,23 @@ begin
   Self.World.Free();
 end;
 
-procedure TRSWalker.Setup(Map: String; Speed: Int32 = 10);
+(*
+TRSWalker.Setup
+~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 10);
+
+Setup a RSWalker variable.
+This only needs calling once per variable so it's suggested to use a global variable.
+
+``Map`` can be a path to a image or a map name found in ``SRL/osr/walker/maps/``
+
+**Example**
+
+  var Walker: TRSWalker;
+
+  Walker.Setup('world'); // Setup using the world map found in the maps directory.
+*)
+procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 10);
 var
   Path: String;
 begin
@@ -102,19 +166,20 @@ begin
   if (Path = '') then
     Self.Fatal('Unable to find map: ' + Map);
 
-  Self.Speed := Speed;
+  Self.Scaling := Scaling;
   Self.CacheSize := 3;
   Self.CacheRadius := 200;
+  Self.ClickRandomness := 4;
 
   case Map.Lower() of
-    'world': Self.Web  := WorldWeb;
-    'zeah':  Self.Web  := ZeahWeb;
+    'world': Self.WebGraph := WorldWeb;
+    'zeah':  Self.WebGraph := ZeahWeb;
   end;
 
   Self.WorldSample.Init(Client.GetMBitmaps());
 
   Self.World := Self.LoadMap(Path);
-  Self.World.Downsample(Self.Speed, Self.WorldSample);
+  Self.World.Downsample(Self.Scaling, Self.WorldSample);
 end;
 
 procedure TRSWalker.ClearDots(Bitmap: TMufasaBitmap);
@@ -140,7 +205,7 @@ begin
   for I := 0 to High(Dots) do
   begin
     ATPA[I] := Template.Offset(Dots[I]);
-	
+
     Bitmap.DrawTPA(ATPA[I], clFuchsia);
   end;
 
@@ -317,41 +382,6 @@ begin
   Tmp.Free();
 end;
 
-function TRSWalkerCache.GetMyPos(Minimap: TMufasaBitmap; MinimapSample: TMufasaBitmap; MinimapOffset: TPoint; out Similarity: Single): TPoint;
-var
-  P: TPoint;
-  Sample: TMufasaBitmap;
-  Matrix: TSingleMatrix;
-  _: Single;
-  B: TBox;
-begin
-  P.X := Self.Position.X div Self.Speed;
-  P.Y := Self.Position.Y div Self.Speed;
-
-  // Get scaled world map around last known position
-  B.X1 := Max(P.X - (Self.Radius div Self.Speed), 0);
-  B.Y1 := Max(P.Y - (Self.Radius div Self.Speed), 0);
-  B.X2 := Min(P.X + (Self.Radius div Self.Speed), WorldSample.GetWidth()  - 1);
-  B.Y2 := Min(P.Y + (Self.Radius div Self.Speed), WorldSample.GetHeight() - 1);
-
-  Sample := WorldSample.Copy(B.X1, B.Y1, B.X2, B.Y2);
-
-  // Find scaled minimap on scaled world map around last known position
-  Matrix := Sample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
-
-  Result.X := B.X1 * Self.Speed;
-  Result.Y := B.Y1 * Self.Speed;
-  Result   += Matrix.ArgMax() * Self.Speed;
-
-  // Now search the world map around our match without scaling
-  Result   := TRSWalker.FindImageNear(Result, Self.World, Minimap, 20, [Self.Rotation], Similarity, _);
-  Result   += MinimapOffset;
-  Result.X += Minimap.GetWidth() div 2;
-  Result.Y += Minimap.GetHeight() div 2;
-
-  Sample.Free();
-end;
-
 procedure TRSWalker.AddCache(Position: TPoint);
 var
   Cache: TRSWalkerCache;
@@ -365,34 +395,45 @@ begin
     Exit;
   end;
 
-  {$IFDEF SRL_DEBUG_WALKER_CACHE}
+  {$IFDEF SRL_DEBUG_WALKER}
   Self.Debug('New cache: ' + ToString(Position));
   {$ENDIF}
 
   Cache.Position := Position;
   Cache.Radius := Self.CacheRadius;
-  Cache.Speed := Self.Speed;
+  Cache.Scaling := Self.Scaling;
   Cache.World := Self.World;
   Cache.WorldSample := Self.WorldSample;
-  Cache.Rotation := Self.Rotation;
   Cache.LastUsed := GetTickCount();
 
   if Length(Self.Cache) = Self.CacheSize then
   begin
+    // Sort by recently used
     for I := 0 to High(Self.Cache) do
       for J := 0 to High(Self.Cache) do
-        if Self.Cache[I].LastUsed < Self.Cache[J].LastUsed then
+        if Self.Cache[I].LastUsed > Self.Cache[J].LastUsed then
           Swap(Self.Cache[I], Self.Cache[J]);
 
-    {$IFDEF SRL_DEBUG_WALKER_CACHE}
-    Self.Debug('Evicting cache: ' + ToString(Self.Cache[0].Position));
+    {$IFDEF SRL_DEBUG_WALKER}
+    Self.Debug('Evicting cache: ' + ToString(Self.Cache[High(Self.Cache)].Position));
     {$ENDIF}
 
-    Self.Cache[0] := Cache;
+    Self.Cache[High(Self.Cache)] := Cache;
   end else
     Self.Cache := Self.Cache + Cache;
 end;
 
+(*
+TRSWalker.GetMyPos
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.GetMyPos: TPoint;
+
+Returns the players current position on the loaded map.
+
+**Example**
+
+  WriteLn(Walker.GetMyPos());
+*)
 function TRSWalker.GetMyPos: TPoint;
 var
   MinimapSample, MinimapBitmap: TMufasaBitmap;
@@ -402,14 +443,19 @@ var
   TPA: TPointArray;
   Match, Rotation: Single;
   P: TPoint;
-  T: UInt64;
+  CacheUsed: Int32;
+  Weights: TIntegerArray;
+  {$IFDEF SRL_DEBUG_WALKER}
+  T: UInt64 := GetTickCount();
+  {$ENDIF}
 begin
-  T := GetTickCount();
+  if (Self.World = nil) then
+    Self.Fatal('Walker has not been setup');
 
   MinimapSample.Init(Client.GetMBitmaps());
 
   MinimapBitmap := GetMinimap(MinimapOffset);
-  MinimapBitmap.Downsample(Self.Speed, MinimapSample);
+  MinimapBitmap.Downsample(Self.Scaling, MinimapSample);
 
   try
     Self.Similarity := 0;
@@ -422,39 +468,57 @@ begin
       if Match > Self.Similarity then
       begin
         Self.Similarity := Match;
-        Self.Rotation := Rotation;
-
+        CacheUsed := I;
         Result := P;
+
+        // If a really good match just exit here
+        if Match > 0.60 then
+          Break;
       end;
     end;
 
     // Good cache hit?
     if Self.Similarity > 0.40 then
-      Exit;
+    begin
+      Self.Cache[CacheUsed].LastUsed := GetTickCount();
+      Self.Cache[CacheUsed].Position := Result;
 
-    {$IFDEF SRL_DEBUG_WALKER_CACHE}
+      {$IFDEF SRL_DEBUG_WALKER}
+      Self.Debug('Cache @ ' + ToString(Round(Self.Similarity, 3)) + ' (' + ToString(GetTickCount() - T) + ' ms)');
+      {$ENDIF}
+
+      Swap(Self.Cache[CacheUsed], Self.Cache[0]); // Move to first. likely to use this next
+
+      Exit;
+    end;
+
+    {$IFDEF SRL_DEBUG_WALKER}
     if Length(Self.Cache) > 0 then
       Self.Debug('No cache hit: ' + ToString(Self.Similarity));
     {$ENDIF}
 
     Matrix := WorldSample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
 
-    // Inspect 3 best hits on the scaled map without scaling and pick the best
-    TPA := Matrix.Indices(Matrix.Max() - 0.05, __GT__);
-    TPA := TPA.Split(5).Means();
+    // Inspect 5 best hits on the scaled map without scaling and pick the best
+    TPA := Matrix.Indices(Matrix.Max() - 0.10, __GT__);
+    TPA := TPA.Split(10).Means();
 
-    for I := 0 to Min(High(TPA), 2) do
+    SetLength(Weights, Length(TPA));
+    for I := 0 to High(TPA) do
+      Weights[I] := Round(Matrix[TPA[I].Y, TPA[I].X] * 100000);
+    QuickTPASort(Weights, TPA, 0, High(TPA), False);
+
+    for I := 0 to Min(5, High(TPA)) do
     begin
-      P   := Self.FindImageNear(TPA[I] * Self.Speed, Self.World, MinimapBitmap, 20, [-2, 0, 2], Match, Rotation);
+      P   := Self.FindImageNear(TPA[I] * Self.Scaling, Self.World, MinimapBitmap, 20, [-2, 0, 2], Match, Rotation);
       P   += MinimapOffset;
-      P.X += MinimapBitmap.getWidth() div 2;
-      P.Y += MinimapBitmap.getHeight() div 2;
+      P.X += MinimapBitmap.GetWidth() div 2;
+      P.Y += MinimapBitmap.GetHeight() div 2;
 
       if Match > Self.Similarity then
       begin
         Self.Similarity := Match;
-        Self.Rotation := Rotation;
-
+        CacheUsed := I;
         Result := P;
       end;
     end;
@@ -463,8 +527,8 @@ begin
     if Self.Similarity > 0.40 then
       AddCache(Result);
 
-    {$IFDEF SRL_DEBUG_WALKER_CACHE}
-    Self.Debug('Full scan: ' + ToString(Self.Similarity));
+    {$IFDEF SRL_DEBUG_WALKER}
+    Self.Debug('Cache @ ' + ToString(Round(Self.Similarity, 3)) + ' (' + ToString(GetTickCount() - T) + ' ms)');
     {$ENDIF}
   finally
     if MinimapBitmap <> nil then
@@ -485,84 +549,37 @@ begin
   Result := Self.WorldToMM(Self.GetMyPos(), WorldPoint, Minimap.GetCompassAngle(False));
 end;
 
-function TRSWalker.WalkStep(PlayerPoint, WorldPoint: TPoint; ClickRandomness: Int32 = 0; WaitUntilDistance: Int32 = -1): Boolean; overload;
+procedure TRSWalker.CheckRunEnergy;
+begin
+  if Minimap.IsRunEnabled() or (Minimap.GetRunEnergy() < Self.EnableRunAtEnergy) then
+    Exit;
+
+  Self.EnableRunAtEnergy := SRL.SkewedRand(40, 10, 100);
+
+  Minimap.EnableRun();
+end;
+
+procedure TRSWalker.WaitMoving(Destination: TPoint; WaitUntilDistance: Int32);
 var
-  MinimapPoint: TPoint;
-  Countdown, Timeout: TCountDown;
+  Timeout, Countdown: TCountDown;
   Position: record
     Current, Previous: TPoint;
   end;
-  P: TPoint;
 begin
-  if not RSClient.IsLoggedIn() then
-    Exit(False);
-
-  MinimapPoint := Self.WorldToMM(PlayerPoint, WorldPoint, Minimap.GetCompassAngle(False));
-  if (not Minimap.IsPointOn(MinimapPoint)) then
-    Exit(False);
-  if (Minimap.Center.DistanceTo(MinimapPoint) <= 4) then
-    Exit(True);
-
-  if (WaitUntilDistance = -1) then
-  begin
-    WaitUntilDistance := Distance(Minimap.Center, MinimapPoint);
-
-    // 50% chance for clicking again near instantly.
-    // 35% change for value weighted towards mean
-    // 15% chance for wait until player has nearly stopped moving.
-
-    if Random() < 0.50 then
-      WaitUntilDistance := Round(SRL.TruncatedGauss(WaitUntilDistance - 10, WaitUntilDistance + 20))
-    else
-    if Random() < 0.15 then
-      WaitUntilDistance := Round(SRL.TruncatedGauss(0, 15))
-    else
-      WaitUntilDistance := Round(SRL.SkewedRand(WaitUntilDistance div 2, 0, WaitUntilDistance));
-  end;
-
-  if (WaitUntilDistance < 2) then
-    WaitUntilDistance := 2;
-
-  if Self.ScreenWalk then
-  begin
-    Mouse.Move(Minimap.PointToMsRect(MinimapPoint));
-
-    if MainScreen.IsUpText('Walk here', Random(100)) then
-      Mouse.Click(MOUSE_LEFT)
-    else
-      ChooseOption.Select('Walk here');
-  end else
-  begin
-    repeat
-      P := [Random(MinimapPoint.X - ClickRandomness, MinimapPoint.X + ClickRandomness),
-            Random(MinimapPoint.Y - ClickRandomness, MinimapPoint.Y + ClickRandomness)];
-    until Minimap.IsPointOn(P);
-
-    Mouse.Click(P, MOUSE_LEFT);
-  end;
-
   Timeout.Init(Round(SRL.TruncatedGauss(20000, 25000)));
 
   Countdown.Init(Round(SRL.TruncatedGauss(500, 1500)));
   Countdown.Timeout := GetTickCount() + Round(SRL.TruncatedGauss(2500, 3500));
 
-  Position.Previous := PlayerPoint;
-  Position.Current := PlayerPoint;
+  Position.Previous := Self.GetMyPos();
+  Position.Current := Position.Previous;
 
   // Break from the loop if:
-  // - Haven't moved for 2.5 seconds
+  // - Haven't moved in 500ms
   // - Been walking for over 20 seconds
   // - Within `WaitUntilDistance` to the destination
   repeat
-    if not RSClient.IsLoggedIn() then
-      Exit(False);
-
-    if (not Minimap.IsRunEnabled()) and (Minimap.GetRunEnergy() > Self.EnableRunAtEnergy) then
-    begin
-      Minimap.EnableRun();
-
-      Self.EnableRunAtEnergy := Round(SRL.SkewedRand(35, 0, 100));
-    end;
+    Self.CheckRunEnergy();
 
     Position.Previous := Position.Current;
     Position.Current := Self.GetMyPos();
@@ -570,15 +587,92 @@ begin
       Countdown.Restart();
 
     Wait(100);
-  until Timeout.IsFinished() or Countdown.IsFinished() or (Position.Current.DistanceTo(WorldPoint) <= WaitUntilDistance);
-
-  Exit(True);
+  until Timeout.IsFinished() or Countdown.IsFinished() or (Position.Current.DistanceTo(Destination) <= WaitUntilDistance);
 end;
 
-function TRSWalker.IsWalkable(WorldPoint: TPoint; PlayerPoint: TPoint; Angle: Double): Boolean; overload;
+function TRSWalker.Click(MinimapPoint: TPoint; Randomness: Int32): Boolean;
+var
+  P: TPoint;
+begin
+  Result := True;
+
+  if Self.ScreenWalk then
+  begin
+    Mouse.Move(Minimap.PointToMsRect(MinimapPoint).Mean);
+
+    if not MainScreen.IsUpText('Walk here') then
+      Exit(ChooseOption.Select('Walk here'));
+  end else
+  begin
+    P := MinimapPoint.Random(-Randomness, Randomness);
+    while not Minimap.IsPointOn(P) do
+      P := MinimapPoint.Random(-Randomness, Randomness);
+
+    Mouse.Move(P);
+  end;
+
+  Mouse.Click(MOUSE_LEFT);
+end;
+
+// Walks to the final point in the path
+function TRSWalker.WalkFinalStep(PlayerPoint, WorldPoint: TPoint; WaitUntilDistance: Int32): Boolean;
 var
   MinimapPoint: TPoint;
-  R: TRectangle;
+begin
+  if (@Self.OnWalkEvent <> nil) then
+    Self.OnWalkEvent(@Self, PlayerPoint, WorldPoint);
+  if (@Self.OnWalkEventEx <> nil) then
+    Self.OnWalkEventEx(@Self, PlayerPoint, WorldPoint);
+
+  if not Self.Enabled then
+    Exit(True);
+
+  MinimapPoint := Self.WorldToMM(PlayerPoint, WorldPoint, Minimap.GetCompassAngle(False));
+  if (not Minimap.IsPointOn(MinimapPoint)) then
+    Exit(False);
+  if (Minimap.Center.DistanceTo(MinimapPoint) < 5) then
+    Exit(True);
+
+  Result := Self.Click(MinimapPoint, 0);
+  if Result then
+    Self.WaitMoving(WorldPoint, WaitUntilDistance);
+end;
+
+// Walks to a (non final) point in the path
+function TRSWalker.WalkStep(PlayerPoint, WorldPoint: TPoint): Boolean;
+var
+  MinimapPoint: TPoint;
+  WaitUntilDistance: Int32;
+begin
+  if (@Self.OnWalkEvent <> nil) then
+    Self.OnWalkEvent(@Self, PlayerPoint, WorldPoint);
+  if (@Self.OnWalkEventEx <> nil) then
+    Self.OnWalkEventEx(@Self, PlayerPoint, WorldPoint);
+
+  if not Self.Enabled then
+    Exit(True);
+
+  MinimapPoint := Self.WorldToMM(PlayerPoint, WorldPoint, Minimap.GetCompassAngle(False));
+  if (not Minimap.IsPointOn(MinimapPoint)) then
+    Exit(False);
+  if (Minimap.Center.DistanceTo(MinimapPoint) < 5) then
+    Exit(True);
+
+  Result := Self.Click(MinimapPoint, Self.ClickRandomness);
+  if Result then
+  begin
+    if (Random() < 0.75) then
+      WaitUntilDistance := SRL.TruncatedGauss(Distance(Minimap.Center, MinimapPoint), 0)
+    else
+      WaitUntilDistance := SRL.TruncatedGauss(0, Distance(Minimap.Center, MinimapPoint));
+
+    Self.WaitMoving(WorldPoint, WaitUntilDistance);
+  end
+end;
+
+function TRSWalker.IsWalkable(WorldPoint: TPoint; PlayerPoint: TPoint; Angle: Double): Boolean;
+var
+  MinimapPoint: TPoint;
   B: TBox;
 begin
   MinimapPoint := Self.WorldToMM(PlayerPoint, WorldPoint, Angle);
@@ -586,143 +680,179 @@ begin
   case Self.ScreenWalk of
     True:
       begin
-        R := Minimap.PointToMSRect(MinimapPoint, Angle);
-
-        if InterfaceArea.Bounds().Contains(R) then
-        begin
-          B := R.Bounds;
-          B.LimitTo(InterfaceArea.Bounds());
-
-          // Client doesn't render far tiles when zoomed out
-          if (CountColor($000000, B) = 0) then
-            Exit(True);
-        end;
+        B := Minimap.PointToMSRect(MinimapPoint, Angle).Bounds;
+        if MainScreen.IsVisible(B.Middle) then
+          Result := CountColor($000000, B.Expand(0, MainScreen.Bounds())) = 0; // Client doesn't always render everything when zoomed out
       end;
 
     False:
       begin
-        Result := Minimap.IsPointOn(MinimapPoint);
+        Result := Minimap.IsPointOn(MinimapPoint, -1);
       end;
   end;
 end;
 
-function TRSWalker.GetFurthestWalkable(PlayerPoint: TPoint; Path: TPointArray; var Index: Int32): Boolean;
-var
-  Angle: Double;
-  i, Dist, Nearest, Previous: Int32;
-begin
-  Previous := Index;
+(*
+TRSWalker.WalkPath
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Boolean;
 
-  Nearest := $FFFFFF;
+Walks a path of points taken from the loaded map.
+Points must be ordered with the final point being the destinaton.
 
-  for i := 0 to High(Path) do
-  begin
-    Dist := Distance(Path[i].X, Path[i].Y, PlayerPoint.X, PlayerPoint.Y);
+WaitUntilDistance parameter determines when the method returns once the final point as been clicked:
 
-    if Dist < Nearest then
-    begin
-      Nearest := Dist;
-      Index := i;
-    end;
-  end;
+``WaitUntilDistance=0`` Will wait until the player has stopped moving.
+``WaitUntilDistance=20`` will wait until the players distance to destination is less than 20.
 
-  Angle := Minimap.GetCompassAngle(False);
+**Example**
 
-  for Index := Index to High(Path) - 1 do
-  begin
-    // Some randomness so we don't always click the furthest point
-    if (Random() < 0.10) and (Index > Previous) and (PlayerPoint.DistanceTo(Path[Index]) > 20) then
-      Break;
+  Walker.WalkPath([[100,100],[120,120],[140,140],[160,160],[180,180]]);
+*)
+function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Boolean;
 
-    if (not Self.IsWalkable(Path[Index + 1], PlayerPoint, Angle)) then
-      Break;
-  end;
-
-  Result := Index > Previous;
-end;
-
-function TRSWalker.WalkPath(Path: TPointArray; ClickRandomness: Int32 = 2; FinalCorrection: Boolean = False): Boolean;
-
-  function BuildPath(TPA: TPointArray; minStep,maxStep:Int32): TPointArray; static; overload;
+  function BuildPath(TPA: TPointArray): TPointArray;
   var
-    i,j: Int32;
-    tmp: TPointArray;
+    I, J: Int32;
+    Line: TPointArray;
   begin
-    for i:=1 to High(TPA) do
+    for I := 1 to High(TPA) do
     begin
-      tmp := TPAFromLine(TPA[i-1].x,TPA[i-1].y, TPA[i].x,TPA[i].y);
-      j := 0;
-      while j < High(tmp) do
+      Line := TPAFromLine(TPA[I-1], TPA[I]);
+
+      J := 0;
+      while J < High(Line) do
       begin
-        Result += tmp[j];
-        Inc(j, Random(minStep, maxStep));
+        Result += Line[J];
+
+        Inc(J, Random(5, 15));
       end;
     end;
+
     Result += TPA[High(TPA)];
+  end;
+
+  function AdvancePath(var Index: Int32; PlayerPoint: TPoint): Boolean;
+  var
+    Angle: Double := Minimap.GetCompassAngle(False);
+    Previous: Int32 := Index;
+    Nearest, Furthest: Int32;
+  begin
+    Nearest := Self.Path.Find(Self.Path.Sorted(PlayerPoint)[0]);
+
+    for Nearest := Nearest to High(Self.Path) do
+      if Self.IsWalkable(Self.Path[Nearest], PlayerPoint, Angle) then
+        Break;
+
+    for Furthest := Nearest to High(Self.Path) do
+      if not Self.IsWalkable(Self.Path[Furthest], PlayerPoint, Angle) then
+        Break;
+
+    if Self.IsWalkable(Self.Path[Index], PlayerPoint, Angle) then
+      Index := SRL.TruncatedGauss(Furthest - 1, Index)
+    else
+      Index := SRL.TruncatedGauss(Furthest - 1, Nearest);
+
+    Result := Index > Previous;
   end;
 
 var
   PlayerPoint: TPoint;
-  Index: Int32;
-  Attempts: Int32;
+  Index, Fails: Int32;
 begin
-  Path := BuildPath([Self.GetMyPos()] + Path, 4, 12);
+  Self.Enabled := True;
+  Self.Path := BuildPath([Self.GetMyPos()] + Path);
 
-  while RSClient.IsLoggedIn() do
+  while Self.Enabled and (Fails < 10) do
   begin
     PlayerPoint := Self.GetMyPos();
 
-    if Self.GetFurthestWalkable(PlayerPoint, Path, Index) then
-      Attempts := 0
+    if AdvancePath(Index, PlayerPoint) then
+      Fails := 0
     else
     begin
-      Attempts := Attempts + 1;
-      if (Attempts > 20) then
-        Exit(False);
+      Inc(Fails);
 
-      if (Attempts mod 2 = 0) then
+      // Likely haven't moved far enough to advance to next point
+      if (Fails < 5) then
+      begin
+        Wait(300);
+
+        Continue;
+      end;
+
+      if (Fails mod 2 = 0) then
         Minimap.WaitFlag();
     end;
 
-    if Index = High(Path) then
+    if Index = High(Self.Path) then
     begin
-      if Self.WalkStep(PlayerPoint, Path[Index], 0, 0) then
-      begin
-        if FinalCorrection then
-          Self.WalkStep(Self.GetMyPos(), Path[Index], 0, 0);
-
+      if Self.WalkFinalStep(PlayerPoint, Self.Path[Index], WaitUntilDistance) then
         Exit(True);
-      end;
     end else
-      Self.WalkStep(PlayerPoint, Path[Index], ClickRandomness);
+      Self.WalkStep(PlayerPoint, Self.Path[Index]);
   end;
+
+  if Fails = 10 then
+    Self.Debug('Failed to advance path');
 end;
 
-function TRSWalker.WalkBlind(Destination: TPoint; ClickRandomness: Int32 = 4; FinalCorrection: Boolean = False): Boolean;
+(*
+TRSWalker.WalkBlind
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.WalkBlind(Destination: TPoint; WaitUntilDistance: Int32 = 0): Boolean;
+
+"Blindly" walks to a point taken from the loaded map.
+A straight line is generated between the player's position and destination which is then walked.
+
+WaitUntilDistance parameter determines when the method returns once the final point as been clicked:
+
+``WaitUntilDistance=0`` Will wait until the player has stopped moving.
+``WaitUntilDistance=20`` will wait until the players distance to destination is less than 20.
+
+**Example**
+
+  Walker.WalkBlind([300, 300]);
+*)
+function TRSWalker.WalkBlind(Destination: TPoint; WaitUntilDistance: Int32 = 0): Boolean;
 begin
-  Result := WalkPath([Destination], ClickRandomness, FinalCorrection);
+  Result := WalkPath([Destination], WaitUntilDistance);
 end;
 
-function TRSWalker.WebWalk(Destination: TPoint; ClickRnd:Int32=4; PathRnd:Double=0; FinalCorrection:Boolean = False): Boolean;
+(*
+TRSWalker.WebWalk
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.WebWalk(Destination: TPoint; WaitUntilDistance: Int32 = 0; PathRandomness: Extended = 0): Boolean;
+
+Web walks to the destination point on the loaded map. Does **not** handle any obstacles.
+Please run ``webber.simba`` to see how webgraphs are built.
+
+Pre built webgraphs are available for "World" and "Zeah" when used.
+
+WaitUntilDistance parameter determines when the method returns once the final point as been clicked:
+
+``WaitUntilDistance=0`` Will wait until the player has stopped moving.
+``WaitUntilDistance=20`` will wait until the players distance to destination is less than 20.
+
+**Example**
+
+  var Walker: TRSWalker;
+
+  Walker.Setup('world');
+  Walker.WebWalk([4595, 3575]); // Lumbridge...
+
+  // Or use a location from the webgraph
+  Walker.WebWalk(WorldWeb.LOCATION_LUMBRIDGE);
+*)
+function TRSWalker.WebWalk(Destination: TPoint; WaitUntilDistance: Int32 = 0; PathRandomness: Extended = 0): Boolean;
 var
-  path: TPointArray;
+  Path: TPointArray;
 begin
-  if (PathRnd > 1) or (PathRnd < 0) then
-    RaiseException(erException, 'TRSWalker.WebWalk -> PathRnd should be in the range `0..1` where `1` is max');
+  if not InRange(PathRandomness, 0, 1) then
+    Self.Fatal('TRSWalker.WebWalk `PathRandomness` must be within 0..1');
 
-  path   := Self.Web.PathBetween(Self.GetMyPos, Destination, PathRnd);
-  Result := Self.WalkPath(path, ClickRnd, FinalCorrection);
-end;
-
-function TRSWalker.WebWalk(Destination: String; ClickRnd:Int32=4; PathRnd:Double=0; FinalCorrection:Boolean=False): Boolean; overload;
-var
-  dstNode: Int32;
-begin
-  dstNode := Self.Web.FindNode(Destination);
-  if dstNode = -1 then
-    Self.Web.InvalidNode(Destination);
-
-  Result := Self.WebWalk(Self.Web.Nodes[dstNode], ClickRnd, PathRnd, FinalCorrection);
+  Path   := Self.WebGraph.PathBetween(Self.GetMyPos, Destination, PathRandomness);
+  Result := Self.WalkPath(Path, WaitUntilDistance);
 end;
 
 procedure TRSWalker.DebugPosition;

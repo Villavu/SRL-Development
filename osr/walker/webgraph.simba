@@ -35,43 +35,6 @@ begin
   SetLength(Blocking, c);
 end;
 
-function TWebGraph.FindNode(Name: String): Int32;
-begin
-  for Result:=0 to High(Self.Names) do
-    if Pos(Name, Self.Names[Result]) <> 0 then
-      Exit(Result);
-  Result := -1;
-end;
-
-procedure TWebGraph.InvalidNode(Name: String);
-var
-  Arr: TStringArray;
-  A, B: String;
-  i, j: Int32;
-begin
-  Arr := Self.Names;
-
-  for i := 0 to High(Arr) do
-    for j := 0 to High(Arr) do
-      if Arr[i] < Arr[j] then
-      begin
-        A := Arr[i];
-        B := Arr[j];
-
-        Arr[i] := B;
-        Arr[j] := A;
-      end;
-
-  for i := 0 to High(Names) do
-    WriteLn(Names[i]);
-
-  WriteLn(#10);
-  WriteLn('Node "' + Name + '" not found. Available nodes are above.');
-  WriteLn(#10);
-
-  TerminateScript();
-end;
-
 function TWebGraph.FindPath(Start, Goal: Int32; Rnd:Double=0): TIntegerArray; constref;
 type
   TNode = record
@@ -309,7 +272,7 @@ end;
 procedure TWebGraph.LoadNodesFromString(S: String);
 var
   Elements, Values: TStringArray;
-  I, J: Int32;
+  I: Int32;
 begin
   Elements := MultiBetween(DecompressString(Base64Decode(S)), '[', ']');
 

@@ -118,14 +118,9 @@ begin
   begin
     Mouse.Click(GetTabBox(Tab), MOUSE_LEFT, SRL.Dice(50));
 
-    T := GetTickCount() + Round(SRL.TruncatedGauss(2000, 6000));
-    while (T > GetTickCount) do
-    begin
-      if Self.GetCurrentTab() = Tab then
-        Exit(True);
-
-      Wait(100, 1000, wdLeft);
-    end;
+    Result := WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(50, 2000), SRL.TruncatedGauss(2000, 3000));
+    if Result then
+      Exit;
   end;
 end;
 
