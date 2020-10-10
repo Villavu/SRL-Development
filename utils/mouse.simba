@@ -50,8 +50,8 @@ type TMouse
 .. pascal::
 
   TMouse = record(TSRLBaseRecord)
-    Speed: Double;                     // Overall mouse speed (Default: 15)
-    Gravity, Wind: Double;             // Gravity & Wind for generating mouse path (Default: 20 & 16)
+    Speed: Double;                     // Overall mouse speed (Default: 12)
+    Gravity, Wind: Double;             // Gravity & Wind for generating mouse path (Default: 9 & 5)
     Distribution: EMouseDistribution;  // Default distribution to use (Default: MOUSE_DISTRIBUTION_ROWP)
     MissChance: Double;                // Percentage chance to "Miss" the mouse (Default: 10)
     IdleInterval: Double;              // Distance to travel before calling Mouse.Idle() (Default: 0)
@@ -121,9 +121,9 @@ Initializes mouse variables.
 procedure TMouse.Setup;
 begin
   Self.Name := 'Mouse';
-  Self.Speed := 6;
-  Self.Gravity := 10;
-  Self.Wind := 8;
+  Self.Speed := 12;
+  Self.Gravity := 9;
+  Self.Wind := 5;
   Self.MissChance := 15;
   Self.Distribution := MOUSE_DISTRIBUTION_ROWP;
 
@@ -402,18 +402,17 @@ begin
   if SRL.Dice(Self.MissChance) then
     Start := Self.Miss(Destination);
 
-  // Further the distance, faster we move
-  Exponential := Hypot(Start.X - Destination.X, Start.Y - Destination.Y);
-  Exponential := Pow(Exponential, 0.30);
+  // Further the distance the faster we move.
+  Exponential := Power(Hypot(Start.X - Destination.X, Start.Y - Destination.Y), 0.33) / 10;
 
   RandSpeed := SRL.TruncatedGauss(Self.Speed, Self.Speed * 1.5);
-  RandSpeed += Exponential;
+  RandSpeed *= Exponential;
   RandSpeed /= 10;
 
   Self.WindMouse(
     Start.X, Start.Y, Destination.X, Destination.Y,
     Self.Gravity, Self.Wind,
-    10 / RandSpeed, 20 / RandSpeed, 20 * RandSpeed, 50 * RandSpeed
+    5 / RandSpeed, 10 / RandSpeed, 20 * RandSpeed, 20 * RandSpeed
   );
 end;
 
