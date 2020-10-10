@@ -690,7 +690,7 @@ begin
       begin
         Mouse.Click(MOUSE_LEFT);
 
-        Result := SRL.DidClick(RS_CLICK_RED);
+        Result := MainScreen.DidRedClick();
       end;
     end;
   end;

@@ -145,7 +145,18 @@ type
   TRSMainScreen = record(TRSInterface)
     UpTextArea: TBox;
     UpTextFilter: TCompareRules;
+
+    YellowClicks: TIntegerArray;
+    RedClicks: TIntegerArray;
   end;
+
+procedure TRSMainScreen.FreeBitmaps;
+var
+  Bitmap: Int32;
+begin
+  for Bitmap in Self.YellowClicks + SElf.RedClicks do
+    FreeBitmap(Bitmap);
+end;
 
 (*
 MainScreen.Setup
@@ -157,6 +168,8 @@ Setups the mainscreen.
 .. note:: This is automatically called on the **MainScreen** variable.
 *)
 procedure TRSMainScreen.Setup;
+var
+  Bitmap: Int32;
 begin
   Self.Name := 'MainScreen';
   Self.Mode := RSClient.Mode;
@@ -188,6 +201,23 @@ begin
   Self.UpTextFilter.UseShadow := True;
   Self.UpTextFilter.ShadowMaxValue := 70;
   Self.UpTextFilter.MinCharacterMatch := 18; // Filter out tiny characters (likely junk)
+
+  Self.YellowClicks := [
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCWjieCxCU4xHGVbF+AOEDAOJcSQeHxEZSsSHPEmxSWQKAQAWmB8k'),
+    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQQMbgCZBE4GysXWTEyQrYLTQGmM4jUiMtSPI7E5SM8oQEA57h/pQ==')
+  ];
+
+  Self.RedClicks := [
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsEiDhWMzFdhcuduHxKXUSk7UT6iMhQIj7kSYpNIlMIABY0Azw='),
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsENHE8FqEpxqMMq2L8AUKGgcQ4Eo+PiAwl4kOepNgkMoUAALvi31U='),
+    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQgGbAIXAouAmdj5SIrRkbIdqEpwHQGkRpxWYrHkbh8hCc0AHnjV80=')
+  ];
+
+  for Bitmap in Self.YellowClicks + SElf.RedClicks do
+    SetTransparentColor(Bitmap, $FF00FF);
+
+  AddOnTerminate(@Self.FreeBitmaps);
 end;
 
 (*
@@ -501,23 +531,352 @@ Example
 -------
 
   if MainScreen.IsVisible([100, 100]) then
-    WriteLn('The point is not hidden behind Chatbox, Minimap, or Gametabs.');
+    WriteLn('The point is not behind Chatbox, Minimap or Gametabs.');
 *)
 function TRSMainScreen.IsVisible(P: TPoint): Boolean;
 begin
-  if P.InBox(Self.Bounds) then
+  Result := Self.Bounds.Contains(P);
+
+  if Result then
   begin
-    if Chatbox.IsOpen() and P.InBox(Chatbox.Bounds) then
-      Exit;
-    if P.InBox(ChatButtons.Bounds) then
-      Exit;
-    if P.InBox(Minimap.Bounds.Expand(50)) then
-      Exit;
-    if P.InBox(GameTabs.Bounds) then
+    if Chatbox.IsOpen() and Chatbox.Bounds().Contains(P) then
+      Exit(False);
+    if ChatButtons.Bounds().Contains(P) then
+      Exit(False);
+    if Minimap.Bounds.Expand(50).Contains(P) then
+      Exit(False);
+    if GameTabs.Bounds().Contains(P) then
+      Exit(False);
+  end;
+end;
+
+(*
+type TRSHitsplat
+~~~~~~~~~~~~~~~~
+.. pascal::
+  type
+    TRSHitsplat = record
+      Position: TPoint;  // Middle of the found hitsplat
+      Hit: Int32;        // Hit amount
+      Red: Boolean;      // True if red, false if blue.
+    end;
+*)
+type
+  TRSHitsplat = record
+    Position: TPoint;
+    Hit: Int32;
+    Red: Boolean;
+  end;
+
+  TRSHitsplatArray = array of TRSHitsplat;
+
+(*
+Mainscreen.FindHitsplats
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
+
+Finds hitsplats in the desired area. Returns an array of TRSHitsplat.
+
+Example
+-------
+
+  var Splats: TRSHitsplatArray;
+  var I: Int32;
+
+  Splats := MainScreen.FindHitsplats(MainScreen.Bounds());
+  for I := 0 to High(Splats) do
+    WriteLn(Splats[I].Position);
+*)
+function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
+
+  function Find(Color: Int32; Red: Boolean): TRSHitsplatArray;
+  var
+    TPA: TPointArray;
+    B: TBox;
+    Text: String;
+  begin
+    if SRL.FindColors(TPA, CTS0(Color), Area) = 0 then
       Exit;
 
-    Result := True;
+    for B in TPA.Cluster(3).ToTBA() do
+      if (B.Width >= 10) and (B.Height >= 10) then
+      begin
+        Text := OCR.Recognize(B.Expand(5, Area), [$FFFFFF], RS_FONTSET_PLAIN_11, False);
+        Text := Text.Replace('O', '0');
+
+        Result += [B.Middle(), StrToIntDef(Text, -1), Red];
+      end;
   end;
+
+begin
+  Result := Find($0000C0, True) + Find($FF4040, False); // red, blue
+end;
+
+(*
+Mainscreen.FindHitsplats
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
+
+Overload which finds hitsplats on the entire mainscreen.
+*)
+function TRSMainScreen.FindHitsplats: TRSHitsplatArray; overload;
+begin
+  Result := Self.FindHitsplats(Self.Bounds());
+end;
+
+(*
+type TRSHitsplat
+~~~~~~~~~~~~~~~~
+.. pascal::
+  type
+    TRSHPBar = record
+      Bounds: TBox;       // Bounds of the bar
+      Percent: Extended;  // Green percent of the bar.
+    end;
+*)
+type
+  TRSHPBar = record
+    Bounds: TBox;
+    Percent: Extended;
+  end;
+
+  TRSHPBarArray = array of TRSHPBar;
+
+(*
+Mainscreen.FindHPBars
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.FindHPBars: TRSHPBarArray;
+
+Finds hitpoints bars in the desired area. Returns an array of TRSHPBar.
+
+Example
+-------
+
+  var Bars: TRSHPBarArray;
+  var I: Int32;
+
+  Bars := MainScreen.FindHPBars(MainScreen.Bounds());
+  for I := 0 to High(Bars) do
+    WriteLn(Bars[I].Percent, ' @ ', Bars[I].Bounds);
+*)
+function TRSMainScreen.FindHPBars(Area: TBox): TRSHPBarArray;
+const
+  COLOR_BARS = [$00FF00, $0000FF];
+  COLOR_SPLATS = [$FF4040, $AD0703, $550503, $0000C0, $03037F, $010161, $FFFFFF, $000000];
+const
+  BAR_WIDTH = 29;
+  BAR_HEIGHT = 4;
+var
+  Matrix: T2DIntegerArray;
+
+  procedure Fix(TPA: TPointArray);
+  var
+    P: TPoint;
+  begin
+    FilterPointsBox(TPA, 1, 0, High(Matrix[0]), High(Matrix));
+    SortTPAByX(TPA, True);
+
+    for P in TPA do
+      if (Matrix[P.Y][P.X-1] <> 0) then
+        Matrix[P.Y][P.X] := 255;
+  end;
+
+  procedure Find(var Result: TRSHPBarArray);
+  var
+    W, H, X, Y, YY: Int32;
+  label
+    Bad;
+  begin
+    W := Length(Matrix[0])-BAR_WIDTH-1;
+    H := Length(Matrix)-5;
+    for Y := 1 to H do
+      for X := 1 to W do
+        if (Matrix[Y][X] <> 0) and (Matrix[Y][X+BAR_WIDTH] <> 0) then
+          Matrix[Y][X] := 254;
+
+    for Y := 1 to H do
+      for X := 1 to W do
+        if (Matrix[Y][X] = 254) and ((Matrix[Y][X-1] = 0) or (Matrix[Y][X+1] = 255)) then
+        begin
+          for YY := Max(Y - BAR_HEIGHT, 0) to Y do
+            if Matrix[YY][X] = $00FF00 then
+              goto Bad;
+
+          Matrix[Y][X] := $00FF00;
+          Result += [[X, Y, X + BAR_WIDTH, Y + BAR_HEIGHT]];
+
+          Bad:
+        end;
+  end;
+
+var
+  B: TBox;
+  Color: Int32;
+  TPA, Splats, Temp: TPointArray;
+  P: TPoint;
+  Bars: TRSHPBarArray;
+  Bar: TRSHPBar;
+  Frozen: Boolean;
+begin
+  Frozen := Client.GetIOManager().IsFrozen();
+  if not Frozen then
+    Freeze();
+
+  Area.LimitTo(Self.Bounds);
+
+  try
+    for Color in COLOR_BARS do
+      if FindColors(Temp, Color, Area) then
+        TPA += Temp;
+
+    for TPA in TPA.Cluster(15) do
+    begin
+      Matrix := [];
+      Bars := [];
+      Splats := [];
+
+      B := GetTPABounds(TPA);
+
+      for Color in COLOR_SPLATS do
+        if FindColors(Temp, Color, B.Expand(15, Area)) then
+          Splats += Temp;
+
+      OffsetTPA(Splats, Point(-B.X1+1, -B.Y1+1));
+      SetLength(Matrix, B.Height()+2, B.Width()+2);
+
+      for P in TPA do
+        Matrix[(P.Y-B.Y1)+1][(P.X-B.X1)+1] := 255;
+
+      Fix(Splats);
+      Find(Bars);
+
+      for Bar in Bars do
+      begin
+        if (Matrix[Bar.Bounds.Y1, Bar.Bounds.X1] = 0) or
+           (Matrix[Bar.Bounds.Y1, Bar.Bounds.X2] = 0) or
+           (Matrix[Bar.Bounds.Y2, Bar.Bounds.X2] = 0) or
+           (Matrix[Bar.Bounds.Y2, Bar.Bounds.X1] = 0) then
+         Continue;
+
+        Bar.Bounds := Bar.Bounds.Offset([B.X1-1, B.Y1-1]);
+        if FindColors(TPA, $00FF00, Bar.Bounds) then
+          Bar.Percent := TPA.Bounds().Width() / 30 * 100;
+
+        Result += Bar;
+      end;
+    end;
+  finally
+    if not Frozen then
+      UnFreeze();
+  end;
+end;
+
+(*
+Mainscreen.FindHPBars
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.FindHPBars: TRSHPBarArray;
+
+Overload which finds hp bars on the entire mainscreen.
+*)
+function TRSMainScreen.FindHPBars: TRSHPBarArray; overload;
+begin
+  Result := Self.FindHPBars(Self.Bounds());
+end;
+
+type
+  ERSClickType = (RS_CLICK_NONE, RS_CLICK_RED, RS_CLICK_YELLOW);
+
+(*
+Mainscreen.FindClick
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.FindClick(Area: TBox): ERSClickType;
+
+Finds a click type in the desired area. Will return either:
+
+ - RS_CLICK_NONE
+ - RS_CLICK_RED
+ - RS_CLICK_YELLOW
+
+Example
+-------
+
+  if MainScreen.FindClick([50,50,100,100]) = RS_CLICK_RED then
+    WriteLn('Found a red click in 50,50,100,100');
+*)
+function TRSMainScreen.FindClick(Area: TBox): ERSClickType;
+var
+  X, Y: Int32;
+  Bitmap: Int32;
+  Attempt: Int32;
+begin
+  Area.LimitTo(Self.Bounds);
+
+  for Attempt := 1 to 2 do
+  begin
+    for Bitmap in Self.YellowClicks do
+      if FindBitmapToleranceIn(Bitmap, X, Y, Area, 5) then
+        Exit(RS_CLICK_YELLOW);
+
+    for Bitmap in Self.RedClicks do
+      if FindBitmapToleranceIn(Bitmap, X, Y, Area, 5) then
+        Exit(RS_CLICK_RED);
+
+    if Attempt = 1 then // Try again after 50 ms
+      Wait(50);
+  end;
+end;
+
+(*
+Mainscreen.DidRedClick
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.DidRedClick: Boolean;
+
+Returns true if a red click happened at the current mouse position.
+
+Example
+-------
+
+  Mouse.Move(100, 100);
+  Mouse.Click(MOUSE_LEFT);
+  if MainScreen.DidRedClick() then
+    WriteLn('Red click!');
+*)
+function TRSMainScreen.DidRedClick: Boolean;
+begin
+  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = RS_CLICK_RED;
+end;
+
+(*
+Mainscreen.DidYellowClick
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.DidYellowClick: Boolean;
+
+Returns true if a yellow click happened at the current mouse position.
+
+Example
+-------
+
+  Mouse.Move(100, 100);
+  Mouse.Click(MOUSE_LEFT);
+  if MainScreen.DidYellowClick() then
+    WriteLn('Yellow click!');
+*)
+function TRSMainScreen.DidYellowClick: Boolean;
+begin
+  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = RS_CLICK_YELLOW;
+end;
+
+procedure TRSMainScreen.Debug(Bitmap: TMufasaBitmap); override;
+var
+  Splat: TRSHitsplat;
+  Bar: TRSHPBar;
+begin
+  inherited;
+
+  for Splat in Self.FindHitsplats() do
+    Bitmap.DrawCircle(Splat.Position, 10, False, $00FF00);
+  for Bar in Self.FindHPBars() do
+    Bitmap.DrawBox(Bar.Bounds, False, $00FFFF);
 end;
 
 var

@@ -8,56 +8,6 @@ Misc
   {$I SRL/osr.simba}
 {$ENDIF}
 
-type
-  ERSClickType = (RS_CLICK_RED, RS_CLICK_YELLOW);
-
-function TSRL.DidClick(ClickType: ERSClickType): Boolean; constref;
-var
-  BMP: TMufasaBitmap;
-  B: TBox;
-  X, Y, W, H: Int32;
-  Yellow, Red: Int32;
-begin
-  if Mouse.Position() in GetClientBounds() then
-  begin
-    with Mouse.Position() do
-      B := [X - 15, Y - 15, X + 15, Y + 15];
-
-    B.LimitTo(GetClientBounds());
-
-    BMP := GetMufasaBitmap(BitmapFromClient(B));
-    W := BMP.GetWidth() - 1;
-    H := BMP.GetHeight() - 1;
-
-    for Y := 1 to H - 1 do
-      for X := 1 to W - 1 do
-      begin
-        if SimilarColors(BMP.GetPixel(X, Y), $00FFFF, 5) and (
-           SimilarColors(BMP.GetPixel(X - 1, Y), $000000, 5) or
-           SimilarColors(BMP.GetPixel(X + 1, Y), $000000, 5) or
-           SimilarColors(BMP.GetPixel(X, Y - 1), $000000, 5) or
-           SimilarColors(BMP.GetPixel(X, Y + 1), $000000, 5)) then
-          Inc(Yellow);
-
-        if SimilarColors(BMP.GetPixel(X, Y), $0000FF, 5) and (
-           SimilarColors(BMP.GetPixel(X - 1, Y), $000000, 5) or
-           SimilarColors(BMP.GetPixel(X + 1, Y), $000000, 5) or
-           SimilarColors(BMP.GetPixel(X, Y - 1), $000000, 5) or
-           SimilarColors(BMP.GetPixel(X, Y + 1), $000000, 5)) then
-          Inc(Red);
-      end;
-
-    case ClickType of
-      RS_CLICK_RED:
-        Result := (Red > Yellow) and (Red > 20);
-
-      RS_CLICK_YELLOW:
-        Result := (Yellow > Red) and (Yellow > 20);
-    end;
-
-    BMP.Free();
-  end;
-end;
 
 (*
 SRL.GetXPAtLevel

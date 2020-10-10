@@ -9,6 +9,9 @@ You can find the documentation for SRL [here](https://ollydev.github.io/SRL-Deve
 <img src="docs/images/resizable.png" width="738" height="600">\
 *Fixed & resizable mode supported*
 
+<img src="docs/images/mm2ms.png" width="714" height="584">\
+*Minimap to mainscreen projection*
+
 <img src="docs/images/walker.png">\
 *Detecting position on the world map*
 
