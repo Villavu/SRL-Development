@@ -32,8 +32,8 @@ type TMouse
 
 
   TMouse = record(TSRLBaseRecord)
-    Speed: Double;                     // Overall mouse speed (Default: 15)
-    Gravity, Wind: Double;             // Gravity & Wind for generating mouse path (Default: 20 & 16)
+    Speed: Double;                     // Overall mouse speed (Default: 12)
+    Gravity, Wind: Double;             // Gravity & Wind for generating mouse path (Default: 9 & 5)
     Distribution: EMouseDistribution;  // Default distribution to use (Default: MOUSE_DISTRIBUTION_ROWP)
     MissChance: Double;                // Percentage chance to "Miss" the mouse (Default: 10)
     IdleInterval: Double;              // Distance to travel before calling Mouse.Idle() (Default: 0)

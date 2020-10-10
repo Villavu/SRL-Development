@@ -349,7 +349,165 @@ Example
 .. code-block:: pascal  
 
   if MainScreen.IsVisible([100, 100]) then
-    WriteLn('The point is not hidden behind Chatbox, Minimap, or Gametabs.');
+    WriteLn('The point is not behind Chatbox, Minimap or Gametabs.');
+
+
+------------
+
+type TRSHitsplat
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+
+type
+  TRSHitsplat = record
+    Position: TPoint;  // Middle of the found hitsplat
+    Hit: Int32;        // Hit amount
+    Red: Boolean;      // True if red, false if blue.
+  end;
+
+
+------------
+
+Mainscreen.FindHitsplats
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
+
+Finds hitsplats in the desired area. Returns an array of TRSHitsplat.
+
+Example
+-------
+.. code-block:: pascal  
+
+  var Splats: TRSHitsplatArray;
+  var I: Int32;
+
+  Splats := MainScreen.FindHitsplats(MainScreen.Bounds());
+  for I := 0 to High(Splats) do
+    WriteLn(Splats[I].Position);
+
+
+------------
+
+Mainscreen.FindHitsplats
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
+
+Overload which finds hitsplats on the entire mainscreen.
+
+
+------------
+
+type TRSHitsplat
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+
+type
+  TRSHPBar = record
+    Bounds: TBox;       // Bounds of the bar
+    Percent: Extended;  // Green percent of the bar.
+  end;
+
+
+------------
+
+Mainscreen.FindHPBars
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.FindHPBars: TRSHPBarArray;
+
+Finds hitpoints bars in the desired area. Returns an array of TRSHPBar.
+
+Example
+-------
+.. code-block:: pascal  
+
+  var Bars: TRSHPBarArray;
+  var I: Int32;
+
+  Bars := MainScreen.FindHPBars(MainScreen.Bounds());
+  for I := 0 to High(Bars) do
+    WriteLn(Bars[I].Percent, ' @ ', Bars[I].Bounds);
+
+
+------------
+
+Mainscreen.FindHPBars
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.FindHPBars: TRSHPBarArray;
+
+Overload which finds hp bars on the entire mainscreen.
+
+
+------------
+
+Mainscreen.FindClick
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.FindClick(Area: TBox): ERSClickType;
+
+Finds a click type in the desired area. Will return either:
+ - RS_CLICK_NONE
+ - RS_CLICK_RED
+ - RS_CLICK_YELLOW
+
+Example
+-------
+.. code-block:: pascal  
+
+  if MainScreen.FindClick([50,50,100,100]) = RS_CLICK_RED then
+    WriteLn('Found a red click in 50,50,100,100');
+
+
+------------
+
+Mainscreen.DidRedClick
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.DidRedClick: Boolean;
+
+Returns true if a red click happened at the current mouse position.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Mouse.Move(100, 100);
+  Mouse.Click(MOUSE_LEFT);
+  if MainScreen.DidRedClick() then
+    WriteLn('Red click!');
+
+
+------------
+
+Mainscreen.DidYellowClick
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMainScreen.DidYellowClick: Boolean;
+
+Returns true if a yellow click happened at the current mouse position.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Mouse.Move(100, 100);
+  Mouse.Click(MOUSE_LEFT);
+  if MainScreen.DidYellowClick() then
+    WriteLn('Yellow click!');
 
 
 ------------
