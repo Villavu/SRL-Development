@@ -359,13 +359,12 @@ type TRSHitsplat
 .. code-block:: pascal
 
 
-
-type
-  TRSHitsplat = record
-    Position: TPoint;  // Middle of the found hitsplat
-    Hit: Int32;        // Hit amount
-    Red: Boolean;      // True if red, false if blue.
-  end;
+  type
+    TRSHitsplat = record
+      Position: TPoint;  // Middle of the found hitsplat
+      Hit: Int32;        // Hit amount
+      Red: Boolean;      // True if red, false if blue.
+    end;
 
 
 ------------
@@ -408,12 +407,11 @@ type TRSHitsplat
 .. code-block:: pascal
 
 
-
-type
-  TRSHPBar = record
-    Bounds: TBox;       // Bounds of the bar
-    Percent: Extended;  // Green percent of the bar.
-  end;
+  type
+    TRSHPBar = record
+      Bounds: TBox;       // Bounds of the bar
+      Percent: Extended;  // Green percent of the bar.
+    end;
 
 
 ------------
@@ -458,6 +456,7 @@ Mainscreen.FindClick
  function TRSMainScreen.FindClick(Area: TBox): ERSClickType;
 
 Finds a click type in the desired area. Will return either:
+
  - RS_CLICK_NONE
  - RS_CLICK_RED
  - RS_CLICK_YELLOW

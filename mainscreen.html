@@ -490,19 +490,14 @@ on the mainscreen.</p>
 <hr class="docutils" />
 <div class="section" id="type-trshitsplat">
 <h2>type TRSHitsplat<a class="headerlink" href="#type-trshitsplat" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">type</span>
+  <span class="n">TRSHitsplat</span> <span class="o">=</span> <span class="k">record</span>
+    <span class="n">Position</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>  <span class="c1">// Middle of the found hitsplat</span>
+    <span class="n">Hit</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>        <span class="c1">// Hit amount</span>
+    <span class="n">Red</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>      <span class="c1">// True if red, false if blue.</span>
+  <span class="k">end</span><span class="o">;</span>
 </pre></div>
 </div>
-<dl>
-<dt>type</dt><dd><dl class="simple">
-<dt>TRSHitsplat = record</dt><dd><p>Position: TPoint;  // Middle of the found hitsplat
-Hit: Int32;        // Hit amount
-Red: Boolean;      // True if red, false if blue.</p>
-</dd>
-</dl>
-<p>end;</p>
-</dd>
-</dl>
 </div>
 <hr class="docutils" />
 <div class="section" id="mainscreen-findhitsplats">
@@ -534,18 +529,13 @@ Red: Boolean;      // True if red, false if blue.</p>
 <hr class="docutils" />
 <div class="section" id="id13">
 <h2>type TRSHitsplat<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">type</span>
+  <span class="n">TRSHPBar</span> <span class="o">=</span> <span class="k">record</span>
+    <span class="n">Bounds</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span>       <span class="c1">// Bounds of the bar</span>
+    <span class="n">Percent</span><span class="o">:</span> <span class="kt">Extended</span><span class="o">;</span>  <span class="c1">// Green percent of the bar.</span>
+  <span class="k">end</span><span class="o">;</span>
 </pre></div>
 </div>
-<dl>
-<dt>type</dt><dd><dl class="simple">
-<dt>TRSHPBar = record</dt><dd><p>Bounds: TBox;       // Bounds of the bar
-Percent: Extended;  // Green percent of the bar.</p>
-</dd>
-</dl>
-<p>end;</p>
-</dd>
-</dl>
 </div>
 <hr class="docutils" />
 <div class="section" id="mainscreen-findhpbars">
@@ -580,14 +570,14 @@ Percent: Extended;  // Green percent of the bar.</p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">FindClick</span><span class="p">(</span><span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">ERSClickType</span><span class="o">;</span>
 </pre></div>
 </div>
-<dl class="simple">
-<dt>Finds a click type in the desired area. Will return either:</dt><dd><ul class="simple">
+<p>Finds a click type in the desired area. Will return either:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>RS_CLICK_NONE</p></li>
 <li><p>RS_CLICK_RED</p></li>
 <li><p>RS_CLICK_YELLOW</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 <div class="section" id="id16">
 <h3>Example<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">MainScreen</span><span class="o">.</span><span class="n">FindClick</span><span class="p">([</span><span class="mi">50</span><span class="o">,</span><span class="mi">50</span><span class="o">,</span><span class="mi">100</span><span class="o">,</span><span class="mi">100</span><span class="p">])</span> <span class="o">=</span> <span class="n">RS_CLICK_RED</span> <span class="k">then</span>
