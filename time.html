@@ -89,6 +89,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#srl-mstotime">srl.MsToTime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#srl-timerunning">srl.TimeRunning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tcountdown">TCountDown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tstopwatch">TStopWatch</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
@@ -229,7 +230,22 @@
   <span class="cm">{do something}</span><span class="o">;</span>
 </pre></div>
 </div>
+</div>
 <hr class="docutils" />
+<div class="section" id="tstopwatch">
+<h2>TStopWatch<a class="headerlink" href="#tstopwatch" title="Permalink to this headline">¶</a></h2>
+<p>A neat and simple stopwatch type.</p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">StopWatch</span><span class="o">:</span> <span class="n">TStopWatch</span><span class="o">;</span>
+
+<span class="n">StopWatch</span><span class="o">.</span><span class="n">Start</span><span class="p">()</span><span class="o">;</span>
+<span class="n">Wait</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span><span class="o">;</span>
+<span class="nb">WriteLn</span><span class="p">(</span><span class="n">StopWatch</span><span class="o">.</span><span class="n">ElapsedTime</span><span class="p">())</span><span class="o">;</span> <span class="c1">// ~1000</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+</div>
 </div>
 </div>
 

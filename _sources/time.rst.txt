@@ -60,3 +60,20 @@ Example:
 
 
 ------------
+
+TStopWatch
+~~~~~~~~~~
+A neat and simple stopwatch type.
+
+Example
+-------
+.. code-block:: pascal  
+
+  var StopWatch: TStopWatch;
+
+  StopWatch.Start();
+  Wait(1000);
+  WriteLn(StopWatch.ElapsedTime()); // ~1000
+
+
+------------

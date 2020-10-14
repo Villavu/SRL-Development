@@ -19,6 +19,7 @@ Parameters
 
 Map
 	File path to an image or a map name found in *SRL/osr/walker/maps*.
+
 Scaling
 	Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 10)
 	
