@@ -70,11 +70,11 @@ begin
   if Dots then
   begin
     for Dot in Minimap.GetDots(MINIMAP_DOT_NPC) do
-      BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2.5, Dot.Y + 2.5], Angle), $00FFFF);
+      BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], Angle), $00FFFF);
     for Dot in Minimap.GetDots(MINIMAP_DOT_ITEM) do
-      BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2.5, Dot.Y + 2.5], Angle), $0000FF);
+      BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], Angle), $0000FF);
     for Dot in Minimap.GetDots(MINIMAP_DOT_PLAYER) do
-      BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2.5, Dot.Y + 2.5], Angle), $FFFFFF);
+      BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], Angle), $FFFFFF);
   end;
 
   BMP.Debug();

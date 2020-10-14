@@ -25,6 +25,8 @@ type
     Radius: Int32;
 
     LastUsed: UInt64;
+
+    Match: Single;
   end;
 
   PRSWalker = ^TRSWalker;
@@ -39,6 +41,8 @@ type
 
     World: TMufasaBitmap;
     WorldSample: TMufasaBitmap;
+    WorldSampleCache: TMatchTemplateImageCache;
+
     WebGraph: TWebGraph;
 
     EnableRunAtEnergy: Int32;
@@ -63,7 +67,6 @@ var
   P: TPoint;
   Sample: TMufasaBitmap;
   Matrix: TSingleMatrix;
-  _: Single;
   B: TBox;
 begin
   P.X := Self.Position.X div Self.Scaling;
@@ -85,7 +88,7 @@ begin
   Result   += Matrix.ArgMax() * Self.Scaling;
 
   // Now search the world map around our match without scaling
-  Result   := TRSWalker.FindImageNear(Result, Self.World, Minimap, 20, [-2, 0, 2], Similarity, _);
+  Result   := TRSWalker.FindImageNear(Result, Self.World, Minimap, 20, [-2, 0, 2], Similarity);
   Result   += MinimapOffset;
   Result.X += Minimap.GetWidth() div 2;
   Result.Y += Minimap.GetHeight() div 2;
@@ -98,10 +101,10 @@ var
   Mask: String = '.png;.bmp;';
   Files: TStringArray;
 begin
-  Mask := StringReplace(Mask, '.', Map + '.', [rfReplaceAll]);
-
   if FileExists(Map) then
-    Exit(Map);
+    Exit(ExpandFileName(Map));
+
+  Mask := StringReplace(Mask, '.', Map + '.', [rfReplaceAll]);
 
   Files := FindFile(ExtractFileDir(Map), Mask, False, False) +
            FindFile({$MACRO CURRENT_DIRECTORY}, Mask, True, False);
@@ -111,6 +114,8 @@ begin
 end;
 
 function TRSWalker.LoadMap(Path: String): TMufasaBitmap; static;
+const
+  MAPS = {$MACRO CURRENT_DIRECTORY} + DirectorySeparator + 'maps' + DirectorySeparator;
 var
   Cache: String;
 begin
@@ -118,7 +123,7 @@ begin
 
   if ExtractFileExt(Path) <> '.bmp' then
   begin
-    Cache := ExtractFileDir(Path) + DirectorySeparator + SHA1File(Path) + '.bmp';
+    Cache := MAPS + SHA1File(Path) + '.bmp';
 
     // Save as bitmap for much faster loading
     if not FileExists(Cache) then
@@ -153,6 +158,7 @@ Parameters
 
 Map
 	File path to an image or a map name found in *SRL/osr/walker/maps*.
+
 Scaling
 	Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 10)
 	
@@ -174,8 +180,6 @@ begin
     Self.Fatal('Unable to find map: ' + Map);
 
   Self.Scaling := Scaling;
-  Self.CacheSize := 3;
-  Self.CacheRadius := 200;
   Self.ClickRandomness := 4;
 
   case Map.Lower() of
@@ -187,51 +191,84 @@ begin
 
   Self.World := Self.LoadMap(Path);
   Self.World.Downsample(Self.Scaling, Self.WorldSample);
+
+  // Only cache on big maps
+  if Self.World.GetWidth() * Self.World.GetHeight() > 1500*1500 then
+  begin
+    Self.CacheSize := 3;
+    Self.CacheRadius := 200;
+  end;
 end;
 
 procedure TRSWalker.ClearDots(Bitmap: TMufasaBitmap);
-const
-  Template: TPointArray =
-    [        [1, 0], [2, 0],
-     [0, 1], [1, 1], [2, 1], [3, 1],
-     [0, 2], [1, 2], [2, 2], [3, 2],
-     [0, 3], [1, 3], [2, 3], [3, 3],
-             [1, 4], [2, 4]
-    ];
-var
-  Dots: TPointArray;
-  ATPA: T2DPointArray;
-  Corners: array[0..3] of TPoint;
-  I, J: Int32;
-  Colors: TIntegerArray;
-begin
-  Dots := Minimap.GetDotsBitmap(Bitmap, [MINIMAP_DOT_NPC, MINIMAP_DOT_ITEM, MINIMAP_DOT_PLAYER]);
 
-  SetLength(ATPA, Length(Dots));
-
-  for I := 0 to High(Dots) do
+  procedure Clean(P: TPoint);
+  var
+    Area: TBox;
+    Pixel: Int32;
+    X, Y, C: Int32;
+    R, G, B: Int32;
+    SumR, SumG, SumB: Int32;
   begin
-    ATPA[I] := Template.Offset(Dots[I]);
+    Area := [P.X - 4, P.Y - 4, P.X + 4, P.Y + 4];
+    Area.LimitTo([0, 0, Bitmap.GetWidth() - 1, Bitmap.GetHeight() - 1]);
 
-    Bitmap.DrawTPA(ATPA[I], clFuchsia);
-  end;
+    SetColorToleranceSpeed(2);
 
-  for I := 0 to High(Dots) do
-  begin
-    Corners[0] := [ATPA[I][0].X - 1, ATPA[I][0].Y];
-    Corners[1] := [ATPA[I][1].X + 1, ATPA[I][1].Y];
-    Corners[2] := [ATPA[I][14].X - 1, ATPA[I][14].Y];
-    Corners[3] := [ATPA[I][15].X + 1, ATPA[I][15].Y];
-
-    Colors := Bitmap.GetPixels(Corners);
-    for J := 0 to High(Colors) do
-      if Colors[J] <> clFuchsia then
+    for Y := Area.Y1 to Area.Y2 do
+      for X := Area.X1 to Area.X2 do
       begin
-        Bitmap.DrawTPA(ATPA[I], Colors[j]);
+        Pixel := Bitmap.GetPixel(X, Y);
 
-        Break;
+        SetToleranceSpeed2Modifiers(0.001, 0.001);
+        if SimilarColors($FFFFFF, Pixel, 30) then
+          Bitmap.SetPixel(X, Y, clFuchsia);
+
+        SetToleranceSpeed2Modifiers(0.05, 1);
+        if SimilarColors($00FFFF, Pixel, 30) then
+          Bitmap.SetPixel(X, Y, clFuchsia);
+
+        SetToleranceSpeed2Modifiers(0.05, 1);
+        if SimilarColors($0000FF, Pixel, 30) then
+          Bitmap.SetPixel(X, Y, clFuchsia);
+
+        SetToleranceSpeed2Modifiers(50, 100);
+        if SimilarColors($000000, Pixel, 1) then
+          Bitmap.SetPixel(X, Y, clFuchsia);
       end;
+
+    SetColorToleranceSpeed(1);
+    SetToleranceSpeed2Modifiers(0.2, 0.2);
+
+    for Y := Area.Y1 to Area.Y2 do
+      for X := Area.X1 to Area.X2 do
+      begin
+        Pixel := Bitmap.GetPixel(X, Y);
+
+        if Pixel <> clFuchsia then
+        begin
+          ColorToRGB(Pixel, R, G, B);
+
+          SumR += R;
+          SumG += G;
+          SumB += B;
+
+          C += 1;
+        end;
+      end;
+
+    if C > 0 then
+      Bitmap.ReplaceColor(clFuchsia, RGBtoColor(SumR div C, SumG div C, SumB div C));
   end;
+
+var
+  Dot: TPoint;
+begin
+  for Dot in Minimap.GetDotsBitmap(Bitmap, [MINIMAP_DOT_NPC, MINIMAP_DOT_ITEM, MINIMAP_DOT_PLAYER]) do
+    Clean(Dot);
+
+  // our player dot
+  Clean([Bitmap.getWidth() div 2, Bitmap.getHeight() div 2]);
 end;
 
 function TRSWalker.GetMinimap(out CenterOffset: TPoint): TMufasaBitmap;
@@ -347,15 +384,16 @@ begin
   CenterOffset.Y := Bounds.Middle.Y - (Bounds.Y1 + B.Middle.Y);
 end;
 
-function TRSWalker.FindImageNear(p:TPoint; Large, Sub: TMufasaBitmap; Area:Int32; Offsets: TSingleArray; out match: Single; out Offset: Single): TPoint; static;
+function TRSWalker.FindImageNear(p:TPoint; Large, Sub: TMufasaBitmap; Area:Int32; Offsets: TSingleArray; out match: Single): TPoint; static;
 var
-  W,H: Int32;
+  W, H: Int32;
   Slice: TMufasaBitmap;
   B: TBox;
   Matrix: TSingleMatrix;
   tmp: TMufasaBitmap;
   Test: Single;
   Best: TPoint;
+  Offset: Single;
 begin
   Match := 0;
 
@@ -369,7 +407,6 @@ begin
   Slice := Large.Copy(B.x1, B.y1, B.x2, B.y2);
   Slice.SetSize(Max(Slice.GetWidth(), Sub.GetWidth()), Max(Slice.GetHeight(), Sub.GetHeight()));
 
-  client.getMBitmaps.AddBMP(Slice);
   Tmp.init(Client.getMBitmaps());
 
   for Test in Offsets do
@@ -412,6 +449,7 @@ begin
   Cache.World := Self.World;
   Cache.WorldSample := Self.WorldSample;
   Cache.LastUsed := GetTickCount();
+  Cache.Match := Self.Similarity;
 
   if Length(Self.Cache) = Self.CacheSize then
   begin
@@ -450,12 +488,15 @@ var
   MinimapSample, MinimapBitmap: TMufasaBitmap;
   Matrix: TSingleMatrix;
   MinimapOffset: TPoint;
-  I: Int32;
+  I, J: Int32;
   TPA: TPointArray;
-  Match, Rotation: Single;
+  Match: Single;
   P: TPoint;
-  CacheUsed: Int32;
   Weights: TIntegerArray;
+  ATPA: T2DPointArray;
+  BestCache: Int32;
+  BestCacheMatch: Single;
+  BestCachePosition: TPoint;
   {$IFDEF SRL_DEBUG_WALKER}
   T: UInt64 := GetTickCount();
   {$ENDIF}
@@ -471,57 +512,53 @@ begin
   try
     Self.Similarity := 0;
 
-    // Try cache first
+    // Cache
     for I := 0 to High(Self.Cache) do
     begin
       P := Self.Cache[I].GetMyPos(MinimapBitmap, MinimapSample, MinimapOffset, Match);
 
-      if Match > Self.Similarity then
+      if (Match > BestCacheMatch) and (Abs(Match - Self.Cache[I].Match) < 0.10) then
       begin
-        Self.Similarity := Match;
-        CacheUsed := I;
-        Result := P;
-
-        // If a really good match just exit here
-        if Match > 0.60 then
-          Break;
+        BestCache := I;
+        BestCacheMatch := Match;
+        BestCachePosition := P;
       end;
     end;
 
-    // Good cache hit?
-    if Self.Similarity > 0.40 then
+    if BestCacheMatch > 0.40 then
     begin
-      Self.Cache[CacheUsed].LastUsed := GetTickCount();
-      Self.Cache[CacheUsed].Position := Result;
+      Self.Cache[BestCache].LastUsed := GetTickCount();
+      Self.Cache[BestCache].Position := BestCachePosition;
+      Self.Cache[BestCache].Match := BestCacheMatch;
+
+      Self.Similarity := BestCacheMatch;
 
       {$IFDEF SRL_DEBUG_WALKER}
-      Self.Debug('Cache @ ' + ToString(Round(Self.Similarity, 3)) + ' (' + ToString(GetTickCount() - T) + ' ms)');
+      Self.Debug('Cache used @ ' + ToString(Round(BestCacheMatch, 3)) + ' (' + ToString(GetTickCount() - T) + ' ms)');
       {$ENDIF}
 
-      Swap(Self.Cache[CacheUsed], Self.Cache[0]); // Move to first. likely to use this next
-
-      Exit;
+      Exit(BestCachePosition);
     end;
 
-    {$IFDEF SRL_DEBUG_WALKER}
-    if Length(Self.Cache) > 0 then
-      Self.Debug('No cache hit: ' + ToString(Self.Similarity));
-    {$ENDIF}
+    // Full scan
+    Matrix := MatchTemplate(WorldSample, MinimapSample, TM_CCOEFF_NORMED, Self.WorldSampleCache);
 
-    Matrix := WorldSample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
-
-    // Inspect 5 best hits on the scaled map without scaling and pick the best
+    // Inspect 3 best hits with no scaling and pick best
     TPA := Matrix.Indices(Matrix.Max() - 0.10, __GT__);
-    TPA := TPA.Split(10).Means();
+    ATPA := TPA.Split(10);
 
-    SetLength(Weights, Length(TPA));
-    for I := 0 to High(TPA) do
-      Weights[I] := Round(Matrix[TPA[I].Y, TPA[I].X] * 100000);
-    QuickTPASort(Weights, TPA, 0, High(TPA), False);
+    SetLength(Weights, Length(ATPA));
 
-    for I := 0 to Min(5, High(TPA)) do
+    for I := 0 to High(ATPA) do
+      for J := 0 to High(ATPA[I]) do
+        if Round(Matrix[ATPA[I][J].Y, ATPA[I][J].X] * 100000) > Weights[I] then
+          Weights[I] := Round(Matrix[ATPA[I][J].Y, ATPA[I][J].X] * 100000);
+
+    QuickATPASort(Weights, ATPA, 0, High(ATPA), False);
+
+    for I := 0 to Min(High(ATPA), 2) do
     begin
-      P   := Self.FindImageNear(TPA[I] * Self.Scaling, Self.World, MinimapBitmap, 20, [-2, 0, 2], Match, Rotation);
+      P   := Self.FindImageNear(ATPA[I].Mean() * Self.Scaling, Self.World, MinimapBitmap, 20, [-2, 0, 2], Match);
       P   += MinimapOffset;
       P.X += MinimapBitmap.GetWidth() div 2;
       P.Y += MinimapBitmap.GetHeight() div 2;
@@ -529,7 +566,7 @@ begin
       if Match > Self.Similarity then
       begin
         Self.Similarity := Match;
-        CacheUsed := I;
+
         Result := P;
       end;
     end;
@@ -539,7 +576,7 @@ begin
       AddCache(Result);
 
     {$IFDEF SRL_DEBUG_WALKER}
-    Self.Debug('Cache @ ' + ToString(Round(Self.Similarity, 3)) + ' (' + ToString(GetTickCount() - T) + ' ms)');
+    Self.Debug('Full scan @ ' + ToString(Round(Self.Similarity, 3)) + ' (' + ToString(GetTickCount() - T) + ' ms)');
     {$ENDIF}
   finally
     if MinimapBitmap <> nil then
