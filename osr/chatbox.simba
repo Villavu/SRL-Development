@@ -4,7 +4,8 @@
 {$ENDIF}
 
 const
-  CHATBOX_MESSAGE_LINES = [0..7];
+  CHATBOX_TEXT_COLORS: TIntegerArray = [0, $7F, $FF0000, $7F007F, $2010EF];
+  CHATBOX_MESSAGE_LINES: TIntegerArray = [0..7];
   CHATBOX_INPUT_LINE = 8;
 
 type
@@ -40,7 +41,7 @@ end;
 
 function TRSChatBox.GetLineBoxes: TBoxArray;
 begin
-  Result := Grid(1, 9, Width - 35, 14, [0, 0], [Self.X1 + 10, Self.Y1 + 7]);
+  Result := Grid(1, 9, Width - 35, 15, [0, -1], [Self.X1 + 10, Self.Y1 + 6]);
   Result[8].Y1 += 2;
   Result[8].Y2 += 2;
 end;
@@ -104,15 +105,6 @@ function TRSChatbox.HasLevelUp: Boolean;
 begin
   with Self.Bounds() do
     Result := FindTextColor('Congratulations', RS_FONT_QUILL_8, 8388608, 0, X1, Y1, X2, Y2, 1);
-end;
-
-function TRSChatbox.GetDisplayName: String;
-var
-  Text: String;
-begin
-  Text := OCR.Recognize(Self.GetLineBoxes[CHATBOX_INPUT_LINE], [$000000], RS_FONTSET_PLAIN_12);
-  if Text.EndsWith(':') then
-    Result := Copy(Text, 1, Length(Text) - 1);
 end;
 
 function TRSChatbox.FindMakeButtons(out QuantityButtons, ItemButtons: TBoxArray): Boolean;
@@ -344,6 +336,65 @@ begin
     Wait(0, 2500, wdLeft);
 
   Result := Self.ClickOption(Option);
+end;
+
+function TRSChatbox.GetTextOnLine(Line: Int32; Colors: TIntegerArray = CHATBOX_TEXT_COLORS): String;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  B: TBox;
+  Color: Int32;
+begin
+  for Color in Colors do
+    if SRL.FindColors(TPA, CTS0(Color), GetLineBoxes()[Line]) > 0 then
+      ATPA += TPA;
+
+  Result := OCR.Recognize(ATPA.Merge(), RS_FONTSET_PLAIN_12);
+end;
+
+function TRSChatbox.GetTextOnLines(Text: TStringArray; Lines: TIntegerArray; Colors: TIntegerArray = CHATBOX_TEXT_COLORS): Boolean; overload;
+var
+  Line: Int32;
+begin
+  for Line in Lines do
+    if Text in Self.GetTextOnLine(Line, Colors) then
+      Exit(True);
+end;
+
+function TRSChatbox.GetTextOnLines(Text: String; Lines: TIntegerArray; Colors: TIntegerArray = CHATBOX_TEXT_COLORS): Boolean; overload;
+var
+  Line: Int32;
+begin
+  for Line in Lines do
+    if Text in Self.GetTextOnLine(Line, Colors) then
+      Exit(True);
+end;
+
+function TRSChatbox.FindText(Text: TStringArray; Colors: TIntegerArray = CHATBOX_TEXT_COLORS): Boolean; overload;
+begin
+  Result := Self.GetTextOnLines(Text, CHATBOX_MESSAGE_LINES, Colors);
+end;
+
+function TRSChatbox.FindText(Text: String; Colors: TIntegerArray = CHATBOX_TEXT_COLORS): Boolean; overload;
+begin
+  Result := Self.GetTextOnLines(Text, CHATBOX_MESSAGE_LINES, Colors);
+end;
+
+function TRSChatbox.FindRedText(Text: TStringArray): Boolean; overload;
+begin
+  Result := Self.GetTextOnLines(Text, CHATBOX_MESSAGE_LINES, [$2010EF]);
+end;
+
+function TRSChatbox.FindRedText(Text: String): Boolean; overload;
+begin
+  Result := Self.GetTextOnLines(Text, CHATBOX_MESSAGE_LINES, [$2010EF]);
+end;
+
+function TRSChatbox.GetDisplayName: String;
+begin
+  Result := Self.GetTextOnLine(CHATBOX_INPUT_LINE, [0]);
+  if ':' in Result then
+    Result := Result.Before(':');
 end;
 
 var

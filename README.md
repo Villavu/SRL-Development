@@ -2,12 +2,12 @@ SRL Resource Library
 =====================
 SRL is a library that provides an API for writing bots in Simba for the game Old School RuneScape.
 
-You can find the documentation for SRL [here](https://ollydev.github.io/SRL-Development)
+Documentation is available [here](https://ollydev.github.io/SRL-Development)
 
 ## Features
 
 <img src="docs/images/resizable.png" width="738" height="600">\
-*Fixed & resizable mode supported*
+*Resizable mode*
 
 <img src="docs/images/mm2ms.png" width="734" height="662">\
 *Minimap to mainscreen projection*
