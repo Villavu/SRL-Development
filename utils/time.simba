@@ -133,8 +133,11 @@ end;
 
 procedure TCountDown.Restart(Rand: Int32 = 0);
 begin
-  Self.Paused := 0;
-  Self.Timeout := GetTickCount() + (Length + Rand);
+  if Self.Length > 0 then
+  begin
+    Self.Paused := 0;
+    Self.Timeout := GetTickCount() + (Length + Rand);
+  end;
 end;
 
 procedure TCountdown.Extend(Time: UInt32);
@@ -152,7 +155,7 @@ end;
 
 function TCountDown.IsFinished: Boolean;
 begin
-  Result := TimeRemaining() = 0;
+  Result := (Self.Timeout > 0) and (Self.Paused = 0) and (TimeRemaining() = 0);
 end;
 
 function TCountDown.IsPaused: Boolean;
@@ -173,6 +176,67 @@ begin
     Self.Timeout := Self.Timeout + (GetTickCount() - Self.Paused);
     Self.Paused := 0;
   end;
+end;
+
+(*
+TStopWatch
+~~~~~~~~~~
+A neat and simple stopwatch type.
+
+Example
+-------
+
+  var StopWatch: TStopWatch;
+
+  StopWatch.Start();
+  Wait(1000);
+  WriteLn(StopWatch.ElapsedTime()); // ~1000
+*)
+type
+  TStopwatch = record
+    StartTime: UInt64;
+    PausedTime: UInt64;
+    TotalPausedTime: UInt64;
+  end;
+
+procedure TStopWatch.Start;
+begin
+  if Self.PausedTime > 0 then
+  begin
+    Self.TotalPausedTime += GetTickCount() - Self.PausedTime;
+    Self.PausedTime := 0;
+  end else
+    Self.StartTime := GetTickCount();
+end;
+
+procedure TStopWatch.Resume;
+begin
+  Self.Start();
+end;
+
+procedure TStopWatch.Pause;
+begin
+  Self.PausedTime := GetTickCount();
+end;
+
+procedure TStopWatch.Reset;
+begin
+  Self.StartTime := GetTickCount();
+  Self.PausedTime := 0;
+  Self.TotalPausedTime := 0;
+end;
+
+function TStopWatch.ElapsedTime: UInt64;
+begin
+  if Self.PausedTime > 0 then
+    Result := (GetTickCount() - Self.StartTime) - (GetTickCount() - Self.PausedTime)
+  else
+    Result := (GetTickCount() - Self.StartTime) - Self.TotalPausedTime;
+end;
+
+function TStopWatch.IsPaused: Boolean;
+begin
+  Result := Self.PausedTime > 0;
 end;
 
 {$IFDEF WINDOWS}
