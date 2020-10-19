@@ -171,7 +171,7 @@ var
 begin
   if Self.Open() then
   begin
-    Wait(0, 1500, wdLeft);
+    Wait(0, 1000, wdLeft);
 
     Choices := GetOptions();
 

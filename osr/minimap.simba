@@ -469,6 +469,19 @@ begin
   Result := Self.GetOrbLevel(Self.GetHPCircle());
 end;
 
+function TRSMinimap.GetHPPercent: Int32;
+var
+  TPA: TPointArray;
+  Circle: TCircle;
+begin
+  Circle := Self.GetHPCircle();
+  if SRL.FindColors(TPA, CTS1(1250067, 20), Circle.Bounds) > 0 then
+    TPA := TPA.FilterDist(0, Circle.Radius, Circle.X, Circle.Y);
+
+  with TPA.Bounds() do
+    Result := 100 - Ceil((Y2 - Y1) / (Circle.Bounds.Y2 - Circle.Bounds.Y1) * 100);
+end;
+
 var
   Minimap: TRSMinimap;
 

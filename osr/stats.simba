@@ -72,7 +72,7 @@ type
 
 procedure TRSStats.Setup;
 begin
-  Self.Name := 'Inventory';
+  Self.Name := 'Stats';
   Self.Mode := RSClient.Mode;
 
   Self.Alignment.Left := [@GameTab.X1];
@@ -108,14 +108,13 @@ begin
   Mouse.Move(Self.GetSkillBox(Skill));
 end;
 
-function TRSStats.GetSkillInfo(Skill: ERSSkill; WaitTime: Int32=400): TRSSkillInfo;
+function TRSStats.GetSkillInfo(Skill: ERSSkill; WaitTime: Int32 = 1000): TRSSkillInfo;
 var
   TPA: TPointArray;
-  ATPA: T2DPointArray;
-  B: TBox;
-  TBA: TBoxArray;
+  Lines: TStringArray;
   T: UInt64;
-  text: String;
+  B: TBox;
+  I: Int32;
 begin
   if not Self.MouseOver(Skill) then
     Exit();
@@ -124,33 +123,30 @@ begin
   repeat
     if SRL.FindColors(TPA, CTS0($A0FFFF), Self.Bounds) then
     begin
-      ATPA := SplitTPAEx(TPA, 1,1);
-      SortATPASize(ATPA,True);
-      B := GetTPABounds(ATPA[0]);
+      B := TPA.Bounds;
 
-      TBA := [[B.x1,B.y1,B.x2,B.y2], [B.x1,B.y1+12,B.x2,B.y2]];
-      Text := OCR.Recognize(TBA[0], [$000000], RS_FONTSET_PLAIN_12);
+      SetLength(Lines, B.Height div 12);
+      for I := 0 to High(Lines) do
+        Lines[I] := OCR.Recognize([B.X1, B.Y1 + (I * 12), B.X2, B.Y1 + ((I+1) * 12) + 3], [0], RS_FONTSET_PLAIN_12, False);
 
-      if Pos(SKILLNAMES[skill], text) = 0 then
+      if Length(Lines) = 0 then
+        Continue;
+      if not (SKILLNAMES[Skill] in Lines[0]) then
         Continue;
 
-      Result.XP := StrToIntDef(ExtractFromStr(text, Numbers),0);
+      Result.XP := StrToIntDef(ExtractFromStr(Lines[0], Numbers), 0);
+      Result.Level := SRL.GetLevelAtXP(Result.XP);
 
-      if skill <> SKILL_TOTAL then
+      if Length(Lines) = 3 then
       begin
-        Text := OCR.Recognize(TBA[1], [$000000], RS_FONTSET_PLAIN_12);
-        Result.Next := StrToIntDef(ExtractFromStr(Text, Numbers),0);
-
-        if Result.XP <> -1 then
-        begin
-          Result.Level := SRL.GetLevelAtXP(Result.XP);
-          Result.Remainder := Result.Next - Result.XP;
-        end;
+        Result.Next := StrToIntDef(ExtractFromStr(Lines[1], Numbers), 0);
+        Result.Remainder := StrToIntDef(ExtractFromStr(Lines[2], Numbers), 0);
       end;
 
       Break;
     end;
-    Wait(Random(20,50));
+
+    Wait(50);
   until GetTickCount() >= T;
 end;
 
