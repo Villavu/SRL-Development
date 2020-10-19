@@ -1,0 +1,118 @@
+{$DEFINE SRL_COMBAT_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  ERSCombatStyle = (
+    COMBAT_STYLE_ATTACK,
+    COMBAT_STYLE_STRENGTH,
+    COMBAT_STYLE_SHARED,
+    COMBAT_STYLE_DEFENCE
+  );
+
+type
+  TRSCombat = type TRSInterface;
+
+procedure TRSCombat.Setup;
+begin
+  Self.Name := 'Combat';
+  Self.Mode := RSClient.Mode;
+
+  Self.Alignment.Left := [@GameTab.X1];
+  Self.Alignment.Right := [@GameTab.X2];
+  Self.Alignment.Top := [@GameTab.Y1];
+  Self.Alignment.Bottom := [@GameTab.Y2];
+end;
+
+function TRSCombat.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = TAB_COMBAT);
+end;
+
+function TRSCombat.Open: Boolean;
+begin
+  Result := GameTabs.Open(TAB_COMBAT);
+end;
+
+function TRSCombat.GetStyleBoxes: TBoxArray;
+begin
+  Result := Grid(2, 2, 64, 40, [15, 14], [Self.X1 + 20, Self.Y1 + 49]);
+end;
+
+function TRSCombat.GetCombatStyle: ERSCombatStyle;
+var
+  I: Int32;
+  Boxes: TBoxArray;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Boxes := Self.GetStyleBoxes();
+  for I := 0 to High(Boxes) do
+    if SRL.CountColor(CTS1(1777276, 26), Boxes[I]) > 100 then
+      Exit(ERSCombatStyle(I));
+end;
+
+function TRSCombat.SetCombatStyle(Style: ERSCombatStyle): Boolean;
+begin
+  if not Self.Open() then
+    Exit;
+
+  if (Self.GetCombatStyle() <> Style) then
+    Mouse.Click(Self.GetStyleBoxes()[Style], MOUSE_LEFT);
+
+  Result := True;
+end;
+
+function TRSCombat.GetAutoRetaliate: Boolean;
+begin
+  if not Self.Open() then
+    Exit;
+
+  Result := FindTextColor('(On)', RS_FONT_PLAIN_12, 2070783, 0, Self.Bounds, 1);
+end;
+
+function TRSCombat.GetWeapon: String;
+var
+  B: TBox;
+begin
+  if not Self.Open() then
+    Exit;
+
+  B := Self.Bounds;
+  B.Y2 := B.Y1 + 25;
+
+  Result := OCR.Recognize(B, [2070783], RS_FONTSET_QUILL_8, False);
+end;
+
+function TRSCombat.SetAutoRetaliate(Value: Boolean): Boolean;
+var
+  B: TBox;
+begin
+  if (Self.GetAutoRetaliate() = Value) then
+    Exit(True);
+
+  Result := FindTextColor('Auto Retaliate', RS_FONT_PLAIN_12, 2070783, 0, Self.Bounds, B) = 1;
+  if Result then
+    Mouse.Click(B.Expand(5), MOUSE_LEFT);
+end;
+
+var
+  Combat: TRSCombat;
+
+
+procedure TSRL.Setup; override;
+begin
+  Combat.Setup();
+
+  inherited;
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Combat.Debug(Bitmap);
+end;
+

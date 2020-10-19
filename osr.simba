@@ -72,7 +72,9 @@ end;
 {$IFNDEF SRL_STATS_INCLUDED}           {$I osr/stats.simba}
 {$IFNDEF SRL_EQUIPMENT_INCLUDED}       {$I osr/equipment.simba}
 {$IFNDEF SRL_ANTIBAN_INCLUDED}         {$I osr/antiban.simba}
+{$IFNDEF SRL_COMBAT_INCLUDED}          {$I osr/combat.simba}
 
+{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}

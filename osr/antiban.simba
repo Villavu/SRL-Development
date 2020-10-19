@@ -294,7 +294,7 @@ begin
     begin
       Task := ActiveTasks[I];
 
-      if Task^.Countdown.IsFinished() then
+      if Task^.Countdown.TimeRemaining() = 0 then
       begin
         if (@Self.OnStartTask <> nil) then
           Self.OnStartTask(Task);
