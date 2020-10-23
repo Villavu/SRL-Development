@@ -27,10 +27,9 @@ begin
   inherited();
 end;
 
-procedure TRSChatButtons.Setup;
+procedure TRSChatButtons.Setup; overload;
 begin
   Self.Name := 'Chat Buttons';
-  Self.Mode := RSClient.Mode;
 
   Self.BUTTON_ALL := Self.AddOCRButton('All', RS_FONT_PLAIN_11, $FFFFFF);
   Self.BUTTON_GAME := Self.AddOCRButton('Game', RS_FONT_PLAIN_11, $FFFFFF);
@@ -39,6 +38,11 @@ begin
   Self.BUTTON_CLAN := Self.AddOCRButton('Clan', RS_FONT_PLAIN_11, $FFFFFF);
   Self.BUTTON_TRADE := Self.AddOCRButton('Trade', RS_FONT_PLAIN_11, $FFFFFF);
   Self.BUTTON_REPORT := Self.AddOCRButton('Report', RS_FONT_PLAIN_11, $FFFFFF);
+end;
+
+procedure TRSChatButtons.Setup(ClientMode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.Alignment.Left := [@RootInterface.X1];
   Self.Alignment.Right := [@RootInterface.X1, 518];
@@ -48,6 +52,13 @@ end;
 
 var
   ChatButtons: TRSChatButtons;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  ChatButtons.Setup(Self.Mode);
+end;
 
 procedure TSRL.Setup; override;
 begin

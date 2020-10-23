@@ -140,7 +140,7 @@ begin
   end;
 end;
 
-procedure TCountdown.Extend(Time: UInt32);
+procedure TCountDown.Extend(Time: UInt32);
 begin
   Self.Timeout := Self.Timeout + Time;
 end;

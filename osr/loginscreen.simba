@@ -319,10 +319,9 @@ begin
   inherited;
 end;
 
-procedure TRSLoginScreen.Setup;
+procedure TRSLoginScreen.Setup; overload;
 begin
   Self.Name := 'Login Screen';
-  Self.Mode := RSClient.Mode;
 
   Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('Click to switch', RS_FONT_PLAIN_11, $FFFFFF);
   Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddOCRButton('Cancel', RS_FONT_PLAIN_11, $FFFFFF);
@@ -332,6 +331,11 @@ begin
   Self.BUTTON_PASSWORD_FIELD := Self.AddOCRButton('Password:', RS_FONT_BOLD_12, $FFFFFF);
   Self.BUTTON_OK := Self.AddOCRButton(' Ok ', RS_FONT_BOLD_12, $FFFFFF);
   Self.BUTTON_TRY_AGAIN := Self.AddOCRButton('Try again', RS_FONT_PLAIN_12, $FFFFFF);
+end;
+
+procedure TRSLoginScreen.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.Alignment.Left := [@RootInterface.X1];
   Self.Alignment.Right := [@RootInterface.X2];
@@ -343,11 +347,18 @@ end;
 var
   LoginScreen: TRSLoginScreen;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  LoginScreen.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  LoginScreen.Setup();
-
   inherited;
+
+  LoginScreen.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

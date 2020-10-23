@@ -2,7 +2,7 @@
 
 {$IFNDEF SRL_HINTS}
   {$IFDEF HINTS}
-    {$DEFINE HAD_HINTS}
+    {$DEFINE SRL_HAD_HINTS}
   {$ENDIF}
 
   {$HINTS OFF}
@@ -107,18 +107,11 @@ end;
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 
-procedure TRSClient.ClientModeChanged; override;
-begin
-  inherited;
-
-  SRL.Setup();
-end;
-
 begin
   SRL.Setup();
 end;
 
-{$IFDEF HAD_HINTS}
+{$IFDEF SRL_HAD_HINTS}
   {$HINTS ON}
 {$ENDIF}
 

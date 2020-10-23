@@ -13,12 +13,16 @@ type
     MakeCache: array of record Item: String; Index: Int32; end;
   end;
 
-procedure TRSChatBox.Setup;
+procedure TRSChatBox.Setup; overload;
 begin
   Self.Name := 'Chatbox';
-  Self.Mode := RSClient.Mode;
+end;
 
-  Self.Alignment.Left := [@RootInterface.X1];
+procedure TRSChatbox.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Self.Mode;
+
+  Self.Alignment.Left := [@ChatButtons.X1];
   Self.Alignment.Right := [@ChatButtons.X2];
   Self.Alignment.Top := [@ChatButtons.Y1, -142];
   Self.Alignment.Bottom := [@ChatButtons.Y1, -1];
@@ -400,11 +404,18 @@ end;
 var
   Chatbox: TRSChatBox;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Chatbox.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  Chatbox.Setup();
-
   inherited;
+
+  Chatbox.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

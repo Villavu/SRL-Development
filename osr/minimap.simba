@@ -206,17 +206,17 @@ begin
   FreeBitmap(Self.FlagBitmap);
 end;
 
-procedure TRSMinimap.Setup;
+procedure TRSMinimap.Setup; overload;
 begin
-  if Self.Name = '' then
-  begin
-    Self.Name := 'Minimap';
-    Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
+  Self.Name := 'Minimap';
+  Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
 
-    AddOnTerminate(@Self.Free);
-  end;
+  AddOnTerminate(@Self.Free);
+end;
 
-  Self.Mode := RSClient.Mode;
+procedure TRSMinimap.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   case Self.Mode of
     RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
@@ -485,11 +485,18 @@ end;
 var
   Minimap: TRSMinimap;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Minimap.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  Minimap.Setup();
-
   inherited;
+
+  Minimap.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

@@ -14,10 +14,9 @@ type
     BUTTON_DEPOSIT_INVENTORY_HOVER: TRSInterfaceButton;
   end;
 
-procedure TRSDepositScreen.Setup;
+procedure TRSDepositScreen.Setup; overload;
 begin
   Self.Name := 'Deposit Screen';
-  Self.Mode := RSClient.Mode;
 
   Self.BUTTON_DEPOSIT_QUANTITY_CUSTOM_ON := Self.AddBitmapButton('deposit_quantity_custom_on.png');
   Self.BUTTON_DEPOSIT_QUANTITY_CUSTOM_OFF := Self.AddBitmapButton('deposit_quantity_custom_off.png');
@@ -26,6 +25,11 @@ begin
 
   Self.BUTTON_DEPOSIT_INVENTORY := Self.AddBitmapButton('deposit_inventory.png');
   Self.BUTTON_DEPOSIT_INVENTORY_HOVER := Self.AddBitmapButton('deposit_inventory_hover.png');
+end;
+
+procedure TRSDepositScreen.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   case Self.Mode of
     RS_CLIENT_FIXED:
@@ -96,11 +100,18 @@ end;
 var
   DepositScreen: TRSDepositScreen;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  DepositScreen.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  DepositScreen.Setup();
-
   inherited;
+
+  DepositScreen.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

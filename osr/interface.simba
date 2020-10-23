@@ -218,10 +218,14 @@ function TRSInterface.FindButton(var Button: TRSInterfaceButton; out Bounds: TBo
       Button.Cache.Bounds := Bounds;
   end;
 
+var
+  B: TBox;
 begin
-  Result := (Button.Cache.Bounds <> []) and Find(Button.Cache.Bounds); // try cache
+  B := Self.Bounds;
+
+  Result := (Button.Cache.Bounds <> []) and B.Contains(Button.Cache.Bounds) and Find(Button.Cache.Bounds); // try cache
   if not Result then
-    Result := Find(Self.Bounds); // else entire interface
+    Result := Find(B); // else entire interface
 end;
 
 function TRSInterface.FindButton(Buttons: array of TRSInterfaceButton; out Bounds: TBox): Boolean; overload;

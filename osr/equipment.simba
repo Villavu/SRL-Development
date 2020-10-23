@@ -6,10 +6,14 @@
 type
   TRSEquipment = type TRSInterface;
 
-procedure TRSEquipment.Setup;
+procedure TRSEquipment.Setup; overload;
 begin
   Self.Name := 'Equipment';
-  Self.Mode := RSClient.Mode;
+end;
+
+procedure TRSEquipment.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -102,11 +106,18 @@ end;
 var
   Equipment: TRSEquipment;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Equipment.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  Equipment.Setup();
-
   inherited;
+
+  Equipment.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

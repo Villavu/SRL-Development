@@ -6,10 +6,14 @@
 type
   TRSGameTab = type TRSInterface;
 
-procedure TRSGameTab.Setup;
+procedure TRSGameTab.Setup; overload;
 begin
   Self.Name := 'GameTab';
-  Self.Mode := RSClient.Mode;
+end;
+
+procedure TRSGameTab.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   case Self.Mode of
     RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC:
@@ -33,11 +37,18 @@ end;
 var
   GameTab: TRSGameTab;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  GameTab.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  GameTab.Setup();
-
   inherited;
+
+  GameTab.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

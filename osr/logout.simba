@@ -12,10 +12,14 @@ type
     BUTTON_WORLD_SWITCHER_CLOSE_HOVER: TRSInterfaceButton;
   end;
 
-procedure TRSLogout.Setup;
+procedure TRSLogout.Setup; overload;
 begin
   Self.Name := 'Options';
-  Self.Mode := RSClient.Mode;
+end;
+
+procedure TRSLogout.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.BUTTON_LOGOUT := Self.AddOCRButton('Click here to logout', RS_FONT_BOLD_12, -1);
   Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('World Switcher', RS_FONT_BOLD_12, -1);
@@ -95,11 +99,18 @@ end;
 var
   Logout: TRSLogout;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Logout.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  Logout.Setup();
-
   inherited;
+
+  Logout.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

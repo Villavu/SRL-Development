@@ -144,10 +144,9 @@ Initializes bankscreen variables.
 
 .. note:: This is automatically called on the **BankScreen** variable.
 *)
-procedure TRSBankScreen.Setup;
+procedure TRSBankScreen.Setup; overload;
 begin
   Self.Name := 'BankScreen';
-  Self.Mode := RSClient.Mode;
 
   Self.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
   Self.FINDER_OPTION := ['Use Bank', 'Bank Bank'];
@@ -197,6 +196,11 @@ begin
   Self.BUTTON_CLOSE_HOVER := Self.AddBitmapButton('bank_close_hover.png');
 
   Self.BUTTON_SCROLLED_TOP := Self.AddBitmapButton('bank_scrolled_top.png');
+end;
+
+procedure TRSBankScreen.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   case Self.Mode of
     RS_CLIENT_FIXED:
@@ -918,11 +922,18 @@ begin
   Result := inherited() or BankScreen.IsOpen();
 end;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  BankScreen.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  BankScreen.Setup();
-
   inherited;
+
+  BankScreen.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

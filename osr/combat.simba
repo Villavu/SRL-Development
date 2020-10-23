@@ -14,10 +14,14 @@ type
 type
   TRSCombat = type TRSInterface;
 
-procedure TRSCombat.Setup;
+procedure TRSCombat.Setup; overload;
 begin
   Self.Name := 'Combat';
-  Self.Mode := RSClient.Mode;
+end;
+
+procedure TRSCombat.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -101,12 +105,18 @@ end;
 var
   Combat: TRSCombat;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Combat.Setup(Self.Mode);
+end;
 
 procedure TSRL.Setup; override;
 begin
-  Combat.Setup();
-
   inherited;
+
+  Combat.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

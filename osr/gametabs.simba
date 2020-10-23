@@ -131,10 +131,14 @@ begin
   Bitmap.DrawBoxes(GetTabBoxes(), False, $00FFFF);
 end;
 
-procedure TRSGameTabs.Setup;
+procedure TRSGameTabs.Setup; overload;
 begin
   Self.Name := 'GameTabs';
-  Self.Mode := RSClient.Mode;
+end;
+
+procedure TRSGameTabs.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   case Self.Mode of
     RS_CLIENT_FIXED:
@@ -166,11 +170,18 @@ end;
 var
   GameTabs: TRSGameTabs;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  GameTabs.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  GameTabs.Setup();
-
   inherited;
+
+  GameTabs.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

@@ -108,19 +108,24 @@ end;
 
 procedure TRSClient.ClientModeChanged;
 begin
+  Self.Debug('Client mode changed: ' + ToString(Self.Mode));
+
   { override me }
 end;
 
 function TRSClient.IsLoggedIn: Boolean; overload;
+var
+  Test: ERSClientMode;
 begin
-  if Self.DetectClientMode() <> Self.Mode then
+  Test := Self.DetectClientMode();
+
+  if (Test <> RS_CLIENT_UNKNOWN) and (Test <> Self.Mode) then
   begin
-    Self.Mode := Self.DetectClientMode();
-    if Self.Mode <> RS_CLIENT_UNKNOWN then
-      Self.ClientModeChanged();
+    Self.Mode := Test;
+    Self.ClientModeChanged();
   end;
 
-  Result := Self.Mode <> RS_CLIENT_UNKNOWN;
+  Result := Test <> RS_CLIENT_UNKNOWN;
 end;
 
 function TRSClient.IsLoggedIn(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
@@ -138,7 +143,7 @@ RSClient.LoseFocus
 
 Loses focus. Maybe useful for antiban.
 *)
-procedure TRSClient.LoseFocus;
+procedure TRSClient.LoseFocus; overload;
 {$IFDEF SRL_USE_REMOTEINPUT}
 var
   Space: TBoxArray;
@@ -160,6 +165,13 @@ begin
   Self.Debug('Lose focus not yet implemented for this target!');
 end;
 {$ENDIF}
+
+procedure TRSClient.LoseFocus(Delay: Int32); overload;
+begin
+  Wait(Delay);
+
+  Self.LoseFocus();
+end;
 
 (*
 RSClient.Setup
@@ -188,4 +200,5 @@ var
 
 begin
   RSClient.Setup();
+  RSClient.ClientModeChanged();
 end;

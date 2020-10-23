@@ -74,16 +74,20 @@ begin
   inherited;
 end;
 
-procedure TRSGrandExchange.Setup;
+procedure TRSGrandExchange.Setup; overload;
 begin
   Self.Name := 'Grand Exchange';
-  Self.Mode := RSClient.Mode;
 
   Self.FINDER_BANKER.ColorClusters += [CTS2(6710894, 12, 0.19, 0.07), CTS2(2110788, 11, 0.29, 0.84), 10]; // grey, brown
   Self.FINDER_BANKER.ClusterDistance := 3;
   Self.FINDER_BANKER.Grow := 3;
   Self.FINDER_BANKER.Erode := 3;
   Self.FINDER_BANKER.MinLongSide := 10;
+end;
+
+procedure TRSGrandExchange.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   case Self.Mode of
     RS_CLIENT_FIXED:
@@ -111,11 +115,18 @@ end;
 var
   GrandExchange: TRSGrandExchange;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  GrandExchange.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  GrandExchange.Setup();
-
   inherited;
+
+  GrandExchange.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

@@ -29,11 +29,15 @@ begin
   inherited;
 end;
 
-procedure TRSLobbyScreen.Setup;
+procedure TRSLobbyScreen.Setup; overload;
 begin
   Self.Name := 'Login Screen';
-  Self.Mode := RSClient.Mode;
   Self.BUTTON_PLAY := Self.AddOCRButton('CLICK HERE TO PLAY', RS_FONT_BOLD_12, $FFFFFF);
+end;
+
+procedure TRSLobbyScreen.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.Alignment.Left := [@RootInterface.X1];
   Self.Alignment.Right := [@RootInterface.X2];
@@ -51,11 +55,18 @@ end;
 var
   LobbyScreen: TRSLobbyScreen;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  LobbyScreen.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  LobbyScreen.Setup();
-
   inherited;
+
+  LobbyScreen.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

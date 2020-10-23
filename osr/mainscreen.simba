@@ -150,11 +150,11 @@ type
     RedClicks: TIntegerArray;
   end;
 
-procedure TRSMainScreen.FreeBitmaps;
+procedure TRSMainScreen.Free;
 var
   Bitmap: Int32;
 begin
-  for Bitmap in Self.YellowClicks + SElf.RedClicks do
+  for Bitmap in Self.YellowClicks + Self.RedClicks do
     FreeBitmap(Bitmap);
 end;
 
@@ -167,12 +167,39 @@ Setups the mainscreen.
 
 .. note:: This is automatically called on the **MainScreen** variable.
 *)
-procedure TRSMainScreen.Setup;
+procedure TRSMainScreen.Setup; overload;
 var
   Bitmap: Int32;
 begin
   Self.Name := 'MainScreen';
-  Self.Mode := RSClient.Mode;
+
+  Self.UpTextFilter.Color := -1;
+  Self.UpTextFilter.Tolerance := 85;
+  Self.UpTextFilter.UseShadow := True;
+  Self.UpTextFilter.ShadowMaxValue := 70;
+  Self.UpTextFilter.MinCharacterMatch := 18; // Filter out tiny characters (likely junk)
+
+  Self.YellowClicks := [
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCWjieCxCU4xHGVbF+AOEDAOJcSQeHxEZSsSHPEmxSWQKAQAWmB8k'),
+    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQQMbgCZBE4GysXWTEyQrYLTQGmM4jUiMtSPI7E5SM8oQEA57h/pQ==')
+  ];
+
+  Self.RedClicks := [
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsEiDhWMzFdhcuduHxKXUSk7UT6iMhQIj7kSYpNIlMIABY0Azw='),
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsENHE8FqEpxqMMq2L8AUKGgcQ4Eo+PiAwl4kOepNgkMoUAALvi31U='),
+    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQgGbAIXAouAmdj5SIrRkbIdqEpwHQGkRpxWYrHkbh8hCc0AHnjV80=')
+  ];
+
+  for Bitmap in Self.YellowClicks + Self.RedClicks do
+    SetTransparentColor(Bitmap, $FF00FF);
+
+  AddOnTerminate(@Self.Free);
+end;
+
+procedure TRSMainScreen.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   case Self.Mode of
     RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
@@ -195,29 +222,6 @@ begin
         Self.UpTextArea := [7, 7, 500, 25];
       end;
   end;
-
-  Self.UpTextFilter.Color := -1;
-  Self.UpTextFilter.Tolerance := 85;
-  Self.UpTextFilter.UseShadow := True;
-  Self.UpTextFilter.ShadowMaxValue := 70;
-  Self.UpTextFilter.MinCharacterMatch := 18; // Filter out tiny characters (likely junk)
-
-  Self.YellowClicks := [
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCWjieCxCU4xHGVbF+AOEDAOJcSQeHxEZSsSHPEmxSWQKAQAWmB8k'),
-    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQQMbgCZBE4GysXWTEyQrYLTQGmM4jUiMtSPI7E5SM8oQEA57h/pQ==')
-  ];
-
-  Self.RedClicks := [
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsEiDhWMzFdhcuduHxKXUSk7UT6iMhQIj7kSYpNIlMIABY0Azw='),
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsENHE8FqEpxqMMq2L8AUKGgcQ4Eo+PiAwl4kOepNgkMoUAALvi31U='),
-    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQgGbAIXAouAmdj5SIrRkbIdqEpwHQGkRpxWYrHkbh8hCc0AHnjV80=')
-  ];
-
-  for Bitmap in Self.YellowClicks + SElf.RedClicks do
-    SetTransparentColor(Bitmap, $FF00FF);
-
-  AddOnTerminate(@Self.FreeBitmaps);
 end;
 
 (*
@@ -881,6 +885,13 @@ end;
 
 var
   MainScreen: TRSMainScreen;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  MainScreen.Setup(Self.Mode);
+end;
 
 procedure TSRL.Setup; override;
 begin

@@ -70,10 +70,14 @@ type
 type
   TRSStats = type TRSInterface;
 
-procedure TRSStats.Setup;
+procedure TRSStats.Setup; overload;
 begin
   Self.Name := 'Stats';
-  Self.Mode := RSClient.Mode;
+end;
+
+procedure TRSStats.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -178,11 +182,18 @@ end;
 var
   Stats: TRSStats;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Stats.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  Stats.Setup();
-
   inherited;
+
+  Stats.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

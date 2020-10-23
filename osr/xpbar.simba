@@ -8,20 +8,25 @@ type
     ButtonOffset: TPoint;
   end;
 
-procedure TRSXPBar.Setup;
+procedure TRSXPBar.Setup; overload;
 begin
   Self.Name := 'XPBar';
-  Self.Mode := RSClient.Mode;
+end;
+
+procedure TRSXPBar.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.Alignment.Left := [@InterfaceArea.X2, -120];
   Self.Alignment.Right := [@InterfaceArea.X2, -2];
   Self.Alignment.Top := [@InterfaceArea.Y1, 2];
   Self.Alignment.Bottom := [@InterfaceArea.Y1, 30];
 
-  if Self.Mode in [RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM] then
-    Self.ButtonOffset := [173, 38]
-  else
-    Self.ButtonOffset := [134, 28];
+  case Self.Mode of
+    RS_CLIENT_RESIZABLE_CLASSIC: Self.ButtonOffset := [173, 38];
+    RS_CLIENT_RESIZABLE_BOTTOM:  Self.ButtonOffset := [138, 38];
+    RS_CLIENT_FIXED:             Self.ButtonOffset := [134, 28];
+  end;
 end;
 
 function TRSXPBar.GetButtonCircle: TCircle;
@@ -61,11 +66,18 @@ end;
 var
   XPBar: TRSXPBar;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  XPBar.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  XPBar.Setup();
-
   inherited;
+
+  XPBar.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

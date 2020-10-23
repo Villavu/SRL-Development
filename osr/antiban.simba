@@ -53,6 +53,7 @@ type
     OnFinishSleep: procedure(Task: PSleepTask);
 
     OnStartBreak: procedure(Task: PBreakTask);
+    OnBreaking: procedure(Task: PBreakTask; var Countdown: TCountdown);
     OnFinishBreak: procedure(Task: PBreakTask);
 
     OnStartTask: procedure(Task: PAntibanTask);
@@ -187,11 +188,16 @@ begin
   if Random() < 0.50 then
     Self.LoseFocus();
 
+  I := 0;
   while not Countdown.IsFinished() do
   begin
-    Self.Debug('Break time remaining: ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+    if (Inc(I) mod 12 = 0) then
+      Self.Debug('Break time remaining: ' + ToString(CountDown.TimeRemaining() div 60000) + ' minutes');
 
-    Wait(Min(Countdown.TimeRemaining(), 60000));
+    if (@Self.OnBreaking <> nil) then
+      Self.OnBreaking(@Task, Countdown);
+
+    Wait(5000);
   end;
 
   Self.Debug('Break finished');

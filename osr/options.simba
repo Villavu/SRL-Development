@@ -31,10 +31,9 @@ type
 
   ERSOptionsTab = (OPTIONS_TAB_DISPLAY, OPTIONS_TAB_AUDIO, OPTIONS_TAB_CHAT, OPTIONS_TAB_CONTROLS);
 
-procedure TRSOptions.Setup;
+procedure TRSOptions.Setup; overload;
 begin
   Self.Name := 'Options';
-  Self.Mode := RSClient.Mode;
 
   Self.BUTTON_DISPLAY_OFF := Self.AddBitmapButton('options_display_off.png');
   Self.BUTTON_DISPLAY_HOVER_OFF := Self.AddBitmapButton('options_display_off_hover.png');
@@ -58,6 +57,11 @@ begin
 
   Self.BUTTON_SHIFT_DROP_ON := Self.AddBitmapButton('options_shift_drop_on.png');
   Self.BUTTON_SHIFT_DROP_OFF := Self.AddBitmapButton('options_shift_drop_off.png');
+end;
+
+procedure TRSOptions.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -227,11 +231,18 @@ end;
 var
   Options: TRSOptions;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Options.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  Options.Setup();
-
   inherited;
+
+  Options.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

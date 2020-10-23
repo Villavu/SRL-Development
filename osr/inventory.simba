@@ -31,13 +31,17 @@ type
     HIGH_SLOT: Int32;
   end;
 
-procedure TRSInventory.Setup;
+procedure TRSInventory.Setup; overload;
 begin
   Self.Name := 'Inventory';
-  Self.Mode := RSClient.Mode;
 
   Self.LOW_SLOT := 0;
   Self.HIGH_SLOT := 27;
+end;
+
+procedure TRSInventory.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -448,6 +452,13 @@ end;
 
 var
   Inventory: TRSInventory;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Inventory.Setup(Self.Mode);
+end;
 
 procedure TSRL.Setup; override;
 begin
