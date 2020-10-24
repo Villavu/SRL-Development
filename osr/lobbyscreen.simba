@@ -31,6 +31,9 @@ end;
 
 procedure TRSLobbyScreen.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Login Screen';
   Self.BUTTON_PLAY := Self.AddOCRButton('CLICK HERE TO PLAY', RS_FONT_BOLD_12, $FFFFFF);
 end;

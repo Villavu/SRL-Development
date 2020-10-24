@@ -321,6 +321,9 @@ end;
 
 procedure TRSLoginScreen.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Login Screen';
 
   Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('Click to switch', RS_FONT_PLAIN_11, $FFFFFF);

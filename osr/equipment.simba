@@ -8,6 +8,9 @@ type
 
 procedure TRSEquipment.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Equipment';
 end;
 

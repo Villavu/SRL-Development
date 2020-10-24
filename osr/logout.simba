@@ -14,6 +14,9 @@ type
 
 procedure TRSLogout.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Options';
 end;
 

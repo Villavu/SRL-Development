@@ -8,6 +8,9 @@ type
 
 procedure TRSPinScreen.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Pin Screen';
 end;
 

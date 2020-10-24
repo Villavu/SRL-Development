@@ -29,6 +29,9 @@ end;
 
 procedure TRSChatButtons.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Chat Buttons';
 
   Self.BUTTON_ALL := Self.AddOCRButton('All', RS_FONT_PLAIN_11, $FFFFFF);

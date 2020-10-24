@@ -146,6 +146,9 @@ Initializes bankscreen variables.
 *)
 procedure TRSBankScreen.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'BankScreen';
 
   Self.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];

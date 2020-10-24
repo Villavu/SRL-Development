@@ -6,10 +6,17 @@
 type
   TRSInterfaceArea = type TRSInterface;
 
-procedure TRSInterfaceArea.Setup;
+procedure TRSInterface.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Interface Area';
-  Self.Mode := RSClient.Mode;
+end;
+
+procedure TRSInterfaceArea.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
 
   case Self.Mode of
     RS_CLIENT_FIXED:
@@ -41,11 +48,18 @@ end;
 var
   InterfaceArea: TRSInterfaceArea;
 
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  InterfaceArea.Setup(Self.Mode);
+end;
+
 procedure TSRL.Setup; override;
 begin
-  InterfaceArea.Setup();
-
   inherited;
+
+  InterfaceArea.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;

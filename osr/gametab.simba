@@ -8,6 +8,9 @@ type
 
 procedure TRSGameTab.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'GameTab';
 end;
 

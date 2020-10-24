@@ -38,6 +38,10 @@ begin
   end;
 end;
 
+begin
+  SRL.Setup();
+end;
+
 // The following allows individual include files to compile on their own with just having {$I SRL/osr.simba}
 // Summary: It includes this file until the current file is reached.
 
@@ -106,10 +110,6 @@ end;
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
-
-begin
-  SRL.Setup();
-end;
 
 {$IFDEF SRL_HAD_HINTS}
   {$HINTS ON}

@@ -208,6 +208,9 @@ end;
 
 procedure TRSMinimap.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Minimap';
   Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
 

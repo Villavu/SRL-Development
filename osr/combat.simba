@@ -16,6 +16,9 @@ type
 
 procedure TRSCombat.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Combat';
 end;
 

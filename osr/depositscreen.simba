@@ -16,6 +16,9 @@ type
 
 procedure TRSDepositScreen.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Deposit Screen';
 
   Self.BUTTON_DEPOSIT_QUANTITY_CUSTOM_ON := Self.AddBitmapButton('deposit_quantity_custom_on.png');

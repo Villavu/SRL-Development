@@ -10,6 +10,9 @@ type
 
 procedure TRSXPBar.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'XPBar';
 end;
 

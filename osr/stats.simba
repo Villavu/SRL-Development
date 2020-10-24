@@ -72,6 +72,9 @@ type
 
 procedure TRSStats.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Stats';
 end;
 

@@ -171,6 +171,9 @@ procedure TRSMainScreen.Setup; overload;
 var
   Bitmap: Int32;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'MainScreen';
 
   Self.UpTextFilter.Color := -1;

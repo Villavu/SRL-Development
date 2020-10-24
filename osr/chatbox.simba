@@ -15,6 +15,9 @@ type
 
 procedure TRSChatBox.Setup; overload;
 begin
+  if Self <> [] then
+    Exit;
+
   Self.Name := 'Chatbox';
 end;
 
