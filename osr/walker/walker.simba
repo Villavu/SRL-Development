@@ -660,6 +660,15 @@ begin
   end;
 
   Mouse.Click(MOUSE_LEFT);
+
+  // 15% chance of spam clicking
+  if (Randomness > 0) and (Random() < 0.15) then
+    for 0 to Random(3) do
+    begin
+      Mouse.Click(Mouse.Position(), MOUSE_LEFT);
+
+      Wait(0, 150, wdLeft);
+    end;
 end;
 
 // Walks to the final point in the path
@@ -707,12 +716,13 @@ begin
     Exit(True);
 
   Result := Self.Click(MinimapPoint, Self.ClickRandomness);
+
   if Result then
   begin
-    if (Random() < 0.75) then
-      WaitUntilDistance := SRL.TruncatedGauss(Distance(Minimap.Center, MinimapPoint), 0)
+    if (Random() < 0.15) then // 15% chance of randomness else mean
+      WaitUntilDistance := Random(Distance(Minimap.Center, MinimapPoint))
     else
-      WaitUntilDistance := SRL.TruncatedGauss(0, Distance(Minimap.Center, MinimapPoint));
+      WaitUntilDistance := SRL.NormalRange(0, Distance(Minimap.Center, MinimapPoint) + 10);
 
     Self.WaitMoving(WorldPoint, WaitUntilDistance);
   end
@@ -803,10 +813,10 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
       if not Self.IsWalkable(Self.Path[Furthest], PlayerPoint, Angle) then
         Break;
 
-    if Self.IsWalkable(Self.Path[Index], PlayerPoint, Angle) then
-      Index := SRL.TruncatedGauss(Furthest - 1, Index)
-    else
-      Index := SRL.TruncatedGauss(Furthest - 1, Nearest);
+    // 15% chance of randomness else furthest
+    Index := Furthest - 1;
+    if Random() < 0.15 then
+      Index := Random(Nearest, Furthest);
 
     Result := Index > Previous;
   end;
