@@ -336,7 +336,7 @@ end;
 
 function TRSMagic.MouseOver(Spell: EStandardSpell): Boolean;
 begin
-  if not Self.IsOpen() or not Self.IsSpellBook(SPELL_BOOK_STANDARD) then
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_STANDARD) then
     Exit();
 
   Result := True;
@@ -345,7 +345,7 @@ end;
 
 function TRSMagic.MouseOver(Spell: EAncientSpell): Boolean; overload;
 begin
-  if not Self.IsOpen() or not Self.IsSpellBook(SPELL_BOOK_ANCIENT) then
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_ANCIENT) then
     Exit();
 
   Result := True;
@@ -354,7 +354,7 @@ end;
 
 function TRSMagic.MouseOver(Spell: ELunarSpell): Boolean; overload;
 begin
-  if not Self.IsOpen() or not Self.IsSpellBook(SPELL_BOOK_LUNAR) then
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_LUNAR) then
     Exit();
 
   Result := True;
@@ -363,7 +363,7 @@ end;
 
 function TRSMagic.MouseOver(Spell: EArceuusSpell): Boolean; overload;
 begin
-  if not Self.IsOpen() or not Self.IsSpellBook(SPELL_BOOK_ARCEUUS) then
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_ARCEUUS) then
     Exit();
 
   Result := True;
