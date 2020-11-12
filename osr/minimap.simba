@@ -13,6 +13,7 @@ type
     HitpointsCircleOffset: TPoint;
     PrayerCircleOffset: TPoint;
     RunCircleOffset: TPoint;
+    SpecAttackCircleOffset: TPoint;
     PolygonOffset: TPointArray;
     FlagBitmap: Int32;
   end;
@@ -22,9 +23,10 @@ begin
   Result := [Self.X1 + Self.CompassCircleOffset.X, Self.Y1 + Self.CompassCircleOffset.Y, 17];
 end;
 
-function TRSMinimap.GetRunCircle: TCircle;
+
+function TRSMinimap.GetHPCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.RunCircleOffset.X, Self.Y1 + Self.RunCircleOffset.Y, 12];
+  Result := [Self.X1 + Self.HitpointsCircleOffset.X, Self.Y1 + Self.HitpointsCircleOffset.Y, 12];
 end;
 
 function TRSMinimap.GetPrayerCircle: TCircle;
@@ -32,10 +34,16 @@ begin
   Result := [Self.X1 + Self.PrayerCircleOffset.X, Self.Y1 + Self.PrayerCircleOffset.Y, 12];
 end;
 
-function TRSMinimap.GetHPCircle: TCircle;
+function TRSMinimap.GetRunCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.HitpointsCircleOffset.X, Self.Y1 + Self.HitpointsCircleOffset.Y, 12];
+  Result := [Self.X1 + Self.RunCircleOffset.X, Self.Y1 + Self.RunCircleOffset.Y, 12];
 end;
+
+function TRSMinimap.GetSpecAttackCircle: TCircle;
+begin
+  Result := [Self.X1 + Self.SpecAttackCircleOffset.X, Self.Y1 + Self.SpecAttackCircleOffset.Y, 12];
+end;
+
 
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
 var
@@ -189,11 +197,13 @@ begin
 
   with Self.GetCompassCircle() do
     Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
-  with Self.GetRunCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
   with Self.GetHPCircle() do
     Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
   with Self.GetPrayerCircle() do
+    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+  with Self.GetRunCircle() do
+    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+  with Self.GetSpecAttackCircle() do
     Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
 
   Bitmap.DrawPoly(Self.GetPolygon(), $0000FF);
@@ -230,9 +240,10 @@ begin
         Self.Alignment.Bottom := [@RootInterface.Y1, 159];
 
         Self.CompassCircleOffset := [-2, 14];
-        Self.RunCircleOffset := [-3, 121];
-        Self.PrayerCircleOffset := [-13, 90];
         Self.HitpointsCircleOffset := [-13, 55];
+        Self.PrayerCircleOffset := [-13, 90];
+        Self.RunCircleOffset := [-3, 121];
+        Self.SpecAttackCircleOffset := [19, 148];
         Self.PolygonOffset := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
       end;
 
@@ -247,6 +258,7 @@ begin
         Self.HitpointsCircleOffset := [-13, 49];
         Self.PrayerCircleOffset := [-13, 84];
         Self.RunCircleOffset := [-3, 116];
+        Self.SpecAttackCircleOffset := [19, 142];
         Self.PolygonOffset := [[21, -71], [39, -62], [55, -49], [67, -32], [70, 0], [66, 19], [57, 32], [41, 43], [20, 58], [12, 71], [0, 74], [-11, 72], [-24, 55], [-47, 39], [-60, 31], [-66, 22], [-71, 0], [-72, -14], [-67, -32], [-55, -49], [-39, -62], [-21, -71], [0, -74]];
       end;
   end;
@@ -261,6 +273,76 @@ function TRSMinimap.IsPointOn(P: TPoint; Expand: Int32): Boolean; overload;
 begin
   Result := SRL.PointInPoly(P, ExpandPolygon(Self.GetPolygon(), Expand));
 end;
+
+
+function TRSMinimap.IsPoisoned: Boolean;
+begin
+  Result := SRL.CountColor(CTS2(271525, 10, 0.05, 0.37), Self.GetHPCircle().Bounds) = 0;
+end;
+
+function TRSMinimap.CurePoison: Boolean;
+var
+  T: UInt64;
+begin
+  if Self.IsPoisoned() then
+  begin
+    Mouse.Click(Self.GetHPCircle(), MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if not Self.IsPoisoned() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+
+function TRSMinimap.IsPrayerEnabled: Boolean;
+begin
+  Result := SRL.CountColor(CTS2(6566212, 2, 0.12, 0.46), Self.GetPrayerCircle().Bounds) = 0;
+end;
+
+function TRSMinimap.EnablePrayer: Boolean;
+var
+  T: UInt64;
+begin
+  if not Self.IsPrayerEnabled() then
+  begin
+    Mouse.Click(Self.GetPrayerCircle(), MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if Self.IsPrayerEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+function TRSMinimap.DisablePrayer: Boolean;
+var
+  T: UInt64;
+begin
+  if Self.IsPrayerEnabled() then
+  begin
+    Mouse.Click(Self.GetPrayerCircle(), MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if not Self.IsPrayerEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
 
 function TRSMinimap.IsRunEnabled: Boolean;
 begin
@@ -304,6 +386,7 @@ begin
     end;
   end;
 end;
+
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
