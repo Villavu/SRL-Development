@@ -1,0 +1,609 @@
+{$DEFINE SRL_MAGIC_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  ESpellBook = (
+    SPELL_BOOK_STANDARD,
+    SPELL_BOOK_ANCIENT,
+    SPELL_BOOK_LUNAR,
+    SPELL_BOOK_ARCEUUS
+  );
+
+  EStandardSpell = (
+    SPELL_LUMBRIDGE_HOME_TELEPORT,
+    SPELL_WIND_STRIKE,
+    SPELL_CONFUSE,
+    SPELL_ENCHANT_CROSSBOW_BOLT,
+    SPELL_WATER_STRIKE,
+    SPELL_LVL1_ENCHANT,
+    SPELL_EARTH_STRIKE,
+
+    SPELL_WEAKEN,
+    SPELL_FIRE_STRIKE,
+    SPELL_BONES_TO_BANANAS,
+    SPELL_WIND_BOLT,
+    SPELL_CURSE,
+    SPELL_BIND,
+    SPELL_LOW_LEVEL_ALCHEMY,
+
+    SPELL_WATER_BOLT,
+    SPELL_VARROCK_TELEPORT,
+    SPELL_LVL2_ENCHANT,
+    SPELL_EARTH_BOLT,
+    SPELL_LUMBRIDGE_TELEPORT,
+    SPELL_TELEKINETIC_GRAB,
+    SPELL_FIRE_BOLT,
+
+    SPELL_FALADOR_TELEPORT,
+    SPELL_CRUMBLE_UNDEAD,
+    SPELL_TELEPORT_TO_HOUSE,
+    SPELL_WIND_BLAST,
+    SPELL_SUPERHEAT_ITEM,
+    SPELL_CAMELOT_TELEPORT,
+    SPELL_WATER_BLAST,
+
+    SPELL_LVL3_ENCHANT,
+    SPELL_IBAN_BLAST,
+    SPELL_SNARE,
+    SPELL_MAGIC_DART,
+    SPELL_ARDOUGNE_TELEPORT,
+    SPELL_EARTH_BLAST,
+    SPELL_HIGH_LEVEL_ALCHEMY,
+
+    SPELL_CHARGE_WATER_ORB,
+    SPELL_LVL4_ENCHANT,
+    SPELL_WATCHTOWER_TELEPORT,
+    SPELL_FIRE_BLAST,
+    SPELL_CHARGE_EARTH_ORB,
+    SPELL_BONES_TO_PEACHES,
+    SPELL_SARADOMIN_STRIKE,
+
+    SPELL_CLAWS_OF_GUTHIX,
+    SPELL_FLAMES_OF_ZAMORAK,
+    SPELL_TROLLHEIM_TELEPORT,
+    SPELL_WIND_WAVE,
+    SPELL_CHARGE_FIRE_ORB,
+    SPELL_TELEPORT_TO_APE_ATOLL,
+    SPELL_WATER_WAVE,
+
+    SPELL_CHARGE_AIR_ORB,
+    SPELL_VULNERABILITY,
+    SPELL_LVL5_ENCHANT,
+    SPELL_TELEPORT_TO_KOUREND,
+    SPELL_EARTH_WAVE,
+    SPELL_ENFEEBLE,
+    SPELL_TELEOTHER_LUMBRIDGE,
+
+    SPELL_FIRE_WAVE,
+    SPELL_ENTANGLE,
+    SPELL_STUN,
+    SPELL_CHARGE,
+    SPELL_WIND_SURGE,
+    SPELL_TELEOTHER_FALADOR,
+    SPELL_WATER_SURGE,
+
+    SPELL_TELE_BLOCK,
+    SPELL_STANDARD_TARGET_TELEPORT,
+    SPELL_LVL6_ENCHANT,
+    SPELL_TELEOTHER_CAMELOT,
+    SPELL_EARTH_SURGE,
+    SPELL_LVL7_ENCHANT,
+    SPELL_FIRE_SURGE
+  );
+
+  EAncientSpell = (
+    SPELL_EDGEVILLE_HOME_TELEPORT,
+    SPELL_SMOKE_RUSH,
+    SPELL_SHADOW_RUSH,
+    SPELL_PADDEWWA_TELEPORT,
+
+    SPELL_BLOOD_RUSH,
+    SPELL_ICE_RUSH,
+    SPELL_SENNTISTEN_TELEPORT,
+    SPELL_SMOKE_BURST,
+
+    SPELL_SHADOW_BURST,
+    SPELL_KHARYRLL_TELEPORT,
+    SPELL_BLOOD_BURST,
+    SPELL_ICE_BURST,
+
+    SPELL_LASSAR_TELEPORT,
+    SPELL_SMOKE_BLITZ,
+    SPELL_SHADOW_BLITZ,
+    SPELL_DAREEYAK_TELEPORT,
+
+    SPELL_BLOOD_BLITZ,
+    SPELL_ICE_BLITZ,
+    SPELL_CARRALLANGAR_TELEPORT,
+    SPELL_ANCIENT_TARGET_TELEPORT,
+
+    SPELL_SMOKE_BARRAGE,
+    SPELL_SHADOW_BARRAGE,
+    SPELL_ANNAKARL_TELEPORT,
+    SPELL_BLOOD_BARRAGE,
+
+    SPELL_ICE_BARRAGE,
+    SPELL_GHORROCK_TELEPORT
+  );
+
+  ELunarSpell = (
+    SPELL_LUNAR_HOME_TELEPORT,
+    SPELL_BAKE_PIE,
+    SPELL_GEOMANCY,
+    SPELL_CURE_PLANT,
+    SPELL_MONSTER_EXAMINE,
+
+    SPELL_NPC_CONTACT,
+    SPELL_CURE_OTHER,
+    SPELL_HUMIDIFY,
+    SPELL_MOONCLAN_TELEPORT,
+    SPELL_TELE_GROUP_MOONCLAN,
+
+    SPELL_CURE_ME,
+    SPELL_OURANIA_TELEPORT,
+    SPELL_HUNTER_KIT,
+    SPELL_WATERBIRTH_TELEPORT,
+    SPELL_TELE_GROUP_WATERBIRTH,
+
+    SPELL_CURE_GROUP,
+    SPELL_STAT_SPY,
+    SPELL_BARBARIAN_TELEPORT,
+    SPELL_TELE_GROUP_BARBARIAN,
+    SPELL_SPIN_FLAX,
+
+    SPELL_SUPERGLASS_MAKE,
+    SPELL_TAN_LEATHER,
+    SPELL_KHAZARD_TELEPORT,
+    SPELL_TELE_GROUP_KHAZARD,
+    SPELL_DREAM,
+
+    SPELL_STRING_JEWELLERY,
+    SPELL_STAT_RESTORE_POT_SHARE,
+    SPELL_MAGIC_IMBUE,
+    SPELL_FERTILE_SOIL,
+    SPELL_BOOST_POTION_SHARE,
+
+    SPELL_FISHING_GUILD_TELEPORT,
+    SPELL_BOUNTY_TELEPORT,
+    SPELL_TELE_GROUP_FISHING_GUILD,
+    SPELL_PLANK_MAKE,
+    SPELL_CATHERBY_TELEPORT,
+
+    SPELL_TELE_GROUP_CATHERBY,
+    SPELL_RECHARGE_DRAGONSTONE,
+    SPELL_ICE_PLATEU_TELEPORT,
+    SPELL_TELE_GROUP_ICE_PLATEU,
+    SPELL_ENERGY_TRANSFER,
+
+    SPELL_HEAL_OTHER,
+    SPELL_VENGEANCE_OTHER,
+    SPELL_VENGEANCE,
+    SPELL_HEAL_GROUP,
+    SPELL_SPELLBOOK_SWAP
+  );
+
+  EArceuusSpell = (
+    SPELL_ARCEUUS_HOME_TELEPORT,
+    SPELL_REANIMATE_GOBLIN,
+    SPELL_LUMBRIDGE_GRAVEYARD_TELEPORT,
+    SPELL_REANIMATE_MONKEY,
+
+    SPELL_REANIMATE_IMP,
+    SPELL_REANIMATE_MINOTAUR,
+    SPELL_DRAYNOR_MANOR_TELEPORT,
+    SPELL_REANIMATE_SCORPION,
+
+    SPELL_REANIMATE_BEAR,
+    SPELL_REANIMATE_UNICORN,
+    SPELL_BATTLEFRONT_TELEPORT,
+    SPELL_REANIMATE_DOG,
+
+    SPELL_MIND_ALTAR_TELEPORT,
+    SPELL_REANIMATE_CHAOS_DRUID,
+    SPELL_RESPAWN_TELEPORT,
+    SPELL_REANIMATE_GIANT,
+
+    SPELL_SALVE_GRAVEYARD_TELEPORT,
+    SPELL_REANIMATE_OGRE,
+    SPELL_REANIMATE_ELF,
+    SPELL_REANIMATE_TROLL,
+
+    SPELL_FENKENSTRAINS_CASTLE_TELEPORT,
+    SPELL_REANIMATE_HORROR,
+    SPELL_REANIMATE_KALPHITE,
+    SPELL_WEST_ARDOUGNE_TELEPORT,
+
+    SPELL_REANIMATE_DAGANNOTH,
+    SPELL_REANIMATE_BLOODVELD,
+    SPELL_HARMONY_ISLAND_TELEPORT,
+    SPELL_REANIMATE_TZHAAR,
+
+    SPELL_CEMETERY_TELEPORT,
+    SPELL_REANIMATE_DEMON,
+    SPELL_REANIMATE_AVIANSIE,
+    SPELL_RESURRECT_CROPS,
+
+    SPELL_BARROWS_TELEPORT,
+    SPELL_REANIMATE_ABYSSAL_CREATURE,
+    SPELL_APE_ATOLL_TELEPORT,
+    SPELL_REANIMATE_DRAGON
+  );
+
+  TRSMagic = type TRSInterface;
+
+
+procedure TRSMagic.Setup; overload;
+begin
+  if Self <> [] then
+    Exit;
+  Self.Name := 'Magic';
+end;
+
+procedure TRSMagic.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
+
+  Self.Alignment.Left := [@GameTab.X1];
+  Self.Alignment.Right := [@GameTab.X2];
+  Self.Alignment.Top := [@GameTab.Y1];
+  Self.Alignment.Bottom := [@GameTab.Y2];
+end;
+
+
+function TRSMagic.GetSpellBook(): ESpellBook;
+var
+  TabBox: TBox;
+begin
+  TabBox := GameTabs.GetTabBox(TAB_MAGIC);
+  if SRL.CountColor(CTS2(4747414, 30, 0.10, 0.65), TabBox) > 250 then
+    Exit(SPELL_BOOK_STANDARD)
+  else if SRL.CountColor(CTS2(7425690, 28, 0.84, 0.41), TabBox) > 270 then
+    Exit(SPELL_BOOK_ANCIENT)
+  else if SRL.CountColor(CTS2(10850229, 26, 1.83, 0.68), TabBox) > 290 then
+    Exit(SPELL_BOOK_LUNAR)
+  else if SRL.CountColor(CTS2(5584975, 17, 1.20, 1.22), TabBox) > 290 then
+    Exit(SPELL_BOOK_ARCEUUS)
+  else
+    Exit(SPELL_BOOK_STANDARD);
+end;
+
+function TRSMagic.IsSpellBook(SpellBook: ESpellBook): Boolean;
+begin
+  Result := SpellBook = Self.GetSpellBook();
+end;
+
+
+function TRSMagic.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = TAB_MAGIC);
+end;
+
+function TRSMagic.Open: Boolean;
+begin
+  Result := Self.IsOpen() or GameTabs.Open(TAB_MAGIC);
+end;
+
+
+function TRSMagic.GetSpellBoxes(): TBoxArray;
+begin
+  if Self.IsSpellBook(SPELL_BOOK_STANDARD) then
+    Result := Grid(7, 10, 23, 23, [3, 1], [Self.X1 + 2, Self.Y1 + 1])
+  else if Self.IsSpellBook(SPELL_BOOK_ANCIENT) then
+    Result := Result := Grid(4, 7, 23, 23, [25, 13], [Self.X1 + 8, Self.Y1 + 1])
+  else if Self.IsSpellBook(SPELL_BOOK_LUNAR) then
+    Result := Grid(5, 9, 23, 23, [17, 4], [Self.X1 + 2, Self.Y1 + 1])
+  else if Self.IsSpellBook(SPELL_BOOK_ARCEUUS) then
+    Result := Result := Grid(4, 9, 23, 23, [25, 4], [Self.X1 + 8, Self.Y1 + 1])
+  else
+    Result := Grid(7, 10, 23, 23, [3, 1], [Self.X1 + 2, Self.Y1 + 1]);
+end;
+
+function TRSMagic.GetSpellBox(Spell: EStandardSpell): TBox;
+begin
+  Result := Self.GetSpellBoxes()[Spell];
+end;
+
+function TRSMagic.GetSpellBox(Spell: EAncientSpell): TBox; overload;
+begin
+  Result := Self.GetSpellBoxes()[Spell];
+end;
+
+function TRSMagic.GetSpellBox(Spell: ELunarSpell): TBox; overload;
+begin
+  Result := Self.GetSpellBoxes()[Spell];
+end;
+
+function TRSMagic.GetSpellBox(Spell: EArceuusSpell): TBox; overload;
+begin
+  Result := Self.GetSpellBoxes()[Spell];
+end;
+
+
+function TRSMagic.PointToSpell(P: TPoint): Int32;
+var
+  I: Int32;
+  Spells: TBoxArray;
+begin
+  Spells := Self.GetSpellBoxes();
+  for I := 0 to High(Spells) do
+    if Spells[I].Contains(P) then
+      Exit(I);
+
+  Result := -1;
+end;
+
+function TRSMagic.MouseOver(Spell: EStandardSpell): Boolean;
+begin
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_STANDARD) then
+    Exit();
+
+  Result := True;
+  Mouse.Move(Self.GetSpellBox(Spell));
+end;
+
+function TRSMagic.MouseOver(Spell: EAncientSpell): Boolean; overload;
+begin
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_ANCIENT) then
+    Exit();
+
+  Result := True;
+  Mouse.Move(Self.GetSpellBox(Spell));
+end;
+
+function TRSMagic.MouseOver(Spell: ELunarSpell): Boolean; overload;
+begin
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_LUNAR) then
+    Exit();
+
+  Result := True;
+  Mouse.Move(Self.GetSpellBox(Spell));
+end;
+
+function TRSMagic.MouseOver(Spell: EArceuusSpell): Boolean; overload;
+begin
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_ARCEUUS) then
+    Exit();
+
+  Result := True;
+  Mouse.Move(Self.GetSpellBox(Spell));
+end;
+
+
+
+function TRSMagic.CanActivate(Spell: EStandardSpell): Boolean;
+begin
+  if not Self.IsOpen() then
+    Exit();
+
+  Result := srl.PeakBrightness(self.GetSpellBox(Spell)) > 35;
+end;
+
+function TRSMagic.CanActivate(Spell: EAncientSpell): Boolean; overload;
+begin
+  if not Self.IsOpen() then
+    Exit();
+
+  Result := srl.PeakBrightness(self.GetSpellBox(Spell)) > 35;
+end;
+
+function TRSMagic.CanActivate(Spell: ELunarSpell): Boolean; overload;
+begin
+  if not Self.IsOpen() then
+    Exit();
+
+  Result := srl.PeakBrightness(self.GetSpellBox(Spell)) > 35;
+end;
+
+function TRSMagic.CanActivate(Spell: EArceuusSpell): Boolean; overload;
+begin
+  if not Self.IsOpen() then
+    Exit();
+
+  Result := srl.PeakBrightness(self.GetSpellBox(Spell)) > 35;
+end;
+
+
+function TRSMagic.IsSpellSelected(Spell: EStandardSpell): Boolean;
+var
+  B: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit(False);
+
+  B := Self.GetSpellBox(Spell);
+  Result := SRL.CountColor(CTS0($FFFFFF), B) > 10;
+end;
+
+function TRSMagic.IsSpellSelected(Spell: EAncientSpell): Boolean; overload;
+var
+  B: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit(False);
+
+  B := Self.GetSpellBox(Spell);
+  Result := SRL.CountColor(CTS0($FFFFFF), B) > 10;
+end;
+
+function TRSMagic.IsSpellSelected(Spell: ELunarSpell): Boolean; overload;
+var
+  B: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit(False);
+
+  B := Self.GetSpellBox(Spell);
+  Result := SRL.CountColor(CTS0($FFFFFF), B) > 10;
+end;
+
+function TRSMagic.IsSpellSelected(Spell: EArceuusSpell): Boolean; overload;
+var
+  B: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit(False);
+
+  B := Self.GetSpellBox(Spell);
+  Result := SRL.CountColor(CTS0($FFFFFF), B) > 10;
+end;
+
+
+function TRSMagic.GetSelectedSpell(): Int32;
+var
+  I: Int32;
+begin
+  Result := -1;
+  if not Self.IsOpen() then
+    Exit(); // TODO: add up text later.
+
+  if Self.IsSpellBook(SPELL_BOOK_STANDARD) then
+  begin
+    for I := Ord(Low(EStandardSpell)) to Ord(High(EStandardSpell)) do
+      if Self.IsSpellSelected(EStandardSpell(I)) then
+        Exit(I);
+  end
+
+  else if Self.IsSpellBook(SPELL_BOOK_ANCIENT) then
+  begin
+    for I := Ord(Low(EAncientSpell)) to Ord(High(EAncientSpell)) do
+      if Self.IsSpellSelected(EAncientSpell(I)) then
+        Exit(I);
+  end
+
+  else if Self.IsSpellBook(SPELL_BOOK_LUNAR) then
+  begin
+    for I := Ord(Low(ELunarSpell)) to Ord(High(ELunarSpell)) do
+      if Self.IsSpellSelected(ELunarSpell(I)) then
+        Exit(I);
+  end
+
+  else if Self.IsSpellBook(SPELL_BOOK_ARCEUUS) then
+  begin
+    for I := Ord(Low(EArceuusSpell)) to Ord(High(EArceuusSpell)) do
+      if Self.IsSpellSelected(EArceuusSpell(I)) then
+        Exit(I);
+  end;
+end;
+
+function TRSMagic.SpellSelected: Boolean;
+begin
+  Result := Self.GetSelectedSpell() > -1;
+end;
+
+
+function TRSMagic.CastSpell(Spell: EStandardSpell): Boolean;
+var
+  Selected: Int32;
+begin
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_STANDARD) then
+    Exit(False); //Opens the magic tab and if some reason we can't (e.g. bank is open) we exit false.
+
+  if Self.SpellSelected then
+  begin
+    Selected := Self.GetSelectedSpell();
+    if (Selected = Ord(Spell)) then
+      Exit(True);
+    Mouse.Click(Self.GetSpellBox(EStandardSpell(Selected)), MOUSE_LEFT);
+  end;
+
+  Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
+
+  Result := WaitUntil(((Self.GetSelectedSpell() = Ord(Spell)) or (Inventory.IsOpen())), 50, SRL.TruncatedGauss(1000, 2000));
+end;
+
+function TRSMagic.CastSpell(Spell: EAncientSpell): Boolean; overload;
+var
+  Selected: Int32;
+begin
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_ANCIENT) then
+    Exit(False); //Opens the magic tab and if some reason we can't (e.g. bank is open) we exit false.
+
+  if Self.SpellSelected then
+  begin
+    Selected := Self.GetSelectedSpell();
+    if (Selected = Ord(Spell)) then
+      Exit(True);
+    Mouse.Click(Self.GetSpellBox(EAncientSpell(Selected)), MOUSE_LEFT);
+  end;
+
+  Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
+
+  Result := WaitUntil(((Self.GetSelectedSpell() = Ord(Spell)) or (Inventory.IsOpen())), 50, SRL.TruncatedGauss(1000, 2000));
+end;
+
+function TRSMagic.CastSpell(Spell: ELunarSpell): Boolean; overload;
+var
+  Selected: Int32;
+begin
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_LUNAR) then
+    Exit(False); //Opens the magic tab and if some reason we can't (e.g. bank is open) we exit false.
+
+  if Self.SpellSelected then
+  begin
+    Selected := Self.GetSelectedSpell();
+    if (Selected = Ord(Spell)) then
+      Exit(True);
+    Mouse.Click(Self.GetSpellBox(ELunarSpell(Selected)), MOUSE_LEFT);
+  end;
+
+  Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
+
+  Result := WaitUntil(((Self.GetSelectedSpell() = Ord(Spell)) or (Inventory.IsOpen())), 50, SRL.TruncatedGauss(1000, 2000));
+end;
+
+function TRSMagic.CastSpell(Spell: EArceuusSpell): Boolean; overload;
+var
+  Selected: Int32;
+begin
+  if not Self.Open() or not Self.IsSpellBook(SPELL_BOOK_ARCEUUS) then
+    Exit(False); //Opens the magic tab and if some reason we can't (e.g. bank is open) we exit false.
+
+  if Self.SpellSelected then
+  begin
+    Selected := Self.GetSelectedSpell();
+    if (Selected = Ord(Spell)) then
+      Exit(True);
+    Mouse.Click(Self.GetSpellBox(EArceuusSpell(Selected)), MOUSE_LEFT);
+  end;
+
+  Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
+
+  Result := WaitUntil(((Self.GetSelectedSpell() = Ord(Spell)) or (Inventory.IsOpen())), 50, SRL.TruncatedGauss(1000, 2000));
+end;
+
+procedure TRSMagic.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  Bitmap.DrawBoxes(Self.GetSpellBoxes(), False, $00FFFF);
+end;
+
+
+var
+  Magic: TRSMagic;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Magic.Setup(Self.Mode);
+end;
+
+procedure TSRL.Setup; override;
+begin
+  inherited;
+
+  Magic.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Magic.Debug(Bitmap);
+end;

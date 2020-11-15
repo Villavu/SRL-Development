@@ -77,7 +77,9 @@ end;
 {$IFNDEF SRL_EQUIPMENT_INCLUDED}       {$I osr/equipment.simba}
 {$IFNDEF SRL_ANTIBAN_INCLUDED}         {$I osr/antiban.simba}
 {$IFNDEF SRL_COMBAT_INCLUDED}          {$I osr/combat.simba}
+{$IFNDEF SRL_MAGIC_INCLUDED}           {$I osr/magic.simba}
 
+{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}

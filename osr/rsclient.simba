@@ -91,7 +91,7 @@ Detects the client mode. If **Update** is True ClientModeChanged will be called.
 Uses the music tab so will return RS_CLIENT_UNKNOWN when not logged in.
 Are there any other cases where music tab won't be visible?
 *)
-function TRSClient.DetectClientMode: ERSClientMode;
+function TRSClient.DetectClientMode(Update: Boolean = False): ERSClientMode;
 var
   W, H: Int32;
 begin
@@ -104,6 +104,7 @@ begin
     3555653, 922425: Result := RS_CLIENT_RESIZABLE_BOTTOM;
     2896180, 790059: Result := RS_CLIENT_RESIZABLE_CLASSIC;
   end;
+  if Update then Self.Mode := Result;
 end;
 
 procedure TRSClient.ClientModeChanged;
