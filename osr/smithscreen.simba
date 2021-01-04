@@ -9,10 +9,9 @@ Methods to interact with the smithscreen.
   {$I SRL/osr.simba}
 {$ENDIF}
 
-// There's other types of anvils that might need to be added.
-// This is the most common one.
 type
   ERSAnvilType = (
+    RUSTED,
     STANDARD
   );
 
@@ -43,8 +42,8 @@ begin
 
   Self.Name := 'SmithScreen';
 
-  Self.FINDER_UPTEXT := ['Smith Anvil'];
-  Self.FINDER_OPTION := ['Smith Anvil'];
+  Self.FINDER_UPTEXT := ['Smith Anvil', 'Smith Rusted anvil'];
+  Self.FINDER_OPTION := ['Smith Anvil', 'Smith Rusted anvil'];
 
   Self.BUTTON_CLOSE := Self.AddBitmapButton('bank_close.png');
   Self.BUTTON_CLOSE_HOVER := Self.AddBitmapButton('bank_close_hover.png');
@@ -370,11 +369,11 @@ end;
 
 
 
-function TRSSmithScreen._FindAnvil: T2DPointArray;
+function TRSSmithScreen._FindAnvil(Color: TCTS2Color): T2DPointArray;
 var
   Finder: TRSObjectFinder;
 begin
-  Finder.Colors += CTS2(3881791, 15, 0.20, 0.12);
+  Finder.Colors += Color;
 
   Finder.ClusterDistance := 2;
   Finder.Grow := 3;
@@ -401,7 +400,8 @@ begin
     Exit(True);
 
   case AnvilType of
-    STANDARD: ATPA := Self._FindAnvil();
+    RUSTED:   ATPA := Self._FindAnvil(CTS2(2371906, 13, 0.10, 0.18));
+    STANDARD: ATPA := Self._FindAnvil(CTS2(3881791, 15, 0.20, 0.12));
   end;
 
   for TPA in ATPA do
@@ -470,7 +470,7 @@ begin
         Minimap.SetCompassAngle(Minimap.GetCompassAngle() - Random(100, 200));
     end;
 
-    if Self.Hover(STANDARD, SRL.Dice(35)) then
+    if Self.Hover(AnvilType, SRL.Dice(10)) then
       Exit(Self.Open(Mouse.Position()));
   end;
 end;
