@@ -521,19 +521,6 @@ begin
     FreeDTM(DTMs[I]);
 end;
 
-procedure FreeWalkers(const Walkers: Array of TRSWalker);
-var
-  I: Integer;
-  Walker: TRSWalker;
-begin
-  for I := 0 to High(Walkers) do
-  begin
-    Walker := Walkers[I];
-    Walker.Free();
-  end;
-end;
-
-
 procedure TerminateScript(Reason: String); overload;
 begin
   WriteLn('Terminating: ' + Reason);
