@@ -56,7 +56,7 @@ begin
   Result := -1;
 
   with Orb do
-    B := [X-35, Y, X-15, Y+10];
+    B := [X-35, Y-2, X-15, Y+10];
 
   BMP.FromClient(B);
 
@@ -388,6 +388,28 @@ begin
 end;
 
 
+function TRSMinimap.IsSpecWeapon: Boolean;
+begin
+  // Implemented in combat.simba
+end;
+
+function TRSMinimap.IsSpecEnabled: Boolean;
+begin
+  // Implemented in combat.simba
+end;
+
+function TRSMinimap.EnableSpec(MinSpec: Int32): Boolean;
+begin
+  // Implemented in combat.simba
+end;
+
+function TRSMinimap.DisableSpec: Boolean;
+begin
+  // Implemented in combat.simba
+end;
+
+
+
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
   Result := FindBitmapToleranceIn(Self.FlagBitmap, P.X, P.Y, Self.Bounds, 5);
@@ -550,9 +572,10 @@ begin
     ;
 end;
 
+
 function TRSMinimap.GetHPLevel: Int32;
 begin
-  Result := Self.GetOrbLevel(Self.GetHPCircle());
+  Result := Self.GetOrbLevel(Self.GetHPCircle);
 end;
 
 function TRSMinimap.GetHPPercent: Int32;
@@ -567,6 +590,18 @@ begin
   with TPA.Bounds() do
     Result := 100 - Ceil((Y2 - Y1) / (Circle.Bounds.Y2 - Circle.Bounds.Y1) * 100);
 end;
+
+
+function TRSMinimap.GetPrayerLevel: Int32;
+begin
+  Result := Self.GetOrbLevel(Self.GetPrayerCircle);
+end;
+
+function TRSMinimap.GetSpecLevel: Int32;
+begin
+  Result := Self.GetOrbLevel(Self.GetSpecAttackCircle);
+end;
+
 
 var
   Minimap: TRSMinimap;
