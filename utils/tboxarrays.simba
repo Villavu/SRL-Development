@@ -278,6 +278,39 @@ begin
   Sort(Weights, Low(Self), High(Self), LowToHi);
 end;
 
+procedure TBoxArray.SortByXY(LowToHi: Boolean = True);
+var
+  Columns, Rows, BoxArraySorted: TBoxArray;
+  Y, Idx1, Idx2: Int32;
+begin
+  if Length(Self) = 0 then
+    Exit;
+
+  Rows := Copy(Self);
+  Rows.SortByY;
+
+  Columns := Copy(Self);
+  Columns.SortByX;
+
+  for Idx1 := 0 to High(Rows) do
+  begin
+    if Y < Rows[Idx1].Y1 then
+    begin
+      Y := Rows[Idx1].Y1;
+
+      for Idx2 := 0 to High(Columns) do
+      begin
+        if Columns[Idx2].Y1 = Y then
+          BoxArraySorted += Columns[Idx2];
+      end;
+    end;
+  end;
+
+  if LowToHi then
+    BoxArraySorted.Reverse;
+  Self := BoxArraySorted;
+end;
+
 function TBoxArray.Middles: TPointArray; constref;
 var
   I: Int32;

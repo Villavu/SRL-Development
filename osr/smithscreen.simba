@@ -1,0 +1,507 @@
+(*
+SmithScreen
+==========
+Methods to interact with the smithscreen.
+*)
+
+{$DEFINE SRL_SMITHCREEN_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+// There's other types of anvils that might need to be added.
+// This is the most common one.
+type
+  ERSAnvilType = (
+    STANDARD
+  );
+
+  TRSSmithScreen = record(TRSInterface)
+    QUANTITY_BUTTONS: TBoxArray;
+    ITEM_SLOTS: TBoxArray;
+
+    BUTTON_CLOSE: TRSInterfaceButton;
+    BUTTON_CLOSE_HOVER: TRSInterfaceButton;
+
+    FINDER_UPTEXT: TStringArray;
+    FINDER_OPTION: TStringArray;
+  end;
+
+(*
+SmithScreen.Setup
+~~~~~~~~~~~~~~~~
+.. pascal:: procedure SmithScreen.Setup;
+
+Initializes smithscreen variables.
+
+.. note:: This is automatically called on the **SmithScreen** variable.
+*)
+procedure TRSSmithScreen.Setup; overload;
+begin
+  if Self <> [] then
+    Exit;
+
+  Self.Name := 'SmithScreen';
+
+  Self.FINDER_UPTEXT := ['Smith Anvil'];
+  Self.FINDER_OPTION := ['Smith Anvil'];
+
+  Self.BUTTON_CLOSE := Self.AddBitmapButton('bank_close.png');
+  Self.BUTTON_CLOSE_HOVER := Self.AddBitmapButton('bank_close_hover.png');
+end;
+
+procedure TRSSmithScreen.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
+
+  case Self.Mode of
+    RS_CLIENT_FIXED:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, 2];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2, -1];
+        Self.Alignment.Center.MaxWidth := 500;
+        Self.Alignment.Center.MaxHeight := 320;
+      end;
+
+    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, 2];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2, -2];
+        Self.Alignment.Center.MaxWidth := 500;
+        Self.Alignment.Center.MaxHeight := 320;
+      end;
+  end;
+end;
+
+procedure TRSSmithScreen.SetupQuantityButtons;
+var
+  TPA: TPointArray;
+  Box: TBox;
+begin
+  Box := Self.Bounds();
+  Box.Y1 += 30;
+  Box.X1 := Box.X2 - 90;
+
+  SRL.FindColors(TPA, CTS2(1509399, 6, 2.84, 8.78), Box);
+
+  if (Length(TPA) > 0) then
+  begin
+    Self.QUANTITY_BUTTONS := TPA.Cluster(5).ToTBA();
+    Self.QUANTITY_BUTTONS.SortByY();
+  end;
+end;
+
+procedure TRSSmithScreen.SetupItemSlots;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  Box: TBox;
+  TBoxArray, TBoxArraySorted: TBoxArray;
+  I: Int32;
+begin
+  Box := Self.Bounds();
+  Box.Y1 += 30;
+  Box.X2 := Box.X2 - 90;
+
+  if SRL.FindColors(TPA, CTS0(65280), Box) then
+    ATPA += TPA;
+  if SRL.FindColors(TPA, CTS0(2070783), Box) then
+    ATPA += TPA;
+
+  TPA := ATPA.Merge();
+
+  if (Length(TPA) > 0) then
+  begin
+
+    TBoxArray := TPA.Cluster(10).ToTBA();
+
+    for I := 0 to High(TBoxArray) do
+    begin
+      TBoxArray[I].X1 -= 1;
+      TBoxArray[I].Y1 -= 44;
+      TBoxArray[I].X2 := TBoxArray[I].X1 + 79;
+      TBoxArray[I].Y2 += 3;
+    end;
+
+    TBoxArray.SortByXY;
+
+
+    Self.ITEM_SLOTS := TBoxArray;
+  end;
+end;
+
+(*
+SmithScreen.GetTitle
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSSmithScreen.GetTitle: String;
+
+Returns the title of the smithscreen.
+
+Example
+-------
+
+  WriteLn SmithScreen.GetTitle();
+*)
+function TRSSmithScreen.GetTitle: String;
+var
+  B: TBox;
+  Filter: TCompareRules;
+begin
+  B := Self.Bounds;
+  B.X1 += 50;
+  B.Y1 += 10;
+  B.X2 -= 50;
+  B.Y2 := B.Y1 + 15;
+  B.LimitTo(Self.Bounds);
+
+  Filter.Threshold := True;
+  Filter.ThresholdAmount := 15;
+
+  Result := OCR.Recognize(B, Filter, RS_FONTSET_BOLD_12);
+end;
+
+function TRSSmithScreen.IsTitle(Text: String): Boolean; overload;
+begin
+  Result := Text in Self.GetTitle();
+end;
+
+function TRSSmithScreen.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
+begin
+  Result := WaitUntil(Self.IsTitle(Text), 100, WaitTime);
+end;
+
+(*
+SmithScreen.IsOpen
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSSmithScreen.IsOpen(WaitForItems: Boolean = True): Boolean;
+
+Returns true if the smithscreen is visible.
+*)
+function TRSSmithScreen.IsOpen: Boolean; overload;
+begin
+  Result := Self.IsTitle('you like to make');
+  if Result then
+  begin
+    Self.SetupQuantityButtons;
+    Self.SetupItemSlots;
+  end
+  else
+  begin
+    Self.QUANTITY_BUTTONS := [];
+    Self.ITEM_SLOTS := [];
+  end;
+end;
+
+function TRSSmithScreen.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+end;
+
+
+procedure TRSSmithScreen.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen then
+    Exit;
+
+  inherited;
+
+  Bitmap.DrawBoxes(Self.QUANTITY_BUTTONS, False, $00FFFF);
+  Bitmap.DrawBoxes(Self.ITEM_SLOTS, False, $00FFFF);
+end;
+
+
+function TRSSmithScreen.GetQuantityButton(Quantity: String): Int32;
+var
+  B: TBox;
+  I: Int32;
+begin
+  if not Self.IsOpen then
+    Exit(-1);
+
+  B := Self.QUANTITY_BUTTONS.Merge();
+
+  if (FindText(Quantity, RS_FONT_PLAIN_11, B.X1, B.Y1, B.X2, B.Y2, B) = 1) then
+    for I := 0 to High(Self.QUANTITY_BUTTONS) do
+      if Self.QUANTITY_BUTTONS[I].Contains(B) then
+        Exit(I);
+
+  Result := -1;
+end;
+
+function TRSSmithScreen.GetItemSlot(Item: String): Int32;
+var
+  Box: TBox;
+  I: Int32;
+begin
+  if not Self.IsOpen then
+    Exit(-1);
+
+  Box := Self.ITEM_SLOTS.Merge();
+
+  if (FindText(Item, RS_FONT_PLAIN_11, Box.X1, Box.Y1, Box.X2, Box.Y2, Box) = 1) then
+    for I := 0 to High(Self.ITEM_SLOTS) do
+      if Self.ITEM_SLOTS[I].Contains(Box) then
+        Exit(I);
+
+  Result := -1;
+end;
+
+
+function TRSSmithScreen.HoverQuantityButton(Quantity: String): Boolean;
+var
+  Idx: Int32;
+begin
+  if not Self.IsOpen then
+    Exit;
+
+  Idx := Self.GetQuantityButton(Quantity);
+
+  if Idx = -1 then
+    Exit;
+
+  Mouse.Move(Self.QUANTITY_BUTTONS[Idx]);
+
+  Result := MainScreen.IsUpText('Quantity: ' + Quantity);
+end;
+
+function TRSSmithScreen.HoverItemSlot(Item: String): Boolean;
+var
+  Idx: Int32;
+begin
+  if not Self.IsOpen then
+    Exit;
+
+  Idx := Self.GetItemSlot(Item);
+
+  if Idx = -1 then
+    Exit;
+
+  Mouse.Move(Self.ITEM_SLOTS[Idx]);
+
+  Result := MainScreen.IsUpText(Item);
+end;
+
+
+// TODO: Fix X Button when it was already clicked before... it switches to "?"...
+function TRSSmithScreen.ClickQuantityButton(Quantity: String; ForceClick: Boolean = False): Boolean;
+ const
+  ENABLED = $FFFFFF;
+var
+  Idx: Int32;
+  Box: TBox;
+begin
+  if not Self.IsOpen then
+    Exit;
+
+  Idx := Self.GetQuantityButton(Quantity);
+
+  if Idx = -1 then
+    Exit;
+
+  if ForceClick or (CountColor(ENABLED, Self.QUANTITY_BUTTONS[Idx]) = 0) then
+    Mouse.Click(Self.QUANTITY_BUTTONS[Idx], MOUSE_LEFT);
+
+  Result := (CountColor(ENABLED, Self.QUANTITY_BUTTONS[Idx]) > 0);
+end;
+
+function TRSSmithScreen.ClickItemSlot(Item: String; ForceClick: Boolean = False): Boolean;
+ const
+  AVAILABLE = $FFFFFF;
+var
+  Idx: Int32;
+  Box: TBox;
+begin
+  if not Self.IsOpen then
+    Exit;
+
+  Idx := Self.GetItemSlot(Item);
+
+  if Idx = -1 then
+    Exit;
+
+  if ForceClick or (CountColor(AVAILABLE, Self.ITEM_SLOTS[Idx]) > 0) then
+    Mouse.Click(Self.ITEM_SLOTS[Idx], MOUSE_LEFT);
+
+  Result := WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(0, 1500), Random(2500, 5000));
+end;
+
+
+function TRSSmithScreen.SmithItem(Item, Quantity: String): Boolean;
+begin
+  if not Self.ClickQuantityButton(Quantity) then
+    Exit;
+  Result := Self.ClickItemSlot(Item);
+end;
+
+
+ (*
+SmithScreen.Close
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSSmithScreen.Close(UseKeyboard: Boolean = False): Boolean;
+
+Closes the smith screen, Depending on `UseKeyboard` the function will either click the button
+or press backspace.
+
+Example
+-------
+
+ WriteLn SmithScreen.Close();
+*)
+function TRSSmithScreen.Close(UseKeyboard: Boolean = False): Boolean;
+begin
+  if (not Self.IsOpen()) then
+    Exit(True);
+
+  if UseKeyboard then
+    Keyboard.PressKey(VK_ESCAPE)
+  else
+    Self.ClickButton([Self.BUTTON_CLOSE, Self.BUTTON_CLOSE_HOVER], MOUSE_LEFT);
+
+  Result := WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(0, 1500), Random(2500, 5000));
+end;
+
+
+
+
+function TRSSmithScreen._FindAnvil: T2DPointArray;
+var
+  Finder: TRSObjectFinder;
+begin
+  Finder.Colors += CTS2(3881791, 15, 0.20, 0.12);
+
+  Finder.ClusterDistance := 2;
+  Finder.Grow := 3;
+  Finder.Erode := 3;
+
+  Finder.MinShortSide := 8;
+
+
+  Result := MainScreen.FindObject(Finder);
+  if Length(Result) = 0 then
+    Exit;
+
+  Result.SortByMiddle(MainScreen.GetPlayerBox.Middle);
+end;
+
+
+function TRSSmithScreen.Hover(AnvilType: ERSAnvilType; RightClick: Boolean = False): Boolean;
+var
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  P: TPoint;
+begin
+  if ChooseOption.IsOpen() or MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    Exit(True);
+
+  case AnvilType of
+    STANDARD: ATPA := Self._FindAnvil();
+  end;
+
+  for TPA in ATPA do
+  begin
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
+
+    Mouse.Move(P);
+    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    begin
+      if RightClick then
+        ChooseOption.Hover(Self.FINDER_OPTION);
+
+      Exit(True);
+   end;
+  end;
+end;
+
+function TRSSmithScreen.Open(P: TPoint): Boolean; overload;
+begin
+  Mouse.Move(P);
+
+  Result := ChooseOption.IsOpen() and ChooseOption.Select(Self.FINDER_OPTION);
+
+  if not Result then
+  begin
+    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    begin
+      if SRL.Dice(10) then
+        Result := ChooseOption.Select(Self.FINDER_OPTION)
+      else
+      begin
+        Mouse.Click(MOUSE_LEFT);
+
+        Result := MainScreen.DidRedClick();
+      end;
+    end;
+  end;
+
+  if Result then
+  begin
+    if Minimap.HasFlag(Random(200, 400)) then
+      Minimap.WaitFlag();
+
+    Result := Self.IsOpen(Random(3000, 4000));
+  end;
+end;
+
+function TRSSmithScreen.Open(AnvilType: ERSAnvilType): Boolean; overload;
+var
+  Attempt: Int32;
+begin
+  if Self.IsOpen() or Self.Open(Mouse.Position()) then
+    Exit(True);
+
+  for Attempt := 1 to 3 do
+  begin
+    if Attempt = 2 then
+    begin
+      Self.Debug('Anvil not found, rotating...');
+
+      if SRL.Dice(50) then
+        Minimap.SetCompassAngle(Minimap.GetCompassAngle() + Random(100, 200))
+      else
+        Minimap.SetCompassAngle(Minimap.GetCompassAngle() - Random(100, 200));
+    end;
+
+    if Self.Hover(STANDARD, SRL.Dice(35)) then
+      Exit(Self.Open(Mouse.Position()));
+  end;
+end;
+
+
+(*
+var SmithScreen
+~~~~~~~~~~~~~~
+  Global smithscreen variable.
+*)
+var
+  SmithScreen: TRSSmithScreen;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  SmithScreen.Setup(Self.Mode);
+end;
+
+procedure TSRL.Setup; override;
+begin
+  inherited;
+
+  SmithScreen.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  SmithScreen.Debug(Bitmap);
+end;
+
