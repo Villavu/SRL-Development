@@ -29,7 +29,8 @@ type
     BANK_LOCATION_CASTLE_WARS,
     BANK_LOCATION_FEROX,
     BANK_LOCATION_GRAND_EXCHANGE,
-    BANK_LOCATION_FALADOR_EAST
+    BANK_LOCATION_FALADOR_EAST,
+    BANK_LOCATION_WINTERTODT
   );
 
   TRSBankScreen = record(TRSInterface)
@@ -768,6 +769,29 @@ begin
   Result := GrandExchange.FindNPC(GrandExchange.FINDER_BANKER);
 end;
 
+function TRSBankScreen._FindWintertodt: T2DPointArray;
+var
+  Finder: TRSObjectFinder;
+begin
+  Finder.ColorClusters += [
+    CTS2(3289384, 4, 0.51, 0.37),  //Dark hole
+    CTS2(13025214, 17, 0.13, 0.11), //Snow color
+    10
+  ];
+
+  Finder.ClusterDistance := 2;
+  Finder.Grow := 3;
+  Finder.Erode := 2;
+
+  Result := MainScreen.FindObject(Finder);
+  if Length(Result) = 0 then
+    Exit;
+  Result.SortByLongSide();
+  Result := Result[0].Cluster(3);
+  Result.SortByMiddle(Result.Merge.Mean());
+end;
+
+
 function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; overload;
 var
   ATPA: T2DPointArray;
@@ -795,6 +819,7 @@ begin
       BANK_LOCATION_CASTLE_WARS:    ATPA := Self._FindCastleWars();
       BANK_LOCATION_FEROX:          ATPA := Self._FindFerox();
       BANK_LOCATION_GRAND_EXCHANGE: ATPA := Self._FindGrandExchange();
+      BANK_LOCATION_WINTERTODT:     ATPA := Self._FindWintertodt();
     end;
 
     // Check three largest clusters
@@ -827,6 +852,7 @@ begin
     BANK_LOCATION_CASTLE_WARS:    ATPA := Self._FindCastleWars();
     BANK_LOCATION_FEROX:          ATPA := Self._FindFerox();
     BANK_LOCATION_GRAND_EXCHANGE: ATPA := Self._FindGrandExchange();
+    BANK_LOCATION_WINTERTODT:     ATPA := Self._FindWintertodt();
   end;
 
   // Check three largest clusters
@@ -922,7 +948,7 @@ Overrides **Inventory.IsOpen** to return true if the bankscreen is open.
 *)
 function TRSInventory.IsOpen: Boolean; override;
 begin
-  Result := inherited() or BankScreen.IsOpen();
+  Result := inherited() or BankScreen.IsOpen(100);
 end;
 
 procedure TRSClient.ClientModeChanged; override;
