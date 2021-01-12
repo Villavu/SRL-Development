@@ -82,35 +82,27 @@ begin
 end;
 
 function TRSMinimap.GetCompassAngle(AsDegrees: Boolean = True): Double;
-const
-  COMPASS_NORTH_COLOR = 1911089;
-  COMPASS_SOUTH_COLOR = 920735;
 var
   TPA: TPointArray;
-  North, South: TPoint;
+  ATPA: T2DPointArray;
+  South: Vector2;
 begin
   with GetCompassCircle() do
-  begin
-    if FindColors(TPA, COMPASS_NORTH_COLOR, Bounds()) then
+    if SRL.FindColors(TPA, CTS1(2565532, 50), Bounds()) then // red
     begin
-      North := TPA.Mean();
-
-      if FindColors(TPA, COMPASS_SOUTH_COLOR, Bounds) then
+      ATPA := TPA.Split(5);
+      ATPA.SortByMiddle(ATPA.Biggest().Mean());
+    
+      South := ATPA[High(ATPA)].MeanEx;
+    
+      Result := FixRad(ArcTan2(South.Y - Y, South.X - X) - (PI / 2));
+      if (Result <> 0) then
       begin
-        TPA := TPA.FilterDist(Radius div 2, Radius, X, Y);
-        TPA.Sort(North);
-
-        South := TPA[High(TPA)];
-
-        Result := FixRad(ArcTan2(South.Y - Y, South.X - X) - (PI / 2));
-        if (Result <> 0) then
-	        Result += 0.0333; // compass dial is floored.. this makes us more accurate.
+	      Result += 0.0333; // compass dial is floored.. this makes us more accurate.}
+        if AsDegrees then
+          Result := Degrees(Result);
       end;
     end;
-  end;
-
-  if AsDegrees then
-    Result := Degrees(Result);
 end;
 
 procedure TRSMinimap.SetCompassAngle(Degrees: Double; Accuracy: Double = 5);
@@ -243,7 +235,7 @@ begin
         Self.Alignment.Top := [@RootInterface.Y1, 8];
         Self.Alignment.Bottom := [@RootInterface.Y1, 159];
 
-        Self.CompassCircleOffset := [-8, 13];
+        Self.CompassCircleOffset := [-8, 12];
         Self.HitpointsCircleOffset := [-13, 49];
         Self.PrayerCircleOffset := [-13, 84];
         Self.RunCircleOffset := [-3, 116];
