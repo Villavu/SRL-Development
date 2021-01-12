@@ -31,17 +31,13 @@ type
 
   PRSWalker = ^TRSWalker;
 
-  TRSWalker_OnWalkEvent = procedure(Walker: PRSWalker; PlayerPoint: TPoint; WorldPoint: TPoint);
-  TRSWalker_OnWalkEventEx = procedure(Walker: PRSWalker; PlayerPoint: TPoint; WorldPoint: TPoint) of object;
+  TRSWalker_OnWalkEvent = procedure(Walker: PRSWalker; Position: TPoint; Destination: TPoint);
+  TRSWalker_OnWalkEventEx = procedure(Walker: PRSWalker; Position: TPoint; Destination: TPoint) of object;
 
   TRSWalker = record(TSRLBaseRecord)
-    Cache: array of TRSWalkerCache;
-    CacheSize: Int32;
-    CacheRadius: Int32;
+    Cache: TMatchTemplateRGBCache;
 
     World: TMufasaBitmap;
-    WorldSample: TMufasaBitmap;
-    WorldSampleCache: TMatchTemplateImageCache;
 
     WebGraph: TWebGraph;
 
@@ -60,41 +56,9 @@ type
 
     OnWalkEvent: TRSWalker_OnWalkEvent;
     OnWalkEventEx: TRSWalker_OnWalkEventEx;
+
+    OnWalkingEvent: TRSWalker_OnWalkEvent;
   end;
-
-function TRSWalkerCache.GetMyPos(Minimap: TMufasaBitmap; MinimapSample: TMufasaBitmap; MinimapOffset: TPoint; out Similarity: Single): TPoint;
-var
-  P: TPoint;
-  Sample: TMufasaBitmap;
-  Matrix: TSingleMatrix;
-  B: TBox;
-begin
-  P.X := Self.Position.X div Self.Scaling;
-  P.Y := Self.Position.Y div Self.Scaling;
-
-  // Get scaled world map around last known position
-  B.X1 := Max(P.X - (Self.Radius div Self.Scaling), 0);
-  B.Y1 := Max(P.Y - (Self.Radius div Self.Scaling), 0);
-  B.X2 := Min(P.X + (Self.Radius div Self.Scaling), WorldSample.GetWidth()  - 1);
-  B.Y2 := Min(P.Y + (Self.Radius div Self.Scaling), WorldSample.GetHeight() - 1);
-
-  Sample := WorldSample.Copy(B.X1, B.Y1, B.X2, B.Y2);
-
-  // Find scaled minimap on scaled world map around last known position
-  Matrix := Sample.MatchTemplate(MinimapSample, TM_CCOEFF_NORMED);
-
-  Result.X := B.X1 * Self.Scaling;
-  Result.Y := B.Y1 * Self.Scaling;
-  Result   += Matrix.ArgMax() * Self.Scaling;
-
-  // Now search the world map around our match without scaling
-  Result   := TRSWalker.FindImageNear(Result, Self.World, Minimap, 20, [-2, 0, 2], Similarity);
-  Result   += MinimapOffset;
-  Result.X += Minimap.GetWidth() div 2;
-  Result.Y += Minimap.GetHeight() div 2;
-
-  Sample.Free();
-end;
 
 function TRSWalker.FindMap(Map: String): String; static;
 var
@@ -141,7 +105,6 @@ end;
 
 procedure TRSWalker.Free;
 begin
-  Self.WorldSample.Free();
   Self.World.Free();
 end;
 
@@ -187,17 +150,84 @@ begin
     'zeah':  Self.WebGraph := ZeahWeb;
   end;
 
-  Self.WorldSample.Init(Client.GetMBitmaps());
-
   Self.World := Self.LoadMap(Path);
-  Self.World.Downsample(Self.Scaling, Self.WorldSample);
+end;
 
-  // Only cache on big maps
-  if Self.World.GetWidth() * Self.World.GetHeight() > 1500*1500 then
+procedure TRSWalker.CleanMinimap(Bitmap: TMufasaBitmap);
+
+  procedure Find(P: TPoint);
+  var
+    Area: TBox;
+    Pixel: Int32;
+    X, Y: Int32;
   begin
-    Self.CacheSize := 3;
-    Self.CacheRadius := 200;
+    Area := [P.X - 5, P.Y - 5, P.X + 5, P.Y + 5];
+    
+    for Y := Area.Y1 to Area.Y2 do
+      for X := Area.X1 to Area.X2 do
+        if Bitmap.PointInBitmap(X, Y) then
+        begin
+          Pixel := Bitmap.GetPixel(X, Y);
+  
+          SetToleranceSpeed2Modifiers(0.001, 0.001);
+          if SimilarColors($FFFFFF, Pixel, 30) then
+            Bitmap.SetPixel(X, Y, 0);
+  
+          SetToleranceSpeed2Modifiers(0.05, 1);
+          if SimilarColors($00FFFF, Pixel, 30) then
+            Bitmap.SetPixel(X, Y, 0);
+  
+          SetToleranceSpeed2Modifiers(0.05, 1);
+          if SimilarColors($0000FF, Pixel, 30) then
+            Bitmap.SetPixel(X, Y, 0);
+  
+          SetToleranceSpeed2Modifiers(50, 100);
+          if SimilarColors($000000, Pixel, 1) then
+            Bitmap.SetPixel(X, Y, 0);
+        end;
   end;
+
+var
+  Dots: TPointArray;
+  Dot: TPoint;
+  TPA: TPointArray;
+begin
+  Dots := Minimap.GetDotsBitmap(Bitmap, [MINIMAP_DOT_NPC, MINIMAP_DOT_ITEM, MINIMAP_DOT_PLAYER]);
+
+  SetColorToleranceSpeed(2);
+
+  for Dot in Dots do
+    Find(Dot);
+  Find([Bitmap.GetWidth() div 2, Bitmap.GetHeight() div 2]); // our own player
+
+  SetColorToleranceSpeed(1);
+  SetToleranceSpeed2Modifiers(0.2, 0.2);
+
+  // TODO: account for tolerance
+  Bitmap.ReplaceColor(255,0);
+  Bitmap.ReplaceColor(284358,0);
+  Bitmap.ReplaceColor(1127261,0);
+  
+  Bitmap.DrawPolyFilled(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), True, 0);  
+
+  Bitmap.FindColors(TPA, 0);
+  Bitmap.Blend(TPA.Sorted(Bitmap.GetCenter()), 5); 
+  Bitmap.Pad(10); 
+end;
+
+function TRSWalker.GetCleanMinimap: TMufasaBitmap;
+var
+  Bitmap: TMufasaBitmap;
+begin
+  Bitmap := GetMufasaBitmap(BitmapFromClient(Minimap.Bounds));
+  Bitmap.ReplaceColor(0, 1); // We need zero to be unique
+
+  Clean(Bitmap);
+
+  Result.Init();
+  
+  Bitmap.RotateBitmapEx(Minimap.GetCompassAngle(False), False, True, Result);
+  Bitmap.Free();
 end;
 
 procedure TRSWalker.ClearDots(Bitmap: TMufasaBitmap);
@@ -484,106 +514,7 @@ Example
   WriteLn(Walker.Similarity);
 *)
 function TRSWalker.GetMyPos: TPoint;
-var
-  MinimapSample, MinimapBitmap: TMufasaBitmap;
-  Matrix: TSingleMatrix;
-  MinimapOffset: TPoint;
-  I, J: Int32;
-  TPA: TPointArray;
-  Match: Single;
-  P: TPoint;
-  Weights: TIntegerArray;
-  ATPA: T2DPointArray;
-  BestCache: Int32;
-  BestCacheMatch: Single;
-  BestCachePosition: TPoint;
-  {$IFDEF SRL_DEBUG_WALKER}
-  T: UInt64 := GetTickCount();
-  {$ENDIF}
 begin
-  if (Self.World = nil) then
-    Self.Fatal('Walker has not been setup');
-
-  MinimapSample.Init(Client.GetMBitmaps());
-
-  MinimapBitmap := GetMinimap(MinimapOffset);
-  MinimapBitmap.Downsample(Self.Scaling, MinimapSample);
-
-  try
-    Self.Similarity := 0;
-
-    // Cache
-    for I := 0 to High(Self.Cache) do
-    begin
-      P := Self.Cache[I].GetMyPos(MinimapBitmap, MinimapSample, MinimapOffset, Match);
-
-      if (Match > BestCacheMatch) and (Abs(Match - Self.Cache[I].Match) < 0.10) then
-      begin
-        BestCache := I;
-        BestCacheMatch := Match;
-        BestCachePosition := P;
-      end;
-    end;
-
-    if BestCacheMatch > 0.40 then
-    begin
-      Self.Cache[BestCache].LastUsed := GetTickCount();
-      Self.Cache[BestCache].Position := BestCachePosition;
-      Self.Cache[BestCache].Match := BestCacheMatch;
-
-      Self.Similarity := BestCacheMatch;
-
-      {$IFDEF SRL_DEBUG_WALKER}
-      Self.Debug('Cache used @ ' + ToString(Round(BestCacheMatch, 3)) + ' (' + ToString(GetTickCount() - T) + ' ms)');
-      {$ENDIF}
-
-      Exit(BestCachePosition);
-    end;
-
-    // Full scan
-    Matrix := MatchTemplate(WorldSample, MinimapSample, TM_CCOEFF_NORMED, Self.WorldSampleCache);
-
-    // Inspect 3 best hits with no scaling and pick best
-    TPA := Matrix.Indices(Matrix.Max() - 0.10, __GT__);
-    ATPA := TPA.Split(10);
-
-    SetLength(Weights, Length(ATPA));
-
-    for I := 0 to High(ATPA) do
-      for J := 0 to High(ATPA[I]) do
-        if Round(Matrix[ATPA[I][J].Y, ATPA[I][J].X] * 100000) > Weights[I] then
-          Weights[I] := Round(Matrix[ATPA[I][J].Y, ATPA[I][J].X] * 100000);
-
-    QuickATPASort(Weights, ATPA, 0, High(ATPA), False);
-
-    for I := 0 to Min(High(ATPA), 2) do
-    begin
-      P   := Self.FindImageNear(ATPA[I].Mean() * Self.Scaling, Self.World, MinimapBitmap, 20, [-2, 0, 2], Match);
-      P   += MinimapOffset;
-      P.X += MinimapBitmap.GetWidth() div 2;
-      P.Y += MinimapBitmap.GetHeight() div 2;
-
-      if Match > Self.Similarity then
-      begin
-        Self.Similarity := Match;
-
-        Result := P;
-      end;
-    end;
-
-    // Add to cache if good hit
-    if Self.Similarity > 0.40 then
-      AddCache(Result);
-
-    {$IFDEF SRL_DEBUG_WALKER}
-    Self.Debug('Full scan @ ' + ToString(Round(Self.Similarity, 3)) + ' (' + ToString(GetTickCount() - T) + ' ms)');
-    {$ENDIF}
-  finally
-    if MinimapBitmap <> nil then
-      MinimapBitmap.Free();
-    if MinimapSample <> nil then
-      MinimapSample.Free();
-  end;
 end;
 
 function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint; overload;
@@ -633,6 +564,12 @@ begin
     Position.Current := Self.GetMyPos();
     if Position.Current <> Position.Previous then
       Countdown.Restart();
+
+    if (@OnWalkingEvent <> nil) then
+      OnWalkingEvent(@Self, Position.Current, Destination);
+
+    if not Self.Enabled then
+      Break;
 
     Wait(100);
   until Timeout.IsFinished() or Countdown.IsFinished() or (Position.Current.DistanceTo(Destination) <= WaitUntilDistance);
