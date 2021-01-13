@@ -512,28 +512,6 @@ begin
   Result := FindTextColor(Text, Font, Color, Tolerance, Area.X1, Area.Y1, Area.X2, Area.Y2, MinMatch);
 end;
 
-
-procedure FreeDTMs(const DTMs: TIntegerArray);
-var
-  I: Integer;
-begin
-  for I := 0 to High(DTMs) do
-    FreeDTM(DTMs[I]);
-end;
-
-procedure FreeWalkers(const Walkers: Array of TRSWalker);
-var
-  I: Integer;
-  Walker: TRSWalker;
-begin
-  for I := 0 to High(Walkers) do
-  begin
-    Walker := Walkers[I];
-    Walker.Free();
-  end;
-end;
-
-
 procedure TerminateScript(Reason: String); overload;
 begin
   WriteLn('Terminating: ' + Reason);
