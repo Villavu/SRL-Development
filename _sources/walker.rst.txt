@@ -9,7 +9,7 @@ TRSWalker.Setup
 ~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 10);
+ procedure TRSWalker.Setup(Map: String; Manage: Boolean = True; Scaling: Int32 = 10);
 
 Setup a RSWalker variable.
 This only needs calling once per variable so it's suggested to use a global variable.
@@ -20,8 +20,11 @@ Parameters
 Map
 	File path to an image or a map name found in *SRL/osr/walker/maps*.
 
+Manage  
+  Automatically free walker at the end of the script. Only works if the TRSWalker variable is global. (Default: True)
+    
 Scaling
-	Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 10)
+	Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 9)
 	
 Example
 -------

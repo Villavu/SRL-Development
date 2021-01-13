@@ -4,23 +4,40 @@ Welcome to SRL documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR
+	:caption: UTILS
 
-   bankscreen
-   mainscreen
-   mm2ms
-   misc
-   inventory
-   rsclient
+   tboxarrays
+   integerarrays
+   tpoint
+   tbox
+   extendedarrays
+   tpointarrays
+   tcircle
+   color
+   mouse
+   random
+   math
+   pixelshift
+   drawing
+   keyboard
+   wrappers
+   string
+   trectangle
+   time
 
 -----------
 
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> ITEMFINDER
+	:caption: OSR
 
-   itemfinder
+   rsclient
+   misc
+   mainscreen
+   bankscreen
+   mm2ms
+   inventory
 
 -----------
 
@@ -38,26 +55,9 @@ Welcome to SRL documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: UTILS
+	:caption: OSR -> ITEMFINDER
 
-   tcircle
-   tpoint
-   trectangle
-   color
-   math
-   tbox
-   random
-   pixelshift
-   integerarrays
-   time
-   drawing
-   mouse
-   extendedarrays
-   tboxarrays
-   keyboard
-   tpointarrays
-   string
-   wrappers
+   itemfinder
 
 -----------
 
