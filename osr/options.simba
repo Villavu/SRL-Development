@@ -136,6 +136,7 @@ begin
   Result.Y2 := Result.Y1 + 11;
 end;
 
+
 function TRSOptions.FindZoomSlider(var P: TPoint): Boolean;
 var
   TPA: TPointArray;
@@ -193,6 +194,78 @@ begin
   while (T > GetTickCount()) do
   begin
     if Self.GetZoomLevel() = Level then
+      Exit(True);
+
+    Wait(0, 1000, wdLeft);
+  end;
+end;
+
+
+function TRSOptions.GetBrightnessSliderBounds: TBox;
+begin
+  Result.X1 := Self.X1 + 57;
+  Result.Y1 := Self.Y1 + 76;
+  Result.X2 := Result.X1 + 96;
+  Result.Y2 := Result.Y1 + 11;
+end;
+
+function TRSOptions.FindBrightnessSlider(var P: TPoint): Boolean;
+var
+  TPA: TPointArray;
+begin
+  if (not Self.Open()) or (not Self.OpenTab(OPTIONS_TAB_DISPLAY)) then
+    Exit;
+
+  Result := SRL.FindColors(TPA, CTS0(2040359), Self.GetBrightnessSliderBounds().Expand(10)) > 0;
+  if Result then
+    P := TPA.Mean();
+end;
+
+function TRSOptions.GetBrightnessLevel: Int32;
+var
+  Slider: TPoint;
+  B: TBox;
+begin
+  Result := -1;
+
+  B := Self.GetBrightnessSliderBounds();
+  if Self.FindBrightnessSlider(Slider) then
+    Result := Round((Slider.X - B.X1) * 100 / (B.Width - 1));
+end;
+
+function TRSOptions.SetBrightnessLevel(Level: Int32): Boolean;
+var
+  Slider: TPoint;
+  SliderBounds: TBox;
+  Destination: TPoint;
+  Boxes: TBoxArray;
+  T: UInt64;
+begin
+  if Self.GetBrightnessLevel() = Level then
+    Exit(True);
+
+  SliderBounds := Self.GetBrightnessSliderBounds();
+
+  if Self.FindBrightnessSlider(Slider) then
+  begin
+    Destination.X := SliderBounds.X1 + Round((Level * (SliderBounds.Width - 1) / 100)) + 1;
+    Destination.Y := Random(SliderBounds.Y1, SliderBounds.Y2);
+
+    // Move slider away so we can click on destination
+    if Distance(Slider, Destination) <= 12 then
+    begin
+      Boxes := Box(Slider.X - 12, Slider.Y - 12, Slider.X + 12, Slider.Y + 12).Invert(SliderBounds);
+      Mouse.Click(Boxes[Random(Length(Boxes))], MOUSE_LEFT, False);
+      Wait(0, 1000, wdLeft);
+    end;
+
+    Mouse.Click(Destination, MOUSE_LEFT);
+  end;
+
+  T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+  while (T > GetTickCount()) do
+  begin
+    if Self.GetBrightnessLevel() = Level then
       Exit(True);
 
     Wait(0, 1000, wdLeft);
@@ -373,8 +446,12 @@ begin
 
   inherited();
 
-  if (Self.GetTab() = OPTIONS_TAB_CONTROLS) and not Self.HouseOptionsIsOpen then
-    Bitmap.DrawBox(Self.GetZoomSliderBounds(), False, $00FFFF);
+  if not Self.HouseOptionsIsOpen then
+    case Self.GetTab of
+      OPTIONS_TAB_CONTROLS: Bitmap.DrawBox(Self.GetZoomSliderBounds(), False, $00FFFF);
+      OPTIONS_TAB_DISPLAY: Bitmap.DrawBox(Self.GetBrightnessSliderBounds(), False, $00FFFF);
+    end;
+
 end;
 
 var
