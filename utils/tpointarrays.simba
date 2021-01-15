@@ -497,7 +497,7 @@ begin
 end;
 
 (*
-TPointArray.FilterBox
+TPointArray.FilterDist
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
