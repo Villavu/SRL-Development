@@ -1211,6 +1211,17 @@ begin
 end;
 
 
+
+function T2DPointArray.FilterBox(Box: TBox): T2DPointArray; constref;
+var
+  i: Int32;
+begin
+  Result := Copy(Self);
+  for i := 0 to High(Result) do
+    Result[i] := Result[i].FilterBox(Box);
+end;
+
+
 procedure T2DPointArray.FilterSize(MinLen:Int32; KeepIf:EComparator=__LT__);
 var
   tmp:T2DPointArray;
