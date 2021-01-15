@@ -375,12 +375,12 @@ var
 begin
   Finder.Colors += Color;
 
-  Finder.ClusterDistance := 2;
-  Finder.Grow := 3;
-  Finder.Erode := 3;
+  Finder.ClusterDistance := 30;  // Distance is 30 so MaxLongSide filters
+  Finder.Grow := 3;              // Tin rock clusters and furnaces...
+  Finder.Erode := 3;             // E.G. tutorial island
 
   Finder.MinShortSide := 8;
-
+  Finder.MaxLongSide := 55;
 
   Result := MainScreen.FindObject(Finder);
   if Length(Result) = 0 then
