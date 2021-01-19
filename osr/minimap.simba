@@ -23,7 +23,6 @@ begin
   Result := [Self.X1 + Self.CompassCircleOffset.X, Self.Y1 + Self.CompassCircleOffset.Y, 17];
 end;
 
-
 function TRSMinimap.GetHPCircle: TCircle;
 begin
   Result := [Self.X1 + Self.HitpointsCircleOffset.X, Self.Y1 + Self.HitpointsCircleOffset.Y, 12];
@@ -43,7 +42,6 @@ function TRSMinimap.GetSpecAttackCircle: TCircle;
 begin
   Result := [Self.X1 + Self.SpecAttackCircleOffset.X, Self.Y1 + Self.SpecAttackCircleOffset.Y, 12];
 end;
-
 
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
 var
@@ -208,10 +206,9 @@ begin
   FreeBitmap(Self.FlagBitmap);
 end;
 
-procedure TRSMinimap.Setup; overload;
+procedure TRSMinimap.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Minimap';
   Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
@@ -266,7 +263,6 @@ begin
   Result := SRL.PointInPoly(P, ExpandPolygon(Self.GetPolygon(), Expand));
 end;
 
-
 function TRSMinimap.IsPoisoned: Boolean;
 begin
   Result := SRL.CountColor(CTS2(271525, 10, 0.05, 0.37), Self.GetHPCircle().Bounds) = 0;
@@ -290,7 +286,6 @@ begin
     end;
   end;
 end;
-
 
 function TRSMinimap.IsPrayerEnabled: Boolean;
 begin
@@ -335,7 +330,6 @@ begin
   end;
 end;
 
-
 function TRSMinimap.IsRunEnabled: Boolean;
 begin
   Result := SRL.CountColor(CTS2(4211520, 6, 2.84, 0.14), Self.GetRunCircle().Bounds) = 0;
@@ -378,7 +372,6 @@ begin
     end;
   end;
 end;
-
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin

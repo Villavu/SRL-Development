@@ -14,10 +14,9 @@ type
 type
   TRSCombat = type TRSInterface;
 
-procedure TRSCombat.Setup; overload;
+procedure TRSCombat.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Combat';
 end;

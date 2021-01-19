@@ -167,13 +167,12 @@ Setups the mainscreen.
 
 .. note:: This is automatically called on the **MainScreen** variable.
 *)
-procedure TRSMainScreen.Setup; overload;
+procedure TRSMainScreen.Setup; override;
 var
   Bitmap: Int32;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited;
+  
   Self.Name := 'MainScreen';
 
   Self.UpTextFilter.Color := -1;

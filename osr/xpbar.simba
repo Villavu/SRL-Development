@@ -8,10 +8,9 @@ type
     ButtonOffset: TPoint;
   end;
 
-procedure TRSXPBar.Setup; overload;
+procedure TRSXPBar.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'XPBar';
 end;

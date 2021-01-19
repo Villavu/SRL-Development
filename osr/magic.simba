@@ -234,10 +234,10 @@ type
   TRSMagic = type TRSInterface;
 
 
-procedure TRSMagic.Setup; overload;
+procedure TRSMagic.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
+  
   Self.Name := 'Magic';
 end;
 
@@ -250,7 +250,6 @@ begin
   Self.Alignment.Top := [@GameTab.Y1];
   Self.Alignment.Bottom := [@GameTab.Y2];
 end;
-
 
 function TRSMagic.GetSpellBook(): ESpellBook;
 var
@@ -274,7 +273,6 @@ begin
   Result := SpellBook = Self.GetSpellBook();
 end;
 
-
 function TRSMagic.IsOpen: Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = TAB_MAGIC);
@@ -284,7 +282,6 @@ function TRSMagic.Open: Boolean;
 begin
   Result := Self.IsOpen() or GameTabs.Open(TAB_MAGIC);
 end;
-
 
 function TRSMagic.GetSpellBoxes(): TBoxArray;
 begin
@@ -319,7 +316,6 @@ function TRSMagic.GetSpellBox(Spell: EArceuusSpell): TBox; overload;
 begin
   Result := Self.GetSpellBoxes()[Spell];
 end;
-
 
 function TRSMagic.PointToSpell(P: TPoint): Int32;
 var
@@ -370,8 +366,6 @@ begin
   Mouse.Move(Self.GetSpellBox(Spell));
 end;
 
-
-
 function TRSMagic.CanActivate(Spell: EStandardSpell): Boolean;
 begin
   if not Self.IsOpen() then
@@ -403,7 +397,6 @@ begin
 
   Result := srl.PeakBrightness(self.GetSpellBox(Spell)) > 35;
 end;
-
 
 function TRSMagic.IsSpellSelected(Spell: EStandardSpell): Boolean;
 var
@@ -449,7 +442,6 @@ begin
   Result := SRL.CountColor(CTS0($FFFFFF), B) > 10;
 end;
 
-
 function TRSMagic.GetSelectedSpell(): Int32;
 var
   I: Int32;
@@ -491,7 +483,6 @@ function TRSMagic.SpellSelected: Boolean;
 begin
   Result := Self.GetSelectedSpell() > -1;
 end;
-
 
 function TRSMagic.CastSpell(Spell: EStandardSpell): Boolean;
 var
@@ -582,7 +573,6 @@ begin
 
   Bitmap.DrawBoxes(Self.GetSpellBoxes(), False, $00FFFF);
 end;
-
 
 var
   Magic: TRSMagic;

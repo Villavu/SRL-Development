@@ -13,10 +13,9 @@ type
     MakeCache: array of record Item: String; Index: Int32; end;
   end;
 
-procedure TRSChatBox.Setup; overload;
+procedure TRSChatBox.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Chatbox';
 end;

@@ -4,30 +4,13 @@
 {$ENDIF}
 
 type
-  TRSDepositScreen = record(TRSInterface)
-    BUTTON_DEPOSIT_QUANTITY_CUSTOM_ON: TRSInterfaceButton;
-    BUTTON_DEPOSIT_QUANTITY_CUSTOM_OFF: TRSInterfaceButton;
-    BUTTON_DEPOSIT_QUANTITY_ALL_ON: TRSInterfaceButton;
-    BUTTON_DEPOSIT_QUANTITY_ALL_OFF: TRSInterfaceButton;
+  TRSDepositScreen = type TRSInterface;
 
-    BUTTON_DEPOSIT_INVENTORY: TRSInterfaceButton;
-    BUTTON_DEPOSIT_INVENTORY_HOVER: TRSInterfaceButton;
-  end;
-
-procedure TRSDepositScreen.Setup; overload;
+procedure TRSDepositScreen.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Deposit Screen';
-
-  Self.BUTTON_DEPOSIT_QUANTITY_CUSTOM_ON := Self.AddBitmapButton('deposit_quantity_custom_on.png');
-  Self.BUTTON_DEPOSIT_QUANTITY_CUSTOM_OFF := Self.AddBitmapButton('deposit_quantity_custom_off.png');
-  Self.BUTTON_DEPOSIT_QUANTITY_ALL_ON := Self.AddBitmapButton('deposit_quantity_all_on.png');
-  Self.BUTTON_DEPOSIT_QUANTITY_ALL_OFF := Self.AddBitmapButton('deposit_quantity_all_off.png');
-
-  Self.BUTTON_DEPOSIT_INVENTORY := Self.AddBitmapButton('deposit_inventory.png');
-  Self.BUTTON_DEPOSIT_INVENTORY_HOVER := Self.AddBitmapButton('deposit_inventory_hover.png');
 end;
 
 procedure TRSDepositScreen.Setup(Mode: ERSClientMode); overload;
@@ -66,19 +49,21 @@ function TRSDepositScreen.IsOpen: Boolean; overload;
 var
   T: UInt64;
 begin
+{
   Result := Self.FindButton([Self.BUTTON_DEPOSIT_INVENTORY, Self.BUTTON_DEPOSIT_INVENTORY_HOVER]);
   if Result then
   begin
     T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
     while (T > GetTickCount()) and (SRL.CountColor(CTS0(65536), Self.GetSlotBoxes().Merge()) = 0) do
       Wait(50, 100);
-  end;
+  end;}
 end;
 
 function TRSDepositScreen.IsOpen(WaitTime: Int32): Boolean; overload;
 var
   T: UInt64;
 begin
+{
   T := GetTickCount() + WaitTime;
 
   while (T > GetTickCount()) do
@@ -87,7 +72,7 @@ begin
        Exit(True);
 
      Wait(0, 1000, wdLeft);
-  end;
+  end;}
 end;
 
 procedure TRSDepositScreen.Debug(Bitmap: TMufasaBitmap); override;

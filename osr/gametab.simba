@@ -6,11 +6,10 @@
 type
   TRSGameTab = type TRSInterface;
 
-procedure TRSGameTab.Setup; overload;
+procedure TRSGameTab.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited; 
+  
   Self.Name := 'GameTab';
 end;
 
@@ -43,7 +42,7 @@ var
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
-
+  
   GameTab.Setup(Self.Mode);
 end;
 

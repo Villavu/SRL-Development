@@ -3,10 +3,86 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
+{$scopedenums on}
 type
+  ERSGrandExchangeOverviewButton = (
+    HISTORY,
+    CLOSE,
+    COLLECT
+  );
+  
+  ERSGrandExchangeSetupOfferButton = (
+    HISTORY,
+    CLOSE,
+    ITEM,
+    QUANTITY,
+    PRICE,
+    QUANTITY_1,
+    QUANTITY_10,
+    QUANTITY_100,
+    QUANTITY_ALL,
+    QUANTITY_ENTER,
+    PRICE_DECREASE,
+    PRICE_GUIDE,
+    PRICE_ENTER,
+    PRICE_INCREASE,
+    TOTAL,
+    CONFIRM
+  );
+  
+  ERSGrandExchangeOfferStatusButton = (
+    HISTORY,
+    CLOSE,
+    QUANTITY, 
+    PRICE,
+    TOTAL,
+    PROGRESS
+  );
+  {$scopedenums off}
+
   TRSGrandExchange = record(TRSInterface)
     FINDER_BANKER: TRSObjectFinder;
   end;
+  
+function TRSGrandExchange.GetSetupOfferButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[21,21], [45,18], [35,25], [152,40],[160,18], [159,18], [210,18], [40,36]]);
+end;
+
+function TRSGrandExchange.GetSetupOfferButton(Button: ERSGrandExchangeSetupOfferButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetSetupOfferButtons();
+begin
+  if High(Buttons) >= Ord(High(ERSGrandExchangeSetupOfferButton)) then
+    Result := Buttons[Button];
+end;
+
+//[47,46]
+function TRSGrandExchange.GetOverviewButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[21,21], [45,18], [81,18]]);
+end;
+
+function TRSGrandExchange.GetOverviewButton(Button: ERSGrandExchangeOverviewButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetOverviewButtons();
+begin
+  if High(Buttons)+1 >= Ord(High(ERSGrandExchangeOverviewButton)) then
+    Result := Buttons[Button];
+end;
+
+function TRSGrandExchange.GetOfferStatusButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[21,21], [45,18], [36,32], [292,15], [160,18], [159,18], [210,18]]);
+end;
+
+function TRSGrandExchange.GetOfferStatusButton(Button: ERSGrandExchangeOfferStatusButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetOfferStatusButtons();
+begin
+  if High(Buttons)+1 >= Ord(High(ERSGrandExchangeOfferStatusButton)) then
+    Result := Buttons[Button];
+end;
 
 function TRSGrandExchange.FindNPC(Finder: TRSObjectFinder): T2DPointArray;
 var
@@ -27,7 +103,7 @@ begin
 
   // Size of GE center at fixed client & default(50) zoom.
   Size := MainScreen.ConvertDistance(110);
-
+  
   // Center G.E on the mainscreen
   B := [P.X, P.Y, P.X, P.Y];
   B := B.Expand(Size);
@@ -43,6 +119,30 @@ begin
         Weights[I] := Distance(Result[I].Mean, P) + Min(Distance(Result[I].Mean, MainScreen.Center), Size);
 
     QuickATPASort(Weights, Result, 0, High(Result), True);
+  end;
+end;
+
+function TRSGrandExchange.OpenBank: Boolean;
+var
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  P: TPoint;
+begin
+  if BankScreen.IsOpen() or BankScreen.Open(Mouse.Position()) then
+    Exit(True);
+
+  ATPA := Self.FindNPC(Self.FINDER_BANKER);
+  if Length(ATPA) > 3 then
+    SetLength(ATPA, 3);
+  
+  for TPA in ATPA do
+  begin
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
+    
+    if BankScreen.Open(P) then
+      Exit(True);
   end;
 end;
 
@@ -74,12 +174,12 @@ begin
   inherited;
 end;
 
-procedure TRSGrandExchange.Setup; overload;
+procedure TRSGrandExchange.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Grand Exchange';
+  Self.ButtonColors += [CTS1(2240055, 0), CTS1(2897729, 2), CTS1(2240055, 0), CTS1(2642530, 20), CTS1(3951189, 10)];
 
   Self.FINDER_BANKER.ColorClusters += [CTS2(6710894, 12, 0.19, 0.07), CTS2(2110788, 11, 0.29, 0.84), 10]; // grey, brown
   Self.FINDER_BANKER.ClusterDistance := 3;
@@ -118,6 +218,21 @@ end;
 var
   GrandExchange: TRSGrandExchange;
 
+(*
+BankScreen.Open
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; override;
+
+Overrides **BankScreen.Open** to support opening the grand exchange.
+*)
+function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; override;
+begin
+  if (Location = ERSBankLocation.GRAND_EXCHANGE) then
+    Result := GrandExchange.OpenBank()
+  else
+    Result := inherited();
+end;
+  
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;

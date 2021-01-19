@@ -31,10 +31,9 @@ type
     HIGH_SLOT: Int32;
   end;
 
-procedure TRSInventory.Setup; overload;
+procedure TRSInventory.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Inventory';
 

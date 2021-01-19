@@ -70,10 +70,9 @@ type
 type
   TRSStats = type TRSInterface;
 
-procedure TRSStats.Setup; overload;
+procedure TRSStats.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Stats';
 end;

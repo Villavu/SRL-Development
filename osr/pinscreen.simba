@@ -6,11 +6,10 @@
 type
   TRSPinScreen = type TRSInterface;
 
-procedure TRSPinScreen.Setup; overload;
+procedure TRSPinScreen.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited;
+  
   Self.Name := 'Pin Screen';
 end;
 

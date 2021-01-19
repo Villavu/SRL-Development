@@ -2,64 +2,37 @@
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
+  
+type 
+  {$scopedenums on}
+  ERSOptionsTab = (
+    CONTROLS, 
+    AUDIO, 
+    DISPLAY
+  );
+  
+  ERSOptionsButton = (
+    AID,
+    RUN,
+    HOUSE,
+    BOND
+  );
+  
+  ERSHouseOptionsButton = (
+    CLOSE, 
+    EXPEL, 
+    SERVANT, 
+    LEAVE
+  ); 
+  {$scopedenums off} 
 
-type
-  TRSOptions = record(TRSInterface)
-    BUTTON_DISPLAY_OFF: TRSInterfaceButton;
-    BUTTON_DISPLAY_HOVER_OFF: TRSInterfaceButton;
-    BUTTON_DISPLAY_ON: TRSInterfaceButton;
-    BUTTON_DISPLAY_HOVER_ON: TRSInterfaceButton;
+  TRSOptions = type TRSInterface;
 
-    BUTTON_AUDIO_OFF: TRSInterfaceButton;
-    BUTTON_AUDIO_HOVER_OFF: TRSInterfaceButton;
-    BUTTON_AUDIO_ON: TRSInterfaceButton;
-    BUTTON_AUDIO_HOVER_ON: TRSInterfaceButton;
-
-    BUTTON_CHAT_OFF: TRSInterfaceButton;
-    BUTTON_CHAT_HOVER_OFF: TRSInterfaceButton;
-    BUTTON_CHAT_ON: TRSInterfaceButton;
-    BUTTON_CHAT_HOVER_ON: TRSInterfaceButton;
-
-    BUTTON_CONTROLS_OFF: TRSInterfaceButton;
-    BUTTON_CONTROLS_HOVER_OFF: TRSInterfaceButton;
-    BUTTON_CONTROLS_ON: TRSInterfaceButton;
-    BUTTON_CONTROLS_HOVER_ON: TRSInterfaceButton;
-
-    BUTTON_SHIFT_DROP_ON: TRSInterfaceButton;
-    BUTTON_SHIFT_DROP_OFF: TRSInterfaceButton;
-  end;
-
-  ERSOptionsTab = (OPTIONS_TAB_DISPLAY, OPTIONS_TAB_AUDIO, OPTIONS_TAB_CHAT, OPTIONS_TAB_CONTROLS);
-
-procedure TRSOptions.Setup; overload;
+procedure TRSOptions.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited;  
+    
   Self.Name := 'Options';
-
-  Self.BUTTON_DISPLAY_OFF := Self.AddBitmapButton('options_display_off.png');
-  Self.BUTTON_DISPLAY_HOVER_OFF := Self.AddBitmapButton('options_display_off_hover.png');
-  Self.BUTTON_DISPLAY_ON := Self.AddBitmapButton('options_display_on.png');
-  Self.BUTTON_DISPLAY_HOVER_ON := Self.AddBitmapButton('options_display_on_hover.png');
-
-  Self.BUTTON_AUDIO_OFF := Self.AddBitmapButton('options_audio_off.png');
-  Self.BUTTON_AUDIO_HOVER_OFF := Self.AddBitmapButton('options_audio_off_hover.png');
-  Self.BUTTON_AUDIO_ON := Self.AddBitmapButton('options_audio_on.png');
-  Self.BUTTON_AUDIO_HOVER_ON := Self.AddBitmapButton('options_audio_on_hover.png');
-
-  Self.BUTTON_CHAT_OFF := Self.AddBitmapButton('options_chat_off.png');
-  Self.BUTTON_CHAT_HOVER_OFF := Self.AddBitmapButton('options_chat_off_hover.png');
-  Self.BUTTON_CHAT_ON := Self.AddBitmapButton('options_chat_on.png');
-  Self.BUTTON_CHAT_HOVER_ON := Self.AddBitmapButton('options_chat_on_hover.png');
-
-  Self.BUTTON_CONTROLS_OFF := Self.AddBitmapButton('options_controls_off.png');
-  Self.BUTTON_CONTROLS_HOVER_OFF := Self.AddBitmapButton('options_controls_off_hover.png');
-  Self.BUTTON_CONTROLS_ON := Self.AddBitmapButton('options_controls_on.png');
-  Self.BUTTON_CONTROLS_HOVER_ON := Self.AddBitmapButton('options_controls_on_hover.png');
-
-  Self.BUTTON_SHIFT_DROP_ON := Self.AddBitmapButton('options_shift_drop_on.png');
-  Self.BUTTON_SHIFT_DROP_OFF := Self.AddBitmapButton('options_shift_drop_off.png');
 end;
 
 procedure TRSOptions.Setup(Mode: ERSClientMode); overload;
@@ -82,21 +55,73 @@ begin
   Result := GameTabs.Open(TAB_OPTIONS);
 end;
 
+function TRSOptions.GetButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[38,38]]);
+end;
+
+function TRSOptions.GetButton(Button: ERSOptionsButton): TRSButton;
+var
+  Buttons: TRSButtonArray;
+begin
+  Buttons := Self.GetButtons();
+  if High(Buttons) = Ord(High(ERSOptionsButton)) then
+    Result := Buttons[Button];
+end;
+
+function TRSOptions.FindHouseOptionsButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[21,21], [164,30]]);
+end;
+
+function TRSOptions.GetHouseOptionsButton(Button: ERSHouseOptionsButton): TRSButton;
+var
+  Buttons: TRSButtonArray;
+begin
+  Buttons := Self.FindHouseOptionsButtons();
+  if High(Buttons) = Ord(High(ERSHouseOptionsButton)) then 
+    Result := Buttons[Button];
+end;
+
+function TRSOptions.IsHouseOptionsOpen: Boolean;
+begin
+  Result := Self.GetHouseOptionsButton(ERSHouseOptionsButton.CLOSE).Visible();
+end;
+
+function TRSOptions.OpenHouseOptions: Boolean;
+begin
+  if Self.IsHouseOptionsOpen() then
+    Exit(True);
+  if (not Self.Open()) or (not Self.OpenTab(ERSOptionsTab.CONTROLS)) then
+    Exit(False);
+    
+  Self.GetButton(ERSOptionsButton.HOUSE).Click();
+
+  Result := WaitUntil(Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+end;
+
+function TRSOptions.CloseHouseOptions: Boolean;
+begin
+  if not Self.IsHouseOptionsOpen() then
+    Exit(True);
+    
+  Self.GetHouseOptionsButton(ERSHouseOptionsButton.CLOSE).Click();
+  
+  Result := WaitUntil(not Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+end;
+
 function TRSOptions.GetZoomSliderBounds: TBox;
 begin
-  Result.X1 := Self.X1 + 58;
-  Result.Y1 := Self.Y1 + 65;
+  Result.X1 := Self.X1 + 57;
+  Result.Y1 := Self.Y1 + 72;
   Result.X2 := Result.X1 + 96;
-  Result.Y2 := Result.Y1 + 8;
+  Result.Y2 := Result.Y1 + 9;
 end;
 
 function TRSOptions.FindZoomSlider(var P: TPoint): Boolean;
 var
   TPA: TPointArray;
 begin
-  if (not Self.Open()) or (not Self.OpenTab(OPTIONS_TAB_DISPLAY)) then
-    Exit;
-
   Result := SRL.FindColors(TPA, CTS0(2106152), Self.GetZoomSliderBounds().Expand(10)) > 0;
   if Result then
     P := TPA.Mean();
@@ -108,21 +133,24 @@ var
   B: TBox;
 begin
   Result := -1;
-
-  B := Self.GetZoomSliderBounds();
-  if Self.FindZoomSlider(Slider) then
-    Result := Round((Slider.X - B.X1) * 100 / (B.Width - 1));
+  
+  if Self.Open() and Self.OpenTab(ERSOptionsTab.CONTROLS) then
+  begin
+    B := Self.GetZoomSliderBounds();
+    if Self.FindZoomSlider(Slider) then
+      Result := Round((Slider.X - B.X1) * 100 / (B.Width - 1))
+  end;
 end;
 
 function TRSOptions.SetZoomLevel(Level: Int32): Boolean;
 var
+  CurrentLevel: Int32;
   Slider: TPoint;
   SliderBounds: TBox;
   Destination: TPoint;
-  Boxes: TBoxArray;
-  T: UInt64;
 begin
-  if Self.GetZoomLevel() = Level then
+  CurrentLevel := Self.GetZoomLevel();
+  if (CurrentLevel = Level) then
     Exit(True);
 
   SliderBounds := Self.GetZoomSliderBounds();
@@ -135,89 +163,45 @@ begin
     // Move slider away so we can click on destination
     if Distance(Slider, Destination) <= 12 then
     begin
-      Boxes := Box(Slider.X - 12, Slider.Y - 12, Slider.X + 12, Slider.Y + 12).Invert(SliderBounds);
-      Mouse.Click(Boxes[Random(Length(Boxes))], MOUSE_LEFT, False);
-      Wait(0, 1000, wdLeft);
+      if CurrentLevel+20 < 100 then
+        Self.SetZoomLevel(CurrentLevel + Random(20,40))
+      else
+        Self.SetZoomLevel(CurrentLevel - Random(20,40));  
     end;
 
     Mouse.Click(Destination, MOUSE_LEFT);
   end;
 
-  T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
-  while (T > GetTickCount()) do
-  begin
-    if Self.GetZoomLevel() = Level then
-      Exit(True);
-
-    Wait(0, 1000, wdLeft);
-  end;
+  Result := WaitUntil(Self.GetZoomLevel() = Level, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
-function TRSOptions.GetTab: ERSOptionsTab;
+function TRSOptions.GetTabs: TBoxArray;
 begin
-  if Self.FindButton([Self.BUTTON_DISPLAY_ON, Self.BUTTON_DISPLAY_HOVER_ON]) then
-    Exit(OPTIONS_TAB_DISPLAY);
+  Result := Grid(3, 1, 55, 23, [9], [Self.X1, Self.Y1 + 5]);
+end;
 
-  if Self.FindButton([Self.BUTTON_AUDIO_ON, Self.BUTTON_AUDIO_HOVER_ON]) then
-    Exit(OPTIONS_TAB_AUDIO);
-
-  if Self.FindButton([Self.BUTTON_CHAT_ON, Self.BUTTON_CHAT_HOVER_ON]) then
-    Exit(OPTIONS_TAB_CHAT);
-
-  if Self.FindButton([Self.BUTTON_CONTROLS_ON, Self.BUTTON_CONTROLS_HOVER_ON]) then
-    Exit(OPTIONS_TAB_CONTROLS);
-
-  Self.Fatal('Tab not detected');
+function TRSOptions.GetCurrentTab: ERSOptionsTab;
+var
+  Tabs: TBoxArray;
+  I: Int32;
+begin 
+  Tabs := GetTabs();
+  
+  for I := 0 to High(Tabs) do
+    if SRL.CountColor(2700606, Tabs[I]) > 0 then
+      Exit(ERSOptionsTab(I));
 end;
 
 function TRSOptions.OpenTab(Tab: ERSOptionsTab): Boolean;
-var
-  T: UInt64;
 begin
-  if not Self.Open() then
-    Exit;
-
-  if Self.GetTab() = Tab then
+  if (not Self.Open()) or (not Self.CloseHouseOptions()) then
+    Exit(False);
+  if (Self.GetCurrentTab() = Tab) then
     Exit(True);
-
-  for 1 to 3 do
-  begin
-    case Tab of
-      OPTIONS_TAB_DISPLAY:  Self.ClickButton([Self.BUTTON_DISPLAY_OFF, Self.BUTTON_DISPLAY_HOVER_OFF], MOUSE_LEFT);
-      OPTIONS_TAB_AUDIO:    Self.ClickButton([Self.BUTTON_AUDIO_OFF, Self.BUTTON_AUDIO_HOVER_OFF], MOUSE_LEFT);
-      OPTIONS_TAB_CHAT:     Self.ClickButton([Self.BUTTON_CHAT_OFF, Self.BUTTON_CHAT_HOVER_OFF], MOUSE_LEFT);
-      OPTIONS_TAB_CONTROLS: Self.ClickButton([Self.BUTTON_CONTROLS_OFF, Self.BUTTON_CONTROLS_HOVER_OFF], MOUSE_LEFT);
-    end;
-
-    T := GetTickCount() + Random(1500, 2500);
-    while (T > GetTickCount()) do
-    begin
-      if Self.GetTab() = Tab then
-      begin
-        Wait(100, 500, wdLeft);
-
-        Exit(True);
-      end;
-
-      Wait(100, 1000, wdLeft);
-    end;
-  end;
-end;
-
-function TRSOptions.EnableShiftDrop: Boolean;
-begin
-  if (not Self.Open()) or (not Self.OpenTab(OPTIONS_TAB_CONTROLS)) then
-    Exit;
-
-  Result := Self.FindButton(Self.BUTTON_SHIFT_DROP_ON) or Self.ClickButton(Self.BUTTON_SHIFT_DROP_OFF, MOUSE_LEFT);
-end;
-
-function TRSOptions.DisableShiftDrop: Boolean;
-begin
-  if (not Self.Open()) or (not Self.OpenTab(OPTIONS_TAB_CONTROLS)) then
-    Exit;
-
-   Result := Self.FindButton(Self.BUTTON_SHIFT_DROP_OFF) or Self.ClickButton(Self.BUTTON_SHIFT_DROP_ON, MOUSE_LEFT);         ;
+      
+  Mouse.Click(Self.GetTabs()[Tab], MOUSE_LEFT); 
+    
+  Result := WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
 procedure TRSOptions.Debug(Bitmap: TMufasaBitmap); override;
@@ -227,13 +211,21 @@ begin
 
   inherited();
 
-  if (Self.GetTab() = OPTIONS_TAB_DISPLAY) then
+  if (not Self.IsHouseOptionsOpen()) and (Self.GetCurrentTab() = ERSOptionsTab.CONTROLS) then
     Bitmap.DrawBox(Self.GetZoomSliderBounds(), False, $00FFFF);
 end;
 
 var
   Options: TRSOptions;
 
+function TRSGameTabs.GetCurrentTab: ERSGameTab; override;
+begin
+  Result := inherited;
+  
+  if (Result = TAB_UNKNOWN) and Options.IsHouseOptionsOpen() then
+    Result := TAB_OPTIONS;
+end;  
+  
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
@@ -254,3 +246,4 @@ begin
 
   Options.Debug(Bitmap);
 end;
+

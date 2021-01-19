@@ -110,7 +110,7 @@ end;
 procedure TRSClient.ClientModeChanged;
 begin
   Self.Debug('Client mode changed: ' + ToString(Self.Mode));
-
+  
   { override me }
 end;
 

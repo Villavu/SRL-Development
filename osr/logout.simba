@@ -4,31 +4,24 @@
 {$ENDIF}
 
 type
-  TRSLogout = record(TRSInterface)
-    BUTTON_LOGOUT: TRSInterfaceButton;
-    BUTTON_WORLD_SWITCHER: TRSInterfaceButton;
+  TRSLogout = type TRSInterface;
 
-    BUTTON_WORLD_SWITCHER_CLOSE: TRSInterfaceButton;
-    BUTTON_WORLD_SWITCHER_CLOSE_HOVER: TRSInterfaceButton;
-  end;
-
-procedure TRSLogout.Setup; overload;
+procedure TRSLogout.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited;
+  
   Self.Name := 'Options';
 end;
 
 procedure TRSLogout.Setup(Mode: ERSClientMode); overload;
-begin
+begin 
   Self.Mode := Mode;
 
-  Self.BUTTON_LOGOUT := Self.AddOCRButton('Click here to logout', RS_FONT_BOLD_12, -1);
-  Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('World Switcher', RS_FONT_BOLD_12, -1);
+  //Self.BUTTON_LOGOUT := Self.AddOCRButton('Click here to logout', RS_FONT_BOLD_12, -1);
+  //Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('World Switcher', RS_FONT_BOLD_12, -1);
 
-  Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddBitmapButton('logout_worldswitcher_close.png');
-  Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER := Self.AddBitmapButton('logout_worldswitcher_close_hover.png');
+  //Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddBitmapButton('logout_worldswitcher_close.png');
+  //Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER := Self.AddBitmapButton('logout_worldswitcher_close_hover.png');
 
   Self.Alignment.Left := [@GameTab.X1, -3];
   Self.Alignment.Right := [@GameTab.X2, 3];
@@ -48,13 +41,14 @@ end;
 
 function TRSLogout.IsWorldSwitcherOpen: Boolean;
 begin
-  Result := Self.IsOpen() and Self.FindButton([Self.BUTTON_WORLD_SWITCHER_CLOSE, Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER]);
+  //Result := Self.IsOpen() and Self.FindButton([Self.BUTTON_WORLD_SWITCHER_CLOSE, Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER]);
 end;
 
 function TRSLogout.CloseWorldSwitcher: Boolean;
 var
   T: UInt64;
 begin
+{
   if Self.IsWorldSwitcherOpen() then
   begin
     if Self.ClickButton([Self.BUTTON_WORLD_SWITCHER_CLOSE, Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER], MOUSE_LEFT) then
@@ -69,13 +63,14 @@ begin
         Wait(0, 1000, wdLeft);
       end;
     end;
-  end;
+  end;}
 end;
 
 function TRSLogout.ClickLogout(Attempts: Int32 = 5; TryTime: Int32 = 20000): Boolean;
 var
   T, Interval: UInt64;
 begin
+{
   if not Self.Open() then
     Exit;
   if Self.IsWorldSwitcherOpen() and (not Self.CloseWorldSwitcher()) then
@@ -96,7 +91,7 @@ begin
         Wait(100, 200);
       end;
     end;
-  end;
+  end;}
 end;
 
 var

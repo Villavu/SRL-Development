@@ -7,6 +7,7 @@ type
   TRSGameTabs = type TRSInterface;
 
   ERSGameTab = (
+    TAB_UNKNOWN,
     TAB_COMBAT,
     TAB_STATS,
     TAB_QUESTS,
@@ -20,8 +21,7 @@ type
     TAB_LOGOUT,
     TAB_OPTIONS,
     TAB_EMOTES,
-    TAB_MUSIC,
-    TAB_UNKNOWN
+    TAB_MUSIC
   );
 
 const
@@ -91,7 +91,7 @@ end;
 
 function TRSGameTabs.GetTabBox(Tab: ERSGameTab): TBox;
 begin
-  Result := Self.GetTabBoxes[Ord(Tab)];
+  Result := Self.GetTabBoxes[Tab-1];
 end;
 
 function TRSGameTabs.GetCurrentTab: ERSGametab;
@@ -104,12 +104,10 @@ begin
   for i := 0 to High(Boxes) do
     if (SRL.CountColor(CTS1(1778534, 22), Boxes[i]) > 50) or
        ((Self.Mode = RS_CLIENT_RESIZABLE_BOTTOM) and (SRL.CountColor(CTS0(8639715), Boxes[i]) > 50)) then
-      Exit(ERSGameTab(i));
+      Exit(ERSGameTab(i+1));
 end;
 
 function TRSGameTabs.Open(Tab: ERSGameTab): Boolean;
-var
-  T: UInt64;
 begin
   if GetCurrentTab() = Tab then
     Exit(True);
@@ -126,16 +124,15 @@ end;
 
 procedure TRSGameTabs.Debug(Bitmap: TMufasaBitmap); override;
 begin
-  inherited();
+  inherited;
 
   Bitmap.DrawBoxes(GetTabBoxes(), False, $00FFFF);
 end;
 
-procedure TRSGameTabs.Setup; overload;
+procedure TRSGameTabs.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited;
+    
   Self.Name := 'GameTabs';
 end;
 

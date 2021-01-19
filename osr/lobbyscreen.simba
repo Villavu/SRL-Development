@@ -4,13 +4,11 @@
 {$ENDIF}
 
 type
-  TRSLobbyScreen = record(TRSInterface)
-    BUTTON_PLAY: TRSInterfaceButton;
-  end;
-
+  TRSLobbyScreen = type TRSInterface;
+  
 function TRSLobbyScreen.IsOpen: Boolean; overload;
 begin
-  Result := Self.FindButton(Self.BUTTON_PLAY);
+  //Result := Self.FindButton(Self.BUTTON_PLAY);
 end;
 
 function TRSLobbyScreen.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
@@ -29,13 +27,12 @@ begin
   inherited;
 end;
 
-procedure TRSLobbyScreen.Setup; overload;
+procedure TRSLobbyScreen.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Login Screen';
-  Self.BUTTON_PLAY := Self.AddOCRButton('CLICK HERE TO PLAY', RS_FONT_BOLD_12, $FFFFFF);
+//  Self.BUTTON_PLAY := Self.AddOCRButton('CLICK HERE TO PLAY', RS_FONT_BOLD_12, $FFFFFF);
 end;
 
 procedure TRSLobbyScreen.Setup(Mode: ERSClientMode); overload;
@@ -51,8 +48,8 @@ end;
 
 function TRSLobbyScreen.Play: Boolean;
 begin
-  if Self.IsOpen() and Self.ClickButton(Self.BUTTON_PLAY, MOUSE_LEFT) then
-    Result := RSClient.IsLoggedIn(5000);
+  //  if Self.IsOpen() and Self.ClickButton(Self.BUTTON_PLAY, MOUSE_LEFT) then
+  //  Result := RSClient.IsLoggedIn(5000);
 end;
 
 var

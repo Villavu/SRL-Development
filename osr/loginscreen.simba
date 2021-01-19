@@ -4,16 +4,7 @@
 {$ENDIF}
 
 type
-  TRSLoginScreen = record(TRSInterface)
-    BUTTON_WORLD_SWITCHER: TRSInterfaceButton;
-    BUTTON_WORLD_SWITCHER_CLOSE: TRSInterfaceButton;
-    BUTTON_EXISTING_USER: TRSInterfaceButton;
-    BUTTON_LOGIN: TRSInterfaceButton;
-    BUTTON_LOGIN_FIELD: TRSInterfaceButton;
-    BUTTON_PASSWORD_FIELD: TRSInterfaceButton;
-    BUTTON_OK: TRSInterfaceButton;
-    BUTTON_TRY_AGAIN: TRSInterfaceButton;
-  end;
+  TRSLoginScreen = type TRSInterface;
 
 const
   LOGIN_MESSAGE_NONE = '';
@@ -51,7 +42,7 @@ const
 
 function TRSLoginScreen.IsWorldSwitcherOpen: Boolean; overload;
 begin
-  Result := Self.FindButton(Self.BUTTON_WORLD_SWITCHER_CLOSE);
+  //Result := Self.FindButton(Self.BUTTON_WORLD_SWITCHER_CLOSE);
 end;
 
 function TRSLoginScreen.IsWorldSwitcherOpen(WaitTime: Int32): Boolean; overload;
@@ -71,30 +62,30 @@ end;
 
 function TRSLoginScreen.OpenWorldSwitcher: Boolean;
 begin
-  Result := Self.ClickButton(Self.BUTTON_WORLD_SWITCHER, MOUSE_LEFT) and Self.IsWorldSwitcherOpen(10000);
+ // Result := Self.ClickButton(Self.BUTTON_WORLD_SWITCHER, MOUSE_LEFT) and Self.IsWorldSwitcherOpen(10000);
 end;
 
 function TRSLoginScreen.CloseWorldSwitcher: Boolean;
 begin
-  Result := Self.ClickButton(Self.BUTTON_WORLD_SWITCHER_CLOSE, MOUSE_LEFT);
+ // Result := Self.ClickButton(Self.BUTTON_WORLD_SWITCHER_CLOSE, MOUSE_LEFT);
 end;
 
 function TRSLoginScreen.SwitchToWorld(World: Int32): Boolean;
-var
-  Button: TRSInterfaceButton;
+//var
+  //Button: TRSInterfaceButton;
 begin
   if Self.OpenWorldSwitcher() then
   begin
-    Button.Color := 0;
-    Button.Font := RS_FONT_BOLD_12;
-    Button.Text := ToString(World);
+    //Button.Color := 0;
+    //Button.Font := RS_FONT_BOLD_12;
+    //Button.Text := ToString(World);
 
     for 1 to 3 do // Three pages of worlds
     begin
       Wait(500, 2500, wdLeft);
 
-      if Self.ClickButton(Button, MOUSE_LEFT) then
-        Break;
+      //if Self.ClickButton(Button, MOUSE_LEFT) then
+      //  Break;
 
       Keyboard.KeyDown(VK_RIGHT);
       Keyboard.KeyUp(VK_RIGHT);
@@ -108,13 +99,13 @@ end;
 
 procedure TRSLoginScreen.CloseDialogs;
 begin
-  Self.ClickButton(Self.BUTTON_OK, MOUSE_LEFT);
-  Self.ClickButton(Self.BUTTON_TRY_AGAIN, MOUSE_LEFT);
+ // Self.ClickButton(Self.BUTTON_OK, MOUSE_LEFT);
+ // Self.ClickButton(Self.BUTTON_TRY_AGAIN, MOUSE_LEFT);
 end;
 
 function TRSLoginScreen.IsOpen: Boolean;
 begin
-  Result := Self.FindButton(Self.BUTTON_WORLD_SWITCHER);
+ // Result := Self.FindButton(Self.BUTTON_WORLD_SWITCHER);
 end;
 
 function TRSLoginScreen.EnterLogin(S: String): Boolean;
@@ -122,6 +113,7 @@ var
   Field: TBox;
   T: UInt64;
 begin
+{
   if Self.FindButton(Self.BUTTON_EXISTING_USER) and (not Self.ClickButton(Self.BUTTON_EXISTING_USER, MOUSE_LEFT)) then
     Exit(False);
 
@@ -157,6 +149,7 @@ begin
 
     Result := TRue;
   end;
+  }
 end;
 
 function TRSLoginScreen.EnterPassword(S: String): Boolean;
@@ -164,6 +157,7 @@ var
   Field: TBox;
   T: UInt64;
 begin
+{
   if Self.FindButton(Self.BUTTON_EXISTING_USER) and (not Self.ClickButton(Self.BUTTON_EXISTING_USER, MOUSE_LEFT)) then
     Exit(False);
 
@@ -195,6 +189,7 @@ begin
 
     Result := True;
   end;
+  }
 end;
 
 function TRSLoginScreen.GetLoginMessage: String;
@@ -319,13 +314,12 @@ begin
   inherited;
 end;
 
-procedure TRSLoginScreen.Setup; overload;
+procedure TRSLoginScreen.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Login Screen';
-
+{
   Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('Click to switch', RS_FONT_PLAIN_11, $FFFFFF);
   Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddOCRButton('Cancel', RS_FONT_PLAIN_11, $FFFFFF);
   Self.BUTTON_EXISTING_USER := Self.AddOCRButton('Existing User', RS_FONT_BOLD_12, $FFFFFF);
@@ -333,7 +327,7 @@ begin
   Self.BUTTON_LOGIN_FIELD := Self.AddOCRButton('Login:', RS_FONT_BOLD_12, $FFFFFF);
   Self.BUTTON_PASSWORD_FIELD := Self.AddOCRButton('Password:', RS_FONT_BOLD_12, $FFFFFF);
   Self.BUTTON_OK := Self.AddOCRButton(' Ok ', RS_FONT_BOLD_12, $FFFFFF);
-  Self.BUTTON_TRY_AGAIN := Self.AddOCRButton('Try again', RS_FONT_PLAIN_12, $FFFFFF);
+  Self.BUTTON_TRY_AGAIN := Self.AddOCRButton('Try again', RS_FONT_PLAIN_12, $FFFFFF);}
 end;
 
 procedure TRSLoginScreen.Setup(Mode: ERSClientMode); overload;

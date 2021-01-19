@@ -6,10 +6,9 @@
 type
   TRSEquipment = type TRSInterface;
 
-procedure TRSEquipment.Setup; overload;
+procedure TRSEquipment.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Equipment';
 end;

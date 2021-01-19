@@ -196,6 +196,7 @@ begin
   end;
 end;
 
+{
 function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; override;
 var
   Identifer: String;
@@ -496,6 +497,7 @@ begin
   if Self.Find(Item, Bounds) then
     Result := Self._WithdrawQuantity(Bounds, Amount, Noted);
 end;
+}
 
 begin
   ItemFinder.Setup();
