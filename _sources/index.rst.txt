@@ -33,6 +33,7 @@ Welcome to SRL documentation!
 	:caption: OSR
 
    inventory
+   grandexchange
    bankscreen
    mm2ms
    misc

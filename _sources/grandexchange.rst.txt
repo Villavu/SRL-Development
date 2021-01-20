@@ -1,0 +1,11 @@
+
+BankScreen.Open
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; override;
+
+Overrides **BankScreen.Open** to support opening the grand exchange.
+
+
+------------
