@@ -22,6 +22,7 @@ const
   LOGIN_MESSAGE_ACCOUNT_DISABLED = 'Your account has been disabled';
   LOGIN_MESSAGE_MEMBERS = 'You need a members account';
   LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
+  LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
 
   LOGIN_MESSAGES = [
     LOGIN_MESSAGE_CONNECTING,
@@ -39,25 +40,41 @@ const
     LOGIN_MESSAGE_MEMBERS,
     LOGIN_MESSAGE_IN_MEMBERS_AREA
   ];
+  
+  LOGIN_DIALOG_OK = 'Ok';
+  LOGIN_DIALOG_TRY_AGAIN = 'Try again';
+  LOGIN_DIALOG_EXISTING_USER = 'Existing User';
+  
+  LOGIN_DIALOGS = [
+    LOGIN_DIALOG_OK,
+    LOGIN_DIALOG_TRY_AGAIN,
+    LOGIN_DIALOG_EXISTING_USER
+  ];
 
-function TRSLoginScreen.IsWorldSwitcherOpen: Boolean; overload;
+function TRSLoginScreen.FindText(Text: String; out B: TBox): Boolean; overload;
 begin
-  //Result := Self.FindButton(Self.BUTTON_WORLD_SWITCHER_CLOSE);
+  Freeze();
+  
+  try
+    Result := (FindTextColor(Text, RS_FONT_BOLD_12,  $FFFFFF, 0, Self.Bounds, B) = 1) or
+              (FindTextColor(Text, RS_FONT_BOLD_12,  $00FFFF, 0, Self.Bounds, B) = 1) or
+              (FindTextColor(Text, RS_FONT_PLAIN_12, $FFFFFF, 0, Self.Bounds, B) = 1) or
+              (FindTextColor(Text, RS_FONT_PLAIN_11, $FFFFFF, 0, Self.Bounds, B) = 1);
+  finally            
+    UnFreeze();
+  end;
 end;
 
-function TRSLoginScreen.IsWorldSwitcherOpen(WaitTime: Int32): Boolean; overload;
+function TRSLoginScreen.FindText(Text: String): Boolean; overload;
 var
-  T: UInt64;
+  _: TBox;
 begin
-  T := GetTickCount() + WaitTime;
-
-  while (T > GetTickCount()) do
-  begin
-    if Self.IsWorldSwitcherOpen() then
-      Exit(True);
-
-    Wait(0, 1000, wdLeft);
-  end;
+  Result := FindText(Text, _);
+end;  
+  
+function TRSLoginScreen.IsWorldSwitcherOpen: Boolean;
+begin
+  Result := Self.FindText('Cancel');
 end;
 
 function TRSLoginScreen.OpenWorldSwitcher: Boolean;
@@ -71,22 +88,15 @@ begin
 end;
 
 function TRSLoginScreen.SwitchToWorld(World: Int32): Boolean;
-//var
-  //Button: TRSInterfaceButton;
 begin
+{
   if Self.OpenWorldSwitcher() then
   begin
-    //Button.Color := 0;
-    //Button.Font := RS_FONT_BOLD_12;
-    //Button.Text := ToString(World);
+    
 
     for 1 to 3 do // Three pages of worlds
     begin
       Wait(500, 2500, wdLeft);
-
-      //if Self.ClickButton(Button, MOUSE_LEFT) then
-      //  Break;
-
       Keyboard.KeyDown(VK_RIGHT);
       Keyboard.KeyUp(VK_RIGHT);
     end;
@@ -95,136 +105,86 @@ begin
   end;
 
   Result := (Self.GetCurrentWorld() = World);
+  }
 end;
 
-procedure TRSLoginScreen.CloseDialogs;
+procedure TRSLoginScreen.HandleDialogs;
+var
+  I: Int32;
+  B: TBox;
 begin
- // Self.ClickButton(Self.BUTTON_OK, MOUSE_LEFT);
- // Self.ClickButton(Self.BUTTON_TRY_AGAIN, MOUSE_LEFT);
+  for I := 0 to High(LOGIN_DIALOGS) do
+    if Self.FindText(' ' + LOGIN_DIALOGS[I] + ' ', B) then
+    begin
+      Mouse.Click(B, MOUSE_LEFT);
+      
+      Exit;
+    end;
 end;
 
 function TRSLoginScreen.IsOpen: Boolean;
 begin
- // Result := Self.FindButton(Self.BUTTON_WORLD_SWITCHER);
+  Result := Self.FindText('Click to switch');
 end;
 
-function TRSLoginScreen.EnterLogin(S: String): Boolean;
+function TRSLoginScreen.EnterField(Field, Details: String): Boolean;
 var
-  Field: TBox;
-  T: UInt64;
+  B: TBox;
 begin
-{
-  if Self.FindButton(Self.BUTTON_EXISTING_USER) and (not Self.ClickButton(Self.BUTTON_EXISTING_USER, MOUSE_LEFT)) then
-    Exit(False);
-
-  if Self.FindButton(Self.BUTTON_LOGIN_FIELD, Field) then
+  if Self.FindText(Details + ' ') then
+    Exit(True);
+  
+  if Self.FindText(Field, B) then
   begin
-    Field.X1 := Field.X2;
-    Field.X2 += 250;
+    B.X1 := B.X2;
+    B.X2 := B.X1 + 250;
 
-    if FindTextColor(S + ' ', RS_FONT_BOLD_12, $FFFFFF, 0, Field.X1, Field.Y1, Field.X2, Field.Y2, 1) then
-      Exit(True);
-
-    Field.Y1 += 2;
-    Field.Y2 -= 2;
-
-    while Self.IsOpen() do
+    // Move caret
+    while not WaitUntil(SRL.CountColor($00FFFF, B) > 15, 100, SRL.TruncatedGauss(800, 1600)) do
     begin
-      T := GetTickCount() + Round(SRL.TruncatedGauss(600, 1200));
-      while (T > GetTickCount()) do
-      begin
-        if SRL.CountColor(CTS0($00FFFF), Field) > 0 then
-          Break(2);
-
-        Wait(0, 1000, wdLeft);
-      end;
-
+      if not Self.IsOpen() then 
+        Exit(False);
+      
       Keyboard.PressKey(VK_TAB);
     end;
-
-    while SRL.CountColor(CTS0($FFFFFF), Field) > 0 do
+  
+    // Erase field
+    while SRL.CountColor($FFFFFF, B) > 0 do
       Keyboard.PressKey(VK_BACK);
-
-    Keyboard.Send(S);
-
-    Result := TRue;
-  end;
-  }
-end;
-
-function TRSLoginScreen.EnterPassword(S: String): Boolean;
-var
-  Field: TBox;
-  T: UInt64;
-begin
-{
-  if Self.FindButton(Self.BUTTON_EXISTING_USER) and (not Self.ClickButton(Self.BUTTON_EXISTING_USER, MOUSE_LEFT)) then
-    Exit(False);
-
-  if Self.FindButton(Self.BUTTON_PASSWORD_FIELD, Field) then
-  begin
-    Field.X1 := Field.X2;
-    Field.X2 += 250;
-    Field.Y1 += 2;
-    Field.Y2 -= 2;
-
-    while Self.IsOpen() do
-    begin
-      T := GetTickCount() + Round(SRL.TruncatedGauss(600, 1200));
-      while (T > GetTickCount()) do
-      begin
-        if SRL.CountColor(CTS0($00FFFF), Field) > 0 then
-          Break(2);
-
-        Wait(0, 1000, wdLeft);
-      end;
-
-      Keyboard.PressKey(VK_TAB);
-    end;
-
-    while SRL.CountColor(CTS0($FFFFFF), Field) > 0 do
-      Keyboard.PressKey(VK_BACK);
-
-    Keyboard.Send(S);
-
+    Keyboard.Send(Details);
+    
+    Wait(0, 1000, wdLeft);
+    
     Result := True;
   end;
-  }
 end;
 
 function TRSLoginScreen.GetLoginMessage: String;
 var
-  B: TBox;
   I: Int32;
 begin
   Result := LOGIN_MESSAGE_NONE;
 
-  Freeze();
-
-  try
-    if Self.IsOpen() then
+  for I := 0 to High(LOGIN_MESSAGES) do
+    if Self.FindText(LOGIN_MESSAGES[I]) then
     begin
-      B := Self.Bounds();
-
-      for I := 0 to High(LOGIN_MESSAGES) do
-        if FindTextColor(LOGIN_MESSAGES[I], RS_FONT_BOLD_12, $00FFFF, 0, B.X1, B.Y1, B.X2, B.Y2, 1) then
-          Exit(LOGIN_MESSAGES[I]);
+      Result := LOGIN_MESSAGES[I];
+      
+      Exit;
     end;
-  finally
-    UnFreeze();
-  end;
 end;
 
 function TRSLoginScreen.HandleMessage(Message: String): Boolean;
 begin
-  Debug('Handling login message: ' + Message);
+  Self.Debug('Handling login message: ' + Message);
 
   case Message of
     // Cannot recover
     LOGIN_MESSAGE_MEMBERS,
     LOGIN_MESSAGE_IN_MEMBERS_AREA,
     LOGIN_MESSAGE_NEED_SKILL_TOTAL,
-    LOGIN_MESSAGE_ACCOUNT_DISABLED:
+    LOGIN_MESSAGE_ACCOUNT_DISABLED,
+    LOGIN_MESSAGE_AUTHENTICATOR:
       Exit(False);
 
     // Retry
@@ -248,28 +208,28 @@ begin
 
     // No handler
     else
-      TerminateScript('No handler for message');
+      Self.Fatal('Unknown login message');
   end;
 end;
 
-function TRSLoginScreen.Login(User, Pass: String): Boolean;
+function TRSLoginScreen.Login(User, Password: String): Boolean;
 var
   Message: String;
   Attempts: Int32;
 begin
   Self.Debug('Logging in player');
 
-  if (User = '') or (Pass = '') then
+  if (User = '') or (Password = '') then
     Self.Fatal('Player has no username or password');
 
   while Self.IsOpen() and (Attempts < 10) do
   begin
     Self.Debug('Attempt: ' + ToString(Attempts));
 
-    Self.CloseDialogs();
-    Self.EnterLogin(User);
-    Self.EnterPassword(Pass);
-
+    Self.HandleDialogs();
+    Self.EnterField('Login:', User);
+    Self.EnterField('Password:', Password);
+    
     Keyboard.PressKey(VK_ENTER);
 
     while Self.IsOpen() and (Self.GetLoginMessage() in [LOGIN_MESSAGE_CONNECTING, LOGIN_MESSAGE_NONE]) do
@@ -286,7 +246,7 @@ begin
   end;
 
   if LobbyScreen.IsOpen(3000) then
-    LobbyScreen.Play();
+    LobbyScreen.EnterGame();
 
   Result := RSClient.IsLoggedIn();
 end;
@@ -295,15 +255,12 @@ function TRSLoginScreen.GetCurrentWorld: Int32;
 var
   B: TBox;
 begin
-  Result := -1;
-
-  with Self.Bounds() do
-    if FindText('World', RS_FONT_BOLD_12, X1, Y1, X2, Y2, B) = 1 then
-    begin
-      B.X2 += 40;
-
-      Result := StrToIntDef(ExtractFromStr(OCR.Recognize(B, [$FFFFFF], RS_FONTSET_BOLD_12), Numbers), -1);
-    end;
+  if Self.FindText('Click to switch', B) then
+  begin
+    B.Y1 -= 25;
+    
+    Writeln OCR.Recognize(B, [$FFFFFF], RS_FONTSET_BOLD_12); // ADD: RecognizeInt
+  end;
 end;
 
 procedure TRSLoginScreen.Debug(Bitmap: TMufasaBitmap); override;
@@ -319,15 +276,6 @@ begin
   inherited;
 
   Self.Name := 'Login Screen';
-{
-  Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('Click to switch', RS_FONT_PLAIN_11, $FFFFFF);
-  Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddOCRButton('Cancel', RS_FONT_PLAIN_11, $FFFFFF);
-  Self.BUTTON_EXISTING_USER := Self.AddOCRButton('Existing User', RS_FONT_BOLD_12, $FFFFFF);
-  Self.BUTTON_LOGIN := Self.AddOCRButton('Login ', RS_FONT_BOLD_12, $FFFFFF);
-  Self.BUTTON_LOGIN_FIELD := Self.AddOCRButton('Login:', RS_FONT_BOLD_12, $FFFFFF);
-  Self.BUTTON_PASSWORD_FIELD := Self.AddOCRButton('Password:', RS_FONT_BOLD_12, $FFFFFF);
-  Self.BUTTON_OK := Self.AddOCRButton(' Ok ', RS_FONT_BOLD_12, $FFFFFF);
-  Self.BUTTON_TRY_AGAIN := Self.AddOCRButton('Try again', RS_FONT_PLAIN_12, $FFFFFF);}
 end;
 
 procedure TRSLoginScreen.Setup(Mode: ERSClientMode); overload;

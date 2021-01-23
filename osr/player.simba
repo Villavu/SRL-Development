@@ -64,7 +64,7 @@ begin
 
     Result := LoginScreen.Login(Self.LoginName, Self.Password);
   end else
-    Result := LobbyScreen.Play();
+    Result := LobbyScreen.EnterGame();
 
   if Result then
     Self.LoggedIn();

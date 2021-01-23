@@ -5,13 +5,13 @@
 
 {$scopedenums on}
 type
-  ERSGrandExchangeOverviewButton = (
+  ERSGEOverviewButton = (
     HISTORY,
     CLOSE,
     COLLECT
   );
   
-  ERSGrandExchangeSetupOfferButton = (
+  ERSGESetupOfferButton = (
     HISTORY,
     CLOSE,
     ITEM,
@@ -30,13 +30,20 @@ type
     CONFIRM
   );
   
-  ERSGrandExchangeOfferStatusButton = (
+  ERSGEOfferStatusButton = (
     HISTORY,
     CLOSE,
     QUANTITY, 
     PRICE,
     TOTAL,
     PROGRESS
+  );
+  
+  ERSGEInterface = (
+    UNKNOWN,
+    OVERVIEW,
+    OFFER_STATUS,
+    OFFER_SETUP
   );
   {$scopedenums off}
 
@@ -49,11 +56,11 @@ begin
   Result := Self.FindButtons([[21,21], [45,18], [35,25], [152,40],[160,18], [159,18], [210,18], [40,36]]);
 end;
 
-function TRSGrandExchange.GetSetupOfferButton(Button: ERSGrandExchangeSetupOfferButton): TRSButton;
+function TRSGrandExchange.GetSetupOfferButton(Button: ERSGESetupOfferButton): TRSButton;
 var
   Buttons: TRSButtonArray := Self.GetSetupOfferButtons();
 begin
-  if High(Buttons) >= Ord(High(ERSGrandExchangeSetupOfferButton)) then
+  if High(Buttons) >= Ord(High(ERSGESetupOfferButton)) then
     Result := Buttons[Button];
 end;
 
@@ -63,11 +70,11 @@ begin
   Result := Self.FindButtons([[21,21], [45,18], [81,18]]);
 end;
 
-function TRSGrandExchange.GetOverviewButton(Button: ERSGrandExchangeOverviewButton): TRSButton;
+function TRSGrandExchange.GetOverviewButton(Button: ERSGEOverviewButton): TRSButton;
 var
   Buttons: TRSButtonArray := Self.GetOverviewButtons();
 begin
-  if High(Buttons)+1 >= Ord(High(ERSGrandExchangeOverviewButton)) then
+  if High(Buttons)+1 >= Ord(High(ERSGEOverviewButton)) then
     Result := Buttons[Button];
 end;
 
@@ -76,11 +83,11 @@ begin
   Result := Self.FindButtons([[21,21], [45,18], [36,32], [292,15], [160,18], [159,18], [210,18]]);
 end;
 
-function TRSGrandExchange.GetOfferStatusButton(Button: ERSGrandExchangeOfferStatusButton): TRSButton;
+function TRSGrandExchange.GetOfferStatusButton(Button: ERSGEOfferStatusButton): TRSButton;
 var
   Buttons: TRSButtonArray := Self.GetOfferStatusButtons();
 begin
-  if High(Buttons)+1 >= Ord(High(ERSGrandExchangeOfferStatusButton)) then
+  if High(Buttons)+1 >= Ord(High(ERSGEOfferStatusButton)) then
     Result := Buttons[Button];
 end;
 
@@ -161,9 +168,21 @@ begin
   Result := OCR.Recognize(B, [2070783], RS_FONTSET_BOLD_12);
 end;
 
+function TRSGrandExchange.GetCurrentInterface: ERSGEInterface;
+begin
+  if Self.GetSetupOfferButton(ERSGESetupOfferButton.CLOSE).Visible() then
+    Result := ERSGEInterface.OFFER_SETUP
+  else 
+  if Self.GetOfferStatusButton(ERSGEOfferStatusButton.CLOSE).Visible() then
+    Result := ERSGEInterface.OFFER_STATUS
+  else
+  if Self.GetOverviewButton(ERSGEOverviewButton.CLOSE).Visible() then
+    Result := ERSGEInterface.OVERVIEW;
+end;
+
 function TRSGrandExchange.IsOpen: Boolean;
 begin
-  Result := 'Grand Exchange' in GetTitle();
+  Result := Self.GetCurrentInterface() <> ERSGEInterface.UNKNOWN;
 end;
 
 procedure TRSGrandExchange.Debug(Bitmap: TMufasaBitmap); override;

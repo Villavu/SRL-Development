@@ -3,7 +3,28 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
+{$scopedenums on}
 type
+  ERSEquipmentButton = (
+    HELM,
+    CAPE,
+    AMULET,
+    AMMO,
+    WEAPON,
+    BODY,
+    SHIELD,
+    LEGS,
+    GLOVES,
+    FEET,
+    RING,
+    
+    STATS,
+    PRICES,
+    DEATH,
+    FOLLOWER
+  );
+{$scopedenums off} 
+
   TRSEquipment = type TRSInterface;
 
 procedure TRSEquipment.Setup; override;
@@ -33,66 +54,44 @@ begin
   Result := GameTabs.Open(TAB_EQUIPMENT);
 end;
 
-function TRSEquipment.GetSlotBoxes: TBoxArray;
-var
-  TPA: TPointArray;
-  I: Int32;
+function TRSEquipment.GetButtons: TRSButtonArray;
 begin
-  TPA := TPointArray([
-    [92, 23], [133, 62], [92, 62],[51, 62], [148, 101], [92, 101],
-    [36, 101], [92, 141],  [148, 181], [92, 181], [36, 181]
-  ]).Offset(X1, Y1);
-
-  SetLength(Result, Length(TPA));
-
-  for I := 0 to High(TPA) do
-  begin
-    Result[I].X1 := TPA[I].X - 16;
-    Result[I].Y1 := TPA[I].Y - 16;
-    Result[I].X2 := TPA[I].X + 15;
-    Result[I].Y2 := TPA[I].Y + 15;
-  end;
+  Result := Self.FindButtons([[34,34], [40,40]]);
 end;
 
-function TRSEquipment.GetSlotBox(Index: Int32): TBox;
+function TRSEquipment.GetButton(Button: ERSEquipmentButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetButtons();
 begin
-  Result := Self.GetSlotBoxes[Index];
+  if High(Buttons) >= Ord(High(Button)) then
+    Result := Buttons[Button];
 end;
 
-function TRSEquipment.Find(Item: String): Int32;
+function TRSEquipment.FindItem(Identifer: String; out Bounds: TBox): Boolean;
 var
+  Boxes: TBoxArray;
   Slots: TIntegerArray;
 begin
   if not Self.Open() then
     Exit;
-
-  Result := -1;
-
-  Slots := ItemFinder.Find(Item, Self.GetSlotBoxes());
+    
+  Boxes := Self.GetButtons();
+  Slots := ItemFinder.Find(Identifer, Boxes);
   if Length(Slots) > 0 then
-    Result := Slots[0];
-end;
-
-function TRSEquipment.IsEquipped(Item: String): Boolean;
-begin
-  if not Self.Open() then
-    Exit;
-
-  Result := Self.Find(Item) > -1;
-end;
-
-function TRSEquipment.Click(Item: String; Option: String = ''): Boolean;
-var
-  Slot: Int32;
-begin
-  if not Self.Open() then
-    Exit;
-
-  Slot := Self.Find(Item);
-
-  if Slot > -1 then
   begin
-    Mouse.Move(Self.GetSlotBox(Slot));
+    Bounds := Boxes[Slots[0]];//}// CC BUG!
+    
+    Result := True;
+  end;
+end;
+
+function TRSEquipment.ClickItem(Identifer: String; Option: String = ''): Boolean;
+var
+  B: TBox;
+begin
+  if Self.FindItem(Identifer, B) then
+  begin
+    Mouse.Move(B);
 
     if Option <> '' then
       Result := ChooseOption.Select(Option)
@@ -103,6 +102,13 @@ begin
       Mouse.Click(MOUSE_LEFT);
     end;
   end;
+end;
+
+function TRSEquipment.IsEquipped(Identifer: String): Boolean;
+var
+  B: TBox;
+begin
+  Result := Self.FindItem(Identifer, B);
 end;
 
 var
