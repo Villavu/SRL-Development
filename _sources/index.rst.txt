@@ -6,24 +6,24 @@ Welcome to SRL documentation!
 
 	:caption: UTILS
 
-   drawing
-   math
-   tcircle
-   time
-   extendedarrays
-   string
-   wrappers
-   integerarrays
-   random
-   tpoint
-   mouse
    tboxarrays
-   color
-   tpointarrays
-   pixelshift
-   trectangle
-   keyboard
+   integerarrays
+   tpoint
    tbox
+   extendedarrays
+   tpointarrays
+   tcircle
+   color
+   mouse
+   random
+   math
+   pixelshift
+   drawing
+   keyboard
+   wrappers
+   string
+   trectangle
+   time
 
 -----------
 
@@ -32,13 +32,13 @@ Welcome to SRL documentation!
 
 	:caption: OSR
 
-   inventory
+   rsclient
+   misc
    grandexchange
+   mainscreen
    bankscreen
    mm2ms
-   misc
-   rsclient
-   mainscreen
+   inventory
 
 -----------
 
