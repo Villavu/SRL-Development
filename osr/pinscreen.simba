@@ -18,7 +18,7 @@ begin
   Self.Mode := Mode;
 
   case Self.Mode of
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];
@@ -28,7 +28,7 @@ begin
         Self.Alignment.Center.MaxHeight := 305;
       end;
 
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];

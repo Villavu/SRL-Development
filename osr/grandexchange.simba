@@ -3,7 +3,6 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
-{$scopedenums on}
 type
   ERSGEOverviewButton = (
     HISTORY,
@@ -45,7 +44,6 @@ type
     OFFER_STATUS,
     OFFER_SETUP
   );
-  {$scopedenums off}
 
   TRSGrandExchange = record(TRSInterface)
     FINDER_BANKER: TRSObjectFinder;
@@ -60,11 +58,10 @@ function TRSGrandExchange.GetSetupOfferButton(Button: ERSGESetupOfferButton): TR
 var
   Buttons: TRSButtonArray := Self.GetSetupOfferButtons();
 begin
-  if High(Buttons) >= Ord(High(ERSGESetupOfferButton)) then
+  if Length(Buttons) = Length(ERSGESetupOfferButton) then
     Result := Buttons[Button];
 end;
 
-//[47,46]
 function TRSGrandExchange.GetOverviewButtons: TRSButtonArray;
 begin
   Result := Self.FindButtons([[21,21], [45,18], [81,18]]);
@@ -74,7 +71,7 @@ function TRSGrandExchange.GetOverviewButton(Button: ERSGEOverviewButton): TRSBut
 var
   Buttons: TRSButtonArray := Self.GetOverviewButtons();
 begin
-  if High(Buttons)+1 >= Ord(High(ERSGEOverviewButton)) then
+  if Length(Buttons) >= Length(ERSGEOverviewButton)-1 then // Collect button can not be visible. 
     Result := Buttons[Button];
 end;
 
@@ -87,7 +84,7 @@ function TRSGrandExchange.GetOfferStatusButton(Button: ERSGEOfferStatusButton): 
 var
   Buttons: TRSButtonArray := Self.GetOfferStatusButtons();
 begin
-  if High(Buttons)+1 >= Ord(High(ERSGEOfferStatusButton)) then
+  if Length(Buttons) = Length(ERSGEOfferStatusButton) then
     Result := Buttons[Button];
 end;
 
@@ -102,7 +99,7 @@ var
   Size: Int32;
 begin
   // Find center G.E using yellow dots
-  TPA := Minimap.GetDots(MINIMAP_DOT_NPC);
+  TPA := Minimap.GetDots(ERSMinimapDot.NPC);
   TPA.Offset([2, 2]);
   TPA := TPA.Cluster(15).Biggest();
   with TPA.MeanEx() do
@@ -212,7 +209,7 @@ begin
   Self.Mode := Mode;
 
   case Self.Mode of
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];
@@ -222,7 +219,7 @@ begin
         Self.Alignment.Center.MaxHeight := 304;
       end;
 
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];

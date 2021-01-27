@@ -61,12 +61,12 @@ end;
 
 function TRSCombat.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = TAB_COMBAT);
+  Result := (GameTabs.GetCurrentTab() = ERSGameTab.COMBAT);
 end;
 
 function TRSCombat.Open: Boolean;
 begin
-  Result := GameTabs.Open(TAB_COMBAT);
+  Result := GameTabs.Open(ERSGameTab.COMBAT);
 end;
 
 function TRSCombat.GetButtons: TRSButtonArray;

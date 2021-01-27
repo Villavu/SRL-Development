@@ -21,16 +21,16 @@ The modes of the client.
 .. pascal::
 
   RS_CLIENT_UNKNOWN            // Unable to detect mode (likely not logged in)
-  RS_CLIENT_FIXED              // Fixed mode
-  RS_CLIENT_RESIZABLE_CLASSIC  // Resizable with "classic" gametabs or "fixed mode gametabs"
-  RS_CLIENT_RESIZABLE_BOTTOM   // Resizable with gametabs being grouped together at the bottom
+  ERSClientMode.FIXED              // Fixed mode
+  ERSClientMode.RESIZABLE_CLASSIC  // Resizable with "classic" gametabs or "fixed mode gametabs"
+  ERSClientMode.RESIZABLE_MODERN   // Resizable with gametabs being grouped together at the bottom
 *)
 type
   ERSClientMode = (
-    RS_CLIENT_UNKNOWN,
-    RS_CLIENT_FIXED,
-    RS_CLIENT_RESIZABLE_CLASSIC,
-    RS_CLIENT_RESIZABLE_BOTTOM
+    UNKNOWN,
+    FIXED,
+    RESIZABLE_CLASSIC,
+    RESIZABLE_MODERN
   );
 
   TRSClient = record(TSRLBaseRecord)
@@ -58,13 +58,14 @@ begin
 
   if Self.PID = 0 then
   begin
-    if MessageDlg('SRL', 'Simba has no target. Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) then
+    if MessageDlg('SRL', 'Simba has no target. Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) = mrYes then
     begin
       RIInject({$IFDEF WINDOWS}'JagexLauncher.exe'{$ELSE}'java'{$ENDIF});
 
       if EIOS_GetClients(True) > 0 then
         Self.PID := EIOS_GetClientPID(0);
-    end;
+    end else
+      Self.Fatal('Simba has no target.');
   end else
     RIInject(Self.PID);
 
@@ -100,11 +101,13 @@ begin
   // Music tab in each mode there are different colors at W-4, H-21
   // Two colors each because tab can be active(red) or not(grey)
   case GetColor(W-4, H-21) of
-    2435372, 658467: Result := RS_CLIENT_FIXED;
-    3555653, 922425: Result := RS_CLIENT_RESIZABLE_BOTTOM;
-    2896180, 790059: Result := RS_CLIENT_RESIZABLE_CLASSIC;
+    2435372, 658467: Result := ERSClientMode.FIXED;
+    3555653, 922425: Result := ERSClientMode.RESIZABLE_MODERN;
+    2896180, 790059: Result := ERSClientMode.RESIZABLE_CLASSIC;
   end;
-  if Update then Self.Mode := Result;
+  
+  if Update then 
+    Self.Mode := Result;
 end;
 
 procedure TRSClient.ClientModeChanged;
@@ -120,13 +123,13 @@ var
 begin
   Test := Self.DetectClientMode();
 
-  if (Test <> RS_CLIENT_UNKNOWN) and (Test <> Self.Mode) then
+  if (Test <> ERSClientMode.UNKNOWN) and (Test <> Self.Mode) then
   begin
     Self.Mode := Test;
     Self.ClientModeChanged();
   end;
 
-  Result := Test <> RS_CLIENT_UNKNOWN;
+  Result := Test <> ERSClientMode.UNKNOWN;
 end;
 
 function TRSClient.IsLoggedIn(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
@@ -192,8 +195,8 @@ begin
   {$ENDIF}
 
   Self.Mode := Self.DetectClientMode();
-  if Self.Mode = RS_CLIENT_UNKNOWN then
-    Self.Mode := RS_CLIENT_FIXED; // Fixed as default so we can login if needed
+  if Self.Mode = ERSClientMode.UNKNOWN then
+    Self.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
 end;
 
 var

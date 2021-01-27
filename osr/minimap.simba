@@ -4,8 +4,12 @@
 {$ENDIF}
 
 type
-  EMinimapDotType = (MINIMAP_DOT_PLAYER, MINIMAP_DOT_NPC, MINIMAP_DOT_ITEM);
-  EMinimapDotTypes = set of EMinimapDotType;
+  ERSMinimapDot = (
+    PLAYER, 
+    NPC, 
+    ITEM
+  );
+  ERSMinimapDots = set of ERSMinimapDot;
 
 type
   TRSMinimap = record(TRSInterface)
@@ -65,7 +69,7 @@ begin
 
   if Length(ATPA) = 2 then
   begin
-    Text := OCR.Recognize(ATPA.Merge().Invert(), RS_FONTSET_PLAIN_11);
+    Text := OCR.RecognizeTPA(ATPA.Merge().Invert(), RS_FONTSET_PLAIN_11);
     Text := Text.Replace('O', '0'); // Share same character
 
     try
@@ -221,7 +225,7 @@ begin
   Self.Mode := Mode;
 
   case Self.Mode of
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@RootInterface.X2, -157];
         Self.Alignment.Right := [@RootInterface.X2, -6];
@@ -236,7 +240,7 @@ begin
         Self.PolygonOffset := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
       end;
 
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@RootInterface.X2, -195];
         Self.Alignment.Right := [@RootInterface.X2,-50];
@@ -425,7 +429,7 @@ begin
   end;
 end;
 
-function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: EMinimapDotTypes): TPointArray;
+function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
 var
   Blacks: TPointArray;
 
@@ -477,21 +481,21 @@ begin
     BMP.FindColors(Blacks, 65536);
     Blacks := Blacks.FilterBox(Box(2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1));
 
-    if MINIMAP_DOT_PLAYER in Dots then
+    if ERSMinimapDot.PLAYER in Dots then
     begin
       SetColorToleranceSpeed(2);
       SetToleranceSpeed2Modifiers(0.001, 0.001);
       Result += FindDots(Blacks, $FFFFFF, 30);
     end;
 
-    if MINIMAP_DOT_NPC in Dots then
+    if ERSMinimapDot.NPC in Dots then
     begin
       SetColorToleranceSpeed(2);
       SetToleranceSpeed2Modifiers(0.05, 1);
       Result += FindDots(Blacks, $00FFFF, 30);
     end;
 
-    if MINIMAP_DOT_ITEM in Dots then
+    if ERSMinimapDot.ITEM in Dots then
     begin
       SetColorToleranceSpeed(2);
       SetToleranceSpeed2Modifiers(0.05, 1);
@@ -503,7 +507,7 @@ begin
   end;
 end;
 
-function TRSMinimap.GetDots(Dots: EMinimapDotTypes): TPointArray; overload;
+function TRSMinimap.GetDots(Dots: ERSMinimapDots): TPointArray; overload;
 var
   BMP: TMufasaBitmap;
 begin
@@ -515,7 +519,7 @@ begin
   BMP.Free();
 end;
 
-function TRSMinimap.GetDots(Dot: EMinimapDotType): TPointArray; overload;
+function TRSMinimap.GetDots(Dot: ERSMinimapDot): TPointArray; overload;
 begin
   Result := GetDots([Dot]);
 end;

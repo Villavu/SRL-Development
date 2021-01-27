@@ -204,7 +204,7 @@ begin
   Self.Mode := Mode;
 
   case Self.Mode of
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@RootInterface.X1];
         Self.Alignment.Right := [@RootInterface.X2];
@@ -214,7 +214,7 @@ begin
         Self.UpTextArea := [3, 3, 500, 21];
       end;
 
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@RootInterface.X1, 4];
         Self.Alignment.Right := [@RootInterface.X1, 515];
@@ -790,7 +790,11 @@ begin
 end;
 
 type
-  ERSClickType = (RS_CLICK_NONE, RS_CLICK_RED, RS_CLICK_YELLOW);
+  ERSClickType = (
+    NONE, 
+    RED, 
+    YELLOW
+  );
 
 (*
 Mainscreen.FindClick
@@ -821,11 +825,11 @@ begin
   begin
     for Bitmap in Self.YellowClicks do
       if FindBitmapToleranceIn(Bitmap, X, Y, Area, 5) then
-        Exit(RS_CLICK_YELLOW);
+        Exit(ERSClickType.YELLOW);
 
     for Bitmap in Self.RedClicks do
       if FindBitmapToleranceIn(Bitmap, X, Y, Area, 5) then
-        Exit(RS_CLICK_RED);
+        Exit(ERSClickType.RED);
 
     if Attempt = 1 then // Try again after 50 ms
       Wait(50);
@@ -849,7 +853,7 @@ Example
 *)
 function TRSMainScreen.DidRedClick: Boolean;
 begin
-  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = RS_CLICK_RED;
+  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = ERSClickType.RED;
 end;
 
 (*
@@ -869,7 +873,7 @@ Example
 *)
 function TRSMainScreen.DidYellowClick: Boolean;
 begin
-  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = RS_CLICK_YELLOW;
+  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = ERSClickType.YELLOW;
 end;
 
 procedure TRSMainScreen.Debug(Bitmap: TMufasaBitmap); override;

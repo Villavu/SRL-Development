@@ -18,7 +18,7 @@ begin
   Self.Mode := Mode;
 
   case Self.Mode of
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@MainScreen.X1];
         Self.Alignment.Right := [@MainScreen.X2];
@@ -26,7 +26,7 @@ begin
         Self.Alignment.Bottom := [@MainScreen.Y2];
       end;
 
-    RS_CLIENT_RESIZABLE_CLASSIC:
+    ERSClientMode.RESIZABLE_CLASSIC:
       begin
         Self.Alignment.Left := [@MainScreen.X1];
         Self.Alignment.Right := [@GameTabs.X1, -10];
@@ -34,7 +34,7 @@ begin
         Self.Alignment.Bottom := [@ChatBox.Y1];
       end;
 
-    RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@MainScreen.X1];
         Self.Alignment.Right := [@GameTabs.X1, 15];

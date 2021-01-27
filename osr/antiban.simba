@@ -421,22 +421,22 @@ begin
   begin
     if Random() < 0.50 then
     begin
-      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(TAB_COMBAT), Ord(TAB_MAGIC), 6.0)));
+      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(ERSGameTab.COMBAT), Ord(ERSGameTab.MAGIC), 6.0)));
 
       Wait(300, 3000, wdLeft);
     end;
 
-    GameTabs.Open(ERSGameTab(Random(Ord(TAB_COMBAT), Ord(TAB_MAGIC))));
+    GameTabs.Open(ERSGameTab(Random(Ord(ERSGameTab.COMBAT), Ord(ERSGameTab.MAGIC))));
   end else
   begin
     if Random() < 0.50 then
     begin
-      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(TAB_CLAN), Ord(TAB_MUSIC), 6.0)));
+      GameTabs.Open(ERSGameTab(SRL.NormalRange(Ord(ERSGameTab.CLAN), Ord(ERSGameTab.MUSIC), 6.0)));
 
       Wait(0, 2500, wdLeft);
     end;
 
-    GameTabs.Open(ERSGameTab(Random(Ord(TAB_CLAN), Ord(TAB_MUSIC))));
+    GameTabs.Open(ERSGameTab(Random(Ord(ERSGameTab.CLAN), Ord(ERSGameTab.MUSIC))));
   end;
 
   Wait(0, 8000, wdLeft);

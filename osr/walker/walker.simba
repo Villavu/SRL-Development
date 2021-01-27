@@ -206,7 +206,7 @@ var
   Dot: TPoint;
   TPA: TPointArray;
 begin
-  Dots := Minimap.GetDotsBitmap(Bitmap, [MINIMAP_DOT_NPC, MINIMAP_DOT_ITEM, MINIMAP_DOT_PLAYER]);
+  Dots := Minimap.GetDotsBitmap(Bitmap, [ERSMinimapDot.NPC, ERSMinimapDot.ITEM, ERSMinimapDot.PLAYER]);
 
   SetColorToleranceSpeed(2);
 
@@ -256,7 +256,7 @@ begin
   Temp := Bitmap.Copy();
   
   P := Temp.GetCenter();
-  if RSClient.Mode = RS_CLIENT_FIXED then
+  if RSClient.Mode = ERSClientMode.FIXED then
     P := P.Offset(0, -8).Rotate(-Minimap.GetCompassAngle(False), P); // fixed
  
   Temp.DrawCircleFilled(P.X, P.Y, RADIUS, True, 0);
@@ -768,7 +768,7 @@ begin
   MinimapBitmap := ScaleMinimap(GetCleanMinimap(), 1);
   
   P := MinimapBitmap.GetCenter();
-  if RSClient.Mode = RS_CLIENT_FIXED then
+  if RSClient.Mode = ERSClientMode.FIXED then
     P := P.Offset(0, 8).Rotate(-Minimap.GetCompassAngle(False), P);
     
   MinimapBitmap.DrawBox(P.X - 1, P.Y - 1, P.X + 1, P.Y + 1, True, $FFFFFF);

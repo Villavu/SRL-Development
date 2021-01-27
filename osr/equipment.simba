@@ -3,7 +3,6 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
-{$scopedenums on}
 type
   ERSEquipmentButton = (
     HELM,
@@ -23,8 +22,7 @@ type
     DEATH,
     FOLLOWER
   );
-{$scopedenums off} 
-
+  
   TRSEquipment = type TRSInterface;
 
 procedure TRSEquipment.Setup; override;
@@ -46,12 +44,12 @@ end;
 
 function TRSEquipment.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = TAB_EQUIPMENT);
+  Result := (GameTabs.GetCurrentTab() = ERSGameTab.EQUIPMENT);
 end;
 
 function TRSEquipment.Open: Boolean;
 begin
-  Result := GameTabs.Open(TAB_EQUIPMENT);
+  Result := GameTabs.Open(ERSGameTab.EQUIPMENT);
 end;
 
 function TRSEquipment.GetButtons: TRSButtonArray;
@@ -63,7 +61,7 @@ function TRSEquipment.GetButton(Button: ERSEquipmentButton): TRSButton;
 var
   Buttons: TRSButtonArray := Self.GetButtons();
 begin
-  if High(Buttons) >= Ord(High(Button)) then
+  if Length(Buttons) = Length(ERSEquipmentButton) then
     Result := Buttons[Button];
 end;
 
@@ -75,7 +73,8 @@ begin
   if not Self.Open() then
     Exit;
     
-  Boxes := Self.GetButtons();
+  Boxes := Self.GetButtons().ToBoxes();
+  
   Slots := ItemFinder.Find(Identifer, Boxes);
   if Length(Slots) > 0 then
   begin

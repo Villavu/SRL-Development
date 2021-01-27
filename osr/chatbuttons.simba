@@ -8,6 +8,7 @@ type
 
 function TRSChatButtons.IsOpen: Boolean;
 begin
+  Result := True;
 end;
 
 procedure TRSChatButtons.Debug(Bitmap: TMufasaBitmap); override;

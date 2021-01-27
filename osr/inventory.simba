@@ -95,12 +95,12 @@ end;
 
 function TRSInventory.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = TAB_INVENTORY);
+  Result := (GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY);
 end;
 
 function TRSInventory.Open: Boolean;
 begin
-  Result := Self.IsOpen() or GameTabs.Open(TAB_INVENTORY);
+  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.INVENTORY);
 end;
 
 function TRSInventory.IsSlotUsed(Slot: Int32): Boolean;

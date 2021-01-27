@@ -63,7 +63,7 @@ begin
   for I := 0 to High(TEXT_COLORS) do
     if SRL.FindColors(TPA, CTS0(TEXT_COLORS[I]), Area) then
     begin
-      Text := OCR.Recognize(TPA, RS_FONTSET_PLAIN_11);
+      Text := OCR.RecognizeTPA(TPA, RS_FONTSET_PLAIN_11);
       Result := StrToIntDef(ExtractFromStr(Text, Numbers), 0);
 
       if Pos('K', Text) > 0 then

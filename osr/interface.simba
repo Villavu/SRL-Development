@@ -148,20 +148,14 @@ begin
 end;
 
 type
-  PRSButton = ^TRSButton;
+  TRSButton = record 
+    Index: Int32; 
+    Bounds: TBox; 
+    Middle: TPoint;
+  end;
   
-  TRSButton = type TBox;
   TRSButtonArray = array of TRSButton;
   TRSButtonDimensions = array of record Width, Height: Int32; end;
-  
-  {%codetools off}
-operator:=(var Left: TBoxArray; Right: TRSButtonArray): TBoxArray;
-begin
-  Left := TBoxArray(Right);
-  Result := TBoxArray(Right);
-end; 
- {%codetools on} 
-
   
 function TRSInterface.FindButtons(Dimensions: TRSButtonDimensions): TRSButtonArray;
 var
@@ -169,15 +163,17 @@ var
   ATPA: T2DPointArray;
   I, W, H: Int32;
   B: TBox;
-  C: TCTS1Color;
+  Color: TCTS1Color;
+  Boxes: TBoxArray;
 begin
   B := Self.Bounds();
-  for C in Self.ButtonColors do
-    if SRL.FindColors(TPA, C, B) > 0 then
+  
+  for Color in Self.ButtonColors do
+    if SRL.FindColors(TPA, Color, B) > 0 then
       ATPA += TPA;
+  
   ATPA := ATPA.Merge().Cluster(1);
-  System.Debug(ATPA);
-  //Halt;
+
   for TPA in ATPA do
   begin
     if Length(TPA) < 25 then
@@ -188,8 +184,8 @@ begin
 
     for I := 0 to High(Dimensions) do
       if (W = Dimensions[I].Width) and (H = Dimensions[I].Height) and
-         (TPA.Squareness() > 75) then
-        Result += B;
+         (TPA.Frameness() > 75) then
+        Boxes += B;
       
     {$IFDEF SRL_DEBUG_FINDBUTTONS}        
     if (W > 10) and (H > 10) then
@@ -197,7 +193,24 @@ begin
     {$ENDIF}
   end;
   
-  TBoxArray(Result).SortByXY(10);
+  Boxes.SortByXY(10);
+  
+  SetLength(Result, Length(Boxes));
+  for I := 0 to High(Boxes) do
+  begin
+    Result[I].Index := I;
+    Result[I].Bounds := Boxes[I];
+    Result[I].Middle := Boxes[I].Middle;
+  end;
+end;
+
+function TRSButtonArray.ToBoxes: TBoxArray; constref;
+var
+  I: Int32;
+begin
+  SetLength(Result, Length(Self));
+  for I := 0 to High(Result) do
+    Result[I] := Self[I].Bounds;
 end;
 
 function TRSButton.Visible: Boolean; constref;
@@ -207,14 +220,14 @@ end;
 
 function TRSButton.Enabled: Boolean; constref;
 begin
-  Result := Self.Visible() and (SRL.CountColor(CTS1(2369440, 5), Self) > 0);
+  Result := Self.Visible() and (SRL.CountColor(CTS1(2369440, 5), Self.Bounds) > 0);
 end;
 
 function TRSButton.Click: Boolean; constref;
 begin
   Result := Self.Visible();
   if Result then
-    Mouse.Click(Self, MOUSE_LEFT);
+    Mouse.Click(Self.Bounds, MOUSE_LEFT);
 end;
 
 function TRSButton.Enable: Boolean; constref;
@@ -229,7 +242,7 @@ end;
 
 function TRSButton.FindText(Text: String; Font: String): Boolean; constref; overload;
 begin
-  Result := System.FindText(Text, Font, Self.X1, Self.Y1, Self.X2, Self.Y2, 1);
+  Result := System.FindText(Text, Font, Self.Bounds.X1, Self.Bounds.Y1, Self.Bounds.X2, Self.Bounds.Y2, 1);
 end;
 
 function TRSButton.FindText(Text: TStringArray; Font: String; out Found: String): Boolean; constref; overload;
@@ -252,14 +265,13 @@ var
 begin
   for I := 0 to High(Buttons) do
   begin
-    S := ToStr(I);
+    S := ToStr(Buttons[I].Index);
     
-    Self.Rectangle(Buttons[I], $00FF00, 0.50);
+    Self.Rectangle(Buttons[I].Bounds, $00FF00, 0.50);
     Self.DrawSystemText(S, 'Arial Bold', 15, Buttons[I].Middle.Offset(-Length(S)*5, -11), False, $0000FF);
   end;
 end;
 
-{
 procedure Debug(Buttons: TRSButtonArray); overload;
 var
   BMP: TMufasaBitmap;
@@ -269,4 +281,4 @@ begin
   BMP.Debug();
   BMP.Free();
 end;
-}
+

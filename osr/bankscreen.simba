@@ -16,7 +16,6 @@ const
   BANK_WITHDRAW_ALL_BUT_ONE = -2;
   
 type
-  {$scopedenums on}
   ERSBankLocation = (
     CASTLE_WARS,
     FEROX,
@@ -42,7 +41,6 @@ type
     DEPOSIT_INVENTORY,
     DEPOSIT_WORN   
   ); 
-  {$scopedenums off}
 
   TRSBankWithdrawItem = record
     Item: String;
@@ -88,10 +86,9 @@ end;
 
 function TRSBankScreen.GetButton(Button: ERSBankButton): TRSButton;
 var
-  Buttons: TRSButtonArray;
-begin
-  Buttons := GetButtons();
-  if High(Buttons) = Ord(High(ERSBankButton)) then // add Length to lape to count elements!
+  Buttons: TRSButtonArray := Self.GetButtons();
+begin 
+  if Length(Buttons) = Length(ERSBankButton) then
     Result := Buttons[Button];
 end;
 
@@ -187,7 +184,7 @@ begin
   Self.Mode := Mode;
 
   case Self.Mode of
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];
@@ -197,7 +194,7 @@ begin
         Self.Alignment.Center.MaxHeight := 800;
       end;
 
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];
@@ -592,6 +589,38 @@ begin
     Result := SRL.GetItemAmount(B);
 end;
 
+(*
+BankScreen.WithdrawItem
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean;
+
+Finds and withdraws an item.
+
+Parameters
+----------
+
+Item
+	TRSBankWithdrawItem variable to withdraw.
+
+UseQuantityButtons  
+  Determines if to use the 1,5,10,X,ALL `Quantity` buttons.
+
+Example
+-------
+
+  var
+    ItemToWithdraw: TRSBankWithdrawItem;
+    
+  ItemToWithdraw.Item := 'Iron full helm'; 
+  ItemToWithdraw.Quantity := 5;
+  ItemToWithdraw.Noted := False;  
+  
+  BankScreen.WithdrawItem(ItemToWithdraw, True);  
+  
+  // OR you can shorthand by passing an open array.
+  
+  BankScreen.WithdrawItem(['Iron full helm', 5, False], True);  
+*)
 function TRSBankScreen.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean; 
 var
   B: TBox;

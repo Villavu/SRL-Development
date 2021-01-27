@@ -4,7 +4,7 @@
 {$ENDIF}
 
 const
-  CHATBOX_TEXT_COLORS: TIntegerArray = [0, $7F, $FF0000, $7F007F, $2010EF];
+  CHATBOX_TEXT_COLORS: TIntegerArray = [0, $7F, $FF0000, $7F007F, $2010EF, $FFFFFF, $FF9090];
   CHATBOX_MESSAGE_LINES: TIntegerArray = [0..7];
   CHATBOX_INPUT_LINE = 8;
 
@@ -40,16 +40,35 @@ begin
   Bitmap.DrawBoxes(Self.GetLineBoxes(), False, $00FFFF);
 end;
 
-function TRSChatBox.IsOpen: Boolean;
-begin
-  Result := SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000;
-end;
-
 function TRSChatBox.GetLineBoxes: TBoxArray;
 begin
-  Result := Grid(1, 9, Width - 35, 15, [0, -1], [Self.X1 + 10, Self.Y1 + 6]);
-  Result[8].Y1 += 2;
-  Result[8].Y2 += 2;
+  Result := Grid(1, 9, Width - 35, 13, [0, 1], [Self.X1 + 10, Self.Y1 + 8]);
+  Result[CHATBOX_INPUT_LINE].Y2 += 2;
+end;
+
+function TRSChatbox.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
+var
+  Color: Int32;
+begin
+  for Color in Colors do
+  begin
+    Result := OCR.Recognize(Self.GetLineBoxes()[CHATBOX_INPUT_LINE], [Color], RS_FONTSET_PLAIN_12, True);
+    if Result <> '' then
+      Break;
+  end;
+
+  if ':' in Result then
+    Result := Result.Before(':');
+end;
+
+function TRSChatbox.IsTransparent: Boolean;
+begin
+  Result := Self.GetDisplayName([$FFFFFF]) <> '';
+end;
+
+function TRSChatBox.IsOpen: Boolean;
+begin
+  Result := (SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000) or Self.IsTransparent();
 end;
 
 function TRSChatbox.FindNPCChat(Text: String; out B: TBox): Boolean; overload;
@@ -345,17 +364,37 @@ begin
 end;
 
 function TRSChatbox.GetTextOnLine(Line: Int32; Colors: TIntegerArray = CHATBOX_TEXT_COLORS): String;
+const
+  OffsetToMakeStatic = 2;
 var
   TPA: TPointArray;
-  ATPA: T2DPointArray;
-  B: TBox;
   Color: Int32;
+  B: TBox;
+  Matrix: T2DIntegerArray;
+  P: TPoint;
 begin
-  for Color in Colors do
-    if SRL.FindColors(TPA, CTS0(Color), GetLineBoxes()[Line]) > 0 then
-      ATPA += TPA;
+  B := GetLineBoxes()[Line];
+  SetLength(Matrix, B.Height + OffsetToMakeStatic, B.Width);
 
-  Result := OCR.Recognize(ATPA.Merge(), RS_FONTSET_PLAIN_12);
+  // If trasnaprent the text has a shadow.
+  // Problem: 1 pixel of the shadow of the line above falls into our line.
+  // Solution: Mark the above shadow as a hit since SimpleOCR needs every point of a character to match. 
+  if Self.IsTransparent() then
+  begin
+    if SRL.FindColors(TPA, CTS0($000000), B) > 0 then
+      for P in TPA.Offset(-B.X1, -B.Y1) do
+        if (P.Y = 0) then
+          Matrix[P.Y + OffsetToMakeStatic, P.X] := 255;
+    
+    Colors.Remove($000000); // Shadow
+  end;
+  
+  for Color in Colors do
+    if SRL.FindColors(TPA, CTS0(Color), B) > 0 then
+      for P in TPA.Offset(-B.X1, -B.Y1) do
+        Matrix[P.Y + OffsetToMakeStatic, P.X] := 255;
+
+  Result := OCR.Recognize(Matrix, [255], RS_FONTSET_PLAIN_12, True);
 end;
 
 function TRSChatbox.GetTextOnLines(Text: TStringArray; Lines: TIntegerArray; Colors: TIntegerArray = CHATBOX_TEXT_COLORS): Boolean; overload;
@@ -394,13 +433,6 @@ end;
 function TRSChatbox.FindRedText(Text: String): Boolean; overload;
 begin
   Result := Self.GetTextOnLines(Text, CHATBOX_MESSAGE_LINES, [$2010EF]);
-end;
-
-function TRSChatbox.GetDisplayName: String;
-begin
-  Result := Self.GetTextOnLine(CHATBOX_INPUT_LINE, [0]);
-  if ':' in Result then
-    Result := Result.Before(':');
 end;
 
 var

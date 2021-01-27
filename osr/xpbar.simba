@@ -25,9 +25,9 @@ begin
   Self.Alignment.Bottom := [@InterfaceArea.Y1, 30];
 
   case Self.Mode of
-    RS_CLIENT_RESIZABLE_CLASSIC: Self.ButtonOffset := [173, 38];
-    RS_CLIENT_RESIZABLE_BOTTOM:  Self.ButtonOffset := [138, 38];
-    RS_CLIENT_FIXED:             Self.ButtonOffset := [134, 28];
+    ERSClientMode.RESIZABLE_CLASSIC: Self.ButtonOffset := [173, 38];
+    ERSClientMode.RESIZABLE_MODERN:  Self.ButtonOffset := [138, 38];
+    ERSClientMode.FIXED:             Self.ButtonOffset := [134, 28];
   end;
 end;
 

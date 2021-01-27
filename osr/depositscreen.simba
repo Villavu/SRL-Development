@@ -4,6 +4,20 @@
 {$ENDIF}
 
 type
+  ERSDepositButton = (
+    CLOSE,
+    
+    QUANTITY_1,
+    QUANTITY_5,
+    QUANTITY_10,
+    QUANTITY_CUSTOM,
+    QUANTITY_ALL,
+    
+    DEPOSIT_INVENTORY,
+    DEPOSIT_WORN,
+    DEPOSIT_LOOT
+  );
+
   TRSDepositScreen = type TRSInterface;
 
 procedure TRSDepositScreen.Setup; override;
@@ -18,7 +32,7 @@ begin
   Self.Mode := Mode;
 
   case Self.Mode of
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];
@@ -28,7 +42,7 @@ begin
         Self.Alignment.Center.MaxHeight := 276;
       end;
 
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];
@@ -40,39 +54,32 @@ begin
   end;
 end;
 
+function TRSDepositScreen.GetButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[21,21], [34,34]]);
+end;
+
+function TRSDepositScreen.GetButton(Button: ERSDepositButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetButtons();
+begin
+  if (Length(Buttons) = Length(ERSDepositButton)) then
+    Result := Buttons[Button];
+end;
+
 function TRSDepositScreen.GetSlotBoxes: TBoxArray; constref;
 begin
   Result := Grid(7, 4, 31, 31, [25, 17], [Self.X1 + 38, Self.Y1 + 42]);
 end;
 
 function TRSDepositScreen.IsOpen: Boolean; overload;
-var
-  T: UInt64;
 begin
-{
-  Result := Self.FindButton([Self.BUTTON_DEPOSIT_INVENTORY, Self.BUTTON_DEPOSIT_INVENTORY_HOVER]);
-  if Result then
-  begin
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
-    while (T > GetTickCount()) and (SRL.CountColor(CTS0(65536), Self.GetSlotBoxes().Merge()) = 0) do
-      Wait(50, 100);
-  end;}
+  Result := Self.GetButton(ERSDepositButton.CLOSE).Visible();
 end;
 
 function TRSDepositScreen.IsOpen(WaitTime: Int32): Boolean; overload;
-var
-  T: UInt64;
 begin
-{
-  T := GetTickCount() + WaitTime;
-
-  while (T > GetTickCount()) do
-  begin
-     if Self.IsOpen() then
-       Exit(True);
-
-     Wait(0, 1000, wdLeft);
-  end;}
+  Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(50, 1500), WaitTime);
 end;
 
 procedure TRSDepositScreen.Debug(Bitmap: TMufasaBitmap); override;

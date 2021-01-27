@@ -99,12 +99,12 @@ end;
 
 function TRSStats.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = TAB_STATS);
+  Result := (GameTabs.GetCurrentTab() = ERSGameTab.STATS);
 end;
 
 function TRSStats.Open: Boolean;
 begin
-  Result := GameTabs.Open(TAB_STATS);
+  Result := GameTabs.Open(ERSGameTab.STATS);
 end;
 
 function TRSStats.MouseOver(Skill: ERSSkill): Boolean;

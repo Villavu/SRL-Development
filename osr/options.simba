@@ -4,7 +4,6 @@
 {$ENDIF}
   
 type 
-  {$scopedenums on}
   ERSOptionsTab = (
     CONTROLS, 
     AUDIO, 
@@ -24,7 +23,6 @@ type
     SERVANT, 
     LEAVE
   ); 
-  {$scopedenums off} 
 
   TRSOptions = type TRSInterface;
 
@@ -47,12 +45,12 @@ end;
 
 function TRSOptions.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = TAB_OPTIONS);
+  Result := (GameTabs.GetCurrentTab() = ERSGameTab.OPTIONS);
 end;
 
 function TRSOptions.Open: Boolean;
 begin
-  Result := GameTabs.Open(TAB_OPTIONS);
+  Result := GameTabs.Open(ERSGameTab.OPTIONS);
 end;
 
 function TRSOptions.GetButtons: TRSButtonArray;
@@ -62,10 +60,9 @@ end;
 
 function TRSOptions.GetButton(Button: ERSOptionsButton): TRSButton;
 var
-  Buttons: TRSButtonArray;
+  Buttons: TRSButtonArray := Self.GetButtons();
 begin
-  Buttons := Self.GetButtons();
-  if High(Buttons) = Ord(High(ERSOptionsButton)) then
+  if Length(Buttons) = Length(ERSOptionsButton) then
     Result := Buttons[Button];
 end;
 
@@ -222,8 +219,8 @@ function TRSGameTabs.GetCurrentTab: ERSGameTab; override;
 begin
   Result := inherited;
   
-  if (Result = TAB_UNKNOWN) and Options.IsHouseOptionsOpen() then
-    Result := TAB_OPTIONS;
+  if (Result = ERSGameTab.UNKNOWN) and Options.IsHouseOptionsOpen() then
+    Result := ERSGameTab.OPTIONS;
 end;  
   
 procedure TRSClient.ClientModeChanged; override;

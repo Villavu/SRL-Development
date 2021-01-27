@@ -53,16 +53,11 @@ const
 
 function TRSLoginScreen.FindText(Text: String; out B: TBox): Boolean; overload;
 begin
-  Freeze();
-  
-  try
-    Result := (FindTextColor(Text, RS_FONT_BOLD_12,  $FFFFFF, 0, Self.Bounds, B) = 1) or
-              (FindTextColor(Text, RS_FONT_BOLD_12,  $00FFFF, 0, Self.Bounds, B) = 1) or
-              (FindTextColor(Text, RS_FONT_PLAIN_12, $FFFFFF, 0, Self.Bounds, B) = 1) or
-              (FindTextColor(Text, RS_FONT_PLAIN_11, $FFFFFF, 0, Self.Bounds, B) = 1);
-  finally            
-    UnFreeze();
-  end;
+  Result := (FindTextColor(Text, RS_FONT_BOLD_12,  $000000, 0, Self.Bounds, B) = 1) or
+            (FindTextColor(Text, RS_FONT_BOLD_12,  $FFFFFF, 0, Self.Bounds, B) = 1) or
+            (FindTextColor(Text, RS_FONT_BOLD_12,  $00FFFF, 0, Self.Bounds, B) = 1) or
+            (FindTextColor(Text, RS_FONT_PLAIN_12, $FFFFFF, 0, Self.Bounds, B) = 1) or
+            (FindTextColor(Text, RS_FONT_PLAIN_11, $FFFFFF, 0, Self.Bounds, B) = 1);
 end;
 
 function TRSLoginScreen.FindText(Text: String): Boolean; overload;
@@ -71,7 +66,21 @@ var
 begin
   Result := FindText(Text, _);
 end;  
-  
+
+function TRSLoginScreen.ClickText(Text: String): Boolean;
+var
+  B: TBox;
+begin
+  Result := FindText(Text, B);
+  if Result then 
+    Mouse.Click(B, MOUSE_LEFT);
+end;
+
+function TRSLoginScreen.IsOpen: Boolean;
+begin
+  Result := Self.FindText('Click to switch');
+end;
+
 function TRSLoginScreen.IsWorldSwitcherOpen: Boolean;
 begin
   Result := Self.FindText('Cancel');
@@ -79,52 +88,55 @@ end;
 
 function TRSLoginScreen.OpenWorldSwitcher: Boolean;
 begin
- // Result := Self.ClickButton(Self.BUTTON_WORLD_SWITCHER, MOUSE_LEFT) and Self.IsWorldSwitcherOpen(10000);
+  Result := ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000); 
 end;
 
 function TRSLoginScreen.CloseWorldSwitcher: Boolean;
 begin
- // Result := Self.ClickButton(Self.BUTTON_WORLD_SWITCHER_CLOSE, MOUSE_LEFT);
+  Result := Self.IsOpen() or (Self.ClickText('Cancel') and WaitUntil(Self.IsOpen(), 100, 1000));
+end;
+
+function TRSLoginScreen.GetCurrentWorld: Int32;
+var
+  B: TBox;
+begin
+  if Self.CloseWorldSwitcher() and Self.FindText('Click to switch', B) then
+  begin
+    B.Y1 -= 25;
+    
+    Result := OCR.RecognizeNumber(B, [$FFFFFF], RS_FONTSET_BOLD_12); // ADD: RecognizeInt
+  end;
 end;
 
 function TRSLoginScreen.SwitchToWorld(World: Int32): Boolean;
 begin
-{
+  if Self.GetCurrentWorld() = World then
+    Exit(True);
+
   if Self.OpenWorldSwitcher() then
   begin
-    
-
     for 1 to 3 do // Three pages of worlds
     begin
-      Wait(500, 2500, wdLeft);
-      Keyboard.KeyDown(VK_RIGHT);
-      Keyboard.KeyUp(VK_RIGHT);
+      if Self.ClickText(ToString(World)) then
+      begin
+        Result := Self.GetCurrentWorld() = World;
+        Exit;
+      end;
+      
+      Keyboard.PressKey(VK_RIGHT);
+      
+      Wait(500, 5000, wdLeft);
     end;
-
-    Self.CloseWorldSwitcher();
   end;
-
-  Result := (Self.GetCurrentWorld() = World);
-  }
 end;
 
 procedure TRSLoginScreen.HandleDialogs;
 var
   I: Int32;
-  B: TBox;
 begin
   for I := 0 to High(LOGIN_DIALOGS) do
-    if Self.FindText(' ' + LOGIN_DIALOGS[I] + ' ', B) then
-    begin
-      Mouse.Click(B, MOUSE_LEFT);
-      
+    if Self.ClickText(' ' + LOGIN_DIALOGS[I] + ' ') then
       Exit;
-    end;
-end;
-
-function TRSLoginScreen.IsOpen: Boolean;
-begin
-  Result := Self.FindText('Click to switch');
 end;
 
 function TRSLoginScreen.EnterField(Field, Details: String): Boolean;
@@ -185,12 +197,12 @@ begin
     LOGIN_MESSAGE_NEED_SKILL_TOTAL,
     LOGIN_MESSAGE_ACCOUNT_DISABLED,
     LOGIN_MESSAGE_AUTHENTICATOR:
-      Exit(False);
+      Result := False;
 
     // Retry
     LOGIN_MESSAGE_INVALID_CREDENTIALS,
     LOGIN_MESSAGE_INVALID_USER_PASS:
-      Exit(True);
+      Result := True;
 
     // Retry after ~15 seconds
     LOGIN_MESSAGE_ERROR_CONNECTING,
@@ -203,7 +215,7 @@ begin
       begin
         Wait(10000, 20000);
 
-        Exit(True);
+        Result := True;
       end;
 
     // No handler
@@ -249,18 +261,6 @@ begin
     LobbyScreen.EnterGame();
 
   Result := RSClient.IsLoggedIn();
-end;
-
-function TRSLoginScreen.GetCurrentWorld: Int32;
-var
-  B: TBox;
-begin
-  if Self.FindText('Click to switch', B) then
-  begin
-    B.Y1 -= 25;
-    
-    Writeln OCR.Recognize(B, [$FFFFFF], RS_FONTSET_BOLD_12); // ADD: RecognizeInt
-  end;
 end;
 
 procedure TRSLoginScreen.Debug(Bitmap: TMufasaBitmap); override;

@@ -44,6 +44,8 @@ begin
   SRL.Setup();
 end;
 
+{$SCOPEDENUMS ON}
+
 // The following allows individual include files to compile on their own with just having {$I SRL/osr.simba}
 // Summary: It includes this file until the current file is reached.
 
@@ -80,6 +82,8 @@ end;
 {$IFNDEF SRL_ANTIBAN_INCLUDED}         {$I osr/antiban.simba}
 {$IFNDEF SRL_COMBAT_INCLUDED}          {$I osr/combat.simba}
 {$IFNDEF SRL_MAGIC_INCLUDED}           {$I osr/magic.simba}
+
+{$SCOPEDENUMS OFF}
 
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}

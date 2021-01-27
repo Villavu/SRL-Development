@@ -1057,7 +1057,7 @@ begin
   Result := System.PointsInRangeOf(Self, Other, MinDistX, MinDistY, MaxDistX, MaxDistY);
 end;
 
-function TPointArray.Squareness: Single;
+function TPointArray.Frameness: Single;
 var
   Edge: TPointArray := EdgeFromBox(Self.Bounds());
 begin
