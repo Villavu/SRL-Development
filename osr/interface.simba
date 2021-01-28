@@ -26,7 +26,7 @@ type
 
 procedure TRSInterface.Setup; 
 begin
-  Self.Name := 'UNAMED';
+  Self.Name := 'UNNAMED';
   Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20)];
 end;
   

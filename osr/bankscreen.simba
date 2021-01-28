@@ -562,31 +562,59 @@ begin
   end;
 end;
 
-function TRSBankScreen.FindItem(Identifer: String; out Bounds: TBox): Boolean; overload;
+function TRSBankScreen.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
 var
   Boxes: TBoxArray;
   Indices: TIntegerArray;
 begin
+  if not Self.IsOpen() then
+    Exit;
+
   Boxes := Self.FindItemBoundaries();
-  Indices := ItemFinder.Find(Identifer, Boxes);
+  Indices := ItemFinder.Find(Item, Boxes, 1);
   if Result := Indices <> [] then
     Bounds := Boxes[Indices[0]];
 end;
 
-function TRSBankScreen.FindItem(Identifer: String): Boolean; overload;
-var
-  B: TBox;
+function TRSBankScreen.CountItem(Item: TRSItem): Int32;
 begin
-  Result := FindItem(Identifer, B);
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := Length(ItemFinder.Find(Item, Self.FindItemBoundaries()));
 end;
 
-function TRSBankScreen.FindItemQuantity(Identifer: String): Int32;
+function TRSBankScreen.CountItemStack(Item: TRSItem): Int32;
 var
   B: TBox;
 begin
   Result := -1;
-  if Self.FindItem(Identifer, B) then
+  if Self.FindItem(Item, B) then
     Result := SRL.GetItemAmount(B);
+end;
+
+function TRSBankScreen.MouseItem(Item: TRSItem): Boolean;
+var
+  B: TBox;
+begin
+  Result := Self.FindItem(Item, B);
+  if Result then
+    Mouse.Move(B);
+end;
+
+function TRSBankScreen.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
+begin
+  if Self.MouseItem(Item) then
+  begin
+    if Option <> '' then
+      Result := ChooseOption.Select(Option)
+    else
+    begin
+      Mouse.Click(MOUSE_LEFT);
+      
+      Result := True;
+    end;
+  end;
 end;
 
 (*

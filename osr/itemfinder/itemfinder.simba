@@ -9,9 +9,13 @@ Item Finder
 {$ENDIF}
 
 type
+  TRSItem = type Variant;
+  TRSItemArray = array of TRSItem;
+
   TRSItemFinder = record
     ItemNames: TStringList;
     ItemImages: array of TMufasaBitmap;
+    
     Similarity: Single;
   end;
 
@@ -34,15 +38,15 @@ procedure TRSItemFinder.Free;
 var
   i: Int32;
 begin
-  if Self.ItemNames <> nil then
-    Self.ItemNames.Free();
-
+  Self.ItemNames.Free();
   for i := 0 to High(Self.ItemImages) do
     Self.ItemImages[i].Free();
 end;
 
 procedure TRSItemFinder.Setup;
 begin
+  CreateDirectory(ITEM_FINDER_IMAGES_PATH);
+
   Self.ItemNames.Init();
   Self.ItemNames.LoadFromFile(ITEM_FINDER_NAME_FILE);
 
@@ -56,49 +60,49 @@ begin
   Self.ItemNames.SetValues(Item, ID);
 end;
 
-function TRSItemFinder.GetItemID(Identifer: String): Int32;
+function TRSItemFinder.LoadItemImage(Item: String): TMufasaBitmap;
+var
+  Path, ID: String;
 begin
-  if not Identifer.IsDigit() then
+  if not Item.IsDigit() then
   begin
-    if Self.ItemNames.IndexOfName(Identifer) = -1 then
-      raise 'Unknown item: ' + Identifer;
+    if Self.ItemNames.IndexOfName(Item) = -1 then
+      raise 'Unknown item: ' + Item;
+  
+    ID := Self.ItemNames.GetValues(Item);
+  end else
+    ID := Item; 
+    
+  Path := ExpandFileName(ITEM_FINDER_IMAGES_PATH + ID + '.png');
+  
+  if not FileExists(Path) then
+    UnZipOneFile(ITEM_FINDER_IMAGES_ZIP, ExtractFileName(Path), ITEM_FINDER_IMAGES_PATH);
+  if not FileExists(Path) then
+    raise 'Unknown item: ' + Item;
 
-    Identifer := Self.ItemNames.GetValues(Identifer);
-  end;
-
-  Result := StrToInt(Identifer);
+  Result.Init(Client.GetMBitmaps());
+  Result.LoadFromFile(Path);
+  Result.SetName(Item);
+  Result.ReplaceColor(ITEM_FINDER_SHADOW_COLOR, 0);
 end;
 
-function TRSItemFinder.GetTemporaryImage(Identifer: String): TMufasaBitmap;
+function TRSItemFinder.GetTemporaryImage(Item: TRSItem): TMufasaBitmap;
 var
-  ID: String;
-  i: Int32;
+  I: Int32;
   Image: TMufasaBitmap;
 begin
-  for i := 0 to High(ItemImages) do
-    if (Self.ItemImages[i].GetName() = Identifer) then
-      Exit(Self.ItemImages[i].Copy());
-
-  ID := ToString(Self.GetItemID(Identifer)) + '.png';
-
-  if not DirectoryExists(ITEM_FINDER_IMAGES_PATH) then
-    CreateDirectory(ITEM_FINDER_IMAGES_PATH);
-  if not FileExists(ITEM_FINDER_IMAGES_PATH + ID) then
-    UnZipOneFile(ITEM_FINDER_IMAGES_ZIP, ID, ITEM_FINDER_IMAGES_PATH);
-  if not FileExists(ITEM_FINDER_IMAGES_PATH + ID) then
-    raise 'Unable to load image: ' + ID;
-
-  Image.Init(Client.GetMBitmaps());
-  Image.LoadFromFile(ITEM_FINDER_IMAGES_PATH + ID);
-  Image.SetName(Identifer);
-  Image.ReplaceColor(ITEM_FINDER_SHADOW_COLOR, 0);
-
-  Self.ItemImages := Self.ItemImages + Image;
-
-  Result := Image.Copy();
+  Item := VarToStr(Item);
+  
+  for I := 0 to High(ItemImages) do
+    if (Self.ItemImages[I].GetName() = Item) then
+      Exit(Self.ItemImages[I].Copy());
+  
+  Self.ItemImages += Self.LoadItemImage(Item);
+  
+  Result := Self.ItemImages[High(Self.ItemImages)].Copy();
 end;
 
-function TRSItemFinder.Find(Identifer: String; Slots: TBoxArray): TIntegerArray;
+function TRSItemFinder.Find(Identifer: TRSItem; Slots: TBoxArray; MaxToFind: Int32 = -1): TIntegerArray;
 
   function GetAlignmentPoint(Image: TMufasaBitmap): TPoint;
   var
@@ -193,311 +197,11 @@ begin
     Image := nil;
     Templ.Free();
     Templ := nil;
+    
+    if Length(Result) = MaxToFind then
+      Exit;
   end;
 end;
-
-{
-function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; override;
-var
-  Identifer: String;
-begin
-  if Self.Open() then
-    for Identifer in Identifers do
-      Result += ItemFinder.Find(Identifer, Self.GetSlotBoxes());
-end;
-
-function TRSInventory.FindAll(Identifer: String): TIntegerArray; override;
-begin
-  if Self.Open() then
-    Result := Self.FindAll([Identifer]);
-end;
-
-function TRSInventory.Find(Identifers: TStringArray): Int32; override;
-var
-  Identifer: String;
-  Matches: TIntegerArray;
-begin
-  for Identifer in Identifers do
-  begin
-    Matches := Self.FindAll(Identifer);
-    if Length(Matches) > 0 then
-      Exit(Matches[0]);
-  end;
-
-  Exit(-1);
-end;
-
-function TRSInventory.Find(Identifer: String): Int32; override;
-begin
-  Result := Self.Find([Identifer]);
-end;
-
-function TRSInventory.Count(Identifers: TStringArray): Int32; override;
-var
-  Identifer: String;
-begin
-  if Self.Open() then
-  begin
-    for Identifer in Identifers do
-      Result += Length(Self.FindAll(Identifer));
-  end;
-end;
-
-function TRSInventory.Count(Identifer: String): Int32; override;
-begin
-  Result := Self.Count([Identifer]);
-end;
-
-function TRSInventory.CountStack(Identifer: String): Int32; override;
-var
-  Slot: Int32;
-begin
-  Slot := Self.Find(Identifer);
-  if (Slot > -1) then
-    Result := SRL.GetItemAmount(Self.GetSlotBox(Slot));
-end;
-
-function TRSInventory.Hover(Identifer: String): Boolean;
-var
-  Slot: Int32 := Self.Find(Identifer);
-begin
-  Result := (Slot > -1);
-  if Result then
-    Mouse.Move(Self.GetSlotBox(Slot));
-end;
-
-function TRSInventory.Click(Identifers: TStringArray; Option: String = ''): Boolean; override;
-var
-  Slot: Int32;
-begin
-  Slot := Self.Find(Identifers);
-
-  if (Slot > -1) then
-  begin
-    Mouse.Move(Self.GetSlotBox(Slot));
-
-    if (Option = '') then
-    begin
-      Mouse.Click(MOUSE_LEFT);
-
-      Exit(True);
-    end else
-      Result := ChooseOption.Select(Option);
-  end;
-end;
-
-function TRSInventory.Click(Identifer: String; Option: String = ''): Boolean; override;
-begin
-  Result := Self.Click([Identifer], Option);
-end;
-
-function TRSInventory.Use(Item: String; OtherItem: String): Boolean; override;
-var
-  Slots, OtherSlots: TIntegerArray;
-  Slot, OtherSlot: Int32;
-begin
-  Self.SetSelectedSlot(-1); // Item sprites change when selected.
-
-  Slots := Self.FindAll(Item);
-  if Length(Slots) = 0 then
-    Exit;
-
-  OtherSlots := Self.FindAll(OtherItem);
-  if Length(OtherSlots) = 0 then
-    Exit;
-
-  Slot := Slots[Random(Length(Slots))];
-  OtherSlot := Self.RandomSlotNearby(Slot, OtherSlots);
-
-  Self.Use(Slot, OtherSlot);
-
-  Result := True;
-end;
-
-function TRSInventory.ShiftDrop(Items: TStringArray; Pattern: TIntegerArray): Boolean; override;
-var
-  Slots, Order: TIntegerArray;
-  I: Int32;
-begin
-  Slots := Self.FindAll(Items);
-  for I := 0 to High(Pattern) do
-    if Slots.Find(Pattern[I]) > -1 then
-      Order += Pattern[I];
-
-  Result := Self.ShiftDrop(Order);
-end;
-
-function TRSBankScreen.Count(Identifer: String): Int32; override;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Result := Length(ItemFinder.Find(Identifer, Self.FindItems()));
-end;
-
-function TRSBankScreen.CountStack(Identifer: String): Int32; override;
-var
-  Items: TBoxArray;
-  Matches: TIntegerArray;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Items := Self.FindItems();
-
-  Matches := ItemFinder.Find(Identifer, Items);
-  if Length(Matches) > 0 then
-    Result := SRL.GetItemAmount(Items[Matches[0]]);
-end;
-
-(*
-BankScreen.Deposit
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.Deposit(Items: TStringArray): Boolean;
-
-Deposits an array of items.
-``Items`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
-
-Example
--------
-
-  BankScreen.Deposit(['logs', 'lobster']);
-*)
-function TRSBankScreen.Deposit(Items: TStringArray): Boolean; override;
-var
-  Slot: Int32;
-begin
-  for Slot in Inventory.FindAll(Items) do
-    Result := Self.Deposit(Slot, BANK_DEPOSIT_ALL);
-end;
-
-(*
-BankScreen.DepositQuantity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean;
-
-Deposits the specified amount ``Amount`` of the item ``Item``.
-The quantity buttons are used for picking the amount.
-
-``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
-``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
-
-Example
--------
-
-  BankScreen.DepositQuantity('logs', 10); // Deposit 10 logs using using the `10` quantity button.
-  BankScreen.DepositQuantity('lobster', BANK_DEPOSIT_ALL); // Deposit all lobsters using inventory slot 1 using the `ALL` quantity button.
-*)
-function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean; override;
-var
-  Slot: Int32;
-begin
-  if not Self.IsOpen() then
-    Exit(False);
-
-  Slot := Inventory.Find(Item);
-  if (Slot = -1) then
-    Exit(True);
-
-  Result := Self.DepositQuantity(Slot, Amount)
-end;
-
-(*
-BankScreen.Deposit
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.Deposit(Item: String; Amount: Int32): Boolean;
-
-Deposits the specified amount ``Amount`` of the item ``Item``.
-The quantity buttons are used for picking the amount.
-
-``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
-``BANK_DEPOSIT_ALL`` constant can be used for ``Amount``.
-
-Example
--------
-
-  BankScreen.Deposit('lobster', 10); // Deposit 10 logs using the `10` quantity button.
-  BankScreen.Deposit('logs', BANK_DEPOSIT_ALL); // Deposit 10 logs using the `ALL` quantity button.
-*)
-function TRSBankScreen.Deposit(Item: String; Amount: Int32): Boolean; override;
-var
-  Slot: Int32;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Slot := Inventory.Find(Item);
-  if (Slot > -1) then
-    Result := Self.Deposit(Slot, Amount);
-end;
-
-function TRSBankScreen.Find(Item: String; out Bounds: TBox): Boolean; override;
-var
-  Slots: TBoxArray;
-  Matches: TIntegerArray;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  Slots := Self.FindItems();
-
-  Matches := ItemFinder.Find(Item, Slots);
-  if Result := Length(Matches) > 0 then
-    Bounds := Slots[Matches[0]];
-end;
-
-(*
-BankScreen.Withdraw
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.Withdraw(Item: String; Amount: Int32; Noted: Boolean): Boolean;
-
-Withdraws the specified amount ``Amount`` of the item ``Item``.
-
-``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
-``BANK_WITHDRAW_ALL`` and ``BANK_WITHDRAW_ALL_BUT_ONE`` constants can be used for ``Amount``.
-
-Example
--------
-
-  BankScreen.Withdraw('logs', 10, False); // Withdraw 10 logs
-  BankScreen.Withdraw('lobster', WITHDRAW_ALL, True); // Withdraw all lobsters as noted
-*)
-function TRSBankScreen.Withdraw(Item: String; Amount: Int32; Noted: Boolean): Boolean; override;
-var
-  Bounds: TBox;
-begin
-  if not Self.IsOpen() then
-    Exit;
-
-  if Self.Find(Item, Bounds) then
-    Result := Self._Withdraw(Bounds, Amount, Noted);
-end;
-
-(*
-BankScreen.WithdrawQuantity
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean;
-
-Withdraws the specified amount ``Amount`` of the item ``Item``.
-The quantity buttons are used for picking the amount.
-
-``Item`` can be either name or ID. An item list is available at ``Includes\SRL\osr\itemfinder\items``.
-``BANK_WITHDRAW_ALL`` constants can be used for ``Amount``.
-
-Example
--------
-
-  BankScreen.WithdrawQuantity('logs', 10, False); // Withdraw 10 logs using the `10` quantity button
-  BankScreen.Withdraw('lobster', 2, True); // Withdraw all lobsters as noted using the `X` quantity button
-*)
-function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean; override;
-var
-  Bounds: TBox;
-begin
-  if Self.Find(Item, Bounds) then
-    Result := Self._WithdrawQuantity(Bounds, Amount, Noted);
-end;
-}
 
 begin
   ItemFinder.Setup();

@@ -65,7 +65,7 @@ begin
     Result := Buttons[Button];
 end;
 
-function TRSEquipment.FindItem(Identifer: String; out Bounds: TBox): Boolean;
+function TRSEquipment.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
 var
   Boxes: TBoxArray;
   Slots: TIntegerArray;
@@ -75,20 +75,20 @@ begin
     
   Boxes := Self.GetButtons().ToBoxes();
   
-  Slots := ItemFinder.Find(Identifer, Boxes);
+  Slots := ItemFinder.Find(Item, Boxes, 1);
   if Length(Slots) > 0 then
   begin
-    Bounds := Boxes[Slots[0]];//}// CC BUG!
+    Bounds := Boxes[Slots[0]];
     
     Result := True;
   end;
 end;
 
-function TRSEquipment.ClickItem(Identifer: String; Option: String = ''): Boolean;
+function TRSEquipment.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
 var
   B: TBox;
 begin
-  if Self.FindItem(Identifer, B) then
+  if Self.FindItem(Item, B) then
   begin
     Mouse.Move(B);
 
@@ -103,11 +103,11 @@ begin
   end;
 end;
 
-function TRSEquipment.IsEquipped(Identifer: String): Boolean;
+function TRSEquipment.IsEquipped(Item: TRSItem): Boolean;
 var
   B: TBox;
 begin
-  Result := Self.FindItem(Identifer, B);
+  Result := Self.FindItem(Item, B);
 end;
 
 var
