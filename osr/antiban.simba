@@ -147,9 +147,10 @@ begin
   if (@Self.OnFinishSleep <> nil) then
     Self.OnFinishSleep(@Task);
 
+    {
   if InRange(CurrentPlayer, Low(Players), High(Players)) then
     Players[CurrentPlayer].Login();
-
+}
   // Offset all tasks & breaks
   for I := 0 to High(Self.Breaks) do
     Self.Breaks[I].NextAtTime += GetTickCount() - (Countdown.Timeout - Countdown.Length);
@@ -205,8 +206,8 @@ begin
   if (@Self.OnFinishBreak <> nil) then
     Self.OnFinishBreak(@Task);
 
-  if InRange(CurrentPlayer, Low(Players), High(Players)) then
-    Players[CurrentPlayer].Login();
+ // if InRange(CurrentPlayer, Low(Players), High(Players)) then
+ //   Players[CurrentPlayer].Login();
 
   // Offset all tasks & breaks
   for I := 0 to High(Self.Breaks) do

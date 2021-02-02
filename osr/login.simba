@@ -1,10 +1,43 @@
-{$DEFINE SRL_LOGINSCREEN_INCLUDED}
+(*
+Login
+=====
+
+Handles logging in players.
+
+Summary: 
+
+- Add players with `Login.AddPlayer`
+- Login the current player with `Login.LoginPlayer`
+- Switch to the next player with `Login.NextPlayer`
+
+Example
+-------
+
+  Login.AddPlayer('myusername', 'mypassword');
+  if not Login.LoginPlayer() then
+    TerminateScript('Failed to login!');
+*)
+
+{$DEFINE SRL_LOGIN_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
 
 type
-  TRSLoginScreen = type TRSInterface;
+  TRSLoginPlayer = record
+    User: String;
+    Password: String;
+    Pin: String; 
+    Worlds: TIntegerArray;
+    Active: Boolean;
+  end;
+
+  TRSLogin = record(TRSInterface)
+    Players: array of TRSLoginPlayer;
+    PlayerIndex: Int32;
+    
+    AllowDangerousWorlds: Boolean;
+  end;
 
 const
   LOGIN_MESSAGE_NONE = '';
@@ -44,30 +77,34 @@ const
   LOGIN_DIALOG_OK = 'Ok';
   LOGIN_DIALOG_TRY_AGAIN = 'Try again';
   LOGIN_DIALOG_EXISTING_USER = 'Existing User';
+  LOGIN_DIALOG_CONTINUE = 'Continue';
   
   LOGIN_DIALOGS = [
     LOGIN_DIALOG_OK,
     LOGIN_DIALOG_TRY_AGAIN,
     LOGIN_DIALOG_EXISTING_USER
   ];
+  
+  LOGIN_DIALOGS_DANGEROUS = [
+    LOGIN_DIALOG_CONTINUE
+  ];
 
-function TRSLoginScreen.FindText(Text: String; out B: TBox): Boolean; overload;
+function TRSLogin.FindText(Text: String; out B: TBox): Boolean; overload;
 begin
-  Result := (FindTextColor(Text, RS_FONT_BOLD_12,  $000000, 0, Self.Bounds, B) = 1) or
-            (FindTextColor(Text, RS_FONT_BOLD_12,  $FFFFFF, 0, Self.Bounds, B) = 1) or
+  Result := (FindTextColor(Text, RS_FONT_BOLD_12,  $FFFFFF, 0, Self.Bounds, B) = 1) or
             (FindTextColor(Text, RS_FONT_BOLD_12,  $00FFFF, 0, Self.Bounds, B) = 1) or
             (FindTextColor(Text, RS_FONT_PLAIN_12, $FFFFFF, 0, Self.Bounds, B) = 1) or
             (FindTextColor(Text, RS_FONT_PLAIN_11, $FFFFFF, 0, Self.Bounds, B) = 1);
 end;
 
-function TRSLoginScreen.FindText(Text: String): Boolean; overload;
+function TRSLogin.FindText(Text: String): Boolean; overload;
 var
   _: TBox;
 begin
   Result := FindText(Text, _);
 end;  
 
-function TRSLoginScreen.ClickText(Text: String): Boolean;
+function TRSLogin.ClickText(Text: String): Boolean;
 var
   B: TBox;
 begin
@@ -76,27 +113,47 @@ begin
     Mouse.Click(B, MOUSE_LEFT);
 end;
 
-function TRSLoginScreen.IsOpen: Boolean;
+function TRSLogin.ClickWorld(World: Int32): Boolean;
+var
+  B: TBox;
+begin
+  Result := FindTextColor(ToString(World), RS_FONT_BOLD_12, $000000, 0, Self.Bounds, B) = 1;
+  
+  if Result then 
+  begin
+    if (not Self.AllowDangerousWorlds) then
+    begin
+      // normal free(silver) or members(gold) world
+      if (SRL.CountColor(CTS1(4089471, 20), B) = 0) and
+         (SRL.CountColor(CTS1(8421504, 25), B) = 0) then
+        Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(World) + ')');
+    end;
+    
+    Mouse.Click(B, MOUSE_LEFT);
+  end;
+end;
+
+function TRSLogin.IsOpen: Boolean;
 begin
   Result := Self.FindText('Click to switch');
 end;
 
-function TRSLoginScreen.IsWorldSwitcherOpen: Boolean;
+function TRSLogin.IsWorldSwitcherOpen: Boolean;
 begin
   Result := Self.FindText('Cancel');
 end;
 
-function TRSLoginScreen.OpenWorldSwitcher: Boolean;
+function TRSLogin.OpenWorldSwitcher: Boolean;
 begin
   Result := ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000); 
 end;
 
-function TRSLoginScreen.CloseWorldSwitcher: Boolean;
+function TRSLogin.CloseWorldSwitcher: Boolean;
 begin
   Result := Self.IsOpen() or (Self.ClickText('Cancel') and WaitUntil(Self.IsOpen(), 100, 1000));
 end;
 
-function TRSLoginScreen.GetCurrentWorld: Int32;
+function TRSLogin.GetCurrentWorld: Int32;
 var
   B: TBox;
 begin
@@ -104,11 +161,11 @@ begin
   begin
     B.Y1 -= 25;
     
-    Result := OCR.RecognizeNumber(B, [$FFFFFF], RS_FONTSET_BOLD_12); // ADD: RecognizeInt
+    Result := OCR.RecognizeNumber(B, [$FFFFFF], RS_FONTSET_BOLD_12);
   end;
 end;
 
-function TRSLoginScreen.SwitchToWorld(World: Int32): Boolean;
+function TRSLogin.SwitchToWorld(World: Int32): Boolean;
 begin
   if Self.GetCurrentWorld() = World then
     Exit(True);
@@ -117,7 +174,7 @@ begin
   begin
     for 1 to 3 do // Three pages of worlds
     begin
-      if Self.ClickText(ToString(World)) then
+      if Self.ClickWorld(World) then
       begin
         Result := Self.GetCurrentWorld() = World;
         Exit;
@@ -130,16 +187,27 @@ begin
   end;
 end;
 
-procedure TRSLoginScreen.HandleDialogs;
+function TRSLogin.HandleDialogs: Boolean;
 var
-  I: Int32;
+  Dialog: String;
 begin
-  for I := 0 to High(LOGIN_DIALOGS) do
-    if Self.ClickText(' ' + LOGIN_DIALOGS[I] + ' ') then
-      Exit;
+  for Dialog in LOGIN_DIALOGS do
+    if Self.ClickText(' ' + Dialog + ' ') then
+      Exit(True);
+    
+  for Dialog in LOGIN_DIALOGS_DANGEROUS do
+    case Self.AllowDangerousWorlds of
+      True:
+        if Self.ClickText(' ' + Dialog + ' ') then
+          Exit(True);
+          
+      False: 
+        if Self.FindText(' ' + Dialog + ' ') then
+          Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(Self.GetCurrentWorld()) + ')');  
+    end;
 end;
 
-function TRSLoginScreen.EnterField(Field, Details: String): Boolean;
+function TRSLogin.EnterField(Field, Details: String): Boolean;
 var
   B: TBox;
 begin
@@ -171,7 +239,7 @@ begin
   end;
 end;
 
-function TRSLoginScreen.GetLoginMessage: String;
+function TRSLogin.GetLoginMessage: String;
 var
   I: Int32;
 begin
@@ -186,7 +254,7 @@ begin
     end;
 end;
 
-function TRSLoginScreen.HandleMessage(Message: String): Boolean;
+function TRSLogin.HandleMessage(Message: String): Boolean;
 begin
   Self.Debug('Handling login message: ' + Message);
 
@@ -224,46 +292,119 @@ begin
   end;
 end;
 
-function TRSLoginScreen.Login(User, Password: String): Boolean;
+function TRSLogin.EnterGame: Boolean;
+var
+  T: UInt64;
+begin
+  T := GetTickCount() + 2500;
+  while (T > GetTickCount()) do
+  begin
+    if Self.ClickText('CLICK HERE TO PLAY') then
+      Break;
+      
+    Wait(100);
+  end;
+  
+  Result := RSClient.IsLoggedIn(5000);
+end;
+
+function TRSLogin.GetPlayer: TRSLoginPlayer;
+begin
+  if Self.Players = [] then
+    Self.Fatal('No players declared');
+  if not InRange(Self.PlayerIndex, Low(Self.Players), High(Self.Players)) then
+    Self.Fatal('Player is out of range');
+
+  Result := Self.Players[Self.PlayerIndex];
+end;
+
+function TRSLogin.LoginPlayer: Boolean;
 var
   Message: String;
-  Attempts: Int32;
+  Attempts, World: Int32;
+  Player: TRSLoginPlayer;
 begin
   Self.Debug('Logging in player');
 
-  if (User = '') or (Password = '') then
+  Player := Self.GetPlayer();
+  if (Player.User = '') or (Player.Password = '') then
     Self.Fatal('Player has no username or password');
 
   while Self.IsOpen() and (Attempts < 10) do
   begin
-    Self.Debug('Attempt: ' + ToString(Attempts));
-
-    Self.HandleDialogs();
-    Self.EnterField('Login:', User);
-    Self.EnterField('Password:', Password);
+    Self.Debug('Attempt ' + ToString(Attempts + 1));
     
-    Keyboard.PressKey(VK_ENTER);
-
-    while Self.IsOpen() and (Self.GetLoginMessage() in [LOGIN_MESSAGE_CONNECTING, LOGIN_MESSAGE_NONE]) do
+    if (Player.Worlds <> []) and (not (Self.GetCurrentWorld() in Player.Worlds)) then
+    begin
+      World := Player.Worlds[Random(Length(Player.Worlds))];
+      if (not Self.SwitchToWorld(World)) then
+        Exit;
+    end;
+    
+    if Self.HandleDialogs() then
       Wait(500);
 
-    if Self.IsOpen() then
+    if Self.EnterField('Login:', Player.User) and
+       Self.EnterField('Password:', Player.Password) then
     begin
-      Message := Self.GetLoginMessage();
-      if not Self.HandleMessage(Message) then
-        Exit(False);
+      Keyboard.PressKey(VK_ENTER);
+  
+      while Self.IsOpen() and (Self.GetLoginMessage() in [LOGIN_MESSAGE_CONNECTING, LOGIN_MESSAGE_NONE]) do
+        Wait(500);
+  
+      if Self.IsOpen() then
+      begin
+        Message := Self.GetLoginMessage();
+        if not Self.HandleMessage(Message) then
+          Exit(False);
+      end;
     end;
-
+    
     Inc(Attempts);
   end;
 
-  if LobbyScreen.IsOpen(3000) then
-    LobbyScreen.EnterGame();
-
-  Result := RSClient.IsLoggedIn();
+  Result := Self.EnterGame();
 end;
 
-procedure TRSLoginScreen.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSLogin.AddPlayer(User, Pass: String; Pin: String = ''; Worlds: TIntegerArray = []);
+begin
+  Self.Players += [User, Pass, Pin, Worlds, True];
+end;
+
+procedure TRSLogin.NextPlayer(DisableCurrentPlayer: Boolean);
+  
+  function Next: Int32;
+  var
+    I: Int32;
+  begin
+    Result := -1;
+    
+    for I := Self.PlayerIndex + 1 to High(Self.Players) do
+      if Self.Players[I].Active then
+        Exit(I);
+    for I := 0 to Self.PlayerIndex - 1 do // wrap around
+      if Self.Players[I].Active then
+        Exit(I);    
+  end;
+  
+begin
+  Self.Players[Self.PlayerIndex].Active := not DisableCurrentPlayer;
+  
+  Self.PlayerIndex := Next();
+  if (Self.PlayerIndex = -1) then
+    Self.Fatal('No other active players to switch to');
+end;
+
+function TRSLogin.GetPlayerPin: String;
+var
+  Player: TRSLoginPlayer;
+begin
+  Player := Self.GetPlayer();
+  if (Length(Player.Pin) <> 4) or (not Player.Pin.IsDigit()) then
+    Self.Fatal('Invalid bank pin'); 
+end;
+
+procedure TRSLogin.Debug(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -271,14 +412,14 @@ begin
   inherited;
 end;
 
-procedure TRSLoginScreen.Setup; override;
+procedure TRSLogin.Setup; override;
 begin
   inherited;
 
-  Self.Name := 'Login Screen';
+  Self.Name := 'Login';
 end;
 
-procedure TRSLoginScreen.Setup(Mode: ERSClientMode); overload;
+procedure TRSLogin.Setup(Mode: ERSClientMode); overload;
 begin
   Self.Mode := Mode;
 
@@ -290,25 +431,25 @@ begin
 end;
 
 var
-  LoginScreen: TRSLoginScreen;
+  Login: TRSLogin;
 
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  LoginScreen.Setup(Self.Mode);
+  Login.Setup(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
 begin
   inherited;
 
-  LoginScreen.Setup();
+  Login.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  LoginScreen.Debug(Bitmap);
+  Login.Debug(Bitmap);
 end;

@@ -56,8 +56,7 @@ end;
 {$IFNDEF SRL_ROOT_INTERFACE_INCLUDED}  {$I osr/rootinterface.simba}
 {$IFNDEF SRL_CHATBUTTONS_INCLUDED}     {$I osr/chatbuttons.simba}
 {$IFNDEF SRL_MISC_INCLUDED}            {$I osr/misc.simba}
-{$IFNDEF SRL_LOBBYSCREEN_INCLUDED}     {$I osr/lobbyscreen.simba}
-{$IFNDEF SRL_LOGINSCREEN_INCLUDED}     {$I osr/loginscreen.simba}
+{$IFNDEF SRL_LOGIN_INCLUDED}           {$I osr/login.simba}
 {$IFNDEF SRL_CHOOSEOPTION_INCLUDED}    {$I osr/chooseoption.simba}
 {$IFNDEF SRL_CHATBOX_INCLUDED}         {$I osr/chatbox.simba}
 {$IFNDEF SRL_GAMETABS_INCLUDED}        {$I osr/gametabs.simba}
@@ -71,7 +70,6 @@ end;
 {$IFNDEF SRL_MM2MS_INCLUDED}           {$I osr/mm2ms.simba}
 {$IFNDEF SRL_XPBAR_INCLUDED}           {$I osr/xpbar.simba}
 {$IFNDEF SRL_INVENTORY_INCLUDED}       {$I osr/inventory.simba}
-{$IFNDEF SRL_PLAYER_INCLUDED}          {$I osr/player.simba}
 {$IFNDEF SRL_BANKSCREEN_INCLUDED}      {$I osr/bankscreen.simba}
 {$IFNDEF SRL_PINSCREEN_INCLUDED}       {$I osr/pinscreen.simba}
 {$IFNDEF SRL_GRANDEXCHANGE_INCLUDED}   {$I osr/grandexchange.simba}
@@ -85,8 +83,6 @@ end;
 
 {$SCOPEDENUMS OFF}
 
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}

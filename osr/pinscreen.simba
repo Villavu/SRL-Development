@@ -79,11 +79,6 @@ begin
   end;
 end;
 
-function TRSPinScreen.ValidatePin(Pin: String): Boolean;
-begin
-  Result := (Length(Pin) = 4) and Pin.IsDigit();
-end;
-
 function TRSPinScreen.Enter(Pin: String): Boolean;
 var
   I: Int32;
@@ -135,23 +130,11 @@ var
   PinScreen: TRSPinScreen;
 
 function TRSBankScreen.IsOpen(WaitForItems: Boolean = True): Boolean; override;
-var
-  Pin: String;
 begin
-  if PinScreen.IsOpen() then
-  begin
-    if (Length(Players) = 0) then
-      Self.Fatal('Cannot enter bank pin: No players are declared!');
+  if PinScreen.IsOpen() and (not PinScreen.Enter(Login.GetPlayerPin())) then
+    Self.Fatal('Failed to enter bank pin');
 
-    Pin := Players[CurrentPlayer].Pin;
-    if not PinScreen.ValidatePin(Pin) then
-      Self.Fatal('Invalid bank pin: ' + Pin);
-
-    if not PinScreen.Enter(Pin) then
-      Self.Fatal('Failed to enter bank pin');
-  end;
-
-  Result := inherited();
+  Result := inherited(WaitForItems);
 end;
 
 procedure TRSClient.ClientModeChanged; override;
