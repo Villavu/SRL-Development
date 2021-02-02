@@ -132,7 +132,7 @@ var
   TPA: TPointArray;
   P: TPoint;
 begin
-  if BankScreen.IsOpen() or BankScreen.Open(Mouse.Position()) then
+  if Bank.IsOpen() or Bank.Open(Mouse.Position()) then
     Exit(True);
 
   ATPA := Self.FindNPC(Self.FINDER_BANKER);
@@ -145,7 +145,7 @@ begin
     P.X += Random(-2, 2);
     P.Y += Random(-2, 2);
     
-    if BankScreen.Open(P) then
+    if Bank.Open(P) then
       Exit(True);
   end;
 end;
@@ -241,7 +241,7 @@ BankScreen.Open
 
 Overrides **BankScreen.Open** to support opening the grand exchange.
 *)
-function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; override;
+function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
 begin
   if (Location = ERSBankLocation.GRAND_EXCHANGE) then
     Result := GrandExchange.OpenBank()

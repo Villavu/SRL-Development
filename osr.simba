@@ -69,8 +69,8 @@ end;
 {$IFNDEF SRL_MM2MS_INCLUDED}           {$I osr/mm2ms.simba}
 {$IFNDEF SRL_XPBAR_INCLUDED}           {$I osr/xpbar.simba}
 {$IFNDEF SRL_INVENTORY_INCLUDED}       {$I osr/inventory.simba}
-{$IFNDEF SRL_BANKSCREEN_INCLUDED}      {$I osr/bankscreen.simba}
-{$IFNDEF SRL_PINSCREEN_INCLUDED}       {$I osr/pinscreen.simba}
+{$IFNDEF SRL_BANK_INCLUDED}            {$I osr/bank.simba}
+{$IFNDEF SRL_BANKPIN_INCLUDED}         {$I osr/bankpin.simba}
 {$IFNDEF SRL_GRANDEXCHANGE_INCLUDED}   {$I osr/grandexchange.simba}
 {$IFNDEF SRL_DEPOSITSCREEN_INCLUDED}   {$I osr/depositscreen.simba}
 {$IFNDEF SRL_WALKER_INCLUDED}          {$I osr/walker/walker.simba}
