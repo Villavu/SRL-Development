@@ -396,11 +396,9 @@ begin
 end;
 
 function TRSLogin.GetPlayerPin: String;
-var
-  Player: TRSLoginPlayer;
 begin
-  Player := Self.GetPlayer();
-  if (Length(Player.Pin) <> 4) or (not Player.Pin.IsDigit()) then
+  Result := Self.GetPlayer.Pin;
+  if (Length(Result) <> 4) or (not Result.IsDigit()) then
     Self.Fatal('Invalid bank pin'); 
 end;
 

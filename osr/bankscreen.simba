@@ -69,12 +69,12 @@ type
     FINDER_OPTION: TStringArray;
   end;
 
-function TRSBankScreen.GetSlotBoxes: TBoxArray; constref;
+function TRSBankScreen.GetSlotBoxes: TBoxArray; 
 begin
   Result := Grid(8, (Self.Height() - 135) div 35, 31, 31, [17, 5], [Self.X1 + 57, Self.Y1 + 77]);
 end;
 
-function TRSBankScreen.GetTabBoxes: TBoxArray; constref;
+function TRSBankScreen.GetTabBoxes: TBoxArray;
 begin
   Result := Grid(10, 1, 36, 30, [4, 0], [Self.X1 + 46, Self.Y1 + 42]);
 end;
@@ -259,8 +259,6 @@ Example
   BankScreen.Search('logs'); // Search for logs
 *)
 function TRSBankScreen.Search(Item: String): Boolean; 
-var
-  Button: TRSButton;
 begin
   if Self.IsTitle('Showing items: ' + LowerCase(Item)) then
     Exit(True);
@@ -276,9 +274,9 @@ begin
   Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Disable();
 end;
 
-function TRSBankScreen.FindItemBoundaries: TBoxArray; constref;
+function TRSBankScreen.FindItemBoundaries: TBoxArray; 
 var
-  TPA, Row, Column: TPointArray;
+  TPA, Row: TPointArray;
   Rows, Columns: T2DPointArray;
 begin
   if SRL.FindColors(TPA, CTS2(3358280, 1, 0.80, 0.41), Self.GetSlotBoxes().Merge()) > 0 then // background

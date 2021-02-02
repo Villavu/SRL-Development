@@ -8,11 +8,21 @@ type
     Method: function: Int32 of object;
     Offset: Int32;
   end;
-
+  
   TRSInterface = record(TSRLBaseRecord)
     Mode: ERSClientMode;
     
     ButtonColors: array of TCTS1Color;
+    
+    Cache: record
+      Enabled: Boolean;
+    
+      X1, Y1, X2, Y2: record
+        Mode: ERSClientMode;
+        ClientWidth, ClientHeight: Int32;
+        Value: Int32;
+      end;
+    end;
     
     Alignment: record
       Left, Right, Top, Bottom: TRSInterfaceAlignment;
@@ -28,15 +38,28 @@ procedure TRSInterface.Setup;
 begin
   Self.Name := 'UNNAMED';
   Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20)];
+  Self.Cache.X1 := [ERSClientMode.UNKNOWN, -1, -1, -1];
+  Self.Cache.Y1 := [ERSClientMode.UNKNOWN, -1, -1, -1];
+  Self.Cache.X2 := [ERSClientMode.UNKNOWN, -1, -1, -1];
+  Self.Cache.Y2 := [ERSClientMode.UNKNOWN, -1, -1, -1];
+  Self.Cache.Enabled := True;
 end;
   
-function TRSInterface.X1: Int32; constref;
+function TRSInterface.X1: Int32;
 var
   Left, Right, Width, Center: Single;
+  ClientWidth, ClientHeight: Int32;
 begin
+  if Self.Cache.Enabled then
+  begin
+    GetClientDimensions(ClientWidth, ClientHeight);
+    if (Self.Cache.X1.Mode = Self.Mode) and (Self.Cache.X1.ClientWidth = ClientWidth) and (Self.Cache.X1.ClientHeight = ClientHeight) then
+      Exit(Self.Cache.X1.Value);
+  end;
+  
   if (@Self.Alignment.Left.Method = nil) then
     Self.Fatal('No left anchor');
-
+    
   if (Self.Alignment.Center.MaxWidth > 0) then
   begin
     Left := Self.Alignment.Left.Method() + Self.Alignment.Left.Offset;
@@ -50,13 +73,24 @@ begin
       Floor(Center - ((Self.Alignment.Center.MaxWidth - 1) / 2))
     );
   end else
-    Result := Round(Self.Alignment.Left.Method() + Self.Alignment.Left.Offset)
+    Result := Round(Self.Alignment.Left.Method() + Self.Alignment.Left.Offset);
+    
+  if Self.Cache.Enabled then
+    Self.Cache.X1 := [Self.Mode, ClientWidth, ClientHeight, Result];
 end;
 
-function TRSInterface.X2: Int32; constref;
+function TRSInterface.X2: Int32;
 var
   Left, Right, Width, Center: Single;
+  ClientWidth, ClientHeight: Int32;
 begin
+  if Self.Cache.Enabled then
+  begin
+    GetClientDimensions(ClientWidth, ClientHeight);
+    if (Self.Cache.X2.Mode = Self.Mode) and (Self.Cache.X2.ClientWidth = ClientWidth) and (Self.Cache.X2.ClientHeight = ClientHeight) then
+      Exit(Self.Cache.X2.Value);
+  end;
+    
   if (@Self.Alignment.Right.Method = nil) then
     Self.Fatal('No right anchor');
  
@@ -74,12 +108,23 @@ begin
     );
   end else
     Result := Round(Self.Alignment.Right.Method() + Self.Alignment.Right.Offset);
+  
+  if Self.Cache.Enabled then  
+    Self.Cache.X2 := [Self.Mode, ClientWidth, ClientHeight, Result];
 end;
 
-function TRSInterface.Y1: Int32; constref;
+function TRSInterface.Y1: Int32;
 var
   Top, Bottom, Height, Center: Single;
+  ClientWidth, ClientHeight: Int32;
 begin
+  if Self.Cache.Enabled then
+  begin
+    GetClientDimensions(ClientWidth, ClientHeight);
+    if (Self.Cache.Y1.Mode = Self.Mode) and (Self.Cache.Y1.ClientWidth = ClientWidth) and (Self.Cache.Y1.ClientHeight = ClientHeight) then
+      Exit(Self.Cache.Y1.Value);
+  end;
+   
   if (@Self.Alignment.Top.Method = nil) then
     Self.Fatal('No top anchor');
 
@@ -97,12 +142,23 @@ begin
     );
   end else
     Result := Round(Self.Alignment.Top.Method() + Self.Alignment.Top.Offset);
+   
+  if Self.Cache.Enabled then  
+    Self.Cache.Y1 := [Self.Mode, ClientWidth, ClientHeight, Result];
 end;
 
-function TRSInterface.Y2: Int32; constref;
+function TRSInterface.Y2: Int32;
 var
   Top, Bottom, Height, Center: Single;
+  ClientWidth, ClientHeight: Int32;
 begin
+  if Self.Cache.Enabled then
+  begin
+    GetClientDimensions(ClientWidth, ClientHeight);
+    if (Self.Cache.Y2.Mode = Self.Mode) and (Self.Cache.Y2.ClientWidth = ClientWidth) and (Self.Cache.Y2.ClientHeight = ClientHeight) then
+      Exit(Self.Cache.Y2.Value);
+  end;
+    
   if (@Self.Alignment.Bottom.Method = nil) then
     Self.Fatal('No bottom anchor');
 
@@ -120,24 +176,27 @@ begin
     );
   end else
     Result := Round(Self.Alignment.Bottom.Method() + Self.Alignment.Bottom.Offset);
+   
+  if Self.Cache.Enabled then  
+    Self.Cache.Y2 := [Self.Mode, ClientWidth, ClientHeight, Result];
 end;
 
-function TRSInterface.Bounds: TBox; constref;
+function TRSInterface.Bounds: TBox; 
 begin
   Result := [Self.X1, Self.Y1, Self.X2, Self.Y2];
 end;
 
-function TRSInterface.Width: Int32; constref;
+function TRSInterface.Width: Int32; 
 begin
   Result := Bounds.Width;
 end;
 
-function TRSInterface.Height: Int32; constref;
+function TRSInterface.Height: Int32; 
 begin
   Result := Bounds.Height;
 end;
 
-function TRSInterface.Center: TPoint; constref;
+function TRSInterface.Center: TPoint; 
 begin
   Result := Self.Bounds().Middle;
 end;
@@ -145,6 +204,48 @@ end;
 procedure TRSInterface.Debug(Bitmap: TMufasaBitmap); overload;
 begin
   Bitmap.DrawBox(Self.Bounds(), $00FFFF);
+end;
+
+type
+  TRSRootInterface = type TRSInterface;
+
+function TRSRootInterface.X1: Int32; override;
+begin
+  Result := 0;
+end;
+
+function TRSRootInterface.Y1: Int32; override;
+begin
+  Result := 0;
+end;
+
+function TRSRootInterface.X2: Int32; override;
+var
+  ClientWidth, ClientHeight: Int32;
+begin
+  GetClientDimensions(ClientWidth, ClientHeight);
+
+  Result := ClientWidth - 1;
+end;
+
+function TRSRootInterface.Y2: Int32; override;
+var
+  ClientWidth, ClientHeight: Int32;
+begin
+  GetClientDimensions(ClientWidth, ClientHeight);
+
+  Result := ClientHeight - 1;
+end;
+
+var
+  RootInterface: TRSRootInterface;
+
+begin
+  RootInterface.Name := 'Root Interface';
+  RootInterface.Alignment.Left := [@RootInterface.X1];
+  RootInterface.Alignment.Top := [@RootInterface.Y1];
+  RootInterface.Alignment.Right := [@RootInterface.X2];
+  RootInterface.Alignment.Bottom := [@RootInterface.Y2];
 end;
 
 type

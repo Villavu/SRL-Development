@@ -32,7 +32,7 @@ end;
 }
 
 // Needed because depending on the client width the tabs stack into row(s)
-function TRSGameTabs.Y1: Int32; constref; override;
+function TRSGameTabs.Y1: Int32; override;
 begin
   Result := inherited;
 
@@ -41,14 +41,14 @@ begin
 end;
 
 {
-function TRSGameTabs.X2: Int32; constref; override;
+function TRSGameTabs.X2: Int32; override;
 begin
   Result := inherited;
 end;
 }
 
 // Needed because depending on the client width the tabs stack into row(s)
-function TRSGameTabs.Y2: Int32; constref; override;
+function TRSGameTabs.Y2: Int32; override;
 begin
   Result := inherited;
 
@@ -74,7 +74,7 @@ begin
           Result := Grid(14, 1, 30, 33, [3, 0], [Self.X1 - 197, Self.Y2 - 70]);
 
           for I := Ord(ERSGameTab.MUSIC) downto Ord(ERSGameTab.FRIENDS) do
-            Result[I] := Result[I-1];
+            Result[I-1] := Result[I-1];
         end else
         // Two rows
           Result := Grid(7, 2, 30, 33, [3, 3], [Self.X1, Self.Y2 - 70]);

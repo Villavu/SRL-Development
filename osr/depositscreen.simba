@@ -67,7 +67,7 @@ begin
     Result := Buttons[Button];
 end;
 
-function TRSDepositScreen.GetSlotBoxes: TBoxArray; constref;
+function TRSDepositScreen.GetSlotBoxes: TBoxArray; 
 begin
   Result := Grid(7, 4, 31, 31, [25, 17], [Self.X1 + 38, Self.Y1 + 42]);
 end;
