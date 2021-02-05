@@ -79,7 +79,9 @@ end;
 {$IFNDEF SRL_COMBAT_INCLUDED}          {$I osr/combat.simba}
 {$IFNDEF SRL_MAGIC_INCLUDED}           {$I osr/magic.simba}
 {$IFNDEF SRL_SMITHCREEN_INCLUDED}      {$I osr/smithscreen.simba}
+{$IFNDEF SRL_PRAYER_INCLUDED}          {$I osr/prayer.simba}
 
+{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
