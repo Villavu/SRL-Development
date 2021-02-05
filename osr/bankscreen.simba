@@ -84,13 +84,13 @@ type
     FINDER_OPTION: TStringArray;
   end;
 
-function TRSBankScreen.GetSlotBoxes: TBoxArray; constref;
-var
-  Rows: Int32;
+//Gets the whole area of the item slots. This should probably named differently.
+function TRSBankScreen.GetSlotsArea: TBox; constref;
 begin
-  Rows := (Self.Height() - 120) div 35;
-
-  Result := Grid(8, Rows, 31, 31, [17, 5], [Self.X1 + 57, Self.Y1 + 77]);
+  Result.X1 := Self.X1 + 57;
+  Result.Y1 := Self.Y1 + 77;
+  Result.X2 := Self.Width - 48;
+  Result.Y2 := Self.Height - 37;
 end;
 
 function TRSBankScreen.GetTabBoxes: TBoxArray; constref;
@@ -118,6 +118,115 @@ begin
   Box.Y1 := Box.Y2 - 15;  //down arrow
   Result += Box;
 end;
+
+//Splits the slot area according to the tabs divider lines
+function TRSBankScreen.GetTabAreas: TBoxArray;
+var
+  Spacer: Int32;
+  TPA: TPointArray;
+  Box, Tab, TabDivider: TBox;
+begin
+  Box := Self.GetSlotsArea;
+
+  while True do
+  begin
+    Tab.Y1 := Box.Y1;
+    Tab.X1 := Box.X1;
+    Tab.X2 := Box.X2;
+    if Box.Y1>Box.Y2 then
+      Exit(Result);
+
+    if SRL.FindColors(TPA, CTS2(2832191, 1, 0.48, 1.53), Box) > 0 then
+    begin
+      TabDivider := TPA.Bounds;
+      Tab.Y2 := TabDivider.Y1 - 1;
+      Result += Tab;
+      Box.Y1 := TabDivider.Y1 + 7;
+    end
+    else
+    begin
+      Tab.Y2 := Box.Y2;
+      Result += Tab;
+      Exit(Result);
+    end;
+  end;
+end;
+
+(*
+BankScreen.GetSlotBoxesFromTab
+~~~~~~~~~~~~~~~~~~~
+
+Gets the slot boxes independently of the scroll position
+within a tab area (BankScreen.GetTabAreas).
+
+For the top most "Tab area" the slots are aligned with their amount text.
+(See SRL.GetItemAmount(Area: TBox)) to see what I mean).
+
+If the top most "Tab area" has several rows of items with 1 quantity,
+the function might break and fail to detect the top rows.
+I added failsafes for up to 3 rows, more than that won't work properly,
+though it's not likely in a real scenario IMO.
+
+*)
+function TRSBankScreen.GetSlotBoxesFromTab(Tab: TBox): TBoxArray;
+const
+  TEXT_COLORS: TIntegerArray = [$00FFFF, $00FEFE, $FFFFFF, $80FF00]; // Million = white | Billion = green etc.
+var
+  i, Rows: Int32;
+  TPA, ColorTPA: TPointArray;
+  ATPA: T2DPointArray;
+  Box, NumberBoxes: TBox;
+  BoxArray: TBoxArray;
+begin
+
+    Box := Self.GetSlotsArea;
+    if (Tab.Y1 = Box.Y1) and (Tab.Y1 <= Tab.Y2) then // Check if Tab is the top most.
+    begin
+      for i := 0 to High(TEXT_COLORS) do
+      begin
+        if SRL.FindColors(TPA,  CTS0(TEXT_COLORS[i]), Tab) > 0 then  // Look for amount text and stores them in ColorTPA
+          ColorTPA += TPA;
+      end;
+
+
+      if ColorTPA <> [] then
+      begin
+        ATPA := ColorTPA.Cluster(1000, 5);              // Splits the ColorTPA into rows
+        BoxArray := ATPA.ToTBA;
+        NumberBoxes := BoxArray[0];                     // Gets the top most "row of amounts"
+        if (NumberBoxes.Y2 - NumberBoxes.Y1) < 7 then   // checks if the top most "row of amounts" if fully visible (7 pixels height).
+          Tab.Y1 := NumberBoxes.Y2 + 28                 // if it's not, ignores this row.
+
+        else if (NumberBoxes.Y1 - Tab.Y1) < 36 then     // Failsafe for 1 full row without any amount numbers.
+          Tab.Y1 := NumberBoxes.Y1
+
+        else if (NumberBoxes.Y1 - Tab.Y1) < 72 then     // Failsafe for 2 full rows without any amount numbers.
+          Tab.Y1 := NumberBoxes.Y1 - 36
+
+        else if (NumberBoxes.Y1 - Tab.Y1) < 108 then    // Failsafe for 3 full rows without any amount numbers.
+          Tab.Y1 := NumberBoxes.Y1 - 72;                // This is probably not the best way to do it,
+                                                        // rechecking several times but I'm sure Olly will teach me something after seeing this.
+      end;
+    end;
+
+    Rows := (Tab.Y2 - Tab.Y1) div 35;
+    Result := Grid(8, Rows, 31, 31, [17, 5], [Tab.X1, Tab.Y1]);
+end;
+
+
+//Gets the slot boxes taking into account the tab divider lines.
+function TRSBankScreen.GetSlotBoxes: TBoxArray;
+var
+  Box: TBox;
+  BoxArray: TBoxArray;
+begin
+  BoxArray := Self.GetTabAreas;
+
+  for Box in BoxArray do
+    Result += Self.GetSlotBoxesFromTab(Box);
+end;
+
+
 (*
 BankScreen.IsOpen
 ~~~~~~~~~~~~~~~~~
@@ -152,8 +261,13 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(GetTabBoxes(), False, $00FFFF);
-  Bitmap.DrawBoxes(GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetTabBoxes(), False, $00FFFF);
+
+  // I have this next one off and in a different color because
+  // it's trippy as hell to have everything on.
+
+  //Bitmap.DrawBoxes(Self.GetTabAreas(), False, $FFFFFF);
+  Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
   Bitmap.DrawBoxes(Self.GetScrollBoxes(), False, $00FFFF);
   Bitmap.DrawBox(Self.GetScrollSlider(), False, $00FFFF);
 end;
@@ -333,8 +447,9 @@ var
   Row: TPointArray;
   Rows: T2DPointArray;
   B: TBox;
+  BA: TBoxArray;
 begin
-  if SRL.FindColors(TPA, CTS2(3358280, 1, 0.80, 0.41), Self.GetSlotBoxes().Merge()) > 0 then
+  if SRL.FindColors(TPA, CTS2(3358280, 1, 0.80, 0.41), Self.GetSlotsArea) > 0 then
   begin
     TPA := TPA.Invert();
 
