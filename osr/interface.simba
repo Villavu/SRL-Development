@@ -201,6 +201,34 @@ begin
   Result := Self.Bounds().Middle;
 end;
 
+function TRSInterface.GetTitle: String;
+var
+  B: TBox;
+  Filter: TCompareRules;
+begin
+  B := Self.Bounds;
+  B.X1 += 50;
+  B.Y1 += 10;
+  B.X2 -= 50;
+  B.Y2 := B.Y1 + 15;
+  B.LimitTo(Self.Bounds);
+
+  Filter.Threshold := True;
+  Filter.ThresholdAmount := 15;
+
+  Result := OCR.Recognize(B, Filter, RS_FONT_BOLD_12);
+end;
+
+function TRSInterface.IsTitle(Text: String): Boolean; overload;
+begin
+  Result := Text in Self.GetTitle();
+end;
+
+function TRSInterface.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
+begin
+  Result := WaitUntil(Self.IsTitle(Text), 100, WaitTime);
+end;
+
 procedure TRSInterface.Debug(Bitmap: TMufasaBitmap); overload;
 begin
   Bitmap.DrawBox(Self.Bounds(), $00FFFF);
@@ -277,20 +305,22 @@ begin
 
   for TPA in ATPA do
   begin
-    if Length(TPA) < 25 then
+    if Length(TPA) < 50 then
       Continue;
       
     B := TPA.Bounds();
     B.GetDimensions(W, H);
 
     for I := 0 to High(Dimensions) do
-      if (W = Dimensions[I].Width) and (H = Dimensions[I].Height) and
-         (TPA.Frameness() > 75) then
+    begin
+      if ((W = Dimensions[I].Width) or (Dimensions[I].Width = 0)) and
+         ((H = Dimensions[I].Height) or (Dimensions[I].Height = 0)) and 
+          (TPA.Frameness > 75) then
         Boxes += B;
+    end;
       
     {$IFDEF SRL_DEBUG_FINDBUTTONS}        
-    if (W > 10) and (H > 10) then
-      Writeln(W, ', ', H);
+    Writeln(W, ', ', H);
     {$ENDIF}
   end;
   
@@ -341,12 +371,17 @@ begin
   Result := not Self.Enabled() or Self.Click();
 end;
 
-function TRSButton.FindText(Text: String; Font: String): Boolean; constref; overload;
+function TRSButton.FindText(constref Text: String; constref Font: TFontSet; Color: Int32): Boolean; constref; overload;
 begin
-  Result := System.FindText(Text, Font, Self.Bounds.X1, Self.Bounds.Y1, Self.Bounds.X2, Self.Bounds.Y2, 1);
+  Result := OCR.LocateText(Self.Bounds, Text, Font, [Color], 1);
 end;
 
-function TRSButton.FindText(Text: TStringArray; Font: String; out Found: String): Boolean; constref; overload;
+function TRSButton.FindText(constref Text: String; constref Font: TFontSet): Boolean; constref; overload;
+begin
+  Result := OCR.LocateText(Self.Bounds, Text, Font, [-1], 1);
+end;
+
+function TRSButton.FindText(Text: TStringArray; constref Font: TFontSet; out Found: String): Boolean; constref; overload;
 var
   I: Int32;
 begin

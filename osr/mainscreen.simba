@@ -241,7 +241,7 @@ Example
 *)
 function TRSMainScreen.GetUpText: String;
 begin
-  Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONTSET_BOLD_12_SHADOW, True);
+  Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW, True);
 
   {$IFDEF SRL_DEBUG_UPTEXT}
   Self.Debug('UpText: ' + Result);
@@ -607,7 +607,7 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
     for B in TPA.Cluster(3).ToTBA() do
       if (B.Width >= 10) and (B.Height >= 10) then
       begin
-        Text := OCR.Recognize(B.Expand(5, Area), [$FFFFFF], RS_FONTSET_PLAIN_11, False);
+        Text := OCR.Recognize(B.Expand(5, Area), [$FFFFFF], RS_FONT_PLAIN_11, False);
         Text := Text.Replace('O', '0');
 
         Result += [B.Middle(), StrToIntDef(Text, -1), Red];

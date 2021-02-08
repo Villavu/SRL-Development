@@ -495,7 +495,7 @@ begin
   begin
     B := Box(MainScreen.Center, 250, 100);
 
-    if FindTextColor(Name, RS_FONT_BOLD_12, $00FFFF, 0, B.X1, B.Y1, B.X2, B.Y2, 0.85) then
+    if OCR.LocateText(B, Name, RS_FONT_BOLD_12, [$00FFFF, 0], 0.85) then
     begin
       if Self.DebugRandoms then
       begin

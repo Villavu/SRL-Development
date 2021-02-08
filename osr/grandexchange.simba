@@ -150,21 +150,6 @@ begin
   end;
 end;
 
-function TRSGrandExchange.GetTitle: String;
-var
-  B: TBox;
-  Filter: TCompareRules;
-begin
-  B := Self.Bounds;
-  B.X1 += 50;
-  B.Y1 += 10;
-  B.X2 -= 50;
-  B.Y2 := B.Y1 + 15;
-  B.LimitTo(Self.Bounds);
-
-  Result := OCR.Recognize(B, [2070783], RS_FONTSET_BOLD_12);
-end;
-
 function TRSGrandExchange.GetCurrentInterface: ERSGEInterface;
 begin
   if Self.GetSetupOfferButton(ERSGESetupOfferButton.CLOSE).Visible() then

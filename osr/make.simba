@@ -1,0 +1,163 @@
+{$DEFINE SRL_MAKE_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+const
+  MAKE_QUANTITY_ALL = -1;
+
+type
+  TRSMake = record(TRSInterface)
+    Items: array of record 
+      Item: String;
+      Index: Int32;
+    end;
+  end;
+  
+procedure TRSMake.Setup; override;
+begin
+  inherited;
+
+  Self.Name := 'Make';
+end;
+
+procedure TRSMake.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Self.Mode;
+
+  Self.Alignment.Left := [@Chatbox.X1];
+  Self.Alignment.Right := [@Chatbox.X2];
+  Self.Alignment.Top := [@Chatbox.Y1];
+  Self.Alignment.Bottom := [@Chatbox.Y2];
+end;
+
+function TRSMake.GetItemButtons: TRSButtonArray;
+var
+  Button: TRSButton;
+begin
+  for Button in Self.FindButtons([[0,0]]) do
+    if Button.Bounds.Height > 60 then
+      Result += Button;
+end;
+
+function TRSMake.GetQuantityButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[35,30], [30,30]]);
+end;
+
+function TRSMake.IsOpen: Boolean;
+begin
+  Result := Self.GetItemButtons() <> [];
+end;
+
+function TRSMake.SetQuantity(Amount: Int32): Boolean;
+const
+  ENABLED_COLOR = $FFFFFF;
+  DISABLED_COLOR = $203040;
+var
+  Text: String;
+  Button: TRSButton;
+  Buttons: TRSButtonArray;
+begin
+  if Amount = MAKE_QUANTITY_ALL then
+    Text := ' All '
+  else
+    Text := ' ' + ToString(Amount) + ' ';
+
+  Buttons := GetQuantityButtons();
+
+  for Button in Buttons do
+  begin
+    // Already selected
+    if Button.FindText(Text, RS_FONT_PLAIN_11, ENABLED_COLOR) then
+      Exit(True);
+    // Select
+    if Button.FindText(Text, RS_FONT_PLAIN_11, DISABLED_COLOR) then
+      Exit(Button.Click());
+  end;
+      
+  for Button in Buttons do
+    if Button.FindText('X', RS_FONT_PLAIN_11, DISABLED_COLOR) then
+      Exit(Button.Click() and Chatbox.AnswerQuery('Enter amount', ToString(Amount), 3000));
+end;
+
+function TRSMake.SelectHelper(Button: TRSButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+var
+  B: TBox;
+begin
+  Result := Self.SetQuantity(Quantity);
+  
+  if Result then
+  begin
+    if UseKeyboard then
+    begin
+      Button.Bounds.Y2 += 15;
+
+      if Button.FindText('Space', RS_FONT_PLAIN_11) then
+        Keyboard.PressKey(VK_SPACE)
+      else
+        Keyboard.PressKey(VK_1 + Button.Index);
+    end else
+      Mouse.Click(Button.Bounds, MOUSE_LEFT);
+  end;
+end;
+
+function TRSMake.Select(Index: Int32; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+var
+  Buttons: TRSButtonArray;
+begin
+  Buttons := Self.GetItemButtons();
+  
+  Result := Self.SelectHelper(Buttons[Index], Quantity, UseKeyboard);
+end;
+
+function TRSMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+const
+  HINT_COLOR = $A0FFFF;
+var
+  Buttons: TRSButtonArray;
+  TPA: TPointArray;
+  I: Int32;
+begin
+  Buttons := Self.GetItemButtons();
+  
+  for I := 0 to High(Self.Items) do
+    if (Self.Items[I].Item = Item) then
+    begin
+      Result := Self.SelectHelper(Buttons[Self.Items[I].Index], Quantity, UseKeyboard);
+      Exit;
+    end;
+ 
+  for I := 0 to High(Buttons) do
+  begin
+    Mouse.Move(Buttons[I].Bounds);
+    
+    if WaitUntil(FindColors(TPA, HINT_COLOR, Self.Bounds()), SRL.TruncatedGauss(50, 1500), 4000) then
+      if SameText(OCR.Recognize(TPA.Bounds(), [0], RS_FONT_PLAIN_12), Item) then
+       begin
+         Self.Items += [Item, Buttons[I].Index];
+         
+         Result := Self.SelectHelper(Buttons[I], Quantity, UseKeyboard);
+         Exit;
+       end;
+    
+    Wait(0, 1000, wdLeft);
+  end;
+end;
+
+var
+  Make: TRSMake;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Make.Setup(Self.Mode);
+end;
+
+procedure TSRL.Setup; override;
+begin
+  inherited;
+
+  Make.Setup();
+end;

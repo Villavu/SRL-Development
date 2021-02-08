@@ -497,21 +497,6 @@ begin
   Result := Distance(p1.x, p1.y, p2.x, p2.y);
 end;
 
-function GetTextAtEx(const SearchBox: TBox; MinV, MaxV, HSpacing, Color, Tol: Integer; const Font: String): String; overload;
-begin
-  Result := GetTextAtEx(SearchBox.X1, SearchBox.Y1, SearchBox.X2, SearchBox.Y2, MinV, MaxV, HSpacing, Color, Tol, Font);
-end;
-
-function FindTextColor(Text, Font: String; Color, Tolerance: Int32; Area: TBox; out Bounds: TBox): Single; overload;
-begin
-  Result := FindTextColor(Text, Font, Color, TOlerance, Area.X1, Area.Y1, Area.X2, Area.Y2, Bounds);
-end;
-
-function FindTextColor(Text, Font: String; Color, Tolerance: Int32; Area: TBox; MinMatch: Single): Boolean; overload;
-begin
-  Result := FindTextColor(Text, Font, Color, Tolerance, Area.X1, Area.Y1, Area.X2, Area.Y2, MinMatch);
-end;
-
 procedure TerminateScript(Reason: String); overload;
 begin
   WriteLn('Terminating: ' + Reason);

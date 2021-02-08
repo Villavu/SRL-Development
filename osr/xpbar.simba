@@ -56,13 +56,8 @@ begin
 end;
 
 function TRSXPBar.Read: Int32;
-var
-  Text: String;
 begin
-  Text := OCR.Recognize(Self.Bounds, [$FFFFFF], RS_FONTSET_PLAIN_11);
-  Text := Text.Replace('O', '0'); // Characters share same glpyh. Loading order can be different between systems.
-
-  Result := StrToIntDef(ExtractFromStr(Text, Numbers), -1);
+  Result := OCR.RecognizeNumber(Self.Bounds, [$FFFFFF], RS_FONT_PLAIN_11);
 end;
 
 var

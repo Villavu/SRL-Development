@@ -206,46 +206,6 @@ begin
 end;
 
 (*
-Bank.GetTitle
-~~~~~~~~~~~~~
-.. pascal:: function TRSBank.GetTitle: String;
-
-Returns the title of the Bank. Useful when searching.
-
-Example
--------
-
-  WriteLn Bank.GetTitle();
-*)
-function TRSBank.GetTitle: String;
-var
-  B: TBox;
-  Filter: TCompareRules;
-begin
-  B := Self.Bounds;
-  B.X1 += 50;
-  B.Y1 += 10;
-  B.X2 -= 50;
-  B.Y2 := B.Y1 + 15;
-  B.LimitTo(Self.Bounds);
-
-  Filter.Threshold := True;
-  Filter.ThresholdAmount := 15;
-
-  Result := OCR.Recognize(B, Filter, RS_FONTSET_BOLD_12);
-end;
-
-function TRSBank.IsTitle(Text: String): Boolean; overload;
-begin
-  Result := Text in Self.GetTitle();
-end;
-
-function TRSBank.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
-begin
-  Result := WaitUntil(Self.IsTitle(Text), 100, WaitTime);
-end;
-
-(*
 Bank.Search
 ~~~~~~~~~~~
 .. pascal:: function TRSBank.Search(Item: String): Boolean;

@@ -49,36 +49,11 @@ end;
 
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
 var
-  B: TBox;
-  BMP: TMufasaBitmap;
-  TPA: TPointArray;
-  ATPA: T2DPointArray;
-  Text: String;
+  Filter: TCompareRules;
 begin
-  Result := -1;
-
-  with Orb do
-    B := [X-35, Y, X-15, Y+10];
-
-  BMP.FromClient(B);
-
-  if BMP.FindColors(TPA, 0) then
-    ATPA += TPA;
-  if BMP.FindColors(TPA, 4938344) then
-    ATPA += TPA;
-
-  if Length(ATPA) = 2 then
-  begin
-    Text := OCR.RecognizeTPA(ATPA.Merge().Invert(), RS_FONTSET_PLAIN_11);
-    Text := Text.Replace('O', '0'); // Share same character
-
-    try
-      Result := StrToInt(Text);
-    except
-    end;
-  end;
-
-  BMP.Free();
+  Filter.UseShadowForColor := True;
+  
+  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y, Orb.X-15, Orb.Y+10], Filter, RS_FONT_PLAIN_11); 
 end;
 
 function TRSMinimap.GetRunEnergy: Int32;

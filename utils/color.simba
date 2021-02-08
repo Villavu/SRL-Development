@@ -82,6 +82,19 @@ srl.FindColors
 
 Searches for the given Color, returns the resulting points in the TPA.
 *)
+function TSRL.FindColors(out TPA: TPointArray; Colors: TIntegerArray; Area: TBox): Int32; constref; overload;
+var
+  Points: TPointArray;
+  Color: Int32;
+begin
+  TPA := [];
+  for Color in Colors do
+    if FindColorsTolerance(Points, Color, Area, 0) then
+      TPA += Points;
+      
+  Result := Length(TPA);
+end;
+
 function TSRL.FindColors(out TPA: TPointArray; Color: TCTS0Color; Area: TBox): Int32; constref; overload;
 begin
   Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 0);
