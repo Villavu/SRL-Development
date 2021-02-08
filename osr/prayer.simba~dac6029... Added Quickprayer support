@@ -1,0 +1,453 @@
+{$DEFINE SRL_PRAYER_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  ERSPrayer = (
+    THICK_SKIN,
+    BURST_OF_STRENGTH,
+    CLARITY_OF_THOUGHT,
+    SHARP_EYE,
+    MYSTIC_WILL,
+
+    ROCK_SKIN,
+    SUPERHUMAN_STRENGTH,
+    IMPROVED_REFLEXES,
+    RAPID_RESTORE,
+    RAPID_HEAL,
+
+    PROTECT_ITEM,
+    HAWK_EYE,
+    MYSTIC_LORE,
+    STEEL_SKIN,
+    ULTIMATE_STRENGTH,
+
+    INCREDIBLE_REFLEXES,
+    PROTECT_FROM_MAGIC,
+    PROTECT_FROM_MISSILES,
+    PROTECT_FROM_MELEE,
+    EAGLE_EYE,
+
+    MYSTIC_MIGHT,
+    RETRIBUTION,
+    REDEMPTION,
+    SMITE,
+    PRESERVE,
+
+    CHIVALRY,
+    PIETY,
+    RIGOUR,
+    AUGURY
+  );
+
+  TRSPrayer = type TRSInterface;
+  TRSQuickPrayer = type TRSInterface;
+
+procedure TRSPrayer.Setup; overload;
+begin
+  if Self <> [] then
+    Exit;
+  Self.Name := 'Prayer';
+end;
+
+procedure TRSPrayer.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
+
+  Self.Alignment.Left := [@GameTab.X1];
+  Self.Alignment.Right := [@GameTab.X2];
+  Self.Alignment.Top := [@GameTab.Y1];
+  Self.Alignment.Bottom := [@GameTab.Y2];
+end;
+
+function TRSPrayer.GetPointsBox: TBox;
+begin
+  Result := [Self.X1 + 37, Self.Y1 + 239, Self.X2 - 37, Self.Y2 - 5];
+end;
+
+function TRSPrayer.GetPrayerLevel: Int32;
+var
+  Text: String;
+  TPA: TPointArray;
+begin
+  Result := -1;
+
+  if not (GameTabs.GetCurrentTab() = TAB_PRAYER) then
+    Exit;
+
+  if SRL.FindColors(TPA, CTS0($1f98ff), Self.GetPointsBox) then
+  begin
+    Text := OCR.Recognize(TPA, RS_FONTSET_PLAIN_12);
+    if Text.Pos('/') > 0 then
+      Result := StrToIntDef(ExtractFromStr(Text.Before('/'), Numbers), 0);
+  end;
+end;
+
+function TRSPrayer.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = TAB_PRAYER) and (Self.GetPrayerLevel <> -1);
+end;
+
+function TRSPrayer.Open: Boolean;
+begin
+  Result := Self.IsOpen() or GameTabs.Open(TAB_PRAYER);
+end;
+
+
+function TRSPrayer.GetPrayerBoxes: TBoxArray; overload;
+begin
+  Result := Grid(5, 6, 33, 33, [4, 4], [Self.X1 + 1, Self.Y1 + 10])
+end;
+
+function TRSPrayer.GetPrayerBox(Prayer: ERSPrayer): TBox;
+begin
+  Result := Self.GetPrayerBoxes[Prayer];
+end;
+
+function TRSPrayer.GetPrayerBoxes(Prayers: array of ERSPrayer): TBoxArray; overload;
+var
+  Prayer: ERSPrayer;
+begin
+  for Prayer in Prayers do
+    Result += Self.GetPrayerBox(Prayer);
+end;
+
+
+function TRSPrayer.PointToPrayer(P: TPoint): Int32;
+var
+  I: Int32;
+  Prayers: TBoxArray;
+begin
+  Prayers := Self.GetPrayerBoxes();
+  for I := 0 to High(Prayers) do
+    if Prayers[I].Contains(P) then
+      Exit(I);
+
+  Result := -1;
+end;
+
+function TRSPrayer.MouseOver(Prayer: ERSPrayer): Boolean;
+begin
+  if not Self.Open() then
+    Exit();
+
+  Result := True;
+  Mouse.Move(Self.GetPrayerBox(Prayer));
+end;
+
+
+function TRSPrayer.CanActivate(Prayer: ERSPrayer): Boolean;
+begin
+  if not Self.IsOpen() then
+    Exit();
+
+  Result := SRL.PeakBrightness(Self.GetPrayerBox(Prayer)) > 55;
+end;
+
+function TRSPrayer.GetAvailablePrayers: array of ERSPrayer;
+var
+  Prayer: ERSPrayer;
+begin
+  Result := [];
+  if not Self.IsOpen() then
+    Exit;
+
+  for Prayer := Low(ERSPrayer) to High(ERSPrayer) do
+    if Self.CanActivate(ERSPrayer(Prayer)) then
+      Result += Prayer;
+end;
+
+function TRSPrayer.IsPrayerActive(Prayer: ERSPrayer): Boolean;
+var
+  B: TBox;
+begin
+  if not Self.IsOpen() then
+    Exit(False);
+
+  B := Self.GetPrayerBox(Prayer);
+  Result := SRL.CountColor(CTS0(7315120, 27), B) > 10;
+end;
+
+function TRSPrayer.GetActivePrayers: array of ERSPrayer;
+var
+  Prayer: ERSPrayer;
+begin
+  Result := [];
+  if not Self.IsOpen() then
+    Exit;
+
+  for Prayer := Low(ERSPrayer) to High(ERSPrayer) do
+    if Self.IsPrayerActive(ERSPrayer(Prayer)) then
+      Result += Prayer;
+end;
+
+function TRSPrayer.PrayerActive: Boolean;
+begin
+  if not Self.Open then
+    Exit;
+
+  Result := Self.GetActivePrayers() <> [];
+end;
+
+function TRSPrayer.ActivatePrayer(Prayer: ERSPrayer): Boolean;
+var
+  Selected: Int32;
+begin
+  if not Self.Open() then
+    Exit(False);
+
+  if Self.IsPrayerActive(Prayer) then
+    Exit(True);
+
+  Mouse.Click(Self.GetPrayerBox(Prayer), MOUSE_LEFT);
+
+  Result := WaitUntil(Self.IsPrayerActive(Prayer), 50, SRL.TruncatedGauss(1000, 2000));
+end;
+
+function TRSPrayer.ActivatePrayer(Prayers: array of ERSPrayer): Boolean; overload;
+var
+  Prayer: ERSPrayer;
+begin
+  for Prayer in Prayers do
+    Self.ActivatePrayer(Prayer);
+end;
+
+
+procedure TRSPrayer.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes, False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetAvailablePrayers), False, $00FF22);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetActivePrayers), False, $FFFFFF);
+  Bitmap.DrawBox(Self.GetPointsBox, False, $00FFFF);
+end;
+
+var
+  Prayer: TRSPrayer;
+
+
+
+procedure TRSQuickPrayer.Setup; overload;
+begin
+  if Self <> [] then
+    Exit;
+  Self.Name := 'QuickPrayer';
+end;
+
+procedure TRSQuickPrayer.Setup(Mode: ERSClientMode); overload;
+begin
+  Self.Mode := Mode;
+
+  Self.Alignment.Left := [@GameTab.X1];
+  Self.Alignment.Right := [@GameTab.X2];
+  Self.Alignment.Top := [@GameTab.Y1];
+  Self.Alignment.Bottom := [@GameTab.Y2];
+end;
+
+function TRSQuickPrayer.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = TAB_PRAYER) and (Prayer.GetPrayerLevel = -1);
+end;
+
+function TRSQuickPrayer.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+end;
+
+function TRSQuickPrayer.Open: Boolean;
+begin
+  if Self.IsOpen then
+    Exit(True);
+
+  Mouse.Move(Minimap.GetPrayerCircle);
+  ChooseOption.Open;
+  if ChooseOption.Select('Setup') then
+    Result := Self.IsOpen(2000);
+end;
+
+function TRSQuickPrayer.GetButton: TBox;
+begin
+  Result := [Self.X1 + 50, Self.Y1 + 233, Self.X2 - 49, Self.Y2 - 7];
+end;
+
+function TRSQuickPrayer.Close: Boolean;
+begin
+  if not Self.IsOpen then
+    Exit(True);
+
+  Mouse.Click(Self.GetButton, MOUSE_LEFT);
+
+  Result := WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(0, 1500), Random(1500, 3000));
+end;
+
+function TRSQuickPrayer.IsPrayerSelected(QPrayer: ERSPrayer): Boolean;
+var
+  TPA: TPointArray;
+begin
+  if not Self.IsOpen then
+    Exit;
+
+  Result := SRL.FindColors(TPA, CTS0($080CEF), Prayer.GetPrayerBox(QPrayer)) > 0;
+end;
+
+function TRSQuickPrayer.GetSelectedPrayers: array of ERSPrayer;
+var
+  QPrayer: ERSPrayer;
+begin
+  Result := [];
+  if not Self.IsOpen() then
+    Exit;
+
+  for QPrayer := Low(ERSPrayer) to High(ERSPrayer) do
+    if Self.IsPrayerSelected(ERSPrayer(QPrayer)) then
+      Result += QPrayer;
+end;
+
+function TRSQuickPrayer.SelectPrayer(QPrayer: ERSPrayer): Boolean;
+begin
+  if not Self.Open then
+    Exit;
+
+  if Self.IsPrayerSelected(QPrayer) then
+    Exit(True);
+
+  Mouse.Click(Prayer.GetPrayerBox(QPrayer), MOUSE_LEFT);
+
+  Result := WaitUntil(Self.IsPrayerSelected(QPrayer), 50, SRL.TruncatedGauss(1000, 2000));
+end;
+
+function TRSQuickPrayer.SelectPrayer(QPrayers: array of ERSPrayer): Boolean; overload;
+var
+  QPrayer: ERSPrayer;
+begin
+  for QPrayer in QPrayers do
+    Self.SelectPrayer(QPrayer);
+end;
+
+
+
+
+procedure TRSQuickPrayer.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers), False, $00ff22);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Self.GetSelectedPrayers), False, $FFFFFF);
+  Bitmap.DrawBox(Self.GetButton, False, $00FFFF);
+end;
+
+
+var
+  QuickPrayer: TRSQuickPrayer;
+
+
+// Minimap prayer overrides
+function TRSMinimap.IsPrayerEnabled: Boolean; override;
+begin
+  Result := SRL.CountColor(CTS2(6566212, 2, 0.12, 0.46), Self.GetPrayerCircle().Bounds) = 0;
+end;
+
+function TRSMinimap.EnablePrayer: Boolean; override;
+var
+  T: UInt64;
+begin
+  if not Self.IsPrayerEnabled() then
+  begin
+    Mouse.Click(Self.GetPrayerCircle(), MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if Self.IsPrayerEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+function TRSMinimap.DisablePrayer: Boolean; override;
+var
+  T: UInt64;
+begin
+  if Self.IsPrayerEnabled() then
+  begin
+    Mouse.Click(Self.GetPrayerCircle(), MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if not Self.IsPrayerEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+
+
+// Prayer overrides to handle quickprayers in case they are open
+function TRSPrayer.Open: Boolean; override;
+begin
+  Result := Self.IsOpen() or (GameTabs.Open(TAB_PRAYER) and QuickPrayer.Close);
+end;
+
+function TRSPrayer.CanActivate(Prayer: ERSPrayer): Boolean; override;
+begin
+  if not Self.IsOpen and not QuickPrayer.IsOpen then
+    Exit();
+
+  Result := SRL.PeakBrightness(Self.GetPrayerBox(Prayer)) > 55;
+end;
+
+function TRSPrayer.GetAvailablePrayers: array of ERSPrayer; override;
+var
+  Prayer: ERSPrayer;
+begin
+  Result := [];
+  if not Self.IsOpen and not QuickPrayer.IsOpen then
+    Exit;
+
+  for Prayer := Low(ERSPrayer) to High(ERSPrayer) do
+    if Self.CanActivate(ERSPrayer(Prayer)) then
+      Result += Prayer;
+end;
+
+
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Prayer.Setup(Self.Mode);
+  QuickPrayer.Setup(Self.Mode);
+end;
+
+procedure TSRL.Setup; override;
+begin
+  inherited;
+
+  Prayer.Setup();
+  QuickPrayer.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Prayer.Debug(Bitmap);
+  QuickPrayer.Debug(Bitmap);
+end;
