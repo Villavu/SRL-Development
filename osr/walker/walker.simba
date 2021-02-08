@@ -1029,15 +1029,3 @@ function TRSWalker.MSToWorld(Loc: TPoint; Height: Int32=0; Accuracy:Double=0.2):
 begin
   Result := Self.MSToWorldEx(Self.GetMyPos(), Loc, Height, Accuracy);
 end;
-
-procedure FreeWalkers(const Walkers: Array of TRSWalker);
-var
-  I: Integer;
-  Walker: TRSWalker;
-begin
-  for I := 0 to High(Walkers) do
-  begin
-    Walker := Walkers[I];
-    Walker.Free();
-  end;
-end;

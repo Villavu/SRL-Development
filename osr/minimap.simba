@@ -380,27 +380,6 @@ begin
 end;
 
 
-function TRSMinimap.IsSpecWeapon: Boolean; overload;
-begin
-  // Implemented in combat.simba
-end;
-
-function TRSMinimap.IsSpecEnabled: Boolean; overload;
-begin
-  // Implemented in combat.simba
-end;
-
-function TRSMinimap.EnableSpec(MinSpec: Int32): Boolean; overload;
-begin
-  // Implemented in combat.simba
-end;
-
-function TRSMinimap.DisableSpec: Boolean; overload;
-begin
-  // Implemented in combat.simba
-end;
-
-
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
