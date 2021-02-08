@@ -278,6 +278,18 @@ begin
   Sort(Weights, Low(Self), High(Self), LowToHi);
 end;
 
+function TBoxArray.SortByXY(): TBoxArray;
+var
+  i: Int32;
+  weights: TIntegerArray;
+begin
+  SetLength(weights, Length(Self));
+  for i := 0 to High(Self) do
+    weights[i] := Self[I].X1 + Self[I].Y1*1000;
+
+  Self.sort(weights,0,High(weights),True);
+end;
+
 function TBoxArray.Middles: TPointArray; constref;
 var
   I: Int32;
