@@ -162,57 +162,61 @@ within a tab area (BankScreen.GetTabAreas).
 For the top most "Tab area" the slots are aligned with their amount text.
 (See SRL.GetItemAmount(Area: TBox)) to see what I mean).
 
-If the top most "Tab area" has several rows of items with 1 quantity,
-the function might break and fail to detect the top rows.
-I added failsafes for up to 3 rows, more than that won't work properly,
-though it's not likely in a real scenario IMO.
-
 *)
 function TRSBankScreen.GetSlotBoxesFromTab(Tab: TBox): TBoxArray;
-const
-  TEXT_COLORS: TIntegerArray = [$00FFFF, $00FEFE, $FFFFFF, $80FF00]; // Million = white | Billion = green etc.
-var
-  i, Rows: Int32;
-  TPA, ColorTPA: TPointArray;
-  ATPA: T2DPointArray;
-  Box, NumberBoxes: TBox;
-  BoxArray: TBoxArray;
-begin
-
-    Box := Self.GetSlotsArea;
-    if (Tab.Y1 = Box.Y1) and (Tab.Y1 <= Tab.Y2) then // Check if Tab is the top most.
+  (*
+    function GetAmountsTPA(Box: TBox): TPointArray;
+    returns a TPA containing the item amounts in the bank.
+  *)
+  function GetAmountsTPA(Box: TBox): TPointArray;
+  const
+    TEXT_COLORS: TIntegerArray = [$00FFFF, $00FEFE, $FFFFFF, $80FF00]; // Million = white | Billion = green etc.
+  var
+    i: Int32;
+    TPA: TPointArray;
+  begin
+    for i := 0 to High(TEXT_COLORS) do
     begin
-      for i := 0 to High(TEXT_COLORS) do
-      begin
-        if SRL.FindColors(TPA,  CTS0(TEXT_COLORS[i]), Tab) > 0 then  // Look for amount text and stores them in ColorTPA
-          ColorTPA += TPA;
-      end;
-
-
-      if ColorTPA <> [] then
-      begin
-        ATPA := ColorTPA.Cluster(1000, 5);              // Splits the ColorTPA into rows
-        BoxArray := ATPA.ToTBA;
-        NumberBoxes := BoxArray[0];                     // Gets the top most "row of amounts"
-        if (NumberBoxes.Y2 - NumberBoxes.Y1) < 7 then   // checks if the top most "row of amounts" if fully visible (7 pixels height).
-          Tab.Y1 := NumberBoxes.Y2 + 28                 // if it's not, ignores this row.
-
-        else if (NumberBoxes.Y1 - Tab.Y1) < 36 then     // Failsafe for 1 full row without any amount numbers.
-          Tab.Y1 := NumberBoxes.Y1
-
-        else if (NumberBoxes.Y1 - Tab.Y1) < 72 then     // Failsafe for 2 full rows without any amount numbers.
-          Tab.Y1 := NumberBoxes.Y1 - 36
-
-        else if (NumberBoxes.Y1 - Tab.Y1) < 108 then    // Failsafe for 3 full rows without any amount numbers.
-          Tab.Y1 := NumberBoxes.Y1 - 72;                // This is probably not the best way to do it,
-                                                        // rechecking several times but I'm sure Olly will teach me something after seeing this.
-      end;
+      if SRL.FindColors(TPA,  CTS0(TEXT_COLORS[i]), Box) > 0 then
+        Result += TPA;
     end;
+  end;
 
-    Rows := (Tab.Y2 - Tab.Y1) div 35;
-    Result := Grid(8, Rows, 31, 31, [17, 5], [Tab.X1, Tab.Y1]);
+  function GetTabY1(TPA: TPointArray; BoxY1: Int32): Int32;
+  var
+    AmountBox: TBox;
+    BoxArray: TBoxArray;
+  begin
+    BoxArray := TPA.Cluster(1000, 5).ToTBA;  // Splits the TPA into rows
+    BoxArray.SortByY(False);
+    AmountBox := BoxArray[0];         // Gets the bottom most "row of amounts"
+
+    // Gets amount of possible rows and calculates the highest Y1.
+    Result := AmountBox.Y1 - (((AmountBox.Y1 - BoxY1) div 36) * 36);
+  end;
+
+var
+  Rows: Int32;
+  ColorTPA: TPointArray;
+  Box: TBox;
+begin
+  Box := Self.GetSlotsArea;
+  Rows := (Tab.Y2 - Tab.Y1) div 36;
+
+  if Tab = Box then // Checks if there's tab splitter lines.
+  begin
+    if Tab.Y1 <= Tab.Y2 then // avoids crashes!?
+    begin
+      ColorTPA := GetAmountsTPA(Tab);
+      if ColorTPA <> [] then
+        Tab.Y1 := GetTabY1(ColorTPA, Tab.Y1);
+    end;
+  end
+  else if Tab.Y2 <> Box.Y2 then // Checks if it's the last row.
+    Tab.Y1 := Tab.Y2 - (Rows * 36);
+
+  Result := Grid(8, Rows, 31, 31, [17, 5], [Tab.X1, Tab.Y1]);
 end;
-
 
 //Gets the slot boxes taking into account the tab divider lines.
 function TRSBankScreen.GetSlotBoxes: TBoxArray;
