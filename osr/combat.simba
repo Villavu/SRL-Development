@@ -105,6 +105,63 @@ begin
     Mouse.Click(B.Expand(5), MOUSE_LEFT);
 end;
 
+
+function TRSMinimap.IsSpecWeapon: Boolean; override;
+begin
+  Result := ((SRL.CountColor(CTS2(8480786, 19, 0.05, 1.36), Self.GetSpecAttackCircle().Bounds) > 0) or
+            Self.IsSpecEnabled);
+end;
+
+function TRSMinimap.IsSpecEnabled: Boolean; override;
+begin
+  Result := SRL.CountColor(CTS2(8682326, 16, 0.03, 1.15), Self.GetSpecAttackCircle().Bounds) > 0;
+end;
+
+function TRSMinimap.EnableSpec(MinSpec: Int32): Boolean; override;
+var
+  T: UInt64;
+begin
+  if not Self.IsSpecWeapon then
+    Exit(False);
+
+  Result := Self.IsSpecEnabled;
+  if not Result then
+  begin
+    Mouse.Click(Self.GetSpecAttackCircle, MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if Self.IsSpecEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+function TRSMinimap.DisableSpec: Boolean; override;
+var
+  T: UInt64;
+begin
+  Result := not Self.IsSpecEnabled;
+
+  if Result then
+  begin
+    Mouse.Click(Self.GetSpecAttackCircle, MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if not Self.IsSpecEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+
 var
   Combat: TRSCombat;
 

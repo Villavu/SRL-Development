@@ -497,7 +497,7 @@ begin
 end;
 
 (*
-TPointArray.FilterBox
+TPointArray.FilterDist
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
@@ -1208,6 +1208,17 @@ end;
 function T2DPointArray.Merge(): TPointArray; constref;
 begin
   Result := MergeATPA(self);
+end;
+
+
+
+function T2DPointArray.FilterBox(Box: TBox): T2DPointArray; constref;
+var
+  i: Int32;
+begin
+  Result := Copy(Self);
+  for i := 0 to High(Result) do
+    Result[i] := Result[i].FilterBox(Box);
 end;
 
 

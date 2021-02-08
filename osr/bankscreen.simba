@@ -29,7 +29,8 @@ type
     BANK_LOCATION_CASTLE_WARS,
     BANK_LOCATION_FEROX,
     BANK_LOCATION_GRAND_EXCHANGE,
-    BANK_LOCATION_FALADOR_EAST
+    BANK_LOCATION_FALADOR_EAST,
+    BANK_LOCATION_WINTERTODT
   );
 
   TRSBankScreen = record(TRSInterface)
@@ -83,19 +84,148 @@ type
     FINDER_OPTION: TStringArray;
   end;
 
-function TRSBankScreen.GetSlotBoxes: TBoxArray; constref;
-var
-  Rows: Int32;
+//Gets the whole area of the item slots. This should probably named differently.
+function TRSBankScreen.GetSlotsArea: TBox; constref;
 begin
-  Rows := (Self.Height() - 120) div 35;
-
-  Result := Grid(8, Rows, 31, 31, [17, 5], [Self.X1 + 57, Self.Y1 + 77]);
+  Result.X1 := Self.X1 + 57;
+  Result.Y1 := Self.Y1 + 77;
+  Result.X2 := Self.Width - 48;
+  Result.Y2 := Self.Height - 37;
 end;
 
 function TRSBankScreen.GetTabBoxes: TBoxArray; constref;
 begin
   Result := Grid(10, 1, 36, 30, [4, 0], [Self.X1 + 46, Self.Y1 + 42]);
 end;
+
+//Gets the Button up, Slider and Button down boxes.
+function TRSBankScreen.GetScrollBoxes: TBoxArray; constref;
+var
+  Box: TBox;
+begin
+  Box.X1 := Self.X2 - 21;
+  Box.X2 := Box.X1 + 15;
+
+  Box.Y1 := Self.Y1 + 77;
+  Box.Y2 := Box.Y1 + 15;   //up arrow
+  Result += Box;
+
+  Box.Y1 += 16;
+  Box.Y2 := Self.Y2 - 60;  //slider
+  Result += Box;
+
+  Box.Y2 := Self.Y2 - 44;
+  Box.Y1 := Box.Y2 - 15;  //down arrow
+  Result += Box;
+end;
+
+//Splits the slot area according to the tabs divider lines
+function TRSBankScreen.GetTabAreas: TBoxArray;
+var
+  Spacer: Int32;
+  TPA: TPointArray;
+  Box, Tab, TabDivider: TBox;
+begin
+  Box := Self.GetSlotsArea;
+
+  while True do
+  begin
+    Tab.Y1 := Box.Y1;
+    Tab.X1 := Box.X1;
+    Tab.X2 := Box.X2;
+    if Box.Y1>Box.Y2 then
+      Exit(Result);
+
+    if SRL.FindColors(TPA, CTS2(2832191, 1, 0.48, 1.53), Box) > 0 then
+    begin
+      TabDivider := TPA.Bounds;
+      Tab.Y2 := TabDivider.Y1 - 1;
+      Result += Tab;
+      Box.Y1 := TabDivider.Y1 + 7;
+    end
+    else
+    begin
+      Tab.Y2 := Box.Y2;
+      Result += Tab;
+      Exit(Result);
+    end;
+  end;
+end;
+
+(*
+BankScreen.GetSlotBoxesFromTab
+~~~~~~~~~~~~~~~~~~~
+
+Gets the slot boxes independently of the scroll position
+within a tab area (BankScreen.GetTabAreas).
+
+For the top most "Tab area" the slots are aligned with their amount text.
+(See SRL.GetItemAmount(Area: TBox)) to see what I mean).
+
+If the top most "Tab area" has several rows of items with 1 quantity,
+the function might break and fail to detect the top rows.
+I added failsafes for up to 3 rows, more than that won't work properly,
+though it's not likely in a real scenario IMO.
+
+*)
+function TRSBankScreen.GetSlotBoxesFromTab(Tab: TBox): TBoxArray;
+const
+  TEXT_COLORS: TIntegerArray = [$00FFFF, $00FEFE, $FFFFFF, $80FF00]; // Million = white | Billion = green etc.
+var
+  i, Rows: Int32;
+  TPA, ColorTPA: TPointArray;
+  ATPA: T2DPointArray;
+  Box, NumberBoxes: TBox;
+  BoxArray: TBoxArray;
+begin
+
+    Box := Self.GetSlotsArea;
+    if (Tab.Y1 = Box.Y1) and (Tab.Y1 <= Tab.Y2) then // Check if Tab is the top most.
+    begin
+      for i := 0 to High(TEXT_COLORS) do
+      begin
+        if SRL.FindColors(TPA,  CTS0(TEXT_COLORS[i]), Tab) > 0 then  // Look for amount text and stores them in ColorTPA
+          ColorTPA += TPA;
+      end;
+
+
+      if ColorTPA <> [] then
+      begin
+        ATPA := ColorTPA.Cluster(1000, 5);              // Splits the ColorTPA into rows
+        BoxArray := ATPA.ToTBA;
+        NumberBoxes := BoxArray[0];                     // Gets the top most "row of amounts"
+        if (NumberBoxes.Y2 - NumberBoxes.Y1) < 7 then   // checks if the top most "row of amounts" if fully visible (7 pixels height).
+          Tab.Y1 := NumberBoxes.Y2 + 28                 // if it's not, ignores this row.
+
+        else if (NumberBoxes.Y1 - Tab.Y1) < 36 then     // Failsafe for 1 full row without any amount numbers.
+          Tab.Y1 := NumberBoxes.Y1
+
+        else if (NumberBoxes.Y1 - Tab.Y1) < 72 then     // Failsafe for 2 full rows without any amount numbers.
+          Tab.Y1 := NumberBoxes.Y1 - 36
+
+        else if (NumberBoxes.Y1 - Tab.Y1) < 108 then    // Failsafe for 3 full rows without any amount numbers.
+          Tab.Y1 := NumberBoxes.Y1 - 72;                // This is probably not the best way to do it,
+                                                        // rechecking several times but I'm sure Olly will teach me something after seeing this.
+      end;
+    end;
+
+    Rows := (Tab.Y2 - Tab.Y1) div 35;
+    Result := Grid(8, Rows, 31, 31, [17, 5], [Tab.X1, Tab.Y1]);
+end;
+
+
+//Gets the slot boxes taking into account the tab divider lines.
+function TRSBankScreen.GetSlotBoxes: TBoxArray;
+var
+  Box: TBox;
+  BoxArray: TBoxArray;
+begin
+  BoxArray := Self.GetTabAreas;
+
+  for Box in BoxArray do
+    Result += Self.GetSlotBoxesFromTab(Box);
+end;
+
 
 (*
 BankScreen.IsOpen
@@ -131,8 +261,15 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(GetTabBoxes(), False, $00FFFF);
-  Bitmap.DrawBoxes(GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetTabBoxes(), False, $00FFFF);
+
+  // I have this next one off and in a different color because
+  // it's trippy as hell to have everything on.
+
+  //Bitmap.DrawBoxes(Self.GetTabAreas(), False, $FFFFFF);
+  Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetScrollBoxes(), False, $00FFFF);
+  Bitmap.DrawBox(Self.GetScrollSlider(), False, $00FFFF);
 end;
 
 (*
@@ -310,8 +447,9 @@ var
   Row: TPointArray;
   Rows: T2DPointArray;
   B: TBox;
+  BA: TBoxArray;
 begin
-  if SRL.FindColors(TPA, CTS2(3358280, 1, 0.80, 0.41), Self.GetSlotBoxes().Merge()) > 0 then
+  if SRL.FindColors(TPA, CTS2(3358280, 1, 0.80, 0.41), Self.GetSlotsArea) > 0 then
   begin
     TPA := TPA.Invert();
 
@@ -335,14 +473,71 @@ begin
   end;
 end;
 
-procedure TRSBankScreen.ScrollToTop;
+
+// Get scroll slider box
+function TRSBankScreen.GetScrollSlider: TBox;
+var
+  X, Y: Int32;
+  Box: TBox;
+  TPA: TPointArray;
+begin
+  Box := Self.GetScrollBoxes[1];
+  Box.X1 += 1;
+  Box.X2 -= 1;
+
+  SRL.FindColors(TPA, CTS0(65536), Box);
+
+  Result := TPA.Bounds;
+end;
+// Get scroll slider position
+function TRSBankScreen.GetScrollPosition: Int32;
+begin
+  Result := Self.GetScrollSlider.Y1 - 99;
+end;
+
+// Checks if the bank is scrollable up (false) or down (true)
+function TRSBankScreen.CanScroll(Down: Boolean): Boolean;
+begin
+  if Down then
+    Result := (Self.GetScrollSlider.Y2 - Self.GetScrollBoxes[1].Y2) < 0
+  else
+    Result := Self.GetScrollPosition > 0;
+end;
+
+// Checks if the bank is scrollable at all.
+// Should only return false if you are in a bank tab with few items.
+function TRSBankScreen.CanScroll: Boolean; overload;
+begin
+  Result := Self.CanScroll(True) or Self.CanScroll(False);
+end;
+
+//Scrolls up or down the bank
+function TRSBankScreen.Scroll(Down: Boolean = True; MinSteps: Int32 = 2; MaxSteps: Int32 = 5): Boolean;
+var
+  ScrollPosition: Int32;
+begin
+  if not Self.CanScroll(Down) then
+    Exit(True);
+  ScrollPosition := Self.GetScrollPosition;
+
+  Mouse.Scroll(Self.GetSlotBoxes().Merge(), Random(MinSteps, MaxSteps), Down);
+
+  Result := ScrollPosition <> Self.GetScrollPosition();
+end;
+
+//Scrolls to top or bottom of the bank
+function TRSBankScreen.ScrollToEnd(Down: Boolean = False): Boolean;
 begin
   if not Self.IsOpen() then
     Exit;
 
-  while not Self.FindButton(Self.BUTTON_SCROLLED_TOP) do
-    Mouse.Scroll(Self.GetSlotBoxes().Merge(), Random(1, 3), False);
+  while Self.CanScroll(Down) do
+    Mouse.Scroll(Self.GetSlotBoxes().Merge(), Random(1, 3), Down);
 end;
+
+
+
+
 
 (*
 BankScreen._Withdraw
@@ -768,6 +963,29 @@ begin
   Result := GrandExchange.FindNPC(GrandExchange.FINDER_BANKER);
 end;
 
+function TRSBankScreen._FindWintertodt: T2DPointArray;
+var
+  Finder: TRSObjectFinder;
+begin
+  Finder.ColorClusters += [
+    CTS2(3289384, 4, 0.51, 0.37),  //Dark hole
+    CTS2(13025214, 17, 0.13, 0.11), //Snow color
+    10
+  ];
+
+  Finder.ClusterDistance := 2;
+  Finder.Grow := 3;
+  Finder.Erode := 2;
+
+  Result := MainScreen.FindObject(Finder);
+  if Length(Result) = 0 then
+    Exit;
+  Result.SortByLongSide();
+  Result := Result[0].Cluster(3);
+  Result.SortByMiddle(Result.Merge.Mean());
+end;
+
+
 function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; overload;
 var
   ATPA: T2DPointArray;
@@ -795,6 +1013,7 @@ begin
       BANK_LOCATION_CASTLE_WARS:    ATPA := Self._FindCastleWars();
       BANK_LOCATION_FEROX:          ATPA := Self._FindFerox();
       BANK_LOCATION_GRAND_EXCHANGE: ATPA := Self._FindGrandExchange();
+      BANK_LOCATION_WINTERTODT:     ATPA := Self._FindWintertodt();
     end;
 
     // Check three largest clusters
@@ -827,6 +1046,7 @@ begin
     BANK_LOCATION_CASTLE_WARS:    ATPA := Self._FindCastleWars();
     BANK_LOCATION_FEROX:          ATPA := Self._FindFerox();
     BANK_LOCATION_GRAND_EXCHANGE: ATPA := Self._FindGrandExchange();
+    BANK_LOCATION_WINTERTODT:     ATPA := Self._FindWintertodt();
   end;
 
   // Check three largest clusters
@@ -922,7 +1142,7 @@ Overrides **Inventory.IsOpen** to return true if the bankscreen is open.
 *)
 function TRSInventory.IsOpen: Boolean; override;
 begin
-  Result := inherited() or BankScreen.IsOpen();
+  Result := inherited() or BankScreen.IsOpen;
 end;
 
 procedure TRSClient.ClientModeChanged; override;

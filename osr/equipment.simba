@@ -34,6 +34,7 @@ begin
   Result := GameTabs.Open(TAB_EQUIPMENT);
 end;
 
+
 function TRSEquipment.GetSlotBoxes: TBoxArray;
 var
   TPA: TPointArray;
@@ -58,6 +59,50 @@ end;
 function TRSEquipment.GetSlotBox(Index: Int32): TBox;
 begin
   Result := Self.GetSlotBoxes[Index];
+end;
+
+function TRSEquipment.GetButtonBoxes: TBoxArray;
+var
+  TPA: TPointArray;
+  I: Int32;
+begin
+  TPA := TPointArray([
+    [4, 209], [49, 209], [94, 209],[139, 209]
+  ]).Offset(X1, Y1);
+
+  SetLength(Result, Length(TPA));
+  for I := 0 to High(Result) do
+  begin
+    Result[I].X1 := TPA[I].X;
+    Result[I].Y1 := TPA[I].Y;
+    Result[I].X2 := TPA[I].X + 39;
+    Result[I].Y2 := TPA[I].Y + 39;
+  end;
+end;
+
+function TRSEquipment.GetButtonBox(Index: Int32): TBox;
+begin
+  Result := Self.GetButtonBoxes[Index];
+end;
+
+function TRSEquipment.ClickButtonBox(Index: Int32): Boolean;
+begin
+  if not Self.Open() or (Index < 0) or (Index > 3) then
+    Exit;
+
+  Mouse.Click(Self.GetButtonBox(Index), MOUSE_LEFT);
+end;
+
+
+procedure TRSEquipment.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+
+  Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetButtonBoxes(), False, $00FFFF);
 end;
 
 function TRSEquipment.Find(Item: String): Int32;
@@ -105,6 +150,8 @@ begin
     end;
   end;
 end;
+
+
 
 var
   Equipment: TRSEquipment;

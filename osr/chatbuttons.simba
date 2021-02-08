@@ -20,11 +20,23 @@ begin
 end;
 
 procedure TRSChatButtons.Debug(Bitmap: TMufasaBitmap); override;
+var
+  i: Int32;
+  Box: TBox;
+  TBA: TBoxArray;
 begin
   if not Self.IsOpen() then
     Exit;
 
   inherited();
+
+  for i := 0 to High(Self.Buttons) do
+  begin
+    Self.FindButton(Self.Buttons[i], Box);
+    TBA += Box;
+  end;
+
+  Bitmap.DrawBoxes(TBA, False, $00FFFF);
 end;
 
 procedure TRSChatButtons.Setup; overload;
@@ -52,6 +64,7 @@ begin
   Self.Alignment.Top := [@RootInterface.Y2, -22];
   Self.Alignment.Bottom := [@RootInterface.Y2];
 end;
+
 
 var
   ChatButtons: TRSChatButtons;
