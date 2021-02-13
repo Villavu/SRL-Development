@@ -12,7 +12,7 @@ type
   TRSItem = type Variant;
   TRSItemArray = array of TRSItem;
 
-  TRSItemFinder = record
+  TRSItemFinder = record(TSRLBaseRecord)
     ItemNames: TStringList;
     ItemImages: array of TMufasaBitmap;
     
@@ -27,13 +27,6 @@ const
   ITEM_FINDER_IMAGES_ZIP   = {$macro CURRENT_DIRECTORY} + '/item-images.zip';
   ITEM_FINDER_IMAGES_PATH  = {$macro CURRENT_DIRECTORY} + '/images/';
 
-  ITEM_FINDER_SHADOW_COLOR = $202030;
-  ITEM_FINDER_BORDER_COLOR = $10000;
-
-  ITEM_FINDER_YELLOW_STACK = $00FFFF;
-  ITEM_FINDER_WHITE_STACK  = $FFFFFF;
-  ITEM_FINDER_GREEN_STACK  = $80FF00;
-
 procedure TRSItemFinder.Free;
 var
   i: Int32;
@@ -45,11 +38,9 @@ end;
 
 procedure TRSItemFinder.Setup;
 begin
-  CreateDirectory(ITEM_FINDER_IMAGES_PATH);
-
+  Self.Name := 'Item Finder';
   Self.ItemNames.Init();
   Self.ItemNames.LoadFromFile(ITEM_FINDER_NAME_FILE);
-
   Self.Similarity := 0.999;
 
   AddOnTerminate(@Self.Free);
@@ -62,141 +53,112 @@ end;
 
 function TRSItemFinder.LoadItemImage(Item: String): TMufasaBitmap;
 var
-  Path, ID: String;
+  ItemFileName, ItemID: String;
 begin
-  if not Item.IsDigit() then
+  if Item.IsDigit() then
+    ItemID := Item
+  else
   begin
-    if Self.ItemNames.IndexOfName(Item) = -1 then
-      raise 'Unknown item: ' + Item;
+    ItemID := Self.ItemNames.GetValues(Item);
+    if (ItemID = '') then
+      Self.Fatal('Unknown item: ' + Item);
+  end;
   
-    ID := Self.ItemNames.GetValues(Item);
-  end else
-    ID := Item; 
-    
-  Path := ExpandFileName(ITEM_FINDER_IMAGES_PATH + ID + '.png');
-  
-  if not FileExists(Path) then
-    UnZipOneFile(ITEM_FINDER_IMAGES_ZIP, ExtractFileName(Path), ITEM_FINDER_IMAGES_PATH);
-  if not FileExists(Path) then
-    raise 'Unknown item: ' + Item;
+  ItemFileName := ExpandFileName(ITEM_FINDER_IMAGES_PATH + ItemID + '.png');
+  if not FileExists(ItemFileName) and not UnZipOneFile(ITEM_FINDER_IMAGES_ZIP, ExtractFileName(ItemFileName), ITEM_FINDER_IMAGES_PATH) then
+    Self.Fatal('Unknown item: ' + Item);
 
   Result.Init(Client.GetMBitmaps());
-  Result.LoadFromFile(Path);
+  Result.LoadFromFile(ItemFileName);
   Result.SetName(Item);
-  Result.ReplaceColor(ITEM_FINDER_SHADOW_COLOR, 0);
+  Result.ReplaceColor(RS_ITEM_SHADOW, 0);
+  
+  Self.ItemImages += Result;
 end;
 
-function TRSItemFinder.GetTemporaryImage(Item: TRSItem): TMufasaBitmap;
+function TRSItemFinder.GetItemImage(Item: TRSItem): TMufasaBitmap;
 var
   I: Int32;
-  Image: TMufasaBitmap;
 begin
   Item := VarToStr(Item);
   
   for I := 0 to High(ItemImages) do
     if (Self.ItemImages[I].GetName() = Item) then
-      Exit(Self.ItemImages[I].Copy());
+      Exit(Self.ItemImages[I]);
   
-  Self.ItemImages += Self.LoadItemImage(Item);
+  Result := Self.LoadItemImage(Item);
+end;
+
+function TRSItemFinder.CompareItems(Image, Template: TMufasaBitmap): Single;
+var
+  ImageBorder, TemplateBorder: TPointArray;
+  TPA, ClearTPA: TPointArray;
+  AlignedTemplate, AlignedImage: TMufasaBitmap;
+  Align: TPoint;
+  ClearColor: Int32;
+  P: TPoint;
+begin
+  if Image.FindColors(ImageBorder, RS_ITEM_BORDER) and Template.FindColors(TemplateBorder, RS_ITEM_BORDER) then
+  begin
+    with TemplateBorder.Bounds() do
+    begin
+      Template.Crop(X1, Y1, X2, Y2);
+      TemplateBorder := TemplateBorder.Offset(-X1,-Y1);
+    end;
+    
+    // Use highest Y point of both images for alignment
+    // TPA is already sorted like this with how FindColors operates.
+    Align.X := Max(0, ImageBorder[High(ImageBorder)].X - TemplateBorder[High(TemplateBorder)].X);
+    Align.Y := Max(0, ImageBorder[High(ImageBorder)].Y - TemplateBorder[High(TemplateBorder)].Y);
   
-  Result := Self.ItemImages[High(Self.ItemImages)].Copy();
+    // Compare borders
+    for P in TemplateBorder.Offset(Align) do
+    begin
+      if (P.Y <= 8) then // Possible stack number... Don't compare.
+        Continue;
+      if (not PointInTPA(P, ImageBorder)) then // Borders don't match. No point going further.
+        Exit;
+    end;
+    
+    AlignedImage := Image.Copy();
+  
+    AlignedTemplate.Init(Client.GetMBitmaps());
+    AlignedTemplate.SetSize(Image.GetWidth(), Image.GetHeight());
+    
+    Template.DrawTransparent(Align.X, Align.Y, AlignedTemplate);  
+    
+    // Clear these template colors on both images
+    for ClearColor in [RS_ITEM_YELLOW_STACK, RS_ITEM_WHITE_STACK, RS_ITEM_GREEN_STACK, RS_ITEM_BORDER] do
+      if AlignedTemplate.FindColors(TPA, ClearColor) then 
+        ClearTPA += TPA;  
+   
+    // Clear image background on template
+    if AlignedImage.FindColors(TPA, 0) then 
+      ClearTPA += TPA;  
+   
+    AlignedTemplate.DrawTPA(ClearTPA, 0);
+    AlignedImage.DrawTPA(ClearTPA, 0);
+  
+    Result := AlignedImage.MatchTemplate(AlignedTemplate, TM_CCORR_NORMED)[0][0]; // No idea why I used CCORR
+  
+    AlignedImage.Free();
+    AlignedTemplate.Free(); 
+  end;
 end;
 
 function TRSItemFinder.Find(Identifer: TRSItem; Slots: TBoxArray; MaxToFind: Int32 = -1): TIntegerArray;
-
-  function GetAlignmentPoint(Image: TMufasaBitmap): TPoint;
-  var
-    TPA: TPointArray;
-  begin
-    if Image.FindColors(TPA, ITEM_FINDER_BORDER_COLOR) then
-    begin
-      TPA.SortByY(False);
-
-      Result := TPA[0];
-    end;
-  end;
-
-  function AlignTemplateToImage(Image, Template: TMufasaBitmap): TMufasaBitmap;
-  var
-    ImageAligment, TemplateAlignment: TPoint;
-  begin
-    ImageAligment := GetAlignmentPoint(Image);
-    TemplateAlignment := GetAlignmentPoint(Template);
-    if (ImageAligment = []) or (TemplateAlignment = []) then
-      Exit(nil);
-
-    Result.Init(Client.GetMBitmaps());
-    Result.SetSize(Image.GetWidth(), Image.GetHeight());
-
-    Template.DrawTransparent(
-      Max(0, ImageAligment.X - TemplateAlignment.X),
-      Max(0, ImageAligment.Y - TemplateAlignment.Y), Result
-    );
-
-    Template.Free();
-  end;
-
-  procedure Clear(Image, Template: TMufasaBitmap; TPA: TPointArray; Offset: TPoint = []);
-  begin
-    Image.DrawTPA(TPA, $000000);
-    Template.DrawTPA(TPA, $000000);
-
-    if Offset <> [] then
-    begin
-      OffsetTPA(TPA, Offset);
-
-      Image.DrawTPA(TPA, $000000);
-      Template.DrawTPA(TPA, $000000);
-    end;
-  end;
-
 var
   Image, Templ: TMufasaBitmap;
-  TPA: TPointArray;
-  Slot: Int32;
+  I: Int32;
 begin
-  for Slot := 0 to High(Slots) do
+  Image := Self.GetItemImage(Identifer);
+  
+  for I := 0 to High(Slots) do
   begin
-    Image := Self.GetTemporaryImage(Identifer);
-
-    Templ.FromClient(Slots[Slot]);
-    Templ.FindColors(TPA, ITEM_FINDER_BORDER_COLOR);
-
-    if Length(TPA) > 0 then
-    begin
-      with TPA.Bounds() do
-        Templ.Crop(X1, Y1, X2, Y2);
-
-      // Align both images using the same bottom point
-      Templ := AlignTemplateToImage(Image, Templ);
-
-      if Templ <> nil then
-      begin
-        // Clear stack: Find on template, and clear on both images.
-        if Templ.FindColors(TPA, ITEM_FINDER_YELLOW_STACK) then Clear(Image, Templ, TPA, [1, 1]);
-        if Templ.FindColors(TPA, ITEM_FINDER_WHITE_STACK)  then Clear(Image, Templ, TPA, [1, 1]);
-        if Templ.FindColors(TPA, ITEM_FINDER_GREEN_STACK)  then Clear(Image, Templ, TPA, [1, 1]);
-
-        // Clear black border
-        if Templ.FindColors(TPA, ITEM_FINDER_BORDER_COLOR) then Clear(Image, Templ, TPA, []);
-
-        // Clear background: Since images are aligned we know the background points from our database image.
-        if Image.FindColors(TPA, $000000) then Clear(Image, Templ, TPA);
-
-        //WriteLn Image.MatchTemplate(Templ, TM_CCORR_NORMED)[0][0];
-        //Image.SaveToFile('img.png');
-        //Templ.SaveToFile('templ.png');
-        //Halt;
-
-        if Image.MatchTemplate(Templ, TM_CCORR_NORMED)[0][0] > Self.Similarity then
-          Result := Result + Slot;
-      end;
-    end;
-
-    Image.Free();
-    Image := nil;
+    Templ.FromClient(Slots[I]);
+    if Self.CompareItems(Image, Templ) >= Self.Similarity then
+      Result := Result + I;
     Templ.Free();
-    Templ := nil;
     
     if Length(Result) = MaxToFind then
       Exit;

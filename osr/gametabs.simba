@@ -71,9 +71,9 @@ begin
         // One row
         if (RootInterface.Width >= 948) then
         begin
-          Result := Grid(14, 1, 30, 33, [3, 0], [Self.X1 - 197, Self.Y2 - 70]);
+          Result := Grid(13, 1, 30, 33, [3, 0], [Self.X1 - 197, Self.Y2 - 70]);
 
-          for I := Ord(ERSGameTab.MUSIC) downto Ord(ERSGameTab.FRIENDS) do
+          for I := Ord(ERSGameTab.MUSIC)-1 downto Ord(ERSGameTab.FRIENDS)-1 do
             Result[I-1] := Result[I-1];
         end else
         // Two rows
@@ -97,7 +97,7 @@ var
   i: Int32;
 begin
   Boxes := Self.GetTabBoxes();
-
+  
   for i := 0 to High(Boxes) do
     if (SRL.CountColor(CTS1(1778534, 22), Boxes[i]) > 50) or
        ((Self.Mode = ERSClientMode.RESIZABLE_MODERN) and (SRL.CountColor(CTS0(8639715), Boxes[i]) > 50)) then

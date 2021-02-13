@@ -95,6 +95,12 @@ begin
   Result := Length(TPA);
 end;
 
+function TSRL.FindColors(out TPA: TPointArray; Color: Int32; Area: TBox): Int32; constref; overload;
+begin
+  if FindColorsTolerance(TPA, Color, Area, 0) then
+    Result := Length(TPA);
+end;
+
 function TSRL.FindColors(out TPA: TPointArray; Color: TCTS0Color; Area: TBox): Int32; constref; overload;
 begin
   Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 0);

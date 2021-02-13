@@ -233,23 +233,25 @@ begin
   Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Disable();
 end;
 
-function TRSBank.FindItemBoundaries: TBoxArray; 
+function TRSBank.FindItemBoundaries: TBoxArray;
 var
-  TPA, Row: TPointArray;
-  Rows, Columns: T2DPointArray;
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  Area, B: TBox;
 begin
-  if SRL.FindColors(TPA, CTS2(3358280, 1, 0.80, 0.41), Self.GetSlotBoxes().Merge()) > 0 then // background
+  Area := Self.GetSlotBoxes().Merge();
+  
+  if SRL.FindColors(TPA, RS_ITEM_BORDER, Area) > 0 then
   begin
-    Rows := TPA.Invert.Edges.Cluster(100, 3);
-    for Row in Rows do
+    ATPA := TPA.Cluster(50, 3);
+    
+    for B in ATPA.ToTBA() do
     begin
-      Columns := Row.Cluster(3, 100);
-      Columns.FilterDimensions(0, 0, 36, 36);
-      
-      Result += Columns.ToTBA();
-     end; 
-
-    Result.SortByXY(20);
+      if B.Height() <= 5 then
+        Continue;
+        
+      Result += Grid(8, 1, 32, B.Height(), [16], [Area.X1, B.Y1 - 1]);
+    end;
   end;
 end;
 
