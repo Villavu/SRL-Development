@@ -117,7 +117,7 @@ begin
   begin
     if (GetTickCount() > T) then
     begin
-      Self.Debug('SetCompassAngle timed out');
+      Self.DebugLn('SetCompassAngle timed out');
       Exit;
     end;
 
@@ -160,7 +160,7 @@ begin
   end;
 end;
 
-procedure TRSMinimap.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSMinimap.Draw(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
@@ -195,9 +195,9 @@ begin
   AddOnTerminate(@Self.Free);
 end;
 
-procedure TRSMinimap.Setup(Mode: ERSClientMode); overload;
+procedure TRSMinimap.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
     ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
@@ -539,7 +539,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Minimap.Setup(Self.Mode);
+  Minimap.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -553,5 +553,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Minimap.Debug(Bitmap);
+  Minimap.Draw(Bitmap);
 end;

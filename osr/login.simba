@@ -256,7 +256,7 @@ end;
 
 function TRSLogin.HandleMessage(Message: String): Boolean;
 begin
-  Self.Debug('Handling login message: ' + Message);
+  Self.DebugLn('Handling login message: ' + Message);
 
   case Message of
     // Cannot recover
@@ -324,7 +324,7 @@ var
   Attempts, World: Int32;
   Player: TRSLoginPlayer;
 begin
-  Self.Debug('Logging in player');
+  Self.DebugLn('Logging in player');
 
   Player := Self.GetPlayer();
   if (Player.User = '') or (Player.Password = '') then
@@ -332,7 +332,7 @@ begin
 
   while Self.IsOpen() and (Attempts < 10) do
   begin
-    Self.Debug('Attempt ' + ToString(Attempts + 1));
+    Self.DebugLn('Attempt ' + ToString(Attempts + 1));
     
     if (Player.Worlds <> []) and (not (Self.GetCurrentWorld() in Player.Worlds)) then
     begin
@@ -402,7 +402,7 @@ begin
     Self.Fatal('Invalid bank pin'); 
 end;
 
-procedure TRSLogin.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSLogin.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -417,9 +417,9 @@ begin
   Self.Name := 'Login';
 end;
 
-procedure TRSLogin.Setup(Mode: ERSClientMode); overload;
+procedure TRSLogin.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@RootInterface.X1];
   Self.Alignment.Right := [@RootInterface.X2];
@@ -435,7 +435,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Login.Setup(Self.Mode);
+  Login.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -449,5 +449,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Login.Debug(Bitmap);
+  Login.Draw(Bitmap);
 end;

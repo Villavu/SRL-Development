@@ -37,9 +37,9 @@ begin
   Self.Name := 'Chatbox';
 end;
 
-procedure TRSChat.Setup(Mode: ERSClientMode); overload;
+procedure TRSChat.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Self.Mode;
+  inherited;
 
   Self.Alignment.Left := [@ChatButtons.X1];
   Self.Alignment.Right := [@ChatButtons.X2];
@@ -47,12 +47,12 @@ begin
   Self.Alignment.Bottom := [@ChatButtons.Y1, -1];
 end;
 
-procedure TRSChat.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSChat.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
 
-  inherited();
+  inherited;
 
   Bitmap.DrawBoxes(Self.GetLineBoxes(), False, $00FFFF);
 end;
@@ -300,25 +300,25 @@ begin
 end;
 
 var
-  Chatbox: TRSChat;
+  Chat: TRSChat;
 
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Chatbox.Setup(Self.Mode);
+  Chat.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
 begin
   inherited;
 
-  Chatbox.Setup();
+  Chat.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Chatbox.Debug(Bitmap);
+  Chat.Draw(Bitmap);
 end;

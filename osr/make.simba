@@ -21,14 +21,14 @@ begin
   Self.Name := 'Make';
 end;
 
-procedure TRSMake.Setup(Mode: ERSClientMode); overload;
+procedure TRSMake.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Self.Mode;
+  inherited;
 
-  Self.Alignment.Left := [@Chatbox.X1];
-  Self.Alignment.Right := [@Chatbox.X2];
-  Self.Alignment.Top := [@Chatbox.Y1];
-  Self.Alignment.Bottom := [@Chatbox.Y2];
+  Self.Alignment.Left := [@Chat.X1];
+  Self.Alignment.Right := [@Chat.X2];
+  Self.Alignment.Top := [@Chat.Y1];
+  Self.Alignment.Bottom := [@Chat.Y2];
 end;
 
 function TRSMake.GetItemButtons: TRSButtonArray;
@@ -78,7 +78,7 @@ begin
       
   for Button in Buttons do
     if Button.FindText('X', RS_FONT_PLAIN_11, DISABLED_COLOR) then
-      Exit(Button.Click() and Chatbox.AnswerQuery('Enter amount', ToString(Amount), 3000));
+      Exit(Button.Click() and Chat.AnswerQuery('Enter amount', ToString(Amount), 3000));
 end;
 
 function TRSMake.SelectHelper(Button: TRSButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
@@ -152,7 +152,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Make.Setup(Self.Mode);
+  Make.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;

@@ -22,9 +22,9 @@ begin
   Self.Name := 'Options';
 end;
 
-procedure TRSLogout.Setup(Mode: ERSClientMode); overload;
+procedure TRSLogout.SetupAlignment(Mode: ERSClientMode); override;
 begin 
-  Self.Mode := Mode;
+  inherited;
   
   Self.Alignment.Left := [@GameTab.X1, -3];
   Self.Alignment.Right := [@GameTab.X2, 3];
@@ -102,7 +102,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Logout.Setup(Self.Mode);
+  Logout.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -116,5 +116,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Logout.Debug(Bitmap);
+  Logout.Draw(Bitmap);
 end;

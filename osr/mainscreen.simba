@@ -199,9 +199,9 @@ begin
   AddOnTerminate(@Self.Free);
 end;
 
-procedure TRSMainScreen.Setup(Mode: ERSClientMode); overload;
+procedure TRSMainScreen.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
     ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
@@ -244,7 +244,7 @@ begin
   Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW, True);
 
   {$IFDEF SRL_DEBUG_UPTEXT}
-  Self.Debug('UpText: ' + Result);
+  Self.DebugLn('UpText: ' + Result);
   {$ENDIF}
 end;
 
@@ -545,7 +545,7 @@ begin
 
   if Result then
   begin
-    if Chatbox.IsOpen() and Chatbox.Bounds().Contains(P) then
+    if Chat.IsOpen() and Chat.Bounds().Contains(P) then
       Exit(False);
     if ChatButtons.Bounds().Contains(P) then
       Exit(False);
@@ -876,7 +876,7 @@ begin
   Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = ERSClickType.YELLOW;
 end;
 
-procedure TRSMainScreen.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSMainScreen.Draw(Bitmap: TMufasaBitmap); override;
 var
   Splat: TRSHitsplat;
   Bar: TRSHPBar;
@@ -896,7 +896,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  MainScreen.Setup(Self.Mode);
+  MainScreen.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -910,6 +910,6 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  MainScreen.Debug(Bitmap);
+  MainScreen.Draw(Bitmap);
 end;
 

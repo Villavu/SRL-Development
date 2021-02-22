@@ -41,9 +41,9 @@ begin
   Self.HIGH_SLOT := 27;
 end;
 
-procedure TRSInventory.Setup(Mode: ERSClientMode); overload;
+procedure TRSInventory.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -325,7 +325,7 @@ begin
   Result := Attempts <= 5;
 end;
 
-procedure TRSInventory.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSInventory.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -510,7 +510,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Inventory.Setup(Self.Mode);
+  Inventory.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -524,5 +524,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Inventory.Debug(Bitmap);
+  Inventory.Draw(Bitmap);
 end;

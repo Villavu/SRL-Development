@@ -120,14 +120,14 @@ begin
 
   Countdown.Init(Abs(Round(SRL.GaussRand(Task.Length, Task.Length * Task.StdVar))));
 
-  Self.Debug('Sleeping for ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+  Self.DebugLn('Sleeping for ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
 
   if (@Self.OnStartSleep <> nil) then
     Self.OnStartSleep(@Task);
 
   if Random() < Task.LogoutChance then
   begin
-    Self.Debug('Logging out');
+    Self.DebugLn('Logging out');
 
     Logout.ClickLogout();
   end;
@@ -137,12 +137,12 @@ begin
 
   while not Countdown.IsFinished() do
   begin
-    Self.Debug('Sleep time remaining: ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+    Self.DebugLn('Sleep time remaining: ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
 
     Wait(Min(Countdown.TimeRemaining(), 60000 * 5));
   end;
 
-  Self.Debug('Sleep finished');
+  Self.DebugLn('Sleep finished');
 
   if (@Self.OnFinishSleep <> nil) then
     Self.OnFinishSleep(@Task);
@@ -174,14 +174,14 @@ begin
 
   Countdown.Init(Abs(Round(SRL.GaussRand(Task.Length, Task.Length * Task.StdVar))));
 
-  Self.Debug('Taking a break for ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+  Self.DebugLn('Taking a break for ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
 
   if (@Self.OnStartBreak <> nil) then
     Self.OnStartBreak(@Task);
 
   if Random() < Task.LogoutChance then
   begin
-    Self.Debug('Logging out');
+    Self.DebugLn('Logging out');
 
     Logout.ClickLogout();
   end;
@@ -193,7 +193,7 @@ begin
   while not Countdown.IsFinished() do
   begin
     if (Inc(I) mod 12 = 0) then
-      Self.Debug('Break time remaining: ' + ToString(CountDown.TimeRemaining() div 60000) + ' minutes');
+      Self.DebugLn('Break time remaining: ' + ToString(CountDown.TimeRemaining() div 60000) + ' minutes');
 
     if (@Self.OnBreaking <> nil) then
       Self.OnBreaking(@Task, Countdown);
@@ -201,7 +201,7 @@ begin
     Wait(5000);
   end;
 
-  Self.Debug('Break finished');
+  Self.DebugLn('Break finished');
 
   if (@Self.OnFinishBreak <> nil) then
     Self.OnFinishBreak(@Task);
@@ -332,7 +332,7 @@ var
   B: TBox;
   P: TPoint;
 begin
-  Self.Debug('Random Mouse (Small)');
+  Self.DebugLn('Random Mouse (Small)');
 
   B := Box(Mouse.Position(), 350, 350);
   repeat
@@ -346,7 +346,7 @@ procedure TAntiban.RandomMouse;
 var
   CustomMouse: TMouse;
 begin
-  Self.Debug('Random Mouse');
+  Self.DebugLn('Random Mouse');
 
   CustomMouse := Mouse;
   CustomMouse.Speed += Random(1, 5);
@@ -365,7 +365,7 @@ end;
 
 procedure TAntiban.RandomRotate;
 begin
-  Self.Debug('Random Rotate');
+  Self.DebugLn('Random Rotate');
 
   case SRL.Dice(50) of
     True:  Minimap.SetCompassAngle(Minimap.GetCompassAngle() - SRL.TruncatedGauss(30, 360, 3));
@@ -377,7 +377,7 @@ procedure TAntiban.HoverSkill(Skill: ERSSkill; HoverTime: Int32; ReturnToCurrent
 var
   Tab: ERSGameTab;
 begin
-  Self.Debug('Hover skill: ' + ToString(Skill));
+  Self.DebugLn('Hover skill: ' + ToString(Skill));
 
   if ReturnToCurrentTab then
     Tab := GameTabs.GetCurrentTab();
@@ -394,7 +394,7 @@ procedure TAntiban.HoverSkills;
 begin
   if Self.Skills = [] then
   begin
-    Self.Debug('HoverSkills: No skills declared');
+    Self.DebugLn('HoverSkills: No skills declared');
 
     Exit;
   end;
@@ -416,7 +416,7 @@ end;
 
 procedure TAntiban.RandomTab;
 begin
-  Self.Debug('Random Tab');
+  Self.DebugLn('Random Tab');
 
   if Random() < 0.80 then
   begin
@@ -445,7 +445,7 @@ end;
 
 procedure TAntiban.RandomRightClick;
 begin
-  Self.Debug('Random Right Click');
+  Self.DebugLn('Random Right Click');
 
   Mouse.Move(GetClientBounds(), True, MOUSE_DISTRIBUTION_RANDOM);
 
@@ -478,7 +478,7 @@ begin
     NewZoom := SRL.SkewedRand(Zoom, Self.MinZoom - 10, Self.MaxZoom + 10);
   until (NewZoom >= Self.MinZoom) and (NewZoom <= Self.MaxZoom) and (Abs(Zoom - NewZoom) > 15);
 
-  Self.Debug('Adjust zoom: ' + ToString(NewZoom));
+  Self.DebugLn('Adjust zoom: ' + ToString(NewZoom));
 
   Options.SetZoomLevel(NewZoom);
 end;
@@ -489,7 +489,7 @@ var
   Number: Int32;
   B: TBox;
 begin
-  Name := Chatbox.GetDisplayName();
+  Name := Chat.GetDisplayName();
 
   if (Name <> '') then
   begin

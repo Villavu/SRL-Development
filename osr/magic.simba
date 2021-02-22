@@ -248,9 +248,9 @@ begin
   Self.Name := 'Magic';
 end;
 
-procedure TRSMagic.Setup(Mode: ERSClientMode); overload;
+procedure TRSMagic.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -290,7 +290,7 @@ begin
   Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.MAGIC);
 end;
 
-function TRSMagic.GetSpellBoxes(): TBoxArray;
+function TRSMagic.GetSpellBoxes: TBoxArray;
 begin
   if Self.IsSpellBook(ERSSpellBook.STANDARD) then
     Result := Grid(7, 10, 23, 23, [3, 1], [Self.X1 + 2, Self.Y1 + 1])
@@ -533,7 +533,7 @@ begin
   Result := WaitUntil((Self.GetSelectedArceuusSpell() = Spell) or Inventory.IsOpen(), 50, SRL.TruncatedGauss(1000, 2000));
 end;
 
-procedure TRSMagic.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSMagic.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -550,7 +550,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Magic.Setup(Self.Mode);
+  Magic.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -564,5 +564,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Magic.Debug(Bitmap);
+  Magic.Draw(Bitmap);
 end;

@@ -32,9 +32,9 @@ begin
   Self.Name := 'Equipment';
 end;
 
-procedure TRSEquipment.Setup(Mode: ERSClientMode); overload;
+procedure TRSEquipment.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -117,7 +117,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Equipment.Setup(Self.Mode);
+  Equipment.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -131,5 +131,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Equipment.Debug(Bitmap);
+  Equipment.Draw(Bitmap);
 end;

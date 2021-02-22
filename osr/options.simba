@@ -33,9 +33,9 @@ begin
   Self.Name := 'Options';
 end;
 
-procedure TRSOptions.Setup(Mode: ERSClientMode); overload;
+procedure TRSOptions.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -201,7 +201,7 @@ begin
   Result := WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
-procedure TRSOptions.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSOptions.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -227,7 +227,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Options.Setup(Self.Mode);
+  Options.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -241,6 +241,6 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Options.Debug(Bitmap);
+  Options.Draw(Bitmap);
 end;
 

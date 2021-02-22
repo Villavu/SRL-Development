@@ -45,7 +45,7 @@ type
     OFFER_SETUP
   );
 
-  TRSGrandExchange = record(TRSInterface)
+  TRSGrandExchange = record(TRSTitledInteface)
     FINDER_BANKER: TRSObjectFinder;
   end;
   
@@ -167,7 +167,7 @@ begin
   Result := Self.GetCurrentInterface() <> ERSGEInterface.UNKNOWN;
 end;
 
-procedure TRSGrandExchange.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSGrandExchange.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -189,9 +189,9 @@ begin
   Self.FINDER_BANKER.MinLongSide := 10;
 end;
 
-procedure TRSGrandExchange.Setup(Mode: ERSClientMode); overload;
+procedure TRSGrandExchange.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
     ERSClientMode.FIXED:
@@ -238,7 +238,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  GrandExchange.Setup(Self.Mode);
+  GrandExchange.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -252,5 +252,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  GrandExchange.Debug(Bitmap);
+  GrandExchange.Draw(Bitmap);
 end;

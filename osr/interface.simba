@@ -13,6 +13,7 @@ type
     Mode: ERSClientMode;
     
     ButtonColors: array of TCTS1Color;
+    ButtonEnabledColors: array of TCTS1Color;
     
     Cache: record
       Enabled: Boolean;
@@ -36,13 +37,20 @@ type
 
 procedure TRSInterface.Setup; 
 begin
-  Self.Name := 'UNNAMED';
+  Self.Name := 'Unnamed';
   Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20)];
-  Self.Cache.X1 := [ERSClientMode.UNKNOWN, -1, -1, -1];
-  Self.Cache.Y1 := [ERSClientMode.UNKNOWN, -1, -1, -1];
-  Self.Cache.X2 := [ERSClientMode.UNKNOWN, -1, -1, -1];
-  Self.Cache.Y2 := [ERSClientMode.UNKNOWN, -1, -1, -1];
+  Self.ButtonEnabledColors := [CTS1(2369440, 5), CTS1(2700350, 5)];
   Self.Cache.Enabled := True;
+end;
+
+procedure TRSInterface.SetupAlignment(Mode: ERSClientMode); 
+begin
+  Self.Mode := Mode;
+end;
+
+procedure TRSInterface.Draw(Bitmap: TMufasaBitmap);
+begin
+  Bitmap.DrawBox(Self.Bounds(), $00FFFF);
 end;
   
 function TRSInterface.X1: Int32;
@@ -201,7 +209,10 @@ begin
   Result := Self.Bounds().Middle;
 end;
 
-function TRSInterface.GetTitle: String;
+type
+  TRSTitledInteface = type TRSInterface;
+
+function TRSTitledInteface.GetTitle: String;
 var
   B: TBox;
   Filter: TCompareRules;
@@ -219,19 +230,14 @@ begin
   Result := OCR.Recognize(B, Filter, RS_FONT_BOLD_12);
 end;
 
-function TRSInterface.IsTitle(Text: String): Boolean; overload;
+function TRSTitledInteface.IsTitle(Text: String): Boolean; overload;
 begin
   Result := Text in Self.GetTitle();
 end;
 
-function TRSInterface.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
+function TRSTitledInteface.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
 begin
   Result := WaitUntil(Self.IsTitle(Text), 100, WaitTime);
-end;
-
-procedure TRSInterface.Debug(Bitmap: TMufasaBitmap); overload;
-begin
-  Bitmap.DrawBox(Self.Bounds(), $00FFFF);
 end;
 
 type
@@ -278,6 +284,8 @@ end;
 
 type
   TRSButton = record 
+    EnabledColors: array of TCTS1Color;
+  
     Index: Int32; 
     Bounds: TBox; 
     Middle: TPoint;
@@ -332,6 +340,7 @@ begin
     Result[I].Index := I;
     Result[I].Bounds := Boxes[I];
     Result[I].Middle := Boxes[I].Middle;
+    Result[I].EnabledColors := Self.ButtonEnabledColors;
   end;
 end;
 
@@ -350,8 +359,15 @@ begin
 end;
 
 function TRSButton.Enabled: Boolean; constref;
+var
+  Color: TCTS1Color;
 begin
-  Result := Self.Visible() and (SRL.CountColor(CTS1(2369440, 5), Self.Bounds) > 0);
+  if Self.Visible() then
+  begin
+    for Color in Self.EnabledColors do
+      if SRL.CountColor(Color, Self.Bounds) > 0 then
+        Exit(True);
+  end;
 end;
 
 function TRSButton.Click: Boolean; constref;
@@ -397,14 +413,13 @@ end;
 procedure TMufasaBitmap.DrawButtons(Buttons: TRSButtonArray);
 var
   I: Int32;
-  S: String;
 begin
   for I := 0 to High(Buttons) do
   begin
-    S := ToStr(Buttons[I].Index);
-    
-    Self.Rectangle(Buttons[I].Bounds, $00FF00, 0.50);
-    Self.DrawSystemText(S, 'Arial Bold', 15, Buttons[I].Middle.Offset(-Length(S)*5, -11), False, $0000FF);
+    Self.SetFontSize(20);
+    Self.setFontAntialiasing(False);
+    Self.DrawBox(Buttons[I].Bounds, False, $00FFFF);
+    Self.DrawText(ToStr(Buttons[I].Index), Buttons[I].Bounds, True, $00FF00);
   end;
 end;
 

@@ -14,9 +14,9 @@ begin
   Self.ButtonColors := [CTS1(988769, 30)];
 end;
 
-procedure TRSBankPin.Setup(Mode: ERSClientMode); overload;
+procedure TRSBankPin.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
     ERSClientMode.FIXED:
@@ -116,7 +116,7 @@ begin
   Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;
 
-procedure TRSBankPin.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSBankPin.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if (not Self.IsOpen()) then
     Exit;
@@ -141,7 +141,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  BankPin.Setup(Self.Mode);
+  BankPin.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -155,5 +155,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  BankPin.Debug(Bitmap);
+  BankPin.Draw(Bitmap);
 end;

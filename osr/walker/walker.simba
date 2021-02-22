@@ -657,7 +657,7 @@ begin
   end;
 
   if Fails = 10 then
-    Self.Debug('Failed to advance path');
+    Self.DebugLn('Failed to advance path');
 end;
 
 (*
@@ -784,9 +784,12 @@ begin
     'Time: ' + ToStr(Round(Time)) + ' ms'
   ];
 
-  Bitmap.DrawSystemText(Lines[0], 'Consolas', 12, [420, 15 + MinimapBitmap.GetHeight()], False, $FFFFFF);
-  Bitmap.DrawSystemText(Lines[1], 'Consolas', 12, [420, 370], False, $FFFFFF);
-  Bitmap.DrawSystemText(Lines[2], 'Consolas', 12, [420, 390], False, $FFFFFF);
+  Bitmap.SetFontName('Consolas');
+  Bitmap.SetFontSize(18);
+  Bitmap.SetFontAntialiasing(True);
+  
+  Bitmap.DrawText(Lines[0], [420, 20 + MinimapBitmap.GetHeight()], $FFFFFF);
+  Bitmap.DrawText(Lines[1] + LineEnding + Lines[2], [420, 370], $FFFFFF);
 
   WorldBitmap.DrawTransparent(10, 10, Bitmap);
   WorldBitmap.Free();

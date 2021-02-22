@@ -11,12 +11,12 @@ begin
   Result := True;
 end;
 
-procedure TRSChatButtons.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSChatButtons.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
 
-  inherited();
+  inherited;
 end;
 
 procedure TRSChatButtons.Setup; override;
@@ -26,9 +26,9 @@ begin
   Self.Name := 'Chat Buttons';
 end;
 
-procedure TRSChatButtons.Setup(ClientMode: ERSClientMode); overload; 
+procedure TRSChatButtons.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@RootInterface.X1];
   Self.Alignment.Right := [@RootInterface.X1, 518];
@@ -43,7 +43,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  ChatButtons.Setup(Self.Mode);
+  ChatButtons.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -57,5 +57,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  ChatButtons.Debug(Bitmap);
+  ChatButtons.Draw(Bitmap);
 end;

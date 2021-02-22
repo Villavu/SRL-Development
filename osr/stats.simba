@@ -77,9 +77,9 @@ begin
   Self.Name := 'Stats';
 end;
 
-procedure TRSStats.Setup(Mode: ERSClientMode); overload;
+procedure TRSStats.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -171,7 +171,7 @@ begin
   Result := StrToIntDef(ExtractFromStr(Text, Numbers), -1);
 end;
 
-procedure TRSStats.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSStats.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -188,7 +188,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Stats.Setup(Self.Mode);
+  Stats.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -202,6 +202,6 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Stats.Debug(Bitmap);
+  Stats.Draw(Bitmap);
 end;
 

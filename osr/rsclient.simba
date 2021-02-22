@@ -20,7 +20,7 @@ The modes of the client.
 
 .. pascal::
 
-  RS_CLIENT_UNKNOWN            // Unable to detect mode (likely not logged in)
+  ERSClientMode.UNKNOWN            // Unable to detect mode (likely not logged in yet)
   ERSClientMode.FIXED              // Fixed mode
   ERSClientMode.RESIZABLE_CLASSIC  // Resizable with "classic" gametabs or "fixed mode gametabs"
   ERSClientMode.RESIZABLE_MODERN   // Resizable with gametabs being grouped together at the bottom
@@ -112,7 +112,7 @@ end;
 
 procedure TRSClient.ClientModeChanged;
 begin
-  Self.Debug('Client mode changed: ' + ToString(Self.Mode));
+  Self.DebugLn('Client mode changed: ' + ToString(Self.Mode));
   
   { override me }
 end;
@@ -166,7 +166,7 @@ begin
 end;
 {$ELSE}
 begin
-  Self.Debug('Lose focus not yet implemented for this target!');
+  Self.DebugLn('Lose focus not yet implemented for this target!');
 end;
 {$ENDIF}
 

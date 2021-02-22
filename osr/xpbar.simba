@@ -15,9 +15,9 @@ begin
   Self.Name := 'XPBar';
 end;
 
-procedure TRSXPBar.Setup(Mode: ERSClientMode); overload;
+procedure TRSXPBar.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@InterfaceArea.X2, -120];
   Self.Alignment.Right := [@InterfaceArea.X2, -2];
@@ -44,7 +44,7 @@ begin
     Result := Length(GetButtonCircle().Filter(TPA)) > 50;
 end;
 
-procedure TRSXPBar.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSXPBar.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -67,7 +67,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  XPBar.Setup(Self.Mode);
+  XPBar.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -81,5 +81,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  XPBar.Debug(Bitmap);
+  XPBar.Draw(Bitmap);
 end;

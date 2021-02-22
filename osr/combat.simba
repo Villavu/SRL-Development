@@ -49,9 +49,9 @@ begin
   Self.Name := 'Combat';
 end;
 
-procedure TRSCombat.Setup(Mode: ERSClientMode); overload;
+procedure TRSCombat.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -168,7 +168,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Combat.Setup(Self.Mode);
+  Combat.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -182,6 +182,6 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Combat.Debug(Bitmap);
+  Combat.Draw(Bitmap);
 end;
 

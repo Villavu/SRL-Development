@@ -13,9 +13,9 @@ begin
   Self.Name := 'Interface Area';
 end;
 
-procedure TRSInterfaceArea.Setup(Mode: ERSClientMode); overload
+procedure TRSInterfaceArea.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
     ERSClientMode.FIXED:
@@ -31,7 +31,7 @@ begin
         Self.Alignment.Left := [@MainScreen.X1];
         Self.Alignment.Right := [@GameTabs.X1, -10];
         Self.Alignment.Top := [@MainScreen.Y1];
-        Self.Alignment.Bottom := [@ChatBox.Y1];
+        Self.Alignment.Bottom := [@Chat.Y1];
       end;
 
     ERSClientMode.RESIZABLE_MODERN:
@@ -39,7 +39,7 @@ begin
         Self.Alignment.Left := [@MainScreen.X1];
         Self.Alignment.Right := [@GameTabs.X1, 15];
         Self.Alignment.Top := [@MainScreen.Y1];
-        Self.Alignment.Bottom := [@ChatBox.Y1];
+        Self.Alignment.Bottom := [@Chat.Y1];
       end;
   end;
 end;
@@ -51,7 +51,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  InterfaceArea.Setup(Self.Mode);
+  InterfaceArea.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -65,5 +65,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  InterfaceArea.Debug(Bitmap);
+  InterfaceArea.Draw(Bitmap);
 end;

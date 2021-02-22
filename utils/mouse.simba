@@ -345,7 +345,7 @@ procedure TMouse.Idle;
 var
   T: UInt64 := SRL.TruncatedGauss(1000, 20000);
 begin
-  Self.Debug('Idle: ' + ToString(T) + ' ms');
+  Self.DebugLn('Idle: ' + ToString(T) + ' ms');
 
   Wait(T);
 end;

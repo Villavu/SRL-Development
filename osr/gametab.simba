@@ -13,9 +13,9 @@ begin
   Self.Name := 'GameTab';
 end;
 
-procedure TRSGameTab.Setup(Mode: ERSClientMode); overload;
+procedure TRSGameTab.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
     ERSClientMode.FIXED, ERSClientMode.RESIZABLE_CLASSIC:
@@ -43,7 +43,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
   
-  GameTab.Setup(Self.Mode);
+  GameTab.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -57,6 +57,6 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  GameTab.Debug(Bitmap);
+  GameTab.Draw(Bitmap);
 end;
 

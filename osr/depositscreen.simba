@@ -27,9 +27,9 @@ begin
   Self.Name := 'Deposit Screen';
 end;
 
-procedure TRSDepositScreen.Setup(Mode: ERSClientMode); overload;
+procedure TRSDepositScreen.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
     ERSClientMode.FIXED:
@@ -82,7 +82,7 @@ begin
   Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(50, 1500), WaitTime);
 end;
 
-procedure TRSDepositScreen.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSDepositScreen.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -99,7 +99,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  DepositScreen.Setup(Self.Mode);
+  DepositScreen.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -113,5 +113,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  DepositScreen.Debug(Bitmap);
+  DepositScreen.Draw(Bitmap);
 end;
