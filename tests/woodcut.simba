@@ -1,0 +1,261 @@
+{$DEFINE SRL_USE_REMOTEINPUT}
+{$I SRL/osr.simba}
+
+const
+  GOAL_WC_LEVEL = 36;
+
+const
+  REGULAR_TREES: TPointArray = [
+    [4421, 3436],
+    [4404, 3461],
+    [4428, 3458],
+    [4392, 3462],
+    [4392, 3442],
+    [4440, 3441],
+    [4378, 3462],
+    [4427, 3469]
+  ];
+
+  OAK_TREES: TPointArray = [
+    [4416, 3412]
+  ];
+
+  WILLOW_TREES: TPointArray = [
+    [4481, 3356],
+    [4465, 3365],
+    [4460, 3379],
+    [4474, 3387]
+  ];
+
+type
+  TLumbridgeWoodcutter = record
+    CurrentTree: TPoint;
+    CurrentTrees: TPointArray;
+    Walker: TRSWalker;
+    Finished: Int32;
+    Activity: record
+      XP: Int32;
+      Countdown: TCountDown;
+    end;
+  end;
+
+var
+  Script: TLumbridgeWoodcutter;
+
+function TLumbridgeWoodcutter.CheckActivity: Int32;
+begin
+  if XPBar.Read() > Activity.XP then
+  begin
+    Activity.XP := XPBar.Read();
+    Activity.Countdown.Restart();
+  end;
+
+  if Self.Activity.Countdown.IsFinished() then
+    raise 'No XP gain in 120 seconds';
+
+  Result := Self.Activity.Countdown.Length - Self.Activity.Countdown.TimeRemaining();
+end;
+
+procedure TLumbridgeWoodcutter.DebugTrees(Trees: TPointArray);
+var
+  Player, Tree: TPoint;
+  Tile: TRectangle;
+  Boxes: TBoxArray;
+begin
+  Player := Walker.GetMyPos();
+
+  for Tree in Trees do
+  begin
+    Tile := Walker.GetTileMSEx(Player, Tree, 4);
+    Boxes := Boxes + Tile.Expand(Round(Tile.Radius() * 2)).Bounds;
+  end;
+
+  Debug(Boxes);
+end;
+
+function TLumbridgeWoodcutter.FindTree(Player: TPoint; Tree: TPoint; out Circle: TCircle): Boolean;
+var
+  Tile: TRectangle;
+  B: TBox;
+  TPA: TPointArray;
+  Finder: TRSObjectFinder;
+begin
+  Tile := Walker.GetTileMSEx(Player, Tree, 4);
+
+  B := Tile.Expand(Round(Tile.Radius() * 2)).Bounds;
+  B.LimitTo(MainScreen.Bounds);
+  if not MainScreen.IsVisible(B.Middle()) then
+    Exit;
+
+  Finder.Colors += CTS2(2115388, 6, 0.38, 2.56);
+  Finder.Colors += CTS2(332813, 4, 2.84, 12.75);
+  Finder.Colors += CTS2(4025196, 10, 0.46, 1.00);
+  Finder.Grow := 4;
+  Finder.Erode := 8;
+  Finder.ClusterDistance := 5;
+
+  TPA := MainScreen.FindObject(Finder, B).Biggest();
+
+  if Length(TPA) > 50 then
+  begin
+    Circle := TPA.MinAreaCircle();
+
+    Result := Circle.Radius >= Tile.ToTPA().MinAreaCircle().Radius;
+  end;
+end;
+
+function TLumbridgeWoodcutter.ClickTree(Trees: TPointArray): Boolean;
+var
+  Circle: TCircle;
+  Player: TPoint;
+begin
+  Player := Self.Walker.GetMyPos();
+
+  for Self.CurrentTree in Trees.Sorted(Player) do
+    if FindTree(Player, Self.CurrentTree, Circle) then
+    begin
+      Mouse.Move(Circle.Mean(), Round(Circle.Radius * 0.80));
+
+      if MainScreen.IsUpText(['Chop', 'down']) then
+      begin
+        if Random() < 0.20 then
+          Result := ChooseOption.Select('Chop down')
+        else
+        begin
+          Mouse.Click(MOUSE_LEFT);
+
+          Result := MainScreen.DidRedClick();
+        end;
+
+        if Result then
+          Exit;
+      end;
+    end;
+end;
+
+procedure TLumbridgeWoodcutter.Chopping;
+var
+  Circle: TCircle;
+  Timeout: TCountDown;
+begin
+  Timeout.Init(Random(50000, 60000));
+
+  if Random() < 0.66 then
+    Antiban.LoseFocus(SRL.TruncatedGauss(0, 3500));
+
+  while not Timeout.IsFinished do
+  begin
+    // Not moving and tree not found
+    if (not Minimap.HasFlag()) and (not Minimap.IsPlayerMoving()) and
+       (not FindTree(Self.Walker.GetMyPos(), Self.CurrentTree, Circle)) then
+      Exit;
+
+    if Chatbox.HasLevelUp() or Inventory.IsFull() then
+      Exit;
+
+    if Self.CheckActivity() < 1000 then // Xp gain
+      Timeout.Restart();
+  end;
+
+  // Timed out
+end;
+
+function TLumbridgeWoodcutter.ChopTree: Boolean;
+begin
+  Result := Self.ClickTree(Self.CurrentTrees);
+  if Result then
+    Self.Chopping();
+end;
+
+procedure TLumbridgeWoodcutter.Drop;
+var
+  Slots: TIntegerArray;
+begin
+  Slots := Inventory.FindAll(['Logs', 'Oak logs', 'Willow logs']);
+  Slots := Inventory.ErrorPattern(Slots); // Shuffle a little
+
+  // Random chance of triming the pattern
+  if SRL.Dice(20) then
+    SetLength(Slots, Random(Length(Slots)));
+  if SRL.Dice(20) then
+    Slots := Copy(Slots, Random(Length(Slots)));
+
+  Inventory.ShiftDrop(Slots);
+end;
+
+procedure TLumbridgeWoodcutter.WalkToTrees;
+begin
+  if Distance(Self.Walker.GetMyPos(), Self.CurrentTrees.Mean()) > 30 then
+    Self.Walker.WebWalk(Self.CurrentTrees.Mean.Random(-10, 10))
+  else
+    Wait(3000, 12000, wdLeft);
+end;
+
+procedure TLumbridgeWoodcutter.CheckTask;
+var
+  WC: TRSSkillInfo;
+begin
+  if XPBar.Read() < Self.Finished then
+    Exit;
+
+  WC := Stats.GetSkillInfo(SKILL_WOODCUTTING);
+
+  if WC.Level < 15 then
+  begin
+    Self.CurrentTrees := REGULAR_TREES;
+    Self.Finished := XPBar.Read() + (SRL.GetXPAtLevel(15) - WC.XP);
+  end else
+  if WC.Level < 30 then
+  begin
+    Self.CurrentTrees := OAK_TREES;
+    Self.Finished := XPBar.Read() + (SRL.GetXPAtLevel(30) - WC.XP);
+  end else
+  begin
+    Self.CurrentTrees := WILLOW_TREES;
+    Self.Finished := XPBar.Read() + (SRL.GetXPAtLevel(GOAL_WC_LEVEL) - WC.XP);
+  end;
+
+  if XPBar.Read() >= Self.Finished then
+    TerminateScript('Finished!');
+end;
+
+procedure TLumbridgeWoodcutter.Setup;
+begin
+  Mouse.IdleInterval := 15;
+
+  Self.Walker.Setup('world');
+  Self.CurrentTrees := REGULAR_TREES;
+  Self.Activity.Countdown.Init(120000);
+end;
+
+begin
+  Script.Setup();
+
+  {
+  Script.DebugTrees(REGULAR_TREES);
+  TerminateScript;
+  }
+
+  while RSClient.IsLoggedIn() do
+  begin
+    Inventory.SetSelectedSlot(-1);
+
+    Script.CheckTask();
+
+    if Script.ChopTree() then
+    begin
+      Wait(0, 8000, wdLeft); // AFK
+      if SRL.Dice(5) then
+        Wait(6000, 24000); // Even more AFK
+
+      if Inventory.IsFull() or ((Inventory.Count() >= 20) and (Random() < 0.15)) then // chance of dropping before inventory is full
+        Script.Drop();
+    end else
+      Script.WalkToTrees();
+
+    Script.CheckActivity();
+  end;
+
+  // Logged out
+end.
+

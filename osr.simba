@@ -13,6 +13,8 @@
 procedure TSRL.Setup;
 begin
   { override me to setup things }
+  
+  Self.IsSetup := True;
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); overload;
@@ -42,19 +44,21 @@ begin
   SRL.Setup();
 end;
 
+{$SCOPEDENUMS ON}
+
 // The following allows individual include files to compile on their own with just having {$I SRL/osr.simba}
 // Summary: It includes this file until the current file is reached.
 
 {$IFNDEF SRL_OCR_INCLUDED}             {$I osr/ocr.simba}
+{$IFNDEF SRL_MISC_INCLUDED}            {$I osr/misc.simba}
+{$IFNDEF SRL_ITEMFINDER_INCLUDED}      {$I osr/itemfinder/itemfinder.simba}
 {$IFNDEF SRL_RSCLIENT_INCLUDED}        {$I osr/rsclient.simba}
 {$IFNDEF SRL_INTERFACE_INCLUDED}       {$I osr/interface.simba}
-{$IFNDEF SRL_ROOT_INTERFACE_INCLUDED}  {$I osr/rootinterface.simba}
 {$IFNDEF SRL_CHATBUTTONS_INCLUDED}     {$I osr/chatbuttons.simba}
-{$IFNDEF SRL_MISC_INCLUDED}            {$I osr/misc.simba}
-{$IFNDEF SRL_LOBBYSCREEN_INCLUDED}     {$I osr/lobbyscreen.simba}
-{$IFNDEF SRL_LOGINSCREEN_INCLUDED}     {$I osr/loginscreen.simba}
+{$IFNDEF SRL_LOGIN_INCLUDED}           {$I osr/login.simba}
 {$IFNDEF SRL_CHOOSEOPTION_INCLUDED}    {$I osr/chooseoption.simba}
-{$IFNDEF SRL_CHATBOX_INCLUDED}         {$I osr/chatbox.simba}
+{$IFNDEF SRL_CHAT_INCLUDED}            {$I osr/chat.simba}
+{$IFNDEF SRL_MAKE_INCLUDED}            {$I osr/make.simba}
 {$IFNDEF SRL_GAMETABS_INCLUDED}        {$I osr/gametabs.simba}
 {$IFNDEF SRL_GAMETAB_INCLUDED}         {$I osr/gametab.simba}
 {$IFNDEF SRL_OPTIONS_INCLUDED}         {$I osr/options.simba}
@@ -66,26 +70,19 @@ end;
 {$IFNDEF SRL_MM2MS_INCLUDED}           {$I osr/mm2ms.simba}
 {$IFNDEF SRL_XPBAR_INCLUDED}           {$I osr/xpbar.simba}
 {$IFNDEF SRL_INVENTORY_INCLUDED}       {$I osr/inventory.simba}
+{$IFNDEF SRL_BANK_INCLUDED}            {$I osr/bank.simba}
+{$IFNDEF SRL_BANKPIN_INCLUDED}         {$I osr/bankpin.simba}
 {$IFNDEF SRL_GRANDEXCHANGE_INCLUDED}   {$I osr/grandexchange.simba}
-{$IFNDEF SRL_PLAYER_INCLUDED}          {$I osr/player.simba}
-{$IFNDEF SRL_BANKSCREEN_INCLUDED}      {$I osr/bankscreen.simba}
-{$IFNDEF SRL_PINSCREEN_INCLUDED}       {$I osr/pinscreen.simba}
 {$IFNDEF SRL_DEPOSITSCREEN_INCLUDED}   {$I osr/depositscreen.simba}
-{$IFNDEF SRL_ITEMFINDER_INCLUDED}      {$I osr/itemfinder/itemfinder.simba}
 {$IFNDEF SRL_WALKER_INCLUDED}          {$I osr/walker/walker.simba}
 {$IFNDEF SRL_STATS_INCLUDED}           {$I osr/stats.simba}
 {$IFNDEF SRL_EQUIPMENT_INCLUDED}       {$I osr/equipment.simba}
 {$IFNDEF SRL_ANTIBAN_INCLUDED}         {$I osr/antiban.simba}
 {$IFNDEF SRL_COMBAT_INCLUDED}          {$I osr/combat.simba}
 {$IFNDEF SRL_MAGIC_INCLUDED}           {$I osr/magic.simba}
-{$IFNDEF SRL_PRAYER_INCLUDED}          {$I osr/prayer.simba}
-{$IFNDEF SRL_SMITHSCREEN_INCLUDED}     {$I osr/smithscreen.simba}
 
+{$SCOPEDENUMS OFF}
 
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
@@ -122,3 +119,10 @@ end;
   {$HINTS ON}
 {$ENDIF}
 
+procedure TSRL.Setup; override; // Called first. Don't setup multiple times.
+begin
+  if Self.IsSetup then
+    Exit;
+    
+  inherited;
+end;

@@ -69,11 +69,11 @@ begin
 
   if Dots then
   begin
-    for Dot in Minimap.GetDots(MINIMAP_DOT_NPC) do
+    for Dot in Minimap.GetDots(ERSMinimapDot.NPC) do
       BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], Angle), $00FFFF);
-    for Dot in Minimap.GetDots(MINIMAP_DOT_ITEM) do
+    for Dot in Minimap.GetDots(ERSMinimapDot.ITEM) do
       BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], Angle), $0000FF);
-    for Dot in Minimap.GetDots(MINIMAP_DOT_PLAYER) do
+    for Dot in Minimap.GetDots(ERSMinimapDot.PLAYER) do
       BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], Angle), $FFFFFF);
   end;
 
@@ -89,17 +89,17 @@ var
 begin
   if (Self.ZoomLevel = -1) then
   begin
-    Self.Debug('Unknown zoom level, reading from options...');
+    Self.DebugLn('Unknown zoom level, reading from options...');
     Self.ZoomLevel := Options.GetZoomLevel();
-    Self.Debug('Current zoom level: ' + ToString(Self.ZoomLevel));
+    Self.DebugLn('Current zoom level: ' + ToString(Self.ZoomLevel));
   end;
 
   case RSClient.Mode of
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       Projector := MM2MS_PROJECTOR_FIXED;
 
-    RS_CLIENT_RESIZABLE_BOTTOM,
-    RS_CLIENT_RESIZABLE_CLASSIC:
+    ERSClientMode.RESIZABLE_MODERN,
+    ERSClientMode.RESIZABLE_CLASSIC:
       Projector := MM2MS_PROJECTOR_RESIZABLE;
   end;
 

@@ -107,7 +107,7 @@ begin
       BMP.ThresholdAdaptive(0, 255, False, TM_Mean, -1);
 
       Result[I].Bounds := B;
-      Result[I].Text := OCR.Recognize(BMP.ToMatrix(), [255], RS_FONTSET_BOLD_12_SHADOW, True);
+      Result[I].Text := OCR.Recognize(BMP.ToMatrix(), [255], RS_FONT_BOLD_12_SHADOW, True);
 
       BMP.Free();
       BMP := nil;

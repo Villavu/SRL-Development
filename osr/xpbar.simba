@@ -8,17 +8,16 @@ type
     ButtonOffset: TPoint;
   end;
 
-procedure TRSXPBar.Setup; overload;
+procedure TRSXPBar.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'XPBar';
 end;
 
-procedure TRSXPBar.Setup(Mode: ERSClientMode); overload;
+procedure TRSXPBar.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@InterfaceArea.X2, -120];
   Self.Alignment.Right := [@InterfaceArea.X2, -2];
@@ -26,9 +25,9 @@ begin
   Self.Alignment.Bottom := [@InterfaceArea.Y1, 30];
 
   case Self.Mode of
-    RS_CLIENT_RESIZABLE_CLASSIC: Self.ButtonOffset := [173, 38];
-    RS_CLIENT_RESIZABLE_BOTTOM:  Self.ButtonOffset := [138, 38];
-    RS_CLIENT_FIXED:             Self.ButtonOffset := [134, 28];
+    ERSClientMode.RESIZABLE_CLASSIC: Self.ButtonOffset := [173, 38];
+    ERSClientMode.RESIZABLE_MODERN:  Self.ButtonOffset := [138, 38];
+    ERSClientMode.FIXED:             Self.ButtonOffset := [134, 28];
   end;
 end;
 
@@ -45,7 +44,7 @@ begin
     Result := Length(GetButtonCircle().Filter(TPA)) > 50;
 end;
 
-procedure TRSXPBar.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSXPBar.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -57,13 +56,8 @@ begin
 end;
 
 function TRSXPBar.Read: Int32;
-var
-  Text: String;
 begin
-  Text := OCR.Recognize(Self.Bounds, [$FFFFFF], RS_FONTSET_PLAIN_11);
-  Text := Text.Replace('O', '0'); // Characters share same glpyh. Loading order can be different between systems.
-
-  Result := StrToIntDef(ExtractFromStr(Text, Numbers), -1);
+  Result := OCR.RecognizeNumber(Self.Bounds, [$FFFFFF], RS_FONT_PLAIN_11);
 end;
 
 var
@@ -73,7 +67,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  XPBar.Setup(Self.Mode);
+  XPBar.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -87,5 +81,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  XPBar.Debug(Bitmap);
+  XPBar.Draw(Bitmap);
 end;

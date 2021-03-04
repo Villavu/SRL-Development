@@ -4,9 +4,89 @@
 {$ENDIF}
 
 type
-  TRSGrandExchange = record(TRSInterface)
+  ERSGEOverviewButton = (
+    HISTORY,
+    CLOSE,
+    COLLECT
+  );
+  
+  ERSGESetupOfferButton = (
+    HISTORY,
+    CLOSE,
+    ITEM,
+    QUANTITY,
+    PRICE,
+    QUANTITY_1,
+    QUANTITY_10,
+    QUANTITY_100,
+    QUANTITY_ALL,
+    QUANTITY_ENTER,
+    PRICE_DECREASE,
+    PRICE_GUIDE,
+    PRICE_ENTER,
+    PRICE_INCREASE,
+    TOTAL,
+    CONFIRM
+  );
+  
+  ERSGEOfferStatusButton = (
+    HISTORY,
+    CLOSE,
+    QUANTITY, 
+    PRICE,
+    TOTAL,
+    PROGRESS
+  );
+  
+  ERSGEInterface = (
+    UNKNOWN,
+    OVERVIEW,
+    OFFER_STATUS,
+    OFFER_SETUP
+  );
+
+  TRSGrandExchange = record(TRSTitledInteface)
     FINDER_BANKER: TRSObjectFinder;
   end;
+  
+function TRSGrandExchange.GetSetupOfferButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[21,21], [45,18], [35,25], [152,40],[160,18], [159,18], [210,18], [40,36]]);
+end;
+
+function TRSGrandExchange.GetSetupOfferButton(Button: ERSGESetupOfferButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetSetupOfferButtons();
+begin
+  if Length(Buttons) = Length(ERSGESetupOfferButton) then
+    Result := Buttons[Button];
+end;
+
+function TRSGrandExchange.GetOverviewButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[21,21], [45,18], [81,18]]);
+end;
+
+function TRSGrandExchange.GetOverviewButton(Button: ERSGEOverviewButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetOverviewButtons();
+begin
+  if Length(Buttons) >= Length(ERSGEOverviewButton)-1 then // Collect button can not be visible. 
+    Result := Buttons[Button];
+end;
+
+function TRSGrandExchange.GetOfferStatusButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[21,21], [45,18], [36,32], [292,15], [160,18], [159,18], [210,18]]);
+end;
+
+function TRSGrandExchange.GetOfferStatusButton(Button: ERSGEOfferStatusButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetOfferStatusButtons();
+begin
+  if Length(Buttons) = Length(ERSGEOfferStatusButton) then
+    Result := Buttons[Button];
+end;
 
 function TRSGrandExchange.FindNPC(Finder: TRSObjectFinder): T2DPointArray;
 var
@@ -19,7 +99,7 @@ var
   Size: Int32;
 begin
   // Find center G.E using yellow dots
-  TPA := Minimap.GetDots(MINIMAP_DOT_NPC);
+  TPA := Minimap.GetDots(ERSMinimapDot.NPC);
   TPA.Offset([2, 2]);
   TPA := TPA.Cluster(15).Biggest();
   with TPA.MeanEx() do
@@ -27,7 +107,7 @@ begin
 
   // Size of GE center at fixed client & default(50) zoom.
   Size := MainScreen.ConvertDistance(110);
-
+  
   // Center G.E on the mainscreen
   B := [P.X, P.Y, P.X, P.Y];
   B := B.Expand(Size);
@@ -46,27 +126,48 @@ begin
   end;
 end;
 
-function TRSGrandExchange.GetTitle: String;
+function TRSGrandExchange.OpenBank: Boolean;
 var
-  B: TBox;
-  Filter: TCompareRules;
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  P: TPoint;
 begin
-  B := Self.Bounds;
-  B.X1 += 50;
-  B.Y1 += 10;
-  B.X2 -= 50;
-  B.Y2 := B.Y1 + 15;
-  B.LimitTo(Self.Bounds);
+  if Bank.IsOpen() or Bank.Open(Mouse.Position()) then
+    Exit(True);
 
-  Result := OCR.Recognize(B, [2070783], RS_FONTSET_BOLD_12);
+  ATPA := Self.FindNPC(Self.FINDER_BANKER);
+  if Length(ATPA) > 3 then
+    SetLength(ATPA, 3);
+  
+  for TPA in ATPA do
+  begin
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
+    
+    if Bank.Open(P) then
+      Exit(True);
+  end;
+end;
+
+function TRSGrandExchange.GetCurrentInterface: ERSGEInterface;
+begin
+  if Self.GetSetupOfferButton(ERSGESetupOfferButton.CLOSE).Visible() then
+    Result := ERSGEInterface.OFFER_SETUP
+  else 
+  if Self.GetOfferStatusButton(ERSGEOfferStatusButton.CLOSE).Visible() then
+    Result := ERSGEInterface.OFFER_STATUS
+  else
+  if Self.GetOverviewButton(ERSGEOverviewButton.CLOSE).Visible() then
+    Result := ERSGEInterface.OVERVIEW;
 end;
 
 function TRSGrandExchange.IsOpen: Boolean;
 begin
-  Result := 'Grand Exchange' in GetTitle();
+  Result := Self.GetCurrentInterface() <> ERSGEInterface.UNKNOWN;
 end;
 
-procedure TRSGrandExchange.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSGrandExchange.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -74,12 +175,12 @@ begin
   inherited;
 end;
 
-procedure TRSGrandExchange.Setup; overload;
+procedure TRSGrandExchange.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Grand Exchange';
+  Self.ButtonColors += [CTS1(2240055, 0), CTS1(2897729, 2), CTS1(2240055, 0), CTS1(2642530, 20), CTS1(3951189, 10)];
 
   Self.FINDER_BANKER.ColorClusters += [CTS2(6710894, 12, 0.19, 0.07), CTS2(2110788, 11, 0.29, 0.84), 10]; // grey, brown
   Self.FINDER_BANKER.ClusterDistance := 3;
@@ -88,12 +189,12 @@ begin
   Self.FINDER_BANKER.MinLongSide := 10;
 end;
 
-procedure TRSGrandExchange.Setup(Mode: ERSClientMode); overload;
+procedure TRSGrandExchange.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];
@@ -103,7 +204,7 @@ begin
         Self.Alignment.Center.MaxHeight := 304;
       end;
 
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@InterfaceArea.X1];
         Self.Alignment.Right := [@InterfaceArea.X2];
@@ -118,11 +219,26 @@ end;
 var
   GrandExchange: TRSGrandExchange;
 
+(*
+BankScreen.Open
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; override;
+
+Overrides **BankScreen.Open** to support opening the grand exchange.
+*)
+function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
+begin
+  if (Location = ERSBankLocation.GRAND_EXCHANGE) then
+    Result := GrandExchange.OpenBank()
+  else
+    Result := inherited();
+end;
+  
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  GrandExchange.Setup(Self.Mode);
+  GrandExchange.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -136,5 +252,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  GrandExchange.Debug(Bitmap);
+  GrandExchange.Draw(Bitmap);
 end;

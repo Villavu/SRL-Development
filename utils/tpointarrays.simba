@@ -497,7 +497,7 @@ begin
 end;
 
 (*
-TPointArray.FilterDist
+TPointArray.FilterBox
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
@@ -1057,6 +1057,13 @@ begin
   Result := System.PointsInRangeOf(Self, Other, MinDistX, MinDistY, MaxDistX, MaxDistY);
 end;
 
+function TPointArray.Frameness: Single;
+var
+  Edge: TPointArray := EdgeFromBox(Self.Bounds());
+begin
+  Result := (Length(Edge.PointsInRangeOf(Self, 0, 1)) / Length(Edge)) * 100;
+end; 
+
 procedure T2DPointArray.Append(const Value: TPointArray);
 var top:Int32;
 begin
@@ -1211,17 +1218,6 @@ begin
 end;
 
 
-
-function T2DPointArray.FilterBox(Box: TBox): T2DPointArray; constref;
-var
-  i: Int32;
-begin
-  Result := Copy(Self);
-  for i := 0 to High(Result) do
-    Result[i] := Result[i].FilterBox(Box);
-end;
-
-
 procedure T2DPointArray.FilterSize(MinLen:Int32; KeepIf:EComparator=__LT__);
 var
   tmp:T2DPointArray;
@@ -1248,7 +1244,7 @@ begin
   self := tmp;
 end;
 
-procedure T2DPointArray.FilterDimensions(MinW,MinH, MaxW,MaxH:Int32); overload;
+procedure T2DPointArray.FilterDimensions(MinW, MinH: Int32; MaxW: Int32 = $FFFFFF; MaxH: Int32 = $FFFFFF);
 var
   tmp:T2DPointArray;
   TPA:TPointArray;
