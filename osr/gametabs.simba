@@ -86,8 +86,12 @@ begin
 end;
 
 function TRSGameTabs.GetTabBox(Tab: ERSGameTab): TBox;
+var
+  Tabs: TBoxArray := Self.GetTabBoxes;
 begin
-  Result := Self.GetTabBoxes[Tab];
+  if Tabs = [] then
+    Exit;
+  Result := Tabs[Tab];
 end;
 
 function TRSGameTabs.GetCurrentTab: ERSGametab;
