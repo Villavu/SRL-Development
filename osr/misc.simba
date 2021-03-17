@@ -8,6 +8,13 @@ Misc
   {$I SRL/osr.simba}
 {$ENDIF}
 
+const
+  RS_ITEM_SHADOW       = $202030;
+  RS_ITEM_BORDER       = $010000;
+
+  RS_ITEM_YELLOW_STACK = $00FFFF;
+  RS_ITEM_WHITE_STACK  = $FFFFFF;
+  RS_ITEM_GREEN_STACK  = $80FF00;
 
 (*
 SRL.GetXPAtLevel
@@ -46,38 +53,27 @@ end;
 
 (*
 SRL.GetItemAmount
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TSRL.GetItemAmount(Area: TBox): Int32;
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TSRL.GetItemAmount(constref Area: TBox): Int32;
 
 For use with items in like bankscreen, inventory, shops and so on to
 get the number of stacked items there are.
 *)
-function TSRL.GetItemAmount(Area: TBox): Int32; constref;
-const
-  TEXT_COLORS: TIntegerArray = [$00FFFF, $00FEFE, $FFFFFF, $80FF00]; // Million = white | Billion = green etc.
-var
-  I: Integer;
-  Text: String;
-  TPA: TPointArray;
+function TSRL.GetItemAmount(constref Area: TBox): Int32; constref;
 begin
-  for I := 0 to High(TEXT_COLORS) do
-    if SRL.FindColors(TPA, CTS0(TEXT_COLORS[I]), Area) then
-    begin
-      Text := OCR.Recognize(TPA, RS_FONTSET_PLAIN_11);
-      Result := StrToIntDef(ExtractFromStr(Text, Numbers), 0);
-
-      if Pos('K', Text) > 0 then
-        Result := Result * 1000;
-      if Pos('M', Text) > 0 then
-        Result := Result * 1000000;
-
-      Exit;
-    end;
+  if SRL.CountColor(RS_ITEM_YELLOW_STACK, Area) > 0 then
+    Result := OCR.RecognizeNumber(Area, [RS_ITEM_YELLOW_STACK], RS_FONT_PLAIN_11)
+  else
+  if SRL.CountColor(RS_ITEM_WHITE_STACK, Area) > 0 then
+    Result := OCR.RecognizeNumber(Area, [RS_ITEM_WHITE_STACK], RS_FONT_PLAIN_11) * 1000
+  else
+  if SRL.CountColor(RS_ITEM_GREEN_STACK, Area) > 0 then
+    Result := OCR.RecognizeNumber(Area, [RS_ITEM_GREEN_STACK], RS_FONT_PLAIN_11) * 1000000;
 end;
 
 (*
 SRL.AvgBrightness
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 .. pascal:: function TSRL.AvgBrightness(B: TBox): Int32;
 
 Returns the average brightness of a area on the screen. 

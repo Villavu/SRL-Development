@@ -6,20 +6,19 @@
 type
   TRSInterfaceArea = type TRSInterface;
 
-procedure TRSInterface.Setup; overload;
+procedure TRSInterfaceArea.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited;
+  
   Self.Name := 'Interface Area';
 end;
 
-procedure TRSInterfaceArea.Setup(Mode: ERSClientMode); overload;
+procedure TRSInterfaceArea.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@MainScreen.X1];
         Self.Alignment.Right := [@MainScreen.X2];
@@ -27,20 +26,20 @@ begin
         Self.Alignment.Bottom := [@MainScreen.Y2];
       end;
 
-    RS_CLIENT_RESIZABLE_CLASSIC:
+    ERSClientMode.RESIZABLE_CLASSIC:
       begin
         Self.Alignment.Left := [@MainScreen.X1];
         Self.Alignment.Right := [@GameTabs.X1, -10];
         Self.Alignment.Top := [@MainScreen.Y1];
-        Self.Alignment.Bottom := [@ChatBox.Y1];
+        Self.Alignment.Bottom := [@Chat.Y1];
       end;
 
-    RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@MainScreen.X1];
         Self.Alignment.Right := [@GameTabs.X1, 15];
         Self.Alignment.Top := [@MainScreen.Y1];
-        Self.Alignment.Bottom := [@ChatBox.Y1];
+        Self.Alignment.Bottom := [@Chat.Y1];
       end;
   end;
 end;
@@ -52,7 +51,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  InterfaceArea.Setup(Self.Mode);
+  InterfaceArea.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -66,5 +65,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  InterfaceArea.Debug(Bitmap);
+  InterfaceArea.Draw(Bitmap);
 end;

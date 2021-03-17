@@ -167,13 +167,12 @@ Setups the mainscreen.
 
 .. note:: This is automatically called on the **MainScreen** variable.
 *)
-procedure TRSMainScreen.Setup; overload;
+procedure TRSMainScreen.Setup; override;
 var
   Bitmap: Int32;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited;
+  
   Self.Name := 'MainScreen';
 
   Self.UpTextFilter.Color := -1;
@@ -200,12 +199,12 @@ begin
   AddOnTerminate(@Self.Free);
 end;
 
-procedure TRSMainScreen.Setup(Mode: ERSClientMode); overload;
+procedure TRSMainScreen.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@RootInterface.X1];
         Self.Alignment.Right := [@RootInterface.X2];
@@ -215,7 +214,7 @@ begin
         Self.UpTextArea := [3, 3, 500, 21];
       end;
 
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@RootInterface.X1, 4];
         Self.Alignment.Right := [@RootInterface.X1, 515];
@@ -242,10 +241,10 @@ Example
 *)
 function TRSMainScreen.GetUpText: String;
 begin
-  Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONTSET_BOLD_12_SHADOW, True);
+  Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW, True);
 
   {$IFDEF SRL_DEBUG_UPTEXT}
-  Self.Debug('UpText: ' + Result);
+  Self.DebugLn('UpText: ' + Result);
   {$ENDIF}
 end;
 
@@ -546,7 +545,7 @@ begin
 
   if Result then
   begin
-    if Chatbox.IsOpen() and Chatbox.Bounds().Contains(P) then
+    if Chat.IsOpen() and Chat.Bounds().Contains(P) then
       Exit(False);
     if ChatButtons.Bounds().Contains(P) then
       Exit(False);
@@ -608,7 +607,7 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
     for B in TPA.Cluster(3).ToTBA() do
       if (B.Width >= 10) and (B.Height >= 10) then
       begin
-        Text := OCR.Recognize(B.Expand(5, Area), [$FFFFFF], RS_FONTSET_PLAIN_11, False);
+        Text := OCR.Recognize(B.Expand(5, Area), [$FFFFFF], RS_FONT_PLAIN_11, False);
         Text := Text.Replace('O', '0');
 
         Result += [B.Middle(), StrToIntDef(Text, -1), Red];
@@ -791,7 +790,11 @@ begin
 end;
 
 type
-  ERSClickType = (RS_CLICK_NONE, RS_CLICK_RED, RS_CLICK_YELLOW);
+  ERSClickType = (
+    NONE, 
+    RED, 
+    YELLOW
+  );
 
 (*
 Mainscreen.FindClick
@@ -822,11 +825,11 @@ begin
   begin
     for Bitmap in Self.YellowClicks do
       if FindBitmapToleranceIn(Bitmap, X, Y, Area, 5) then
-        Exit(RS_CLICK_YELLOW);
+        Exit(ERSClickType.YELLOW);
 
     for Bitmap in Self.RedClicks do
       if FindBitmapToleranceIn(Bitmap, X, Y, Area, 5) then
-        Exit(RS_CLICK_RED);
+        Exit(ERSClickType.RED);
 
     if Attempt = 1 then // Try again after 50 ms
       Wait(50);
@@ -850,7 +853,7 @@ Example
 *)
 function TRSMainScreen.DidRedClick: Boolean;
 begin
-  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = RS_CLICK_RED;
+  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = ERSClickType.RED;
 end;
 
 (*
@@ -870,10 +873,10 @@ Example
 *)
 function TRSMainScreen.DidYellowClick: Boolean;
 begin
-  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = RS_CLICK_YELLOW;
+  Result := Self.FindClick(Box(Mouse.Position(), 10, 10)) = ERSClickType.YELLOW;
 end;
 
-procedure TRSMainScreen.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSMainScreen.Draw(Bitmap: TMufasaBitmap); override;
 var
   Splat: TRSHitsplat;
   Bar: TRSHPBar;
@@ -893,7 +896,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  MainScreen.Setup(Self.Mode);
+  MainScreen.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -907,6 +910,6 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  MainScreen.Debug(Bitmap);
+  MainScreen.Draw(Bitmap);
 end;
 

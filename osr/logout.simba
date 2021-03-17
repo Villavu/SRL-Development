@@ -4,32 +4,28 @@
 {$ENDIF}
 
 type
-  TRSLogout = record(TRSInterface)
-    BUTTON_LOGOUT: TRSInterfaceButton;
-    BUTTON_WORLD_SWITCHER: TRSInterfaceButton;
+  ERSLogoutButton = (
+    WORLD_SWITCHER,
+    CLICK_HERE
+  );
+  
+  ERSLogoutWorldSwitcherButton = (
+    CLOSE
+  );
 
-    BUTTON_WORLD_SWITCHER_CLOSE: TRSInterfaceButton;
-    BUTTON_WORLD_SWITCHER_CLOSE_HOVER: TRSInterfaceButton;
-  end;
+  TRSLogout = type TRSInterface;
 
-procedure TRSLogout.Setup; overload;
+procedure TRSLogout.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited;
+  
   Self.Name := 'Options';
 end;
 
-procedure TRSLogout.Setup(Mode: ERSClientMode); overload;
-begin
-  Self.Mode := Mode;
-
-  Self.BUTTON_LOGOUT := Self.AddOCRButton('Click here to logout', RS_FONT_BOLD_12, -1);
-  Self.BUTTON_WORLD_SWITCHER := Self.AddOCRButton('World Switcher', RS_FONT_BOLD_12, -1);
-
-  Self.BUTTON_WORLD_SWITCHER_CLOSE := Self.AddBitmapButton('logout_worldswitcher_close.png');
-  Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER := Self.AddBitmapButton('logout_worldswitcher_close_hover.png');
-
+procedure TRSLogout.SetupAlignment(Mode: ERSClientMode); override;
+begin 
+  inherited;
+  
   Self.Alignment.Left := [@GameTab.X1, -3];
   Self.Alignment.Right := [@GameTab.X2, 3];
   Self.Alignment.Top := [@GameTab.Y1];
@@ -38,65 +34,65 @@ end;
 
 function TRSLogout.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = TAB_LOGOUT);
+  Result := (GameTabs.GetCurrentTab() = ERSGameTab.LOGOUT);
 end;
 
 function TRSLogout.Open: Boolean;
 begin
-  Result := GameTabs.Open(TAB_LOGOUT);
+  Result := GameTabs.Open(ERSGameTab.LOGOUT);
+end;
+
+function TRSLogout.GetButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[138, 30], [21, 21]]);
+end;
+
+function TRSLogout.GetButton(Button: ERSLogoutButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetButtons();
+begin
+  if Length(Buttons) = Length(ERSLogoutButton) then
+    Result := Buttons[Button];
+end;
+
+function TRSLogout.GetWorldSwitcherButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[21, 21]]);
+end;
+
+function TRSLogout.GetWorldSwitcherButton(Button: ERSLogoutWorldSwitcherButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetWorldSwitcherButtons();
+begin
+  if Length(Buttons) = Length(ERSLogoutWorldSwitcherButton) then
+    Result := Buttons[Button];
 end;
 
 function TRSLogout.IsWorldSwitcherOpen: Boolean;
 begin
-  Result := Self.IsOpen() and Self.FindButton([Self.BUTTON_WORLD_SWITCHER_CLOSE, Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER]);
+  Result := Self.IsOpen() and Self.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE).Visible();
 end;
 
 function TRSLogout.CloseWorldSwitcher: Boolean;
-var
-  T: UInt64;
 begin
-  if Self.IsWorldSwitcherOpen() then
-  begin
-    if Self.ClickButton([Self.BUTTON_WORLD_SWITCHER_CLOSE, Self.BUTTON_WORLD_SWITCHER_CLOSE_HOVER], MOUSE_LEFT) then
-    begin
-      T := GetTickCount() + 2500;
-
-      while (T > GetTickCount()) do
-      begin
-        if not Self.IsWorldSwitcherOpen() then
-          Exit(True);
-
-        Wait(0, 1000, wdLeft);
-      end;
-    end;
-  end;
+  if Self.IsOpen() and (not Self.IsWorldSwitcherOpen()) then
+    Exit(True);
+  
+  Result := Self.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE).Click() and WaitUntil(not Self.IsWorldSwitcherOpen(), 500, 5000);
 end;
 
 function TRSLogout.ClickLogout(Attempts: Int32 = 5; TryTime: Int32 = 20000): Boolean;
 var
-  T, Interval: UInt64;
+  Interval: UInt64;
 begin
-  if not Self.Open() then
-    Exit;
-  if Self.IsWorldSwitcherOpen() and (not Self.CloseWorldSwitcher()) then
+  if (not Self.Open()) or (not Self.CloseWorldSwitcher()) then
     Exit;
 
   Interval := TryTime div Attempts;
 
   for 1 to Attempts do
-  begin
-    if Self.ClickButton(Self.BUTTON_LOGOUT, MOUSE_LEFT) then
-    begin
-      T := GetTickCount() + Interval + SRL.NormalRange(-2000, 2000);
-      while (T > GetTickCount()) do
-      begin
-        if not RSClient.IsLoggedIn() then
-          Exit(True);
-
-        Wait(100, 200);
-      end;
-    end;
-  end;
+    if Self.GetButton(ERSLogoutButton.CLICK_HERE).Click() and WaitUntil(not RSClient.IsLoggedIn(), 500, Interval + SRL.NormalRange(-2000, 2000)) then 
+      Exit(True);
 end;
 
 var
@@ -106,7 +102,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Logout.Setup(Self.Mode);
+  Logout.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -120,5 +116,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Logout.Debug(Bitmap);
+  Logout.Draw(Bitmap);
 end;

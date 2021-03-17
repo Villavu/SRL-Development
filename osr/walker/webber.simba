@@ -53,7 +53,7 @@ begin
         bestIndex := I;
       end;
 
-    Self.Path := Self.Graph.FindPath(Self.SelectedNode, bestIndex);
+    Self.Path := Self.Graph.FindPath(Self.SelectedNode, bestIndex, 0.75);
     Self.ImageBox.Update();
   end else
   begin

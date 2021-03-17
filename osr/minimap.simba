@@ -4,8 +4,12 @@
 {$ENDIF}
 
 type
-  EMinimapDotType = (MINIMAP_DOT_PLAYER, MINIMAP_DOT_NPC, MINIMAP_DOT_ITEM);
-  EMinimapDotTypes = set of EMinimapDotType;
+  ERSMinimapDot = (
+    PLAYER, 
+    NPC, 
+    ITEM
+  );
+  ERSMinimapDots = set of ERSMinimapDot;
 
 type
   TRSMinimap = record(TRSInterface)
@@ -22,7 +26,6 @@ function TRSMinimap.GetCompassCircle: TCircle;
 begin
   Result := [Self.X1 + Self.CompassCircleOffset.X, Self.Y1 + Self.CompassCircleOffset.Y, 17];
 end;
-
 
 function TRSMinimap.GetHPCircle: TCircle;
 begin
@@ -44,39 +47,13 @@ begin
   Result := [Self.X1 + Self.SpecAttackCircleOffset.X, Self.Y1 + Self.SpecAttackCircleOffset.Y, 12];
 end;
 
-
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
 var
-  B: TBox;
-  BMP: TMufasaBitmap;
-  TPA: TPointArray;
-  ATPA: T2DPointArray;
-  Text: String;
+  Filter: TCompareRules;
 begin
-  Result := -1;
-
-  with Orb do
-    B := [X-35, Y, X-15, Y+10];
-
-  BMP.FromClient(B);
-
-  if BMP.FindColors(TPA, 0) then
-    ATPA += TPA;
-  if BMP.FindColors(TPA, 4938344) then
-    ATPA += TPA;
-
-  if Length(ATPA) = 2 then
-  begin
-    Text := OCR.Recognize(ATPA.Merge().Invert(), RS_FONTSET_PLAIN_11);
-    Text := Text.Replace('O', '0'); // Share same character
-
-    try
-      Result := StrToInt(Text);
-    except
-    end;
-  end;
-
-  BMP.Free();
+  Filter.UseShadowForColor := True;
+  
+  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y, Orb.X-15, Orb.Y+10], Filter, RS_FONT_PLAIN_11); 
 end;
 
 function TRSMinimap.GetRunEnergy: Int32;
@@ -90,35 +67,27 @@ begin
 end;
 
 function TRSMinimap.GetCompassAngle(AsDegrees: Boolean = True): Double;
-const
-  COMPASS_NORTH_COLOR = 1911089;
-  COMPASS_SOUTH_COLOR = 920735;
 var
   TPA: TPointArray;
-  North, South: TPoint;
+  ATPA: T2DPointArray;
+  South: Vector2;
 begin
   with GetCompassCircle() do
-  begin
-    if FindColors(TPA, COMPASS_NORTH_COLOR, Bounds()) then
+    if SRL.FindColors(TPA, CTS1(2565532, 50), Bounds()) then // red
     begin
-      North := TPA.Mean();
-
-      if FindColors(TPA, COMPASS_SOUTH_COLOR, Bounds) then
+      ATPA := TPA.Split(5);
+      ATPA.SortByMiddle(ATPA.Biggest().Mean());
+    
+      South := ATPA[High(ATPA)].MeanEx;
+    
+      Result := FixRad(ArcTan2(South.Y - Y, South.X - X) - (PI / 2));
+      if (Result <> 0) then
       begin
-        TPA := TPA.FilterDist(Radius div 2, Radius, X, Y);
-        TPA.Sort(North);
-
-        South := TPA[High(TPA)];
-
-        Result := FixRad(ArcTan2(South.Y - Y, South.X - X) - (PI / 2));
-        if (Result <> 0) then
-	        Result += 0.0333; // compass dial is floored.. this makes us more accurate.
+	      Result += 0.0333; // compass dial is floored.. this makes us more accurate.}
+        if AsDegrees then
+          Result := Degrees(Result);
       end;
     end;
-  end;
-
-  if AsDegrees then
-    Result := Degrees(Result);
 end;
 
 procedure TRSMinimap.SetCompassAngle(Degrees: Double; Accuracy: Double = 5);
@@ -148,7 +117,7 @@ begin
   begin
     if (GetTickCount() > T) then
     begin
-      Self.Debug('SetCompassAngle timed out');
+      Self.DebugLn('SetCompassAngle timed out');
       Exit;
     end;
 
@@ -191,7 +160,7 @@ begin
   end;
 end;
 
-procedure TRSMinimap.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSMinimap.Draw(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
@@ -216,10 +185,9 @@ begin
   FreeBitmap(Self.FlagBitmap);
 end;
 
-procedure TRSMinimap.Setup; overload;
+procedure TRSMinimap.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Minimap';
   Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
@@ -227,12 +195,12 @@ begin
   AddOnTerminate(@Self.Free);
 end;
 
-procedure TRSMinimap.Setup(Mode: ERSClientMode); overload;
+procedure TRSMinimap.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
-    RS_CLIENT_RESIZABLE_CLASSIC, RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@RootInterface.X2, -157];
         Self.Alignment.Right := [@RootInterface.X2, -6];
@@ -247,14 +215,14 @@ begin
         Self.PolygonOffset := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
       end;
 
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@RootInterface.X2, -195];
         Self.Alignment.Right := [@RootInterface.X2,-50];
         Self.Alignment.Top := [@RootInterface.Y1, 8];
         Self.Alignment.Bottom := [@RootInterface.Y1, 159];
 
-        Self.CompassCircleOffset := [-8, 13];
+        Self.CompassCircleOffset := [-8, 12];
         Self.HitpointsCircleOffset := [-13, 49];
         Self.PrayerCircleOffset := [-13, 84];
         Self.RunCircleOffset := [-3, 116];
@@ -273,7 +241,6 @@ function TRSMinimap.IsPointOn(P: TPoint; Expand: Int32): Boolean; overload;
 begin
   Result := SRL.PointInPoly(P, ExpandPolygon(Self.GetPolygon(), Expand));
 end;
-
 
 function TRSMinimap.IsPoisoned: Boolean;
 begin
@@ -298,7 +265,6 @@ begin
     end;
   end;
 end;
-
 
 function TRSMinimap.IsPrayerEnabled: Boolean;
 begin
@@ -343,7 +309,6 @@ begin
   end;
 end;
 
-
 function TRSMinimap.IsRunEnabled: Boolean;
 begin
   Result := SRL.CountColor(CTS2(4211520, 6, 2.84, 0.14), Self.GetRunCircle().Bounds) = 0;
@@ -386,7 +351,6 @@ begin
     end;
   end;
 end;
-
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
@@ -440,7 +404,7 @@ begin
   end;
 end;
 
-function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: EMinimapDotTypes): TPointArray;
+function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
 var
   Blacks: TPointArray;
 
@@ -492,21 +456,21 @@ begin
     BMP.FindColors(Blacks, 65536);
     Blacks := Blacks.FilterBox(Box(2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1));
 
-    if MINIMAP_DOT_PLAYER in Dots then
+    if ERSMinimapDot.PLAYER in Dots then
     begin
       SetColorToleranceSpeed(2);
       SetToleranceSpeed2Modifiers(0.001, 0.001);
       Result += FindDots(Blacks, $FFFFFF, 30);
     end;
 
-    if MINIMAP_DOT_NPC in Dots then
+    if ERSMinimapDot.NPC in Dots then
     begin
       SetColorToleranceSpeed(2);
       SetToleranceSpeed2Modifiers(0.05, 1);
       Result += FindDots(Blacks, $00FFFF, 30);
     end;
 
-    if MINIMAP_DOT_ITEM in Dots then
+    if ERSMinimapDot.ITEM in Dots then
     begin
       SetColorToleranceSpeed(2);
       SetToleranceSpeed2Modifiers(0.05, 1);
@@ -518,7 +482,7 @@ begin
   end;
 end;
 
-function TRSMinimap.GetDots(Dots: EMinimapDotTypes): TPointArray; overload;
+function TRSMinimap.GetDots(Dots: ERSMinimapDots): TPointArray; overload;
 var
   BMP: TMufasaBitmap;
 begin
@@ -530,7 +494,7 @@ begin
   BMP.Free();
 end;
 
-function TRSMinimap.GetDots(Dot: EMinimapDotType): TPointArray; overload;
+function TRSMinimap.GetDots(Dot: ERSMinimapDot): TPointArray; overload;
 begin
   Result := GetDots([Dot]);
 end;
@@ -575,7 +539,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Minimap.Setup(Self.Mode);
+  Minimap.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -589,5 +553,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Minimap.Debug(Bitmap);
+  Minimap.Draw(Bitmap);
 end;

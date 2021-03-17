@@ -20,17 +20,17 @@ The modes of the client.
 
 .. pascal::
 
-  RS_CLIENT_UNKNOWN            // Unable to detect mode (likely not logged in)
-  RS_CLIENT_FIXED              // Fixed mode
-  RS_CLIENT_RESIZABLE_CLASSIC  // Resizable with "classic" gametabs or "fixed mode gametabs"
-  RS_CLIENT_RESIZABLE_BOTTOM   // Resizable with gametabs being grouped together at the bottom
+  ERSClientMode.UNKNOWN            // Unable to detect mode (likely not logged in yet)
+  ERSClientMode.FIXED              // Fixed mode
+  ERSClientMode.RESIZABLE_CLASSIC  // Resizable with "classic" gametabs or "fixed mode gametabs"
+  ERSClientMode.RESIZABLE_MODERN   // Resizable with gametabs being grouped together at the bottom
 *)
 type
   ERSClientMode = (
-    RS_CLIENT_UNKNOWN,
-    RS_CLIENT_FIXED,
-    RS_CLIENT_RESIZABLE_CLASSIC,
-    RS_CLIENT_RESIZABLE_BOTTOM
+    UNKNOWN,
+    FIXED,
+    RESIZABLE_CLASSIC,
+    RESIZABLE_MODERN
   );
 
   TRSClient = record(TSRLBaseRecord)
@@ -54,30 +54,40 @@ procedure TRSClient.SetupRemoteInput;
 begin
   {$IFNDEF SIMBAHEADLESS}
   Self.PID := GetSimbaTargetPID();
+  if Self.PID > 0 then
+  begin
+    RIInject(Self.PID);
+    
+    if WaitUntil(EIOS_GetClients(True) > 0, 100, 1000) then
+    begin
+      Self.EIOS := EIOS_PairClient(Self.PID);
+      try
+        SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
+        
+        Exit;
+      except
+        Self.Fatal('SetupRemoteInput: ' + GetExceptionMessage());
+      end;
+    end;
+  end;
   {$ENDIF}
 
-  if Self.PID = 0 then
+  if MessageDlg('SRL', 'Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) = mrYes then
   begin
-    if MessageDlg('SRL', 'Simba has no target. Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) then
+    RIInject({$IFDEF WINDOWS}'JagexLauncher.exe'{$ELSE}'java'{$ENDIF});
+
+    if WaitUntil(EIOS_GetClients(True) > 0, 100, 1000) then
     begin
-      RIInject({$IFDEF WINDOWS}'JagexLauncher.exe'{$ELSE}'java'{$ENDIF});
-
-      if EIOS_GetClients(True) > 0 then
-        Self.PID := EIOS_GetClientPID(0);
+      Self.PID := EIOS_GetClientPID(0);
+      Self.EIOS := EIOS_PairClient(Self.PID);
+      try
+        SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
+        
+        Exit;
+      except
+        Self.Fatal('SetupRemoteInput: ' + GetExceptionMessage());
+      end;
     end;
-  end else
-    RIInject(Self.PID);
-
-  Wait(500); // Allow time to injection to kick in
-
-  if Self.PID = 0 then
-    Self.Fatal('No OSRS clients found. You might need ' + {$IFDEF CPU32}'64'{$ELSE}'32'{$ENDIF} + ' bit Simba for this RS client');
-
-  Self.EIOS := EIOS_PairClient(Self.PID);
-  try
-    SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
-  except
-    Self.Fatal('OSRS target failed');
   end;
 end;
 {$ENDIF}
@@ -100,17 +110,19 @@ begin
   // Music tab in each mode there are different colors at W-4, H-21
   // Two colors each because tab can be active(red) or not(grey)
   case GetColor(W-4, H-21) of
-    2435372, 658467: Result := RS_CLIENT_FIXED;
-    3555653, 922425: Result := RS_CLIENT_RESIZABLE_BOTTOM;
-    2896180, 790059: Result := RS_CLIENT_RESIZABLE_CLASSIC;
+    2435372, 658467: Result := ERSClientMode.FIXED;
+    3555653, 922425: Result := ERSClientMode.RESIZABLE_MODERN;
+    2896180, 790059: Result := ERSClientMode.RESIZABLE_CLASSIC;
   end;
-  if Update then Self.Mode := Result;
+  
+  if Update then 
+    Self.Mode := Result;
 end;
 
 procedure TRSClient.ClientModeChanged;
 begin
-  Self.Debug('Client mode changed: ' + ToString(Self.Mode));
-
+  Self.DebugLn('Client mode changed: ' + ToString(Self.Mode));
+  
   { override me }
 end;
 
@@ -120,13 +132,13 @@ var
 begin
   Test := Self.DetectClientMode();
 
-  if (Test <> RS_CLIENT_UNKNOWN) and (Test <> Self.Mode) then
+  if (Test <> ERSClientMode.UNKNOWN) and (Test <> Self.Mode) then
   begin
     Self.Mode := Test;
     Self.ClientModeChanged();
   end;
 
-  Result := Test <> RS_CLIENT_UNKNOWN;
+  Result := Test <> ERSClientMode.UNKNOWN;
 end;
 
 function TRSClient.IsLoggedIn(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
@@ -163,7 +175,7 @@ begin
 end;
 {$ELSE}
 begin
-  Self.Debug('Lose focus not yet implemented for this target!');
+  Self.DebugLn('Lose focus not yet implemented for this target!');
 end;
 {$ENDIF}
 
@@ -192,8 +204,8 @@ begin
   {$ENDIF}
 
   Self.Mode := Self.DetectClientMode();
-  if Self.Mode = RS_CLIENT_UNKNOWN then
-    Self.Mode := RS_CLIENT_FIXED; // Fixed as default so we can login if needed
+  if Self.Mode = ERSClientMode.UNKNOWN then
+    Self.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
 end;
 
 var
