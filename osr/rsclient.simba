@@ -54,31 +54,40 @@ procedure TRSClient.SetupRemoteInput;
 begin
   {$IFNDEF SIMBAHEADLESS}
   Self.PID := GetSimbaTargetPID();
+  if Self.PID > 0 then
+  begin
+    RIInject(Self.PID);
+    
+    if WaitUntil(EIOS_GetClients(True) > 0, 100, 1000) then
+    begin
+      Self.EIOS := EIOS_PairClient(Self.PID);
+      try
+        SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
+        
+        Exit;
+      except
+        Self.Fatal('SetupRemoteInput: ' + GetExceptionMessage());
+      end;
+    end;
+  end;
   {$ENDIF}
 
-  if Self.PID = 0 then
+  if MessageDlg('SRL', 'Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) = mrYes then
   begin
-    if MessageDlg('SRL', 'Simba has no target. Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) = mrYes then
+    RIInject({$IFDEF WINDOWS}'JagexLauncher.exe'{$ELSE}'java'{$ENDIF});
+
+    if WaitUntil(EIOS_GetClients(True) > 0, 100, 1000) then
     begin
-      RIInject({$IFDEF WINDOWS}'JagexLauncher.exe'{$ELSE}'java'{$ENDIF});
-
-      if EIOS_GetClients(True) > 0 then
-        Self.PID := EIOS_GetClientPID(0);
-    end else
-      Self.Fatal('Simba has no target.');
-  end else
-    RIInject(Self.PID);
-
-  Wait(500); // Allow time to injection to kick in
-
-  if Self.PID = 0 then
-    Self.Fatal('No OSRS clients found. You might need ' + {$IFDEF CPU32}'64'{$ELSE}'32'{$ENDIF} + ' bit Simba for this RS client');
-
-  Self.EIOS := EIOS_PairClient(Self.PID);
-  try
-    SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
-  except
-    Self.Fatal('OSRS target failed');
+      Self.PID := EIOS_GetClientPID(0);
+      Self.EIOS := EIOS_PairClient(Self.PID);
+      try
+        SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
+        
+        Exit;
+      except
+        Self.Fatal('SetupRemoteInput: ' + GetExceptionMessage());
+      end;
+    end;
   end;
 end;
 {$ENDIF}

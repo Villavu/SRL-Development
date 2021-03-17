@@ -9,7 +9,7 @@ Item Finder
 {$ENDIF}
 
 type
-  TRSItem = type Variant;
+  TRSItem = Variant;
   TRSItemArray = array of TRSItem;
 
   TRSItemFinder = record(TSRLBaseRecord)
