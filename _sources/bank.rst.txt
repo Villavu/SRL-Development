@@ -1,0 +1,135 @@
+
+Bank
+====
+Methods to interact with the Bank.
+
+
+------------
+
+Bank.IsOpen
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean;
+
+Returns true if the Bank is visible.
+
+**WaitForItems** determines if the method waits 1-2 seconds items to load as there
+can be a small delay before items are visible.
+
+
+------------
+
+Bank.Close
+~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.Close(UseKeyboard: Boolean = False): Boolean;
+
+Closes the bank, Depending on `UseKeyboard` the function will either click the button
+or press backspace.
+
+Example
+-------
+.. code-block:: pascal  
+
+ WriteLn Bank.Close();
+
+
+------------
+
+Bank.Setup
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure Bank.Setup;
+
+Initializes Bank variables.
+
+.. note:: This is automatically called on the **Bank** variable.
+
+
+------------
+
+Bank.Search
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.Search(Item: String): Boolean;
+
+Searches for an item.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Bank.Search('logs'); // Search for logs
+
+
+------------
+
+Bank.WithdrawItem
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean;
+
+Finds and withdraws an item.
+
+Parameters
+----------
+
+Item
+	TRSBankWithdrawItem variable to withdraw.
+
+UseQuantityButtons  
+  Determines if to use the 1,5,10,X,ALL `Quantity` buttons.
+
+Example
+-------
+.. code-block:: pascal  
+
+  var
+    ItemToWithdraw: TRSBankWithdrawItem;
+    
+  ItemToWithdraw.Item := 'Iron full helm'; 
+  ItemToWithdraw.Quantity := 5;
+  ItemToWithdraw.Noted := False;  
+  
+  Bank.WithdrawItem(ItemToWithdraw, True);  
+  
+  // OR you can shorthand by passing an open array.
+  
+  Bank.WithdrawItem(['Iron full helm', 5, False], True);  
+
+
+------------
+
+Bank.DepositAll
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.DepositAll: Boolean;
+
+Depositis your inventory by clicking the deposit inventory button
+
+
+------------
+
+var Bank
+~~~~~~~~
+  Global Bank variable.
+
+
+------------
+
+Inventory.IsOpen
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.IsOpen: Boolean; override;
+
+Overrides **Inventory.IsOpen** to return true if the Bank is open.
+
+
+------------

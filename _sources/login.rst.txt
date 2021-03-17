@@ -1,0 +1,22 @@
+
+Login
+=====
+
+Handles logging in players.
+
+Summary: 
+
+- Add players with `Login.AddPlayer`
+- Login the current player with `Login.LoginPlayer`
+- Switch to the next player with `Login.NextPlayer`
+
+Example
+-------
+.. code-block:: pascal  
+
+  Login.AddPlayer('myusername', 'mypassword');
+  if not Login.LoginPlayer() then
+    TerminateScript('Failed to login!');
+
+
+------------

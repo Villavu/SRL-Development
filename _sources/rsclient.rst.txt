@@ -14,10 +14,10 @@ The modes of the client.
 
 
 
-  RS_CLIENT_UNKNOWN            // Unable to detect mode (likely not logged in)
-  RS_CLIENT_FIXED              // Fixed mode
-  RS_CLIENT_RESIZABLE_CLASSIC  // Resizable with "classic" gametabs or "fixed mode gametabs"
-  RS_CLIENT_RESIZABLE_BOTTOM   // Resizable with gametabs being grouped together at the bottom
+  ERSClientMode.UNKNOWN            // Unable to detect mode (likely not logged in yet)
+  ERSClientMode.FIXED              // Fixed mode
+  ERSClientMode.RESIZABLE_CLASSIC  // Resizable with "classic" gametabs or "fixed mode gametabs"
+  ERSClientMode.RESIZABLE_MODERN   // Resizable with gametabs being grouped together at the bottom
 
 
 ------------

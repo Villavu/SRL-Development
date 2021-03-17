@@ -28,10 +28,10 @@ Given some XP, it returns what level that is.
 ------------
 
 SRL.GetItemAmount
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TSRL.GetItemAmount(Area: TBox): Int32;
+ function TSRL.GetItemAmount(constref Area: TBox): Int32;
 
 For use with items in like bankscreen, inventory, shops and so on to
 get the number of stacked items there are.
@@ -40,7 +40,7 @@ get the number of stacked items there are.
 ------------
 
 SRL.AvgBrightness
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
  function TSRL.AvgBrightness(B: TBox): Int32;
