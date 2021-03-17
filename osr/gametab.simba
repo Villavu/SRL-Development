@@ -1,4 +1,4 @@
-{$DEFINE SRL_GAMETAB_INCLUDED}
+{$DEFINE SRL_GAMEERSGameTab.INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
@@ -6,20 +6,19 @@
 type
   TRSGameTab = type TRSInterface;
 
-procedure TRSGameTab.Setup; overload;
+procedure TRSGameTab.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited; 
+  
   Self.Name := 'GameTab';
 end;
 
-procedure TRSGameTab.Setup(Mode: ERSClientMode); overload;
+procedure TRSGameTab.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
-    RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC:
+    ERSClientMode.FIXED, ERSClientMode.RESIZABLE_CLASSIC:
       begin
         Self.Alignment.Left := [@GameTabs.X1, 28];
         Self.Alignment.Right := [@GameTabs.X2, -29];
@@ -27,7 +26,7 @@ begin
         Self.Alignment.Bottom := [@GameTabs.Y2, -37];
       end;
 
-    RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@GameTabs.X1, 37];
         Self.Alignment.Right := [@GameTabs.X2, -10];
@@ -43,8 +42,8 @@ var
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
-
-  GameTab.Setup(Self.Mode);
+  
+  GameTab.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -58,6 +57,6 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  GameTab.Debug(Bitmap);
+  GameTab.Draw(Bitmap);
 end;
 

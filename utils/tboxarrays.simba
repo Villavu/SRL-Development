@@ -260,7 +260,7 @@ begin
   for I := 0 to High(Weights) do
     Weights[I] := Self[I].X1;
 
-  Sort(Weights, Low(Self), High(Self), LowToHi);
+  Sort(Weights, 0, High(Self), LowToHi);
 end;
 
 procedure TBoxArray.SortByY(LowToHi: Boolean = True);
@@ -275,19 +275,38 @@ begin
   for I := 0 to High(Weights) do
     Weights[I] := Self[I].Y1;
 
-  Sort(Weights, Low(Self), High(Self), LowToHi);
+  Sort(Weights, 0, High(Self), LowToHi);
 end;
 
-function TBoxArray.SortByXY(): TBoxArray;
+// Sorts column wise
+// Example: [0][1][2][3]
+//          [4][5][6]
+procedure TBoxArray.SortByXY(Tolerance: Int32 = 0);
 var
-  i: Int32;
-  weights: TIntegerArray;
+  I, J: Int32;
+  Weights: TIntegerArray;
+  Means: TPointArray;
 begin
-  SetLength(weights, Length(Self));
-  for i := 0 to High(Self) do
-    weights[i] := Self[I].X1 + Self[I].Y1*1000;
+  if Length(Self) = 0 then
+    Exit;
+  
+  SetLength(Weights, Length(Self)); 
+  SetLength(Means, Length(Self));
+  for I := 0 to High(Self) do
+    Means[I] := Self[I].Middle();
 
-  Self.sort(weights,0,High(weights),True);
+  for I := 0 to High(Self) do
+  begin
+    Weights[I] := Means[I].X + (Means[I].Y * 1000);
+    if Tolerance = 0 then
+      Continue;
+      
+    for J := 0 to High(Self) do
+      if Abs(Means[I].Y - Means[J].Y) < Tolerance then
+        Weights[I] := Means[I].X + (Means[J].Y * 1000);
+  end;
+    
+  Self.Sort(Weights, 0, High(Weights), True);
 end;
 
 function TBoxArray.Middles: TPointArray; constref;

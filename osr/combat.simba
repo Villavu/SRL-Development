@@ -3,28 +3,55 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
-type
-  ERSCombatStyle = (
-    COMBAT_STYLE_ATTACK,
-    COMBAT_STYLE_STRENGTH,
-    COMBAT_STYLE_SHARED,
-    COMBAT_STYLE_DEFENCE
-  );
+const
+  COMBAT_STYLE_ACCURATE  = 'Accurate';
+  COMBAT_STYLE_RAPID     = 'Rapid';
+  COMBAT_STYLE_LONGRANGE = 'Longrange';
+  COMBAT_STYLE_BASH      = 'Bash';
+  COMBAT_STYLE_POUND     = 'Pound';
+  COMBAT_STYLE_FOCUS     = 'Focus';
+  COMBAT_STYLE_CHOP      = 'Chop';
+  COMBAT_STYLE_SLASH     = 'Slash';
+  COMBAT_STYLE_LUNGE     = 'Lunge';
+  COMBAT_STYLE_BLOCK     = 'Block';
+  COMBAT_STYLE_FLICK     = 'Flick';
+  COMBAT_STYLE_LASH      = 'Lash';
+  COMBAT_STYLE_DEFLECT   = 'Deflect';
+  COMBAT_STYLE_SWIPE     = 'Swipe';
+  COMBAT_STYLE_SMASH     = 'Smash';
+  
+var
+  COMBAT_STYLES = [
+    COMBAT_STYLE_ACCURATE,
+    COMBAT_STYLE_RAPID,
+    COMBAT_STYLE_LONGRANGE,
+    COMBAT_STYLE_BASH,
+    COMBAT_STYLE_POUND,
+    COMBAT_STYLE_FOCUS,
+    COMBAT_STYLE_CHOP,
+    COMBAT_STYLE_SLASH,
+    COMBAT_STYLE_LUNGE,
+    COMBAT_STYLE_BLOCK,
+    COMBAT_STYLE_FLICK,
+    COMBAT_STYLE_LASH,
+    COMBAT_STYLE_DEFLECT,
+    COMBAT_STYLE_SWIPE,
+    COMBAT_STYLE_SMASH
+  ];
 
 type
   TRSCombat = type TRSInterface;
 
-procedure TRSCombat.Setup; overload;
+procedure TRSCombat.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Combat';
 end;
 
-procedure TRSCombat.Setup(Mode: ERSClientMode); overload;
+procedure TRSCombat.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -34,50 +61,91 @@ end;
 
 function TRSCombat.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = TAB_COMBAT);
+  Result := (GameTabs.GetCurrentTab() = ERSGameTab.COMBAT);
 end;
 
 function TRSCombat.Open: Boolean;
 begin
-  Result := GameTabs.Open(TAB_COMBAT);
+  Result := GameTabs.Open(ERSGameTab.COMBAT);
 end;
 
-function TRSCombat.GetStyleBoxes: TBoxArray;
+function TRSCombat.GetButtons: TRSButtonArray;
 begin
-  Result := Grid(2, 2, 64, 40, [15, 14], [Self.X1 + 20, Self.Y1 + 49]);
+  Result := Self.FindButtons([[69,45], [148,24], [148,42], [69,30], [69,48]])
 end;
 
-function TRSCombat.GetCombatStyle: ERSCombatStyle;
+function TRSCombat.GetCombatStyle: String;
 var
   I: Int32;
-  Boxes: TBoxArray;
+  Buttons: TRSButtonArray;
 begin
   if not Self.Open() then
     Exit;
 
-  Boxes := Self.GetStyleBoxes();
-  for I := 0 to High(Boxes) do
-    if SRL.CountColor(CTS1(1777276, 26), Boxes[I]) > 100 then
-      Exit(ERSCombatStyle(I));
+  Buttons := Self.GetButtons();
+  
+  for I := 0 to High(Buttons) do
+  begin
+    if not Buttons[I].Enabled() then
+      Continue;
+      
+    if Buttons[I].FindText(COMBAT_STYLES, RS_FONT_PLAIN_11, Result) then
+      Exit;
+  end;
 end;
 
-function TRSCombat.SetCombatStyle(Style: ERSCombatStyle): Boolean;
+function TRSCombat.SetCombatStyle(Style: String): Boolean;
+var
+  Buttons: TRSButtonArray;
+  Button: TRSButton;
 begin
   if not Self.Open() then
     Exit;
-
-  if (Self.GetCombatStyle() <> Style) then
-    Mouse.Click(Self.GetStyleBoxes()[Style], MOUSE_LEFT);
-
-  Result := True;
+    
+  Buttons := Self.GetButtons();
+  for Button in Buttons do
+    if Button.FindText(Style, RS_FONT_PLAIN_11) then
+    begin
+      Result := Button.Enable();
+      
+      Exit;
+    end;
 end;
 
 function TRSCombat.GetAutoRetaliate: Boolean;
+var
+  Buttons: TRSButtonArray;
+  Button: TRSButton;
 begin
   if not Self.Open() then
     Exit;
+    
+  Buttons := Self.GetButtons();
+  for Button in Buttons do
+    if Button.FindText('Auto Retaliate', RS_FONT_PLAIN_12) then
+    begin
+      Result := Button.Enabled();
+      
+      Exit;
+    end;
+end;
 
-  Result := FindTextColor('(On)', RS_FONT_PLAIN_12, 2070783, 0, Self.Bounds, 1);
+function TRSCombat.SetAutoRetaliate(Value: Boolean): Boolean;
+var
+  Buttons: TRSButtonArray;
+  Button: TRSButton;
+begin
+  if not Self.Open() then
+    Exit;
+    
+  Buttons := Self.GetButtons();
+  for Button in Buttons do
+    if Button.FindText('Auto Retaliate', RS_FONT_PLAIN_12) then
+    begin
+      Result := (Value and Button.Enable()) or (not Value and Button.Disable());
+      
+      Exit;
+    end;
 end;
 
 function TRSCombat.GetWeapon: String;
@@ -90,19 +158,7 @@ begin
   B := Self.Bounds;
   B.Y2 := B.Y1 + 25;
 
-  Result := OCR.Recognize(B, [2070783], RS_FONTSET_QUILL_8, False);
-end;
-
-function TRSCombat.SetAutoRetaliate(Value: Boolean): Boolean;
-var
-  B: TBox;
-begin
-  if (Self.GetAutoRetaliate() = Value) then
-    Exit(True);
-
-  Result := FindTextColor('Auto Retaliate', RS_FONT_PLAIN_12, 2070783, 0, Self.Bounds, B) = 1;
-  if Result then
-    Mouse.Click(B.Expand(5), MOUSE_LEFT);
+  Result := OCR.Recognize(B, [2070783], RS_FONT_QUILL_8, False);
 end;
 
 var
@@ -112,7 +168,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Combat.Setup(Self.Mode);
+  Combat.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -126,6 +182,6 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Combat.Debug(Bitmap);
+  Combat.Draw(Bitmap);
 end;
 

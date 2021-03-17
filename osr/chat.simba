@@ -1,0 +1,324 @@
+{$DEFINE SRL_CHAT_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+const
+  CHAT_COLOR_BLACK        = $000000; 
+  CHAT_COLOR_MAROON       = $7F0000; 
+  CHAT_COLOR_BLUE         = $FF0000; 
+  CHAT_COLOR_PURPLE       = $7F007F; 
+  CHAT_COLOR_RED          = $2010EF; 
+  CHAT_COLOR_WHITE        = $FFFFFF; 
+  CHAT_COLOR_LIGHT_PURPLE = $FF9090; 
+  CHAT_COLOR_NAVY         = $800000;  
+  
+  CHAT_MESSAGE_COLORS = [
+    CHAT_COLOR_BLACK,
+    CHAT_COLOR_MAROON,
+    CHAT_COLOR_BLUE,
+    CHAT_COLOR_PURPLE,
+    CHAT_COLOR_RED,
+    CHAT_COLOR_WHITE,
+    CHAT_COLOR_LIGHT_PURPLE
+  ];
+
+const
+  CHAT_MESSAGE_LINES = [0..7];
+  CHAT_INPUT_LINE = 8;
+
+type
+  TRSChat = type TRSInterface;
+  
+procedure TRSChat.Setup; override;
+begin
+  inherited;
+
+  Self.Name := 'Chatbox';
+end;
+
+procedure TRSChat.SetupAlignment(Mode: ERSClientMode); override;
+begin
+  inherited;
+
+  Self.Alignment.Left := [@ChatButtons.X1];
+  Self.Alignment.Right := [@ChatButtons.X2];
+  Self.Alignment.Top := [@ChatButtons.Y1, -142];
+  Self.Alignment.Bottom := [@ChatButtons.Y1, -1];
+end;
+
+procedure TRSChat.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+
+  Bitmap.DrawBoxes(Self.GetLineBoxes(), False, $00FFFF);
+end;
+
+function TRSChat.GetLineBoxes: TBoxArray;
+begin
+  Result := Grid(1, 9, Width - 35, 13, [0, 1], [Self.X1 + 10, Self.Y1 + 8]);
+  Result[CHAT_INPUT_LINE].Y2 += 2;
+end;
+
+function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
+var
+  Color: Int32;
+begin
+  for Color in Colors do
+  begin
+    Result := OCR.Recognize(Self.GetLineBoxes()[CHAT_INPUT_LINE], [Color], RS_FONT_PLAIN_12, True);
+    if Result <> '' then
+      Break;
+  end;
+
+  if ':' in Result then
+    Result := Result.Before(':');
+end;
+
+function TRSChat.IsTransparent: Boolean;
+begin
+  Result := Self.GetDisplayName([$FFFFFF]) <> '';
+end;
+
+function TRSChat.IsOpen: Boolean;
+begin
+  Result := (SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000) or Self.IsTransparent();
+end;
+
+function TRSChat.GetQuery: String;
+begin
+  Result := OCR.Recognize(Self.Bounds(), [$000000], RS_FONT_BOLD_12);
+end;
+
+function TRSChat.GetQueryAnswer: String;
+begin
+  Result := OCR.Recognize(Self.Bounds(), [8388608], RS_FONT_BOLD_12);
+end;
+
+function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+begin
+  if Interval = -1 then
+    Interval := SRL.TruncatedGauss(50, 1500);
+    
+  Result := WaitUntil(Query in Self.GetQuery(), Interval, WaitTime);
+  
+  if Result then
+  begin
+    if Self.GetQueryAnswer() <> Answer then
+      while Self.GetQueryAnswer() <> '*' do
+        Keyboard.PressKey(VK_BACK);
+  
+    Keyboard.Send(Answer, VK_ENTER);
+  end;
+end;
+
+type
+  TRSChatboxOption = record
+    Text: String;
+    Bounds: TBox;
+    Number: Int32;
+  end;
+  TRSChatboxOptionArray = array of TRSChatboxOption;
+
+function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatboxOptionArray; 
+
+  function FindLines(TPA: TPointArray): TBoxArray;
+  var
+    ATPA: T2DPointArray;
+    I: Int32;
+  begin
+    ATPA := TPA.Split(1);
+    TPA := [];
+    for I := 0 to High(ATPA) do
+      if InRange(ATPA[I].Bounds.Height(), 4, 12) then
+        TPA += ATPA[I].Mean();
+
+    ATPA := TPA.Cluster(100, 5);
+    ATPA.SortByY(True);
+    
+    Result := ATPA.ToTBA();
+  end;
+
+var
+  TPA: TPointArray;
+  B: TBox;
+  I, Key: Int32;
+  Lines: TBoxArray;
+  Text: String;
+begin
+  if SRL.FindColors(TPA, Colors, Self.Bounds) > 0 then
+  begin
+    Lines := FindLines(TPA);
+    
+    for I := 0 to High(Lines) do
+    begin
+      B := Lines[I].Expand(8, Self.Bounds());
+      
+      Text := OCR.Recognize(TPA.FilterBox(B), RS_FONT_QUILL_8);
+      
+      if (Text <> '') then
+      begin
+        if (Text = 'Click here to continue') then 
+          Key := VK_SPACE 
+        else 
+          Key := VK_0 + I;
+          
+        Result += [Text, Lines[I], Key];
+      end;
+    end;
+  end;
+end;
+
+function TRSChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
+var
+  Option: TRSChatboxOption;
+begin
+  for Option in GetOptions(Colors) do
+    if Text in Option.Text then
+      Exit(True);
+end;
+
+function TRSChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
+var
+  Option: TRSChatboxOption;
+begin
+  for Option in GetOptions(Colors) do
+    if Text in Option.Text then
+    begin 
+      if UseKeyboard then
+        Keyboard.PressKey(Option.Number)
+      else
+        Mouse.Click(Option.Bounds, MOUSE_LEFT);
+
+      Exit(True);
+    end;
+end;
+
+function TRSChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
+var
+  B: TBox;
+begin
+  if Self.ClickOption('Click here to continue', UseKeyboard, [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]) then
+  begin
+    Result := WaitUntil(Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]), SRL.TruncatedGauss(50, 1500), 3000) and
+              WaitUntil(not Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]), SRL.TruncatedGauss(50, 1500), 3000);
+  end;
+end;
+
+function TRSChat.ChatToOption(Option: String): Boolean;
+var
+  Timeout: TCountdown;
+begin
+  Timeout.Init(10000);
+  while (not Timeout.IsFinished) and (not Self.FindOption(Option)) and Self.ClickContinue() do
+    Wait(0, 2500, wdLeft);
+
+  Result := Self.ClickOption(Option);
+end;
+
+function TRSChat.GetMessage(Line: Int32; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
+const
+  OffsetToMakeStatic = 2;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  Color: Int32;
+  B: TBox;
+  Matrix: T2DIntegerArray;
+  P: TPoint;
+begin
+  B := GetLineBoxes()[Line];
+  SetLength(Matrix, B.Height + OffsetToMakeStatic, B.Width);
+
+  // If transparent the text has a shadow:
+  // Problem: 1 pixel of the shadow of the line above falls into our line.
+  // Solution: Mark the above shadow as a hit since SimpleOCR needs every point of a character to match. 
+  if Self.IsTransparent() then
+  begin
+    if SRL.FindColors(TPA, CTS0($000000), B) > 0 then
+      for P in TPA.Offset(-B.X1, -B.Y1) do
+        if (P.Y = 0) then
+          Matrix[OffsetToMakeStatic, P.X] := 255;
+    
+    Colors.Remove($000000); // Shadow
+  end;
+  
+  for Color in Colors do
+    if SRL.FindColors(TPA, CTS0(Color), B) > 0 then
+      ATPA += TPA;
+     
+  if Length(ATPA) > 0 then
+  begin     
+    TPA := ATPA.Merge();
+    TPA := TPA.Offset(-B.X1, -B.Y1);
+    TPA := TPA.Offset(-TPA.Bounds.X1 + 1, OffsetToMakeStatic);
+  
+    for P in TPA do
+      Matrix[P.Y, P.X] := 255;
+
+    Result := OCR.Recognize(Matrix, [255], RS_FONT_PLAIN_12, True);
+  end;
+end;
+
+function TRSChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
+var
+  I: Int32;
+begin
+  for I := 0 to CHAT_INPUT_LINE - 1 do
+    if Message in Self.GetMessage(I, Colors) then
+      Exit(True);    
+end;
+
+function TRSChat.GetChat: String;
+var
+  Option: TRSChatboxOption;
+begin
+  for Option in Self.GetOptions() do
+  begin
+    if Result <> '' then
+      Result += LineEnding;
+      
+    Result += Option.Text;
+  end;
+end;
+
+function TRSChat.GetChatTitle: String;
+var
+  Options: TRSChatboxOptionArray;
+begin
+  Options := Self.GetOptions([$000080]);
+  if Length(Options) > 0 then
+    Result := Options[0].Text;
+end;
+
+function TRSChat.LeveledUp: Boolean;
+begin
+  Result := Self.FindOption('Congratulations', [CHAT_COLOR_NAVY]); 
+end;
+
+var
+  Chat: TRSChat;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Chat.SetupAlignment(Self.Mode);
+end;
+
+procedure TSRL.Setup; override;
+begin
+  inherited;
+
+  Chat.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Chat.Draw(Bitmap);
+end;

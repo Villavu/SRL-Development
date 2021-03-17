@@ -9,15 +9,15 @@ type
     DisableDebugging: Boolean;
   end;
 
-procedure TSRLBaseRecord.Debug(Message: String); constref;
+procedure TSRLBaseRecord.DebugLn(Text: String); constref;
 begin
   if not Self.DisableDebugging then
-    WriteLn(SRL.TimeStamp() + ':[' + Self.Name + ']: ' + Message);
+    WriteLn(SRL.TimeStamp() + ':[' + Self.Name + ']: ' + Text);
 end;
 
-procedure TSRLBaseRecord.Fatal(Message: String); constref;
+procedure TSRLBaseRecord.Fatal(Text: String); constref;
 begin
-  WriteLn(SRL.TimeStamp() + ':[' + Self.Name + ']:[Fatal]: ' + Message);
+  WriteLn(SRL.TimeStamp() + ':[' + Self.Name + ']:[Fatal]: ' + Text);
 
   TerminateScript();
 end;

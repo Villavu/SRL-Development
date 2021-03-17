@@ -7,25 +7,22 @@ type
   TRSGameTabs = type TRSInterface;
 
   ERSGameTab = (
-    TAB_COMBAT,
-    TAB_STATS,
-    TAB_QUESTS,
-    TAB_INVENTORY,
-    TAB_EQUIPMENT,
-    TAB_PRAYER,
-    TAB_MAGIC,
-    TAB_CLAN,
-    TAB_FRIENDS,
-    TAB_ACCOUNT,
-    TAB_LOGOUT,
-    TAB_OPTIONS,
-    TAB_EMOTES,
-    TAB_MUSIC,
-    TAB_UNKNOWN
+    COMBAT,
+    STATS,
+    QUESTS,
+    INVENTORY,
+    EQUIPMENT,
+    PRAYER,
+    MAGIC,
+    CLAN,
+    FRIENDS,
+    ACCOUNT,
+    LOGOUT,
+    OPTIONS,
+    EMOTES,
+    MUSIC,
+    UNKNOWN
   );
-
-const
-  TAB_IGNORE = TAB_FRIENDS;
 
 {
 function TRSGameTabs.X1: Int32; constref; override;
@@ -35,27 +32,27 @@ end;
 }
 
 // Needed because depending on the client width the tabs stack into row(s)
-function TRSGameTabs.Y1: Int32; constref; override;
+function TRSGameTabs.Y1: Int32; override;
 begin
   Result := inherited;
 
-  if (Self.Mode = RS_CLIENT_RESIZABLE_BOTTOM) and (RootInterface.Width >= 948) then
+  if (Self.Mode = ERSClientMode.RESIZABLE_MODERN) and (RootInterface.Width >= 948) then
     Result += 36;
 end;
 
 {
-function TRSGameTabs.X2: Int32; constref; override;
+function TRSGameTabs.X2: Int32; override;
 begin
   Result := inherited;
 end;
 }
 
 // Needed because depending on the client width the tabs stack into row(s)
-function TRSGameTabs.Y2: Int32; constref; override;
+function TRSGameTabs.Y2: Int32; override;
 begin
   Result := inherited;
 
-  if (Self.Mode = RS_CLIENT_RESIZABLE_BOTTOM) and (RootInterface.Width >= 948) then
+  if (Self.Mode = ERSClientMode.RESIZABLE_MODERN) and (RootInterface.Width >= 948) then
     Result += 36;
 end;
 
@@ -64,19 +61,18 @@ var
   I: Int32;
 begin
   case Self.Mode of
-    RS_CLIENT_FIXED, RS_CLIENT_RESIZABLE_CLASSIC:
+    ERSClientMode.FIXED, ERSClientMode.RESIZABLE_CLASSIC:
       begin
         Result := Grid(7, 2, 30, 33, [3, 265], [Self.X1 + 6, Self.Y1 + 1]);
       end;
 
-    RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_MODERN:
       begin
         // One row
         if (RootInterface.Width >= 948) then
         begin
           Result := Grid(14, 1, 30, 33, [3, 0], [Self.X1 - 197, Self.Y2 - 70]);
-
-          for I := Ord(TAB_MUSIC) downto Ord(TAB_FRIENDS) do
+          for I := Ord(ERSGameTab.MUSIC) downto Ord(ERSGameTab.FRIENDS) - 1 do
             Result[I] := Result[I-1];
         end else
         // Two rows
@@ -90,26 +86,32 @@ begin
 end;
 
 function TRSGameTabs.GetTabBox(Tab: ERSGameTab): TBox;
+var
+  Tabs: TBoxArray := Self.GetTabBoxes;
 begin
-  Result := Self.GetTabBoxes[Ord(Tab)];
+  if Tabs = [] then
+    Exit;
+  Result := Tabs[Tab];
 end;
 
 function TRSGameTabs.GetCurrentTab: ERSGametab;
 var
-  Boxes: TBoxArray;
-  i: Int32;
+  Tabs: TBoxArray;
+  I: Int32;
 begin
-  Boxes := Self.GetTabBoxes();
-
-  for i := 0 to High(Boxes) do
-    if (SRL.CountColor(CTS1(1778534, 22), Boxes[i]) > 50) or
-       ((Self.Mode = RS_CLIENT_RESIZABLE_BOTTOM) and (SRL.CountColor(CTS0(8639715), Boxes[i]) > 50)) then
-      Exit(ERSGameTab(i));
+  Tabs := Self.GetTabBoxes();
+  
+  if (Self.Mode = ERSClientMode.RESIZABLE_MODERN) and (SRL.CountColor(8639715, Tabs[ERSGameTab.LOGOUT]) > 0) then
+    Exit(ERSGameTab.LOGOUT);
+  
+  for I := 0 to High(Tabs) do
+    if (SRL.CountColor(CTS1(1778534, 22), Tabs[I]) > 50) then
+      Exit(ERSGameTab(I));
+      
+  Exit(ERSGameTab.UNKNOWN);
 end;
 
 function TRSGameTabs.Open(Tab: ERSGameTab): Boolean;
-var
-  T: UInt64;
 begin
   if GetCurrentTab() = Tab then
     Exit(True);
@@ -124,27 +126,26 @@ begin
   end;
 end;
 
-procedure TRSGameTabs.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSGameTabs.Draw(Bitmap: TMufasaBitmap); override;
 begin
-  inherited();
+  inherited;
 
   Bitmap.DrawBoxes(GetTabBoxes(), False, $00FFFF);
 end;
 
-procedure TRSGameTabs.Setup; overload;
+procedure TRSGameTabs.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
-
+  inherited;
+    
   Self.Name := 'GameTabs';
 end;
 
-procedure TRSGameTabs.Setup(Mode: ERSClientMode); overload;
+procedure TRSGameTabs.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   case Self.Mode of
-    RS_CLIENT_FIXED:
+    ERSClientMode.FIXED:
       begin
         Self.Alignment.Left := [@RootInterface.X2, -242];
         Self.Alignment.Right := [@RootInterface.X2, -2];
@@ -152,7 +153,7 @@ begin
         Self.Alignment.Bottom := [@RootInterface.Y2];
       end;
 
-    RS_CLIENT_RESIZABLE_CLASSIC:
+    ERSClientMode.RESIZABLE_CLASSIC:
       begin
         Self.Alignment.Left := [@RootInterface.X2, -240];
         Self.Alignment.Right := [@RootInterface.X2];
@@ -160,7 +161,7 @@ begin
         Self.Alignment.Bottom := [@RootInterface.Y2];
       end;
 
-    RS_CLIENT_RESIZABLE_BOTTOM:
+    ERSClientMode.RESIZABLE_MODERN:
       begin
         Self.Alignment.Left := [@RootInterface.X2, -230];
         Self.Alignment.Right := [@RootInterface.X2];
@@ -177,7 +178,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  GameTabs.Setup(Self.Mode);
+  GameTabs.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -191,6 +192,6 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  GameTabs.Debug(Bitmap);
+  GameTabs.Draw(Bitmap);
 end;
 

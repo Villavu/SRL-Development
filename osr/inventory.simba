@@ -31,10 +31,9 @@ type
     HIGH_SLOT: Int32;
   end;
 
-procedure TRSInventory.Setup; overload;
+procedure TRSInventory.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
 
   Self.Name := 'Inventory';
 
@@ -42,9 +41,9 @@ begin
   Self.HIGH_SLOT := 27;
 end;
 
-procedure TRSInventory.Setup(Mode: ERSClientMode); overload;
+procedure TRSInventory.SetupAlignment(Mode: ERSClientMode); override;
 begin
-  Self.Mode := Mode;
+  inherited;
 
   Self.Alignment.Left := [@GameTab.X1];
   Self.Alignment.Right := [@GameTab.X2];
@@ -96,21 +95,23 @@ end;
 
 function TRSInventory.IsOpen: Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = TAB_INVENTORY);
+  Result := (GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY);
 end;
 
 function TRSInventory.Open: Boolean;
 begin
-  Result := Self.IsOpen() or GameTabs.Open(TAB_INVENTORY);
+  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.INVENTORY);
 end;
 
-function TRSInventory.IsSlotUsed(Slot: Int32): Boolean;
+function TRSInventory.IsSlotUsed(B: TBox): Boolean; overload;
 begin
-  if not Self.Open() then
-    Exit(False);
-
   // black with tolerance for when item is transparent
-  Result := SRL.CountColor(CTS1(1118740, 35), Self.GetSlotBox(Slot)) > 0;
+  Result := SRL.CountColor(CTS1(1118740, 35), B) > 0;
+end;
+
+function TRSInventory.IsSlotUsed(Slot: Int32): Boolean; overload;
+begin
+  Result := Self.Open() and Self.IsSlotUsed(Self.GetSlotBox(Slot));
 end;
 
 (*
@@ -136,21 +137,21 @@ begin
   B := Self.GetSlotBox(Slot);
   B.Y1 += 8; // Skip item text
 
-  Result := SRL.CountColor(CTS0($FFFFFF), B) > 0;
+  Result := SRL.CountColor($FFFFFF, B) > 0;
 end;
 
 function TRSInventory.IsFull: Boolean;
 var
-  I: Int32;
+  B: TBox;
 begin
-  Result := True;
-
   if not Self.Open() then
     Exit(False);
 
-  for I := Self.LOW_SLOT to Self.HIGH_SLOT do
-    if not IsSlotUsed(I) then
+  for B in Self.GetSlotBoxes() do
+    if not Self.IsSlotUsed(B) then
       Exit(False);
+  
+  Result := True;
 end;
 
 (*
@@ -324,7 +325,7 @@ begin
   Result := Attempts <= 5;
 end;
 
-procedure TRSInventory.Debug(Bitmap: TMufasaBitmap); override;
+procedure TRSInventory.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -334,7 +335,7 @@ begin
   Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
 end;
 
-function TRSInventory.Count: Int32; overload;
+function TRSInventory.Count: Int32; 
 var
   I: Int32;
 begin
@@ -343,7 +344,7 @@ begin
       Inc(Result);
 end;
 
-function TRSInventory.IsCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TRSInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if (Interval = -1) then
     Interval := SRL.TruncatedGauss(50, 1500);
@@ -385,54 +386,93 @@ begin
   Result := Self.PointToSlot(Points[SRL.TruncatedGauss(0, High(Slots))]);
 end;
 
-function TRSInventory.FindAll(Identifers: TStringArray): TIntegerArray; overload;
+function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): Boolean;
+var
+  Item: TRSItem;
 begin
-  // Implemented in itemfinder.simba
+  if not Self.Open() then
+    Exit;
+
+  for Item in Items do
+    Slots += ItemFinder.Find(Item, Self.GetSlotBoxes());
+  
+  Result := Length(Slots) > 0;
 end;
 
-function TRSInventory.FindAll(Identifer: String): TIntegerArray; overload;
+function TRSInventory.FindItem(Item: TRSItem; out Slots: TIntegerArray): Boolean; overload;
 begin
-  // Implemented in itemfinder.simba
+  Result := Self.FindItems([Item], Slots);
 end;
 
-function TRSInventory.Find(Identifers: TStringArray): Int32; overload;
+function TRSInventory.FindItem(Item: TRSItem; out Slot: Int32): Boolean; overload;
+var
+  Slots: TIntegerArray;
 begin
-  // Implemented in itemfinder.simba
+  Slots := ItemFinder.Find(Item, Self.GetSlotBoxes(), 1);
+  
+  if Length(Slots) > 0 then
+  begin
+    Slot := Slots[0];
+    
+    Result := True;
+  end;
 end;
 
-function TRSInventory.Find(Identifer: String): Int32; overload;
+function TRSInventory.CountItem(Item: TRSItem): Int32;
+var
+  Slots: TIntegerArray;
 begin
-  // Implemented in itemfinder.simba
+  if Self.FindItem(Item, Slots) then
+    Result := Length(Slots);
 end;
 
-function TRSInventory.Count(Identifers: TStringArray): Int32; overload;
+function TRSInventory.CountItemStack(Item: TRSItem): Int32;
+var
+  Slot: Int32;
 begin
-  // Implemented in itemfinder.simba
+  if Self.FindItem(Item, Slot) then
+    Result := SRL.GetItemAmount(Self.GetSlotBox(Slot));
 end;
 
-function TRSInventory.Count(Identifer: String): Int32; overload;
+function TRSInventory.MouseItem(Item: TRSItem): Boolean;
+var
+  Slot: Int32;
 begin
-  // Implemented in itemfinder.simba
+  Result := Self.FindItem(Item, Slot);
+  if Result then
+    Mouse.Move(Self.GetSlotBox(Slot));
 end;
 
-function TRSInventory.CountStack(Identifer: String): Int32;
+function TRSInventory.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
 begin
-  // Implemented in itemfinder.simba
+  if Self.MouseItem(Item) then
+  begin
+    if Option <> '' then
+      Result := ChooseOption.Select(Option)
+    else
+    begin
+      Mouse.Click(MOUSE_LEFT);
+      
+      Result := True;
+    end;
+  end;
 end;
 
-function TRSInventory.Click(Identifers: TStringArray; Option: String = ''): Boolean; overload;
+function TRSInventory.Use(Item, OtherItem: TRSItem): Boolean; overload;
+var
+  Slots, OtherSlots: TIntegerArray;
+  Slot, OtherSlot: Int32;
 begin
-  // Implemented in itemfinder.simba
-end;
+  Self.SetSelectedSlot(-1); // Item images change when selected...
 
-function TRSInventory.Click(Identifer: String; Option: String = ''): Boolean; overload;
-begin
-  // Implemented in itemfinder.simba
-end;
-
-function TRSInventory.Use(Item: String; OtherItem: String): Boolean; overload;
-begin
-  // Implemented in itemfinder.simba
+  Result := Self.FindItem(Item, Slots) and Self.FindItem(OtherItem, OtherSlots);
+  if Result then
+  begin
+    Slot := Slots[Random(Length(Slots))];
+    OtherSlot := Self.RandomSlotNearby(Slot, OtherSlots);
+  
+    Self.Use(Slot, OtherSlot);
+  end;
 end;
 
 (*
@@ -448,9 +488,19 @@ Example
   // Shift drop maple & willow logs in the snake pattern
   Inventory.ShiftDrop(['Maple logs', 'Willow logs'], DROP_PATTERN_SNAKE);
 *)
-function TRSInventory.ShiftDrop(Items: TStringArray; Pattern: TIntegerArray): Boolean; overload;
+function TRSInventory.ShiftDrop(Items: TRSItemArray; Pattern: TIntegerArray): Boolean; overload;
+var
+  Slots, Order: TIntegerArray;
+  I: Int32;
 begin
-  // Implemented in itemfinder.simba
+  if Self.FindItems(Items, Slots) then
+  begin
+    for I := 0 to High(Pattern) do
+      if Slots.Find(Pattern[I]) > -1 then
+        Order += Pattern[I];
+  
+    Result := Self.ShiftDrop(Order);
+  end;
 end;
 
 var
@@ -460,7 +510,7 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Inventory.Setup(Self.Mode);
+  Inventory.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
@@ -474,5 +524,5 @@ procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Inventory.Debug(Bitmap);
+  Inventory.Draw(Bitmap);
 end;

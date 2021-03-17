@@ -43,7 +43,8 @@ end;
 
 function TRSChatBox.IsOpen: Boolean;
 begin
-  Result := SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000;
+  Result := (SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000) or
+            (SRL.CountColor(CTS0(16777215, 0), Self.Bounds) > 50) ;
 end;
 
 function TRSChatBox.GetLineBoxes: TBoxArray;

@@ -1,0 +1,689 @@
+(*
+Bank
+====
+Methods to interact with the Bank.
+*)
+
+{$DEFINE SRL_BANK_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+const
+  BANK_DEPOSIT_ALL          = -1;
+  
+  BANK_WITHDRAW_ALL         = -1;
+  BANK_WITHDRAW_ALL_BUT_ONE = -2;
+  
+type
+  ERSBankLocation = (
+    CASTLE_WARS,
+    FEROX,
+    GRAND_EXCHANGE,
+    FALADOR_EAST
+  );
+  
+  // In order FindButtons returns
+  ERSBankButton = (
+    TUTORIAL,
+    CLOSE,
+    SWAP,
+    INSERT,
+    ITEM,
+    NOTE,
+    QUANTITY_1,
+    QUANTITY_5,
+    QUANTITY_10,
+    QUANTITY_CUSTOM,
+    QUANTITY_ALL,
+    PLACEHOLDERS,
+    SEARCH,
+    DEPOSIT_INVENTORY,
+    DEPOSIT_WORN   
+  ); 
+
+  TRSBankWithdrawItem = record
+    Item: TRSItem;
+    Quantity: Int32;
+    Noted: Boolean;
+  end;
+  
+  TRSBankWithdrawSlot = record
+    Slot: Int32;
+    Quantity: Int32;
+    Noted: Boolean;
+  end;
+  
+  TRSBankDepositItem = record
+    Item: TRSItem;
+    Quantity: Int32;
+  end;
+  
+  TRSBankDepositSlot = record
+    Slot: Int32;
+    Quantity: Int32;
+  end;
+  
+  TRSBank = record(TRSTitledInteface)
+    FINDER_UPTEXT: TStringArray;
+    FINDER_OPTION: TStringArray;
+  end;
+
+function TRSBank.GetSlotBoxes: TBoxArray; 
+begin
+  Result := Grid(8, (Self.Height() - 135) div 35, 31, 31, [17, 5], [Self.X1 + 57, Self.Y1 + 77]);
+end;
+
+function TRSBank.GetTabBoxes: TBoxArray;
+begin
+  Result := Grid(10, 1, 36, 30, [4, 0], [Self.X1 + 46, Self.Y1 + 42]);
+end;
+
+function TRSBank.GetButtons: TRSButtonArray;
+begin
+  Result := FindButtons([[48,20], [23,20], [34,34], [21,21]]);
+end;
+
+function TRSBank.GetButton(Button: ERSBankButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetButtons();
+begin 
+  if Length(Buttons) = Length(ERSBankButton) then
+    Result := Buttons[Button];
+end;
+
+(*
+Bank.IsOpen
+~~~~~~~~~~~
+.. pascal:: function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean;
+
+Returns true if the Bank is visible.
+
+**WaitForItems** determines if the method waits 1-2 seconds items to load as there
+can be a small delay before items are visible.
+*)
+function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean;
+begin
+  if Self.GetButton(ERSBankButton.CLOSE).Visible() then
+    Result := (not WaitForItems) or WaitUntil(SRL.CountColor(65536, Self.GetSlotBoxes().Merge()) > 0, 50, 1000);
+end;
+
+function TRSBank.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+end;
+
+function TRSBank.IsClosed: Boolean;
+begin
+  Result := not Self.IsOpen(False);
+end;
+
+(*
+Bank.Close
+~~~~~~~~~~
+.. pascal:: function TRSBank.Close(UseKeyboard: Boolean = False): Boolean;
+
+Closes the bank, Depending on `UseKeyboard` the function will either click the button
+or press backspace.
+
+Example
+-------
+
+ WriteLn Bank.Close();
+*)
+function TRSBank.Close(UseKeyboard: Boolean = False): Boolean; 
+begin
+  if Self.IsClosed() then
+    Exit(True);
+
+  if UseKeyboard then
+    Keyboard.PressKey(VK_ESCAPE)
+  else
+    Self.GetButton(ERSBankButton.CLOSE).Click();
+
+  Result := WaitUntil(Self.IsClosed(), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
+end;
+
+procedure TRSBank.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen then
+    Exit;
+
+  inherited;
+
+  Bitmap.DrawButtons(Self.GetButtons());
+  Bitmap.DrawBoxes(Self.GetTabBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
+end;
+
+(*
+Bank.Setup
+~~~~~~~~~~
+.. pascal:: procedure Bank.Setup;
+
+Initializes Bank variables.
+
+.. note:: This is automatically called on the **Bank** variable.
+*)
+procedure TRSBank.Setup; override;
+begin
+  inherited;
+    
+  Self.Name := 'Bank';
+
+  Self.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
+  Self.FINDER_OPTION := ['Use Bank', 'Bank Bank'];
+end;
+
+procedure TRSBank.SetupAlignment(Mode: ERSClientMode); override;
+begin
+  inherited;
+
+  case Self.Mode of
+    ERSClientMode.FIXED:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, 2];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2, -1];
+        Self.Alignment.Center.MaxWidth := 488;
+        Self.Alignment.Center.MaxHeight := 800;
+      end;
+
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, 2];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2, -2];
+        Self.Alignment.Center.MaxWidth := 488;
+        Self.Alignment.Center.MaxHeight := 800;
+      end;
+  end;
+end;
+
+(*
+Bank.Search
+~~~~~~~~~~~
+.. pascal:: function TRSBank.Search(Item: String): Boolean;
+
+Searches for an item.
+
+Example
+-------
+
+  Bank.Search('logs'); // Search for logs
+*)
+function TRSBank.Search(Item: String): Boolean; 
+begin
+  if Self.IsTitle('Showing items: ' + LowerCase(Item)) then
+    Exit(True);
+    
+  Result := Self.ClearSearch() and
+            Self.GetButton(ERSBankButton.SEARCH).Enable() and
+            Chat.AnswerQuery('Show items', Item, Random(2000, 2500)) and
+            Self.IsTitle('Showing items: ' + LowerCase(Item), Random(2000, 2500));
+end;
+
+function TRSBank.ClearSearch: Boolean;
+begin
+  Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Disable();
+end;
+
+function TRSBank.FindItemBoundaries: TBoxArray;
+var
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  Area, B: TBox;
+begin
+  Area := Self.GetSlotBoxes().Merge();
+  
+  if SRL.FindColors(TPA, RS_ITEM_BORDER, Area) > 0 then
+  begin
+    ATPA := TPA.Cluster(50, 3);
+    
+    for B in ATPA.ToTBA() do
+    begin
+      if B.Height() <= 5 then
+        Continue;
+        
+      Result += Grid(8, 1, 32, B.Height(), [16], [Area.X1, B.Y1 - 1]);
+    end;
+  end;
+end;
+
+function TRSBank.Open(P: TPoint): Boolean; overload;
+begin
+  Mouse.Move(P);
+
+  Result := ChooseOption.IsOpen() and ChooseOption.Select(Self.FINDER_OPTION);
+
+  if not Result then
+  begin
+    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    begin
+      if ('Banker' in MainScreen.GetUpText()) or SRL.Dice(10) then
+        Result := ChooseOption.Select(Self.FINDER_OPTION)
+      else
+      begin
+        Mouse.Click(MOUSE_LEFT);
+
+        Result := MainScreen.DidRedClick();
+      end;
+    end;
+  end;
+
+  if Result then
+  begin
+    if Minimap.HasFlag(Random(200, 400)) then
+      Minimap.WaitFlag();
+
+    Result := Self.IsOpen(Random(3000, 4000));
+  end;
+end;
+
+function TRSBank._FindFaladorEast: T2DPointArray;
+var
+  Finder: TRSObjectFinder;
+begin
+  Finder.Colors += CTS2(4086642, 5, 0.08, 0.55);
+  Finder.ClusterDistance := 15;
+  Finder.Erode := 2;
+  Finder.Grow := 3;
+
+  Result := MainScreen.FindObject(Finder);
+  if Length(Result) = 0 then
+    Exit;
+
+  Result.SortByLongSide();
+  Result := Result[0].Cluster(5);
+  Result.SortByMiddle(Result.Merge.Mean());
+end;
+
+function TRSBank._FindCastleWars: T2DPointArray;
+var
+  TPA, ChestTPA: TPointArray;
+  ATPA: T2DPointArray;
+  I: Int32;
+begin
+  if SRL.FindColors(TPA, CTS2(5526875, 35, 0.19, 0.06), MainScreen.Bounds) > 0 then
+  begin
+    ATPA := TPA.Cluster(1);
+
+    for I := 0 to High(ATPA) do
+      if SRL.FindColors(TPA, CTS2(2503237, 40, 0.10, 0.14), ATPA[I].Bounds) > 5 then
+      begin
+        TPA := ATPA[I].MinAreaRect.Filter(TPA);
+        TPA := TPA.Erode(MainScreen.ConvertDistance(3));
+        if Length(TPA) > 0 then
+          ChestTPA += TPA;
+      end;
+
+    Result := ChestTPA.Cluster(2);
+  end;
+end;
+
+function TRSBank._FindFerox: T2DPointArray;
+var
+  Finder: TRSObjectFinder;
+begin
+  Finder.Colors += CTS2(931652, 12, 0.07, 0.89);
+  Finder.ClusterDistance := 1;
+  Finder.Erode := 1;
+
+  Result := MainScreen.FindObject(Finder);
+end;
+
+function TRSBank.Open(Location: ERSBankLocation): Boolean; overload;
+var
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  P: TPoint;
+begin
+  if Self.IsOpen() or Self.Open(Mouse.Position()) then
+    Exit(True);
+    
+  case Location of
+    ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
+    ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
+    ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
+  end;
+
+  ATPA.SortBySize();
+  if Length(ATPA) > 3 then
+    SetLength(ATPA, 3);
+
+  for TPA in ATPA do
+  begin
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
+
+    if Self.Open(P) then
+      Exit(True);
+  end;
+end;
+
+function TRSBank.Hover(Location: ERSBankLocation; HoverOption: Boolean): Boolean;
+var
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  P: TPoint;
+begin
+  if ChooseOption.IsOpen() or MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    Exit(True);
+
+  case Location of
+    ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
+    ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
+    ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
+  end;
+
+  ATPA.SortBySize();
+  if Length(ATPA) > 3 then
+    SetLength(ATPA, 3);
+
+  for TPA in ATPA do
+  begin
+    P := TPA[Random(Length(TPA))];
+    P.X += Random(-2, 2);
+    P.Y += Random(-2, 2);
+
+    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
+    begin
+      if HoverOption then
+        ChooseOption.Hover(['Use Bank', 'Bank Bank']);
+
+      Exit(True);
+    end;
+  end;
+end;
+
+function TRSBank.IsCustomQuantity(Quantity: Int32): Boolean;
+begin
+  Result := not (Quantity in [1,5,10,BANK_DEPOSIT_ALL]);
+end;
+
+function TRSBank.DepositHelper(B: TBox; Amount: Int32; UseQuantityButtons: Boolean): Boolean; 
+var
+  Button: TRSButton;
+begin
+  if UseQuantityButtons then
+  begin
+    if Self.IsCustomQuantity(Amount) then
+    begin
+      Button := Self.GetButton(ERSBankButton.QUANTITY_CUSTOM);
+      
+      if Button.Enable() then
+      begin
+        Mouse.Move(B);
+      
+        if MainScreen.IsUpText('Deposit-' + ToString(Amount)) then
+        begin
+          Mouse.Click(MOUSE_LEFT);
+          
+          Result := True;
+        end else
+          Result := ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
+      end;
+    end else
+    begin
+      case Amount of
+        1:  Button := Self.GetButton(ERSBankButton.QUANTITY_1);  
+        5:  Button := Self.GetButton(ERSBankButton.QUANTITY_5);  
+        10: Button := Self.GetButton(ERSBankButton.QUANTITY_10);  
+        else 
+            Button := Self.GetButton(ERSBankButton.QUANTITY_ALL)
+      end;
+
+      if Button.Enable() then
+      begin
+        Result := True; 
+        
+        Mouse.Click(B, MOUSE_LEFT);
+      end;
+    end;
+  end else
+  begin
+    Mouse.Move(B);
+
+    if (Amount = BANK_DEPOSIT_ALL) then
+      Result := ChooseOption.Select('Deposit-All')
+    else
+      Result := ChooseOption.Select('Deposit-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False) or
+                ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500));
+  end;
+end;  
+  
+function TRSBank.WithdrawHelper(B: TBox; Amount: Int32; Noted: Boolean; UseQuantityButtons: Boolean): Boolean;
+var
+  Button: TRSButton;
+begin
+  if Noted then
+    Button := Self.GetButton(ERSBankButton.NOTE)
+  else
+    Button := Self.GetButton(ERSBankButton.ITEM);  
+ 
+  if not Button.Enable() then
+    Exit;
+
+  if UseQuantityButtons then
+  begin
+    if Self.IsCustomQuantity(Amount) then
+    begin
+      Button := Self.GetButton(ERSBankButton.QUANTITY_CUSTOM);
+      
+      if Button.Enable() then
+      begin
+        Mouse.Move(B);
+      
+        if MainScreen.IsUpText('Withdraw-' + ToString(Amount)) then
+        begin
+          Mouse.Click(MOUSE_LEFT);
+          
+          Result := True;
+        end else
+          Result := ChooseOption.Select('Withdraw-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
+      end;
+    end else
+    begin
+      case Amount of
+        1:  Button := Self.GetButton(ERSBankButton.QUANTITY_1);  
+        5:  Button := Self.GetButton(ERSBankButton.QUANTITY_5);  
+        10: Button := Self.GetButton(ERSBankButton.QUANTITY_10);  
+        else 
+            Button := Self.GetButton(ERSBankButton.QUANTITY_ALL)
+      end;
+
+      if Button.Enable() then
+      begin
+        Result := True; 
+        
+        Mouse.Click(B, MOUSE_LEFT);
+      end;
+    end;
+  end else
+  begin
+    Mouse.Move(B);
+
+    case Amount of
+      BANK_WITHDRAW_ALL:
+        Result := ChooseOption.Select('Withdraw-All');
+      BANK_WITHDRAW_ALL_BUT_ONE:
+        Result := ChooseOption.Select('Withdraw-All-but-1');
+      else
+        Result := ChooseOption.Select('Withdraw-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False) or
+                  ChooseOption.Select('Withdraw-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500));
+    end;
+  end;
+end;
+
+function TRSBank.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
+var
+  Boxes: TBoxArray;
+  Indices: TIntegerArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Boxes := Self.FindItemBoundaries();
+  Indices := ItemFinder.Find(Item, Boxes, 1);
+  if Result := Indices <> [] then
+    Bounds := Boxes[Indices[0]];
+end;
+
+function TRSBank.CountItem(Item: TRSItem): Int32;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := Length(ItemFinder.Find(Item, Self.FindItemBoundaries()));
+end;
+
+function TRSBank.CountItemStack(Item: TRSItem): Int32;
+var
+  B: TBox;
+begin
+  Result := -1;
+  if Self.FindItem(Item, B) then
+    Result := SRL.GetItemAmount(B);
+end;
+
+function TRSBank.MouseItem(Item: TRSItem): Boolean;
+var
+  B: TBox;
+begin
+  Result := Self.FindItem(Item, B);
+  if Result then
+    Mouse.Move(B);
+end;
+
+function TRSBank.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
+begin
+  if Self.MouseItem(Item) then
+  begin
+    if Option <> '' then
+      Result := ChooseOption.Select(Option)
+    else
+    begin
+      Mouse.Click(MOUSE_LEFT);
+      
+      Result := True;
+    end;
+  end;
+end;
+
+(*
+Bank.WithdrawItem
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean;
+
+Finds and withdraws an item.
+
+Parameters
+----------
+
+Item
+	TRSBankWithdrawItem variable to withdraw.
+
+UseQuantityButtons  
+  Determines if to use the 1,5,10,X,ALL `Quantity` buttons.
+
+Example
+-------
+
+  var
+    ItemToWithdraw: TRSBankWithdrawItem;
+    
+  ItemToWithdraw.Item := 'Iron full helm'; 
+  ItemToWithdraw.Quantity := 5;
+  ItemToWithdraw.Noted := False;  
+  
+  Bank.WithdrawItem(ItemToWithdraw, True);  
+  
+  // OR you can shorthand by passing an open array.
+  
+  Bank.WithdrawItem(['Iron full helm', 5, False], True);  
+*)
+function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean; 
+var
+  B: TBox;
+begin
+  if Self.FindItem(Item.Item, B) then
+    Result := Self.WithdrawHelper(B, Item.Quantity, Item.Noted, UseQuantityButtons); 
+end;
+
+function TRSBank.WithdrawSlot(Item: TRSBankWithdrawSlot; UseQuantityButtons: Boolean): Boolean;
+begin
+  Result := Self.WithdrawHelper(Self.GetSlotBoxes()[Item.Slot], Item.Quantity, Item.Noted, UseQuantityButtons);
+end;
+
+function TRSBank.DepositItem(Item: TRSBankDepositItem; UseQuantityButtons: Boolean): Boolean;
+var
+  Slot: Int32;
+begin
+  if Inventory.FindItem(Item.Item, Slot) then
+    Result := Self.DepositHelper(Inventory.GetSlotBox(Slot), Item.Quantity, UseQuantityButtons);
+end;
+
+function TRSBank.DepositSlot(Item: TRSBankDepositSlot; UseQuantityButtons: Boolean): Boolean; 
+begin
+  Result := Self.DepositHelper(Inventory.GetSlotBox(Item.Slot), Item.Quantity, UseQuantityButtons);
+end;
+
+(*
+Bank.DepositAll
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSBank.DepositAll: Boolean;
+
+Depositis your inventory by clicking the deposit inventory button
+*)
+function TRSBank.DepositAll: Boolean;
+begin
+  Result := (Inventory.Count() = 0) or Self.GetButton(ERSBankButton.DEPOSIT_INVENTORY).Click();
+end;
+
+(*
+var Bank
+~~~~~~~~
+  Global Bank variable.
+*)
+var
+  Bank: TRSBank;
+
+(*
+Inventory.IsOpen
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.IsOpen: Boolean; override;
+
+Overrides **Inventory.IsOpen** to return true if the Bank is open.
+*)
+function TRSInventory.IsOpen: Boolean; override;
+begin
+  Result := inherited() or Bank.IsOpen();
+end;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Bank.SetupAlignment(Self.Mode);
+end;
+
+procedure TSRL.Setup; override;
+begin
+  inherited;
+
+  Bank.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Bank.Draw(Bitmap);
+end;
+
