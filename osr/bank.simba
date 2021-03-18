@@ -88,8 +88,10 @@ function TRSBank.GetButton(Button: ERSBankButton): TRSButton;
 var
   Buttons: TRSButtonArray := Self.GetButtons();
 begin 
-  if Length(Buttons) = Length(ERSBankButton) then
-    Result := Buttons[Button];
+  if (Length(Buttons) = Length(ERSBankButton)) then
+    Result := Buttons[Button]
+  else if (Length(Buttons) = (Length(ERSBankButton) - 1)) then //only one button could be hidden AFAIK
+    Result := Buttons[Button + 1];  // this should work fine but we could also check each one size to be sure.
 end;
 
 (*
