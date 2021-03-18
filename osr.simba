@@ -80,9 +80,11 @@ end;
 {$IFNDEF SRL_ANTIBAN_INCLUDED}         {$I osr/antiban.simba}
 {$IFNDEF SRL_COMBAT_INCLUDED}          {$I osr/combat.simba}
 {$IFNDEF SRL_MAGIC_INCLUDED}           {$I osr/magic.simba}
+{$IFNDEF SRL_PRAYER_INCLUDED}          {$I osr/prayer.simba}
 
 {$SCOPEDENUMS OFF}
 
+{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
