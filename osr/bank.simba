@@ -666,6 +666,36 @@ begin
   Result := inherited() or Bank.IsOpen();
 end;
 
+(*
+GameTabs.Open
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+
+Overrides **SGameTabs.Open** to close the Bank if the Bank is open.
+*)
+function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+begin
+  if Bank.IsOpen then
+  begin
+    if Tab = ERSGameTab.INVENTORY then
+      Exit(True)
+    else
+      Bank.Close;
+  end;
+
+  if GetCurrentTab() = Tab then
+    Exit(True);
+
+  for 1 to 3 do
+  begin
+    Mouse.Click(GetTabBox(Tab), MOUSE_LEFT, SRL.Dice(50));
+
+    Result := WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(50, 2000), SRL.TruncatedGauss(2000, 3000));
+    if Result then
+      Exit;
+  end;
+end;
+
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
