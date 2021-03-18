@@ -463,9 +463,8 @@ var
 begin
   if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.STANDARD) then
     Exit(False); 
-    
-  Selected := Self.GetSelectedStandardSpell();
-  if Selected = Spell then
+
+  if (Selected := Self.GetSelectedStandardSpell()) = Spell then
     Exit(True);
     
   if (Selected <> ERSStandardSpell.UNKNOWN) then
@@ -482,9 +481,8 @@ var
 begin
   if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.ANCIENT) then
     Exit(False); 
-    
-  Selected := Self.GetSelectedAncientSpell();
-  if Selected = Spell then
+
+  if (Selected := Self.GetSelectedAncientSpell()) = Spell then
     Exit(True);
     
   if (Selected <> ERSAncientSpell.UNKNOWN) then
@@ -501,9 +499,8 @@ var
 begin
   if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.LUNAR) then
     Exit(False); 
-    
-  Selected := Self.GetSelectedLunarSpell();
-  if Selected = Spell then
+
+  if (Selected := Self.GetSelectedLunarSpell()) = Spell then
     Exit(True);
     
   if (Selected <> ERSLunarSpell.UNKNOWN) then
@@ -521,8 +518,7 @@ begin
   if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.ARCEUUS) then
     Exit(False); 
     
-  Selected := Self.GetSelectedArceuusSpell();
-  if Selected = Spell then
+  if (Selected := Self.GetSelectedArceuusSpell()) = Spell then
     Exit(True);
     
   if (Selected <> ERSArceuusSpell.UNKNOWN) then
