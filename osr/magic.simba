@@ -463,9 +463,8 @@ var
 begin
   if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.STANDARD) then
     Exit(False); 
-    
-  Selected := Self.GetSelectedStandardSpell();
-  if Selected = Spell then
+
+  if (Selected := Self.GetSelectedStandardSpell()) = Spell then
     Exit(True);
     
   if (Selected <> ERSStandardSpell.UNKNOWN) then
@@ -473,7 +472,7 @@ begin
   
   Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
 
-  Result := WaitUntil((Self.GetSelectedStandardSpell() = Spell) or Inventory.IsOpen(), 50, SRL.TruncatedGauss(1000, 2000));
+  Result := WaitUntil((Self.IsOpen and (Self.GetSelectedStandardSpell = Spell)) or Inventory.IsOpen, 50, SRL.TruncatedGauss(1000, 2000));
 end;
 
 function TRSMagic.CastSpell(Spell: ERSAncientSpell): Boolean; overload;
@@ -482,9 +481,8 @@ var
 begin
   if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.ANCIENT) then
     Exit(False); 
-    
-  Selected := Self.GetSelectedAncientSpell();
-  if Selected = Spell then
+
+  if (Selected := Self.GetSelectedAncientSpell()) = Spell then
     Exit(True);
     
   if (Selected <> ERSAncientSpell.UNKNOWN) then
@@ -492,7 +490,7 @@ begin
   
   Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
 
-  Result := WaitUntil((Self.GetSelectedAncientSpell() = Spell) or Inventory.IsOpen(), 50, SRL.TruncatedGauss(1000, 2000));
+  Result := WaitUntil((Self.IsOpen and (Self.GetSelectedAncientSpell = Spell)) or Inventory.IsOpen, 50, SRL.TruncatedGauss(1000, 2000));
 end;
 
 function TRSMagic.CastSpell(Spell: ERSLunarSpell): Boolean; overload;
@@ -501,9 +499,8 @@ var
 begin
   if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.LUNAR) then
     Exit(False); 
-    
-  Selected := Self.GetSelectedLunarSpell();
-  if Selected = Spell then
+
+  if (Selected := Self.GetSelectedLunarSpell()) = Spell then
     Exit(True);
     
   if (Selected <> ERSLunarSpell.UNKNOWN) then
@@ -511,7 +508,7 @@ begin
   
   Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
 
-  Result := WaitUntil((Self.GetSelectedLunarSpell() = Spell) or Inventory.IsOpen(), 50, SRL.TruncatedGauss(1000, 2000));
+  Result := WaitUntil((Self.IsOpen and (Self.GetSelectedLunarSpell = Spell)) or Inventory.IsOpen, 50, SRL.TruncatedGauss(1000, 2000));
 end;
 
 function TRSMagic.CastSpell(Spell: ERSArceuusSpell): Boolean; overload;
@@ -521,8 +518,7 @@ begin
   if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.ARCEUUS) then
     Exit(False); 
     
-  Selected := Self.GetSelectedArceuusSpell();
-  if Selected = Spell then
+  if (Selected := Self.GetSelectedArceuusSpell()) = Spell then
     Exit(True);
     
   if (Selected <> ERSArceuusSpell.UNKNOWN) then
@@ -530,7 +526,7 @@ begin
   
   Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
 
-  Result := WaitUntil((Self.GetSelectedArceuusSpell() = Spell) or Inventory.IsOpen(), 50, SRL.TruncatedGauss(1000, 2000));
+  Result := WaitUntil((Self.IsOpen and (Self.GetSelectedArceuusSpell = Spell)) or Inventory.IsOpen, 50, SRL.TruncatedGauss(1000, 2000));
 end;
 
 procedure TRSMagic.Draw(Bitmap: TMufasaBitmap); override;
