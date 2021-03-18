@@ -89,7 +89,7 @@ function TRSGameTabs.GetTabBox(Tab: ERSGameTab): TBox;
 var
   Tabs: TBoxArray := Self.GetTabBoxes;
 begin
-  if Tabs = [] then
+  if (Tabs = []) or (Tab = ERSGameTab.UNKNOWN) then
     Exit;
   Result := Tabs[Tab];
 end;
