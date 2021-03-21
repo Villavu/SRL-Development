@@ -4,7 +4,7 @@
 {$ENDIF}
 
 type
-  TRSBankPin = type TRSInterface;
+  TRSBankPin = type TRSTitledInteface;
 
 procedure TRSBankPin.Setup; override;
 begin

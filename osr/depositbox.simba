@@ -1,12 +1,10 @@
-{$DEFINE SRL_DEPOSITSCREEN_INCLUDED}
+{$DEFINE SRL_DEPOSITBOX_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
 
 type
   ERSDepositButton = (
-    CLOSE,
-    
     QUANTITY_1,
     QUANTITY_5,
     QUANTITY_10,
@@ -18,16 +16,16 @@ type
     DEPOSIT_LOOT
   );
 
-  TRSDepositScreen = type TRSInterface;
+  TRSDepositBox = type TRSTitledInteface;
 
-procedure TRSDepositScreen.Setup; override;
+procedure TRSDepositBox.Setup; override;
 begin
   inherited;
 
   Self.Name := 'Deposit Screen';
 end;
 
-procedure TRSDepositScreen.SetupAlignment(Mode: ERSClientMode); override;
+procedure TRSDepositBox.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
 
@@ -54,12 +52,12 @@ begin
   end;
 end;
 
-function TRSDepositScreen.GetButtons: TRSButtonArray;
+function TRSDepositBox.GetButtons: TRSButtonArray;
 begin
-  Result := Self.FindButtons([[21,21], [34,34]]);
+  Result := Self.FindButtons([[34,34]]);
 end;
 
-function TRSDepositScreen.GetButton(Button: ERSDepositButton): TRSButton;
+function TRSDepositBox.GetButton(Button: ERSDepositButton): TRSButton;
 var
   Buttons: TRSButtonArray := Self.GetButtons();
 begin
@@ -67,22 +65,30 @@ begin
     Result := Buttons[Button];
 end;
 
-function TRSDepositScreen.GetSlotBoxes: TBoxArray; 
+function TRSDepositBox.GetSlotBoxes: TBoxArray; 
 begin
   Result := Grid(7, 4, 31, 31, [25, 17], [Self.X1 + 38, Self.Y1 + 42]);
 end;
 
-function TRSDepositScreen.IsOpen: Boolean; overload;
+function TRSDepositBox.IsOpen: Boolean; overload;
 begin
-  Result := Self.GetButton(ERSDepositButton.CLOSE).Visible();
+  Result := Self.GetButton(ERSDepositButton.QUANTITY_1).Visible();
 end;
 
-function TRSDepositScreen.IsOpen(WaitTime: Int32): Boolean; overload;
+function TRSDepositBox.IsOpen(WaitTime: Int32): Boolean; overload;
 begin
   Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(50, 1500), WaitTime);
 end;
 
-procedure TRSDepositScreen.Draw(Bitmap: TMufasaBitmap); override;
+function TRSDepositBox.Close(PressEscape: Boolean = False): Boolean; 
+begin
+  if not Self.IsOpen() then
+    Exit(True);
+
+  Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
+end;
+
+procedure TRSDepositBox.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
     Exit;
@@ -93,25 +99,25 @@ begin
 end;
 
 var
-  DepositScreen: TRSDepositScreen;
+  DepositBox: TRSDepositBox;
 
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  DepositScreen.SetupAlignment(Self.Mode);
+  DepositBox.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
 begin
   inherited;
 
-  DepositScreen.Setup();
+  DepositBox.Setup();
 end;
 
 procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  DepositScreen.Draw(Bitmap);
+  DepositBox.Draw(Bitmap);
 end;
