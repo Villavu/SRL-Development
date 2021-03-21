@@ -133,3 +133,14 @@ Overrides **Inventory.IsOpen** to return true if the Bank is open.
 
 
 ------------
+
+GameTabs.Open
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+
+Overrides **GameTabs.Open** to close the bank if the bank open.
+
+
+------------
