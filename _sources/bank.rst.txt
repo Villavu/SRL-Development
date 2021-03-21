@@ -14,8 +14,8 @@ Bank.IsOpen
 
 Returns true if the Bank is visible.
 
-**WaitForItems** determines if the method waits 1-2 seconds items to load as there
-can be a small delay before items are visible.
+**WaitForItems** determines if the method waits up to one second for item to appears.
+There can be a small delay before items are visible.
 
 
 ------------
@@ -24,9 +24,9 @@ Bank.Close
 ~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.Close(UseKeyboard: Boolean = False): Boolean;
+ function TRSBank.Close(PressEscape: Boolean = False): Boolean;
 
-Closes the bank, Depending on `UseKeyboard` the function will either click the button
+Closes the bank, Depending on `PressEscape` the function will either click the button
 or press backspace.
 
 Example
