@@ -178,7 +178,8 @@ var
 begin
   Image := Self.GetItemImage(Identifer);
   case Image.GetName() of
-    'magic logs', '1513': HasSparkles := True;
+    'magic logs', '1513',
+    'noted magic logs', '1514': HasSparkles := True;
   end;
 
   for I := 0 to High(Slots) do
