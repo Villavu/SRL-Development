@@ -85,9 +85,8 @@ end;
 
 function TRSChooseOption.GetOptions: TRSChooseOption_OptionArray;
 var
-  I, Y: Int32;
+  I: Int32;
   B: TBox;
-  Boxes: TBoxArray;
   BMP: TMufasaBitmap;
 begin
   if Self.Open() then

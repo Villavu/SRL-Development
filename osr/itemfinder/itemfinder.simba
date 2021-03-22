@@ -8,6 +8,11 @@ Item Finder
   {$I SRL/osr.simba}
 {$ENDIF}
 
+const
+  ITEM_FINDER_NAME_FILE   = {$macro CURRENT_DIRECTORY} + '/item-names';
+  ITEM_FINDER_IMAGES_ZIP  = {$macro CURRENT_DIRECTORY} + '/item-images.zip';
+  ITEM_FINDER_IMAGES_PATH = {$macro CURRENT_DIRECTORY} + '/images/';
+
 type
   TRSItem = Variant;
   TRSItemArray = array of TRSItem;
@@ -22,18 +27,13 @@ type
 var
   ItemFinder: TRSItemFinder;
 
-const
-  ITEM_FINDER_NAME_FILE    = {$macro CURRENT_DIRECTORY} + '/item-names';
-  ITEM_FINDER_IMAGES_ZIP   = {$macro CURRENT_DIRECTORY} + '/item-images.zip';
-  ITEM_FINDER_IMAGES_PATH  = {$macro CURRENT_DIRECTORY} + '/images/';
-
 procedure TRSItemFinder.Free;
 var
-  i: Int32;
+  I: Int32;
 begin
   Self.ItemNames.Free();
-  for i := 0 to High(Self.ItemImages) do
-    Self.ItemImages[i].Free();
+  for I := 0 to High(Self.ItemImages) do
+    Self.ItemImages[I].Free();
 end;
 
 procedure TRSItemFinder.Setup;
@@ -46,12 +46,12 @@ begin
   AddOnTerminate(@Self.Free);
 end;
 
-procedure TRSItemFinder.AddItemName(Item, ID: String);
+procedure TRSItemFinder.AddItemName(constref Item, ID: String);
 begin
   Self.ItemNames.SetValues(Item, ID);
 end;
 
-function TRSItemFinder.LoadItemImage(Item: String): TMufasaBitmap;
+function TRSItemFinder.LoadItemImage(constref Item: String): TMufasaBitmap;
 var
   ItemFileName, ItemID: String;
 begin
@@ -80,7 +80,7 @@ function TRSItemFinder.GetItemImage(Item: TRSItem): TMufasaBitmap;
 var
   I: Int32;
 begin
-  Item := VarToStr(Item);
+  Item := LowerCase(VarToStr(Item));
   
   for I := 0 to High(ItemImages) do
     if (Self.ItemImages[I].GetName() = Item) then
@@ -89,7 +89,27 @@ begin
   Result := Self.LoadItemImage(Item);
 end;
 
-function TRSItemFinder.CompareItems(Image, Template: TMufasaBitmap): Single;
+procedure TRSItemFinder.ClearSparkles(constref Image, Templ: TMufasaBitmap);
+var
+  I: Int32;
+  ImagePtr, TemplPtr: PRGB32;
+begin
+  ImagePtr := Image.GetData();
+  TemplPtr := Templ.GetData();
+  
+  for I := 0 to (Image.GetWidth() * Image.GetHeight())-1 do
+  begin
+    // grey/brightness calculation. Works for magic logs
+    if ((ImagePtr^.R + ImagePtr^.G + ImagePtr^.B) div 3 > 130) or    
+       ((TemplPtr^.R + TemplPtr^.G + TemplPtr^.B) div 3 > 130) then
+      ImagePtr^ := TemplPtr^ := TRGB32(0);
+    
+    Inc(ImagePtr);
+    Inc(TemplPtr);
+  end;
+end;
+
+function TRSItemFinder.CompareItems(constref Image, Template: TMufasaBitmap; constref HasSparkles: Boolean = False): Single;
 var
   ImageBorder, TemplateBorder: TPointArray;
   TPA, ClearTPA: TPointArray;
@@ -111,14 +131,15 @@ begin
     Align.X := Max(0, ImageBorder[High(ImageBorder)].X - TemplateBorder[High(TemplateBorder)].X);
     Align.Y := Max(0, ImageBorder[High(ImageBorder)].Y - TemplateBorder[High(TemplateBorder)].Y);
   
-    // Compare borders
-    for P in TemplateBorder.Offset(Align) do
-    begin
-      if (P.Y <= 8) then // Possible stack number... Don't compare.
-        Continue;
-      if (not PointInTPA(P, ImageBorder)) then // Borders don't match. No point going further.
-        Exit;
-    end;
+    // Compare borders. Sparkles can modify boundaries.
+    if not HasSparkles then
+      for P in TemplateBorder.Offset(Align) do
+      begin
+        if (P.Y <= 8) then // Possible stack number... Don't compare.
+          Continue;
+        if (not PointInTPA(P, ImageBorder)) then // Borders don't match. No point going further.
+          Exit;
+      end;
     
     AlignedImage := Image.Copy();
   
@@ -127,6 +148,9 @@ begin
     
     Template.DrawTransparent(Align.X, Align.Y, AlignedTemplate);  
     
+    if HasSparkles then
+      ClearSparkles(AlignedImage, AlignedTemplate);
+
     // Clear these template colors on both images
     for ClearColor in [RS_ITEM_YELLOW_STACK, RS_ITEM_WHITE_STACK, RS_ITEM_GREEN_STACK, RS_ITEM_BORDER] do
       if AlignedTemplate.FindColors(TPA, ClearColor) then 
@@ -139,24 +163,28 @@ begin
     AlignedTemplate.DrawTPA(ClearTPA, 0);
     AlignedImage.DrawTPA(ClearTPA, 0);
   
-    Result := AlignedImage.MatchTemplate(AlignedTemplate, TM_CCORR_NORMED)[0][0]; // No idea why I used CCORR
+    Result := AlignedImage.MatchTemplate(AlignedTemplate, TM_CCORR_NORMED)[0][0]; // IDK why I used CCORR. But it works!
   
     AlignedImage.Free();
     AlignedTemplate.Free(); 
   end;
 end;
 
-function TRSItemFinder.Find(Identifer: TRSItem; Slots: TBoxArray; MaxToFind: Int32 = -1): TIntegerArray;
+function TRSItemFinder.Find(constref Identifer: TRSItem; constref Slots: TBoxArray; constref MaxToFind: Int32 = -1): TIntegerArray;
 var
   Image, Templ: TMufasaBitmap;
   I: Int32;
+  HasSparkles: Boolean;
 begin
   Image := Self.GetItemImage(Identifer);
-  
+  case Image.GetName() of
+    'magic logs', '1513': HasSparkles := True;
+  end;
+
   for I := 0 to High(Slots) do
   begin
     Templ.FromClient(Slots[I]);
-    if Self.CompareItems(Image, Templ) >= Self.Similarity then
+    if Self.CompareItems(Image, Templ, HasSparkles) >= Self.Similarity then
       Result := Result + I;
     Templ.Free();
     
@@ -167,4 +195,7 @@ end;
 
 begin
   ItemFinder.Setup();
+  
+  // We can map some useful things here
+  ItemFinder.AddItemName('arrow shaft', '6443');
 end;

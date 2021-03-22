@@ -1316,7 +1316,7 @@ end;
 
 procedure T2DPointArray.SortByDensity(LowToHi: Boolean = False);
 var
-  i, Long, Short: Int32;
+  i: Int32;
   weight: TIntegerArray;
 begin
   if (Length(self) <= 1) then Exit;

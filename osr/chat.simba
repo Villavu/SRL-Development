@@ -198,8 +198,6 @@ begin
 end;
 
 function TRSChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
-var
-  B: TBox;
 begin
   if Self.ClickOption('Click here to continue', UseKeyboard, [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]) then
   begin

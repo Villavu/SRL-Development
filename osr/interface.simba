@@ -485,7 +485,7 @@ begin
   for I := 0 to High(Buttons) do
   begin
     Self.SetFontSize(20);
-    Self.setFontAntialiasing(False);
+    Self.SetFontAntialiasing(False);
     Self.DrawBox(Buttons[I].Bounds, False, $00FFFF);
     Self.DrawText(ToStr(Buttons[I].Index), Buttons[I].Bounds, True, $00FF00);
   end;

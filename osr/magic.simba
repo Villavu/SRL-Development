@@ -398,7 +398,6 @@ end;
 function TRSMagic.CastSpell(Spell: ERSSpell): Boolean;
 var
   Selected: ERSSpell;
-  Box: TBox;
 begin
   if not Self.Open() then
     Exit(False); 

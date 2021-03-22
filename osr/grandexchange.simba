@@ -98,7 +98,6 @@ end;
 function TRSGrandExchange.FindNPC(Finder: TRSObjectFinder): T2DPointArray;
 var
   TPA: TPointArray;
-  ATPA: T2DPointArray;
   P: TPoint;
   B: TBox;
   I: Int32;

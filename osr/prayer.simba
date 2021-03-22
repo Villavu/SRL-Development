@@ -191,8 +191,6 @@ begin
 end;
 
 function TRSPrayer.ActivatePrayer(Prayer: ERSPrayer): Boolean;
-var
-  Selected: Int32;
 begin
   if not Self.Open() then
     Exit(False);

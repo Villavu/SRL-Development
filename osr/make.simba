@@ -36,7 +36,7 @@ var
   Button: TRSButton;
 begin
   for Button in Self.FindButtons([[0,0]]) do
-    if Button.Bounds.Height > 60 then
+    if (Button.Bounds.Height > 60) and (Button.Bounds.Width > 20) then
       Result += Button;
 end;
 
@@ -82,8 +82,6 @@ begin
 end;
 
 function TRSMake.SelectHelper(Button: TRSButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
-var
-  B: TBox;
 begin
   Result := Self.SetQuantity(Quantity);
   
