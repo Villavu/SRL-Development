@@ -51,6 +51,16 @@ begin
   Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
+function TRSInventory.IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY);
+end;
+
+function TRSInventory.Open: Boolean;
+begin
+  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.INVENTORY);
+end;
+
 function TRSInventory.GetSlotBoxes: TBoxArray;
 begin
   Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
@@ -60,6 +70,7 @@ function TRSInventory.GetSlotBox(Slot: Int32): TBox;
 begin
   Result := Self.GetSlotBoxes()[Slot];
 end;
+
 
 (*
 Inventory.PointToSlot
@@ -93,14 +104,58 @@ begin
   Result := -1;
 end;
 
-function TRSInventory.IsOpen: Boolean;
+(*
+Inventory.HoverSlot
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.HoverSlot(Slot: Int32): Boolean;
+
+Moves the mouse over the slot. Slot is an Integer between 0 and 27.
+
+Example
+-------
+
+  if Inventory.HoverSlot(1) then
+    WriteLn('Mouse is now over slot #1');
+*)
+function TRSInventory.HoverSlot(Slot: Int32): Boolean;
 begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY);
+  Result := Self.IsOpen();
+  if Result then
+    Mouse.Move(Self.GetSlotBox(Slot));
 end;
 
-function TRSInventory.Open: Boolean;
+(*
+Inventory.ClickSlot
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.ClickSlot(Slot: Int32; Option: String = ''): Boolean;
+
+Moves the mouse and clicks on the slot. Slot is an Integer between 0 and 27.
+
+If option is empty the slot is left clicked. Else a right click is performed
+and the option is selected from the choose option menu.
+
+Example
+-------
+
+  if Inventory.ClickSlot(1) then
+    WriteLn('Left clicked slot #1');
+    
+  if Inventory.ClickSlot(1, 'Drop') then
+    WriteLn('Right clicked and selected "Drop" on slot #1', 'Drop');  
+*)
+function TRSInventory.ClickSlot(Slot: Int32; Option: String = ''): Boolean;
 begin
-  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.INVENTORY);
+  if Self.HoverSlot(Slot) then
+  begin
+    if (Option <> '') then
+      Result := ChooseOption.Select(Option)
+    else
+    begin
+      Mouse.Click(MOUSE_LEFT);
+      
+      Result := True;
+    end;
+  end;
 end;
 
 function TRSInventory.IsSlotUsed(B: TBox): Boolean; overload;
@@ -371,19 +426,17 @@ Example
 function TRSInventory.RandomSlotNearby(Slot: Int32; Slots: TIntegerArray): Int32;
 var
   I: Int32;
-  Points: TPointArray;
+  Boxes: TBoxArray;
 begin
   Slots.Remove(Slot);
   if (Length(Slots) = 0) then
     Self.Fatal('RandomSlotNearby: No slots to choose from');
-
-  SetLength(Points, Length(Slots));
-  for I := 0 to High(Points) do
-    Points[I] := SRL.RandomPoint(Self.GetSlotBox(Slots[I]));
-
-  Points.Sort(Self.GetSlotBox(Slot).Middle);
-
-  Result := Self.PointToSlot(Points[SRL.TruncatedGauss(0, High(Slots))]);
+  
+  SetLength(Boxes, Length(Slots));
+  for I := 0 to High(Slots) do
+    Boxes[I] := Self.GetSlotBox(Slots[I]);
+  
+  Result := Slots[SRL.RandomBoxNearby(Self.GetSlotBox(Slot).Middle, Boxes)];
 end;
 
 function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): Boolean;
@@ -434,7 +487,7 @@ begin
     Result := SRL.GetItemAmount(Self.GetSlotBox(Slot));
 end;
 
-function TRSInventory.MouseItem(Item: TRSItem): Boolean;
+function TRSInventory.HoverItem(Item: TRSItem): Boolean;
 var
   Slot: Int32;
 begin
@@ -445,9 +498,9 @@ end;
 
 function TRSInventory.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
 begin
-  if Self.MouseItem(Item) then
+  if Self.HoverItem(Item) then
   begin
-    if Option <> '' then
+    if (Option <> '') then
       Result := ChooseOption.Select(Option)
     else
     begin

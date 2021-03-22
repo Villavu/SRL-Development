@@ -11,7 +11,6 @@ var
 {$IFNDEF SRL_WRAPPERS_INCLUDED}      {$I utils/wrappers.simba}
 {$IFNDEF SRL_MATH_INCLUDED}          {$I utils/math.simba}
 {$IFNDEF SRL_TBOX_INCLUDED}          {$I utils/tbox.simba}
-{$IFNDEF SRL_RANDOM_INCLUDED}        {$I utils/random.simba}
 {$IFNDEF SRL_TPOINT_INCLUDED}        {$I utils/tpoint.simba}
 {$IFNDEF SRL_TRECTANGLE_INCLUDED}    {$I utils/trectangle.simba}
 {$IFNDEF SRL_TBOXARRAY_INCLUDED}     {$I utils/tboxarrays.simba}
@@ -22,6 +21,7 @@ var
 {$IFNDEF SRL_EXTENDEDARRAY_INCLUDED} {$I utils/extendedarrays.simba}
 {$IFNDEF SRL_INTEGERARRAY_INCLUDED}  {$I utils/integerarrays.simba}
 {$IFNDEF SRL_TPOINTARRAY_INCLUDED}   {$I utils/tpointarrays.simba}
+{$IFNDEF SRL_RANDOM_INCLUDED}        {$I utils/random.simba}
 
 {$IFNDEF SRL_TIME_INCLUDED}          {$I utils/time.simba}
 {$IFNDEF SRL_BASE_INCLUDED}          {$I utils/base.simba}
