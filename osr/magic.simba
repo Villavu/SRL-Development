@@ -11,9 +11,10 @@ type
     ARCEUUS
   );
 
-  ERSStandardSpell = (
+  ERSSpell = (
     UNKNOWN,
     
+    // Standard
     LUMBRIDGE_HOME_TELEPORT,
     WIND_STRIKE,
     CONFUSE,
@@ -92,12 +93,9 @@ type
     TELEOTHER_CAMELOT,
     EARTH_SURGE,
     LVL7_ENCHANT,
-    FIRE_SURGE
-  );
-
-  ERSAncientSpell = (
-    UNKNOWN,
+    FIRE_SURGE,
     
+    // Ancient
     EDGEVILLE_HOME_TELEPORT,
     SMOKE_RUSH,
     SHADOW_RUSH,
@@ -129,12 +127,9 @@ type
     BLOOD_BARRAGE,
 
     ICE_BARRAGE,
-    GHORROCK_TELEPORT
-  );
-
-  ERSLunarSpell = (
-    UNKNOWN,
+    GHORROCK_TELEPORT,
     
+    // Lunar
     LUNAR_HOME_TELEPORT,
     BAKE_PIE,
     GEOMANCY,
@@ -187,12 +182,9 @@ type
     VENGEANCE_OTHER,
     VENGEANCE,
     HEAL_GROUP,
-    SPELLBOOK_SWAP
-  );
-
-  ERSArceuusSpell = (
-    UNKNOWN,
+    SPELLBOOK_SWAP,
     
+    // Arceuus
     ARCEUUS_HOME_TELEPORT,
     REANIMATE_GOBLIN,
     LUMBRIDGE_GRAVEYARD_TELEPORT,
@@ -239,6 +231,25 @@ type
     REANIMATE_DRAGON
   );
 
+const
+  RS_STANDARD_SPELL_FIRST = ERSSpell.LUMBRIDGE_HOME_TELEPORT;
+  RS_STANDARD_SPELL_LAST  = ERSSpell.FIRE_SURGE;
+
+  RS_ANCIENT_SPELL_FIRST  = ERSSpell.EDGEVILLE_HOME_TELEPORT;
+  RS_ANCIENT_SPELL_LAST   = ERSSpell.GHORROCK_TELEPORT;
+  
+  RS_LUNAR_SPELL_FIRST    = ERSSpell.LUNAR_HOME_TELEPORT;
+  RS_LUNAR_SPELL_LAST     = ERSSpell.SPELLBOOK_SWAP;
+
+  RS_ARCEUUS_SPELL_FIRST  = ERSSpell.ARCEUUS_HOME_TELEPORT;
+  RS_ARCEUUS_SPELL_LAST   = ERSSpell.REANIMATE_DRAGON;
+  
+  RS_STANDARD_SPELLS = [RS_STANDARD_SPELL_FIRST..RS_STANDARD_SPELL_LAST];
+  RS_ANCIENT_SPELLS  = [RS_ANCIENT_SPELL_FIRST..RS_ANCIENT_SPELL_LAST];
+  RS_LUNAR_SPELLS    = [RS_LUNAR_SPELL_FIRST..RS_LUNAR_SPELL_LAST];
+  RS_ARCEUUS_SPELLS  = [RS_ARCEUUS_SPELL_FIRST..RS_ARCEUUS_SPELL_LAST];
+  
+type
   TRSMagic = type TRSInterface;
 
 procedure TRSMagic.Setup; override;
@@ -258,28 +269,6 @@ begin
   Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
-function TRSMagic.GetSpellBook(): ERSSpellBook;
-var
-  TabBox: TBox;
-begin
-  TabBox := GameTabs.GetTabBox(ERSGameTab.MAGIC);
-  if SRL.CountColor(CTS2(4747414, 30, 0.10, 0.65), TabBox) > 250 then
-    Exit(ERSSpellBook.STANDARD)
-  else if SRL.CountColor(CTS2(7425690, 28, 0.84, 0.41), TabBox) > 270 then
-    Exit(ERSSpellBook.ANCIENT)
-  else if SRL.CountColor(CTS2(10850229, 26, 1.83, 0.68), TabBox) > 290 then
-    Exit(ERSSpellBook.LUNAR)
-  else if SRL.CountColor(CTS2(5584975, 17, 1.20, 1.22), TabBox) > 290 then
-    Exit(ERSSpellBook.ARCEUUS)
-  else
-    Exit(ERSSpellBook.STANDARD);
-end;
-
-function TRSMagic.IsSpellBook(SpellBook: ERSSpellBook): Boolean;
-begin
-  Result := SpellBook = Self.GetSpellBook();
-end;
-
 function TRSMagic.IsOpen: Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.MAGIC);
@@ -290,253 +279,151 @@ begin
   Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.MAGIC);
 end;
 
-function TRSMagic.GetSpellBoxes: TBoxArray;
+function TRSMagic.GetSpellBook: ERSSpellBook;
+const
+  ARCEUUS_COLOR := CTS1(4008752, 10); // Colors of the book on the gametab
+  ANCIENT_COLOR := CTS1(8273495, 27);
+  LUNAR_COLOR   := CTS1(12761525, 27);
+var
+  Box: TBox := Gametabs.GetTabBox(ERSGameTab.MAGIC); 
 begin
-  if Self.IsSpellBook(ERSSpellBook.STANDARD) then
-    Result := Grid(7, 10, 23, 23, [3, 1], [Self.X1 + 2, Self.Y1 + 1])
-  else if Self.IsSpellBook(ERSSpellBook.ANCIENT) then
-    Result := Result := Grid(4, 7, 23, 23, [25, 13], [Self.X1 + 8, Self.Y1 + 1])
-  else if Self.IsSpellBook(ERSSpellBook.LUNAR) then
-    Result := Grid(5, 9, 23, 23, [17, 4], [Self.X1 + 2, Self.Y1 + 1])
-  else if Self.IsSpellBook(ERSSpellBook.ARCEUUS) then
-    Result := Result := Grid(4, 9, 23, 23, [25, 4], [Self.X1 + 8, Self.Y1 + 1])
-  else
-    Result := Grid(7, 10, 23, 23, [3, 1], [Self.X1 + 2, Self.Y1 + 1]);
+  if SRL.CountColor(ARCEUUS_COLOR, Box) >= 85 then Exit(ERSSpellBook.ARCEUUS);
+  if SRL.CountColor(ANCIENT_COLOR, Box) >= 85 then Exit(ERSSpellBook.ANCIENT);
+  if SRL.CountColor(LUNAR_COLOR,   Box) >= 85 then Exit(ERSSpellBook.LUNAR);
 end;
 
-function TRSMagic.GetSpellBox(Spell: ERSStandardSpell): TBox; overload;
+function TRSMagic.IsSpellBook(SpellBook: ERSSpellBook): Boolean;
 begin
-  Result := Self.GetSpellBoxes()[Spell-1]; // -1 to skip ERSStandardSpell.UNKNOWN
+  Result := SpellBook = Self.GetSpellBook();
 end;
 
-function TRSMagic.GetSpellBox(Spell: ERSAncientSpell): TBox; overload;
-begin
-  Result := Self.GetSpellBoxes()[Spell-1];
+function TRSMagic.GetSpellBoxes(out Spellbook: ERSSpellBook): TBoxArray;
+begin 
+  Spellbook := Self.GetSpellBook();
+  case Spellbook of
+    ERSSpellBook.STANDARD: Result := Grid(7, 10, 23, 23, [3, 1],   [Self.X1 + 2, Self.Y1 + 1]);
+    ERSSpellBook.ARCEUUS:  Result := Grid(4, 9,  23, 23, [25, 4],  [Self.X1 + 8, Self.Y1 + 1]);
+    ERSSpellBook.LUNAR:    Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 2, Self.Y1 + 1]);
+    ERSSpellBook.ANCIENT:  Result := Grid(4, 7,  23, 23, [25, 13], [Self.X1 + 8, Self.Y1 + 1]);
+  end;
 end;
 
-function TRSMagic.GetSpellBox(Spell: ERSLunarSpell): TBox; overload;
+function TRSMagic.GetSpellBox(Spell: ERSSpell; out Box: TBox): Boolean;
+var
+  Spellbook: ERSSpellBook;
+  Boxes: TBoxArray;
 begin
-  Result := Self.GetSpellBoxes()[Spell-1];
+  Boxes := Self.GetSpellBoxes(Spellbook);
+  
+  case Spellbook of
+    ERSSpellBook.STANDARD: 
+      begin
+        Result := (Spell in RS_STANDARD_SPELLS); 
+        if Result then 
+          Box := Boxes[Spell - Ord(RS_STANDARD_SPELL_FIRST)];
+      end;
+    
+    ERSSpellBook.ARCEUUS: 
+      begin
+        Result := (Spell in RS_ARCEUUS_SPELLS); 
+        if Result then 
+          Box := Boxes[Spell - Ord(RS_ARCEUUS_SPELL_FIRST)];
+      end;
+      
+    ERSSpellBook.LUNAR: 
+      begin
+        Result := (Spell in RS_LUNAR_SPELLS); 
+        if Result then 
+          Box := Boxes[Spell - Ord(RS_LUNAR_SPELL_FIRST)];
+      end;
+      
+    ERSSpellBook.ANCIENT: 
+      begin
+        Result := (Spell in RS_ANCIENT_SPELLS); 
+        if Result then 
+          Box := Boxes[Spell - Ord(RS_ANCIENT_SPELL_FIRST)];
+      end;     
+  end;
 end;
 
-function TRSMagic.GetSpellBox(Spell: ERSArceuusSpell): TBox; overload;
+function TRSMagic.MouseSpell(Spell: ERSSpell; Button: Int32 = MOUSE_MOVE): Boolean;
+var
+  Box: TBox;
 begin
-  Result := Self.GetSpellBoxes()[Spell-1];
+  Result := Self.IsOpen() and Self.GetSpellBox(Spell, Box);
+  
+  if Result then
+  begin
+    Mouse.Move(Box);
+    if (Button <> MOUSE_MOVE) then
+      Mouse.Click(Button);
+  end;
 end;
 
-function TRSMagic.PointToSpell(P: TPoint): Int32;
+function TRSMagic.CanActivate(Spell: ERSSpell): Boolean;
+var
+  Box: TBox;
+begin
+  Result := Self.GetSpellBox(Spell, Box) and Self.Open() and (SRL.PeakBrightness(Box) > 35);
+end;
+
+function TRSMagic.IsSpellSelected(Spell: ERSSpell): Boolean; 
+var
+  Box: TBox;
+begin
+  Result := Self.GetSpellBox(Spell, Box) and Self.Open() and (SRL.CountColor($FFFFFF, Box) > 10);
+end;
+
+function TRSMagic.GetSelectedSpell: ERSSpell;
 var
   I: Int32;
-  Spells: TBoxArray;
+  Spellbook: ERSSpellBook;
+  Boxes: TBoxArray;
 begin
-  Spells := Self.GetSpellBoxes();
-  for I := 0 to High(Spells) do
-    if Spells[I].Contains(P) then
-      Exit(I);
-
-  Result := -1;
-end;
-
-function TRSMagic.MouseOver(Spell: ERSStandardSpell): Boolean; overload;
-begin
-  Result := Self.Open() and Self.IsSpellBook(ERSSpellBook.STANDARD);
-
-  if Result then
-    Mouse.Move(Self.GetSpellBox(Spell));
-end;
-
-function TRSMagic.MouseOver(Spell: ERSAncientSpell): Boolean; overload;
-begin
-  Result := Self.Open() and Self.IsSpellBook(ERSSpellBook.ANCIENT);
-
-  if Result then
-    Mouse.Move(Self.GetSpellBox(Spell));
-end;
-
-function TRSMagic.MouseOver(Spell: ERSLunarSpell): Boolean; overload;
-begin
-  Result := Self.Open() and Self.IsSpellBook(ERSSpellBook.LUNAR);
-
-  if Result then
-    Mouse.Move(Self.GetSpellBox(Spell));
-end;
-
-function TRSMagic.MouseOver(Spell: ERSArceuusSpell): Boolean; overload;
-begin
-  Result := Self.Open() and Self.IsSpellBook(ERSSpellBook.ARCEUUS);
-
-  if Result then
-    Mouse.Move(Self.GetSpellBox(Spell));
-end;
-
-function TRSMagic.CanActivate(Spell: ERSStandardSpell): Boolean;
-begin
-  Result := (Spell <> ERSStandardSpell.UNKNOWN) and Self.Open() and (SRL.PeakBrightness(Self.GetSpellBox(Spell)) > 35);
-end;
-
-function TRSMagic.CanActivate(Spell: ERSAncientSpell): Boolean; overload;
-begin
-Result := (Spell <> ERSAncientSpell.UNKNOWN) and Self.Open() and (SRL.PeakBrightness(Self.GetSpellBox(Spell)) > 35);
-end;
-
-function TRSMagic.CanActivate(Spell: ERSLunarSpell): Boolean; overload;
-begin
-Result := (Spell <> ERSLunarSpell.UNKNOWN) and Self.Open() and (SRL.PeakBrightness(Self.GetSpellBox(Spell)) > 35);
-end;
-
-function TRSMagic.CanActivate(Spell: ERSArceuusSpell): Boolean; overload;
-begin
-Result := (Spell <> ERSArceuusSpell.UNKNOWN) and Self.Open() and (SRL.PeakBrightness(Self.GetSpellBox(Spell)) > 35);
-end;
-
-function TRSMagic.IsSpellSelected(Spell: ERSStandardSpell): Boolean; overload;
-begin
-  Result := (Spell <> ERSStandardSpell.UNKNOWN) and (SRL.CountColor($FFFFFF, Self.GetSpellBox(Spell)) > 10);
-end;
-
-function TRSMagic.IsSpellSelected(Spell: ERSAncientSpell): Boolean; overload;
-begin
-  Result := (Spell <> ERSAncientSpell.UNKNOWN) and (SRL.CountColor($FFFFFF, Self.GetSpellBox(Spell)) > 10);
-end;
-
-function TRSMagic.IsSpellSelected(Spell: ERSLunarSpell): Boolean; overload;
-begin
-  Result := (Spell <> ERSLunarSpell.UNKNOWN) and (SRL.CountColor($FFFFFF, Self.GetSpellBox(Spell)) > 10);
-end;
-
-function TRSMagic.IsSpellSelected(Spell: ERSArceuusSpell): Boolean; overload;
-begin
-  Result := (Spell <> ERSArceuusSpell.UNKNOWN) and (SRL.CountColor($FFFFFF, Self.GetSpellBox(Spell)) > 10);
-end;
-
-function TRSMagic.GetSelectedStandardSpell: ERSStandardSpell;
-var
-  Spell: ERSStandardSpell;
-begin
-  if (not Self.IsSpellBook(ERSSpellBook.STANDARD)) or (not Self.Open()) then
+  if not Self.IsOpen() then
     Exit;
     
-  for Spell in ERSStandardSpell do
-    if Self.IsSpellSelected(Spell) then
-      Exit(Spell);
+  Boxes := Self.GetSpellBoxes(Spellbook);
+ 
+  for I := 0 to High(Boxes) do 
+    if SRL.CountColor($FFFFFF, Boxes[I]) > 10 then 
+    case SpellBook of
+      ERSSpellBook.STANDARD: Exit(ERSSpell(RS_STANDARD_SPELL_FIRST + I));
+      ERSSpellBook.ARCEUUS:  Exit(ERSSpell(RS_ARCEUUS_SPELL_FIRST + I));
+      ERSSpellBook.LUNAR:    Exit(ERSSpell(RS_LUNAR_SPELL_FIRST + I));
+      ERSSpellBook.ANCIENT:  Exit(ERSSpell(RS_ANCIENT_SPELL_FIRST + I));
+    end;
 end;
 
-function TRSMagic.GetSelectedAncientSpell: ERSAncientSpell;
+function TRSMagic.CastSpell(Spell: ERSSpell): Boolean;
 var
-  Spell: ERSAncientSpell;
+  Selected: ERSSpell;
+  Box: TBox;
 begin
-  if (not Self.IsSpellBook(ERSSpellBook.ANCIENT)) or (not Self.Open()) then
-    Exit;
-
-  for Spell in ERSAncientSpell do
-    if Self.IsSpellSelected(Spell) then
-      Exit(Spell);
-end;
-
-function TRSMagic.GetSelectedLunarSpell: ERSLunarSpell;
-var
-  Spell: ERSLunarSpell;
-begin
-  if (not Self.IsSpellBook(ERSSpellBook.LUNAR)) or (not Self.Open()) then
-    Exit;
-
-  for Spell in ERSLunarSpell do
-    if Self.IsSpellSelected(Spell) then
-      Exit(Spell);
-end;
-
-function TRSMagic.GetSelectedArceuusSpell: ERSArceuusSpell;
-var
-  Spell: ERSArceuusSpell;
-begin
-  if (not Self.IsSpellBook(ERSSpellBook.ARCEUUS)) or (not Self.Open()) then
-    Exit;
-    
-  for Spell in ERSArceuusSpell do
-    if Self.IsSpellSelected(Spell) then
-      Exit(Spell);
-end;
-
-function TRSMagic.CastSpell(Spell: ERSStandardSpell): Boolean; overload;
-var
-  Selected: ERSStandardSpell;
-begin
-  if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.STANDARD) then
+  if not Self.Open() then
     Exit(False); 
 
-  if (Selected := Self.GetSelectedStandardSpell()) = Spell then
+  Selected := Self.GetSelectedSpell();
+  if (Selected := Self.GetSelectedSpell()) = Spell then
     Exit(True);
     
-  if (Selected <> ERSStandardSpell.UNKNOWN) then
-    Mouse.Click(Self.GetSpellBox(Selected), MOUSE_LEFT);  
-  
-  Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
-
-  Result := WaitUntil((Self.IsOpen and (Self.GetSelectedStandardSpell = Spell)) or Inventory.IsOpen, 50, SRL.TruncatedGauss(1000, 2000));
-end;
-
-function TRSMagic.CastSpell(Spell: ERSAncientSpell): Boolean; overload;
-var
-  Selected: ERSAncientSpell;
-begin
-  if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.ANCIENT) then
-    Exit(False); 
-
-  if (Selected := Self.GetSelectedAncientSpell()) = Spell then
-    Exit(True);
-    
-  if (Selected <> ERSAncientSpell.UNKNOWN) then
-    Mouse.Click(Self.GetSpellBox(Selected), MOUSE_LEFT);  
-  
-  Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
-
-  Result := WaitUntil((Self.IsOpen and (Self.GetSelectedAncientSpell = Spell)) or Inventory.IsOpen, 50, SRL.TruncatedGauss(1000, 2000));
-end;
-
-function TRSMagic.CastSpell(Spell: ERSLunarSpell): Boolean; overload;
-var
-  Selected: ERSLunarSpell;
-begin
-  if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.LUNAR) then
-    Exit(False); 
-
-  if (Selected := Self.GetSelectedLunarSpell()) = Spell then
-    Exit(True);
-    
-  if (Selected <> ERSLunarSpell.UNKNOWN) then
-    Mouse.Click(Self.GetSpellBox(Selected), MOUSE_LEFT);  
-  
-  Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
-
-  Result := WaitUntil((Self.IsOpen and (Self.GetSelectedLunarSpell = Spell)) or Inventory.IsOpen, 50, SRL.TruncatedGauss(1000, 2000));
-end;
-
-function TRSMagic.CastSpell(Spell: ERSArceuusSpell): Boolean; overload;
-var
-  Selected: ERSArceuusSpell;
-begin
-  if not Self.Open() or not Self.IsSpellBook(ERSSpellBook.ARCEUUS) then
-    Exit(False); 
-    
-  if (Selected := Self.GetSelectedArceuusSpell()) = Spell then
-    Exit(True);
-    
-  if (Selected <> ERSArceuusSpell.UNKNOWN) then
-    Mouse.Click(Self.GetSpellBox(Selected), MOUSE_LEFT);  
-  
-  Mouse.Click(Self.GetSpellBox(Spell), MOUSE_LEFT);
-
-  Result := WaitUntil((Self.IsOpen and (Self.GetSelectedArceuusSpell = Spell)) or Inventory.IsOpen, 50, SRL.TruncatedGauss(1000, 2000));
+  // Unselect
+  if (Selected <> ERSSpell.UNKNOWN) then
+    Self.MouseSpell(Selected, MOUSE_LEFT);
+ 
+  Result := Self.MouseSpell(Spell, MOUSE_LEFT) and WaitUntil((Self.IsOpen() and (Self.GetSelectedSpell() = Spell)) or Inventory.IsOpen(), 100, SRL.TruncatedGauss(1000, 2000));
 end;
 
 procedure TRSMagic.Draw(Bitmap: TMufasaBitmap); override;
+var
+  Spellbook: ERSSpellBook;
 begin
   if not Self.IsOpen() then
     Exit;
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSpellBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetSpellBoxes(Spellbook), False, $00FFFF);
 end;
 
 var
