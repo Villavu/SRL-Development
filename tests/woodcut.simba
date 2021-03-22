@@ -150,7 +150,7 @@ begin
        (not FindTree(Self.Walker.GetMyPos(), Self.CurrentTree, Circle)) then
       Exit;
 
-    if Chatbox.HasLevelUp() or Inventory.IsFull() then
+    if Chat.LeveledUp() or Inventory.IsFull() then
       Exit;
 
     if Self.CheckActivity() < 1000 then // Xp gain
@@ -171,7 +171,7 @@ procedure TLumbridgeWoodcutter.Drop;
 var
   Slots: TIntegerArray;
 begin
-  Slots := Inventory.FindAll(['Logs', 'Oak logs', 'Willow logs']);
+  Inventory.FindItems(['Logs', 'Oak logs', 'Willow logs'],Slots);
   Slots := Inventory.ErrorPattern(Slots); // Shuffle a little
 
   // Random chance of triming the pattern
@@ -198,7 +198,7 @@ begin
   if XPBar.Read() < Self.Finished then
     Exit;
 
-  WC := Stats.GetSkillInfo(SKILL_WOODCUTTING);
+  WC := Stats.GetSkillInfo(ERSSKILL.WOODCUTTING);
 
   if WC.Level < 15 then
   begin
@@ -258,4 +258,3 @@ begin
 
   // Logged out
 end.
-
