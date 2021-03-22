@@ -30,6 +30,48 @@ Example
 
 ------------
 
+Inventory.HoverSlot
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.HoverSlot(Slot: Int32): Boolean;
+
+Moves the mouse over the slot. Slot is an Integer between 0 and 27.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if Inventory.HoverSlot(1) then
+    WriteLn('Mouse is now over slot #1');
+
+
+------------
+
+Inventory.ClickSlot
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.ClickSlot(Slot: Int32; Option: String = ''): Boolean;
+
+Moves the mouse and clicks on the slot. Slot is an Integer between 0 and 27.
+
+If option is empty the slot is left clicked. Else a right click is performed
+and the option is selected from the choose option menu.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if Inventory.ClickSlot(1) then
+    WriteLn('Left clicked slot #1');
+    
+  if Inventory.ClickSlot(1, 'Drop') then
+    WriteLn('Right clicked and selected "Drop" on slot #1', 'Drop');  
+
+
+------------
+
 Inventory.IsSlotSelected
 ~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal

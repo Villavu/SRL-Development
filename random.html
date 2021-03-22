@@ -96,12 +96,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#srl-normalrange">SRL.NormalRange</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id3">SRL.NormalRange</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#srl-randompoint">SRL.RandomPoint</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#srl-randompoint-overload">SRL.RandomPoint (overload)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">SRL.RandomPoint (overload)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">SRL.RandomPoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">SRL.RandomPoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#srl-randonpointex">SRL.RandonPointEx</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#srl-rowp">SRL.rowp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#srl-dice">SRL.Dice</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#wait-overload">Wait (overload)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wait">Wait</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#waitex">WaitEx</a></li>
 </ul>
 </li>
@@ -274,8 +274,8 @@ where the most of the generated numbers will land.</p>
 from mean defined by <code class="docutils literal notranslate"><span class="pre">MaxRad</span></code>.</p>
 </div>
 <hr class="docutils" />
-<div class="section" id="srl-randompoint-overload">
-<h2>SRL.RandomPoint (overload)<a class="headerlink" href="#srl-randompoint-overload" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h2>SRL.RandomPoint<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">RandomPoint</span><span class="p">(</span><span class="n">Bounds</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -283,8 +283,8 @@ from mean defined by <code class="docutils literal notranslate"><span class="pre
 the point weights towards the middle of the box.</p>
 </div>
 <hr class="docutils" />
-<div class="section" id="id4">
-<h2>SRL.RandomPoint (overload)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h2>SRL.RandomPoint<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">RandomPoint</span><span class="p">(</span><span class="nb">Rect</span><span class="o">:</span> <span class="n">TRectangle</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -335,8 +335,8 @@ Final implementation and math done by slacky.</p>
 </div>
 </div>
 <hr class="docutils" />
-<div class="section" id="wait-overload">
-<h2>Wait (overload)<a class="headerlink" href="#wait-overload" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="wait">
+<h2>Wait<a class="headerlink" href="#wait" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nf">Wait</span><span class="p">(</span><span class="nb">Min</span><span class="o">,</span> <span class="nb">Max</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">Weight</span><span class="o">:</span> <span class="n">EWaitDir</span><span class="o">=</span><span class="n">wdMean</span><span class="p">)</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>

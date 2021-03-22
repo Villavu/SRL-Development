@@ -107,6 +107,8 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Inventory</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-pointtoslot">Inventory.PointToSlot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory-hoverslot">Inventory.HoverSlot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory-clickslot">Inventory.ClickSlot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-isslotselected">Inventory.IsSlotSelected</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-getselectedslot">Inventory.GetSelectedSlot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-setselectedslot">Inventory.SetSelectedSlot</a></li>
@@ -222,14 +224,49 @@ Returns -1 if the point does not fall in any slots.</p>
 </div>
 </div>
 <hr class="docutils" />
+<div class="section" id="inventory-hoverslot">
+<h2>Inventory.HoverSlot<a class="headerlink" href="#inventory-hoverslot" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSInventory</span><span class="o">.</span><span class="nf">HoverSlot</span><span class="p">(</span><span class="n">Slot</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the mouse over the slot. Slot is an Integer between 0 and 27.</p>
+<div class="section" id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">HoverSlot</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Mouse is now over slot #1&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="inventory-clickslot">
+<h2>Inventory.ClickSlot<a class="headerlink" href="#inventory-clickslot" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSInventory</span><span class="o">.</span><span class="nf">ClickSlot</span><span class="p">(</span><span class="n">Slot</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">Option</span><span class="o">:</span> <span class="k">String</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the mouse and clicks on the slot. Slot is an Integer between 0 and 27.</p>
+<p>If option is empty the slot is left clicked. Else a right click is performed
+and the option is selected from the choose option menu.</p>
+<div class="section" id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">ClickSlot</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Left clicked slot #1&#39;</span><span class="p">)</span><span class="o">;</span>
+
+<span class="k">if</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">ClickSlot</span><span class="p">(</span><span class="mi">1</span><span class="o">,</span> <span class="s">&#39;Drop&#39;</span><span class="p">)</span> <span class="k">then</span>
+  <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Right clicked and selected &quot;Drop&quot; on slot #1&#39;</span><span class="o">,</span> <span class="s">&#39;Drop&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<hr class="docutils" />
 <div class="section" id="inventory-isslotselected">
 <h2>Inventory.IsSlotSelected<a class="headerlink" href="#inventory-isslotselected" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSInventory</span><span class="o">.</span><span class="nf">IsSlotSelected</span><span class="p">(</span><span class="n">Slot</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns True if the slot is selected (white outline).</p>
-<div class="section" id="id1">
-<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">IsSlotSelected</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">then</span>
   <span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Slot 1 is selected!&#39;</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
@@ -244,8 +281,8 @@ Returns -1 if the point does not fall in any slots.</p>
 </div>
 <p>Returns the index of the selected slot (white outline).
 <strong>-1</strong> is returned if no slot is selected.</p>
-<div class="section" id="id2">
-<h3>Example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">Inventory</span><span class="o">.</span><span class="n">GetSelectedSlot</span><span class="p">())</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -259,8 +296,8 @@ Returns -1 if the point does not fall in any slots.</p>
 </div>
 <p>Set the slot as selected (white outline).
 Slot can be <strong>-1</strong> to unselect the currently selected slot.</p>
-<div class="section" id="id3">
-<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">Inventory</span><span class="o">.</span><span class="n">GetSelectedSlot</span><span class="p">())</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -273,8 +310,8 @@ Slot can be <strong>-1</strong> to unselect the currently selected slot.</p>
 </pre></div>
 </div>
 <p>Selects <strong>Slot</strong> and uses with <strong>OtherSlot</strong>.</p>
-<div class="section" id="id4">
-<h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id6">
+<h3>Example<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Inventory</span><span class="o">.</span><span class="n">Use</span><span class="p">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">5</span><span class="p">)</span><span class="o">;</span> <span class="c1">// Use item in slot 1 on Item in slot 5</span>
 </pre></div>
 </div>
@@ -287,8 +324,8 @@ Slot can be <strong>-1</strong> to unselect the currently selected slot.</p>
 </pre></div>
 </div>
 <p>Randomly returns one of the <strong>Slots</strong> weighted towards <strong>Slot</strong> by distance.</p>
-<div class="section" id="id5">
-<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id7">
+<h3>Example<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">Slot</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>
 
 <span class="n">Slot</span> <span class="o">:=</span> <span class="n">Inventory</span><span class="o">.</span><span class="n">RandomSlotNearby</span><span class="p">(</span><span class="mi">0</span><span class="o">,</span> <span class="p">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">27</span><span class="p">])</span><span class="o">;</span>
@@ -305,8 +342,8 @@ Slot can be <strong>-1</strong> to unselect the currently selected slot.</p>
 </pre></div>
 </div>
 <p>Shift drops items following the desired pattern.</p>
-<div class="section" id="id6">
-<h3>Example<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>Example<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// Shift drop maple &amp; willow logs in the snake pattern</span>
 <span class="n">Inventory</span><span class="o">.</span><span class="n">ShiftDrop</span><span class="p">([</span><span class="s">&#39;Maple logs&#39;</span><span class="o">,</span> <span class="s">&#39;Willow logs&#39;</span><span class="p">]</span><span class="o">,</span> <span class="n">DROP_PATTERN_SNAKE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>

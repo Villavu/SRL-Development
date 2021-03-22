@@ -96,8 +96,8 @@ from mean defined by ``MaxRad``.
 
 ------------
 
-SRL.RandomPoint (overload)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+SRL.RandomPoint
+~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
  function TSRL.RandomPoint(Bounds: TBox): TPoint; overload;
@@ -108,8 +108,8 @@ the point weights towards the middle of the box.
 
 ------------
 
-SRL.RandomPoint (overload)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+SRL.RandomPoint
+~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
  function TSRL.RandomPoint(Rect: TRectangle): TPoint; overload;
@@ -121,7 +121,7 @@ The point weights towards the middle of the rectangle.
 ------------
 
 SRL.RandonPointEx
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
  function TSRL.RandonPointEx(From: TPoint; B: TBox; Force: Double=0.35): TPoint; constref;
@@ -137,7 +137,7 @@ The last parameter `Force` defines how much the generated point is to be skewed 
 ------------
 
 SRL.rowp
-~~~~~~~~~
+~~~~~~~~
 .. code-block:: pascal
 
 
@@ -155,7 +155,7 @@ Force ranges from -1 (close to) to 1 (away from), where 0 is mean, but with a bi
 ------------
 
 SRL.Dice
-~~~~~~~~~
+~~~~~~~~
 .. code-block:: pascal
 
  function TSRL.Dice(ChancePercent: Double): Boolean; static;
@@ -174,8 +174,8 @@ Example
 
 ------------
 
-Wait (overload)
-~~~~~~~~~~~~~~~~~
+Wait
+~~~~
 .. code-block:: pascal
 
  procedure Wait(Min, Max: Double; Weight: EWaitDir=wdMean); overload;
@@ -186,7 +186,7 @@ Waits ... Weighted towards the mean of `Min` and `Max`
 ------------
 
 WaitEx
-~~~~~~~
+~~~~~~
 .. code-block:: pascal
 
  procedure WaitEx(Mean, Dev: Double);
