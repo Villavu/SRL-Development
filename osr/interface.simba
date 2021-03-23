@@ -46,12 +46,7 @@ end;
 procedure TRSInterface.SetupAlignment(Mode: ERSClientMode); 
 begin
   Self.Mode := Mode;
-end;
-
-procedure TRSInterface.Draw(Bitmap: TMufasaBitmap);
-begin
-  Bitmap.DrawBox(Self.Bounds(), $00FFFF);
-end;
+end; 
   
 function TRSInterface.X1: Int32;
 var
@@ -384,6 +379,123 @@ begin
       Exit(True);
     end;
 end;
+
+type
+  TRSScrollBar = record
+    SliderRegion: TBox;
+    Slider: TBox;
+    Position: Int32;
+  end;
+  
+procedure TRSScrollBar.Draw(Bitmap: TMufasaBitmap); constref;
+begin
+  Bitmap.DrawBox(Self.SliderRegion, False, $00FFFF);
+  Bitmap.DrawBox(Self.Slider, False, $00FFFF);
+  Bitmap.SetFontAntialiasing(False);
+  Bitmap.SetFontSize(30);
+  with Bitmap.TextSize(ToString(Self.Position)) do
+    Bitmap.DrawText(ToString(Self.Position), [Self.SliderRegion.Middle.X - (X div 2), Self.Slider.Middle.Y - (Y div 3)], $00FF00);
+end;
+
+function TRSScrollBar.IsVisible: Boolean;
+begin
+  Result := Self <> [];
+end;
+
+function TRSInterface.GetScrollBar: TRSScrollBar;
+const
+  COLOR_ARROW := CTS2(5206147, 15, 0.03, 0.28);
+  COLOR_BORDER := 65536;
+var
+  TPA: TPointArray;
+  Arrows: TBoxArray;
+  Area, B: TBox;
+begin
+  Area := Self.Bounds();
+  
+  if SRL.FindColors(TPA, COLOR_ARROW, Area) > 0 then
+  begin
+    for B in TPA.Cluster(1).ToTBA() do
+      if (B.Width = 14) and (B.Height = 14) and (SRL.CountColor(COLOR_BORDER, B.Expand(1, Area)) = 62) then
+        Arrows += B;
+        
+    Arrows.SortByX(False);   
+    
+    if (Length(Arrows) >= 2) and (Arrows[0].X1 = Arrows[1].X1) and (Arrows[1].X2 = Arrows[1].X2) then
+    begin
+      if (Arrows[0].Y1 > Arrows[1].Y1) then
+        Swap(Arrows[0], Arrows[1]);
+        
+      B.X1 := Arrows[0].X1;
+      B.Y1 := Arrows[0].Y2 + 2;
+      B.X2 := Arrows[1].X2;
+      B.Y2 := Arrows[1].Y1 - 2;
+  
+      if SRL.FindColors(TPA, COLOR_BORDER, B) > 0 then 
+      begin
+        Result.SliderRegion := B;
+        Result.Slider := TPA.Bounds;
+        Result.Position := Round((Result.Slider.Y1 - Result.SliderRegion.Y1) * 100 / (Result.SliderRegion.Height - Result.Slider.Height));
+      end;
+    end; 
+  end;
+end;
+
+function TRSInterface.GetScrollPosition: Int32;
+var
+  ScrollBar: TRSScrollBar;
+begin
+  Result := -1;
+  
+  ScrollBar := Self.GetScrollBar();
+  if ScrollBar.IsVisible() then
+    Result := ScrollBar.Position;
+end;
+
+procedure TRSInterface.SetScrollPosition(Value: Int32);
+var
+  ScrollBar: TRSScrollBar;
+begin
+  if (Value < 0) then
+    Value := 0;
+  if (Value > 100) then
+    Value := 100;
+
+  ScrollBar := Self.GetScrollBar();
+  
+  if ScrollBar.IsVisible() then
+  begin
+    if (ScrollBar.Position < Value) then 
+    begin 
+      while ScrollBar.IsVisible() and (ScrollBar.Position < Value) do
+      begin
+        Mouse.Scroll(ScrollBar.SliderRegion, Random(1, 3), True);
+        
+        ScrollBar := Self.GetScrollBar();
+      end;
+    end else
+    if (ScrollBar.Position > Value) then 
+    begin
+      while ScrollBar.IsVisible() and (ScrollBar.Position > Value) do
+      begin
+        Mouse.Scroll(ScrollBar.SliderRegion, Random(1, 3), False);
+        
+        ScrollBar := Self.GetScrollBar();
+      end;
+    end;
+  end;
+end;
+
+procedure TRSInterface.Draw(Bitmap: TMufasaBitmap);
+var
+  ScrollBar: TRSScrollBar;
+begin
+  Bitmap.DrawBox(Self.Bounds(), $00FFFF);
+  
+  ScrollBar := Self.GetScrollBar();
+  if ScrollBar.IsVisible() then
+    ScrollBar.Draw(Bitmap); 
+end; 
 
 type
   TRSTitledInteface = type TRSInterface;
