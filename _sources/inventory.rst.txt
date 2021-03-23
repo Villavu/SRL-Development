@@ -158,7 +158,7 @@ Example
   var Slot: Int32;
 
   Slot := Inventory.RandomSlotNearby(0, [0..27]);
-  WriteLn('This slot is likely nearby slot 0:');
+  WriteLn('This slot is likely nearby slot 0');
   WriteLn(Slot);
 
 
