@@ -222,7 +222,7 @@ function TRSBank.Search(Item: String): Boolean;
 begin
   if Self.IsTitle('Showing items: ' + LowerCase(Item)) then
     Exit(True);
-    
+
   Result := Self.ClearSearch() and
             Self.GetButton(ERSBankButton.SEARCH).Enable() and
             Chat.AnswerQuery('Show items', Item, Random(2000, 2500)) and
@@ -393,6 +393,7 @@ begin
     P.X += Random(-2, 2);
     P.Y += Random(-2, 2);
 
+    Mouse.Move(P);
     if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
     begin
       if HoverOption then
