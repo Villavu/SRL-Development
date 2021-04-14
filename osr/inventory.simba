@@ -529,7 +529,7 @@ begin
     Slot := Slots[Random(Length(Slots))];
     OtherSlot := Self.RandomSlotNearby(Slot, OtherSlots);
   
-    Self.Use(Slot, OtherSlot);
+    Result := Self.Use(Slot, OtherSlot);
   end;
 end;
 
