@@ -278,12 +278,17 @@ Example
   Inventory.Use(1, 5); // Use item in slot 1 on Item in slot 5
 *)
 function TRSInventory.Use(Slot, OtherSlot: Int32): Boolean;
+var
+  B: TBox := Self.GetSlotBox(OtherSlot);
 begin
-  Self.SetSelectedSlot(Slot);
+  if B = [] then
+    Exit;
+
+  Result := Self.SetSelectedSlot(Slot);
 
   Wait(0, 1000, wdLeft);
 
-  Mouse.Click(Self.GetSlotBox(OtherSlot), MOUSE_LEFT);
+  Mouse.Click(B, MOUSE_LEFT);
 end;
 
 function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
