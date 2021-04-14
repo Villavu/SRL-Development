@@ -58,7 +58,7 @@ end;
 
 function TRSInventory.Open: Boolean;
 begin
-  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.INVENTORY);
+  Result := GameTabs.Open(ERSGameTab.INVENTORY);
 end;
 
 function TRSInventory.GetSlotBoxes: TBoxArray;
