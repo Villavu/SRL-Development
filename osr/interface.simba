@@ -243,7 +243,7 @@ begin
     begin
       if ((W = Dimensions[I].Width) or (Dimensions[I].Width = 0)) and
          ((H = Dimensions[I].Height) or (Dimensions[I].Height = 0)) and 
-          (TPA.Frameness > 75) then
+          (TPA.Frameness > 57) then //Lowered to 57 so buttons like the X in the scroll ui is picked up.
         Boxes += B;
     end;
       
@@ -293,7 +293,7 @@ begin
     begin
       if ((W = Dimensions[I].Width) or (Dimensions[I].Width = 0)) and
          ((H = Dimensions[I].Height) or (Dimensions[I].Height = 0)) and 
-          (TPA.Frameness > 75) then
+          (TPA.Frameness > 57) then //Lowered to 57 so buttons like the X in the scroll ui is picked up.
         Boxes += B;
     end;
       
