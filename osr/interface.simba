@@ -38,7 +38,7 @@ type
 procedure TRSInterface.Setup; 
 begin
   Self.Name := 'Unnamed';
-  Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20)];
+  Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20), CTS1(2369440, 5), CTS1(2700350, 5)];
   Self.ButtonEnabledColors := [CTS1(2369440, 5), CTS1(2700350, 5)];
   Self.Cache.Enabled := True;
 end;
