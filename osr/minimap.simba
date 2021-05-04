@@ -266,48 +266,7 @@ begin
   end;
 end;
 
-function TRSMinimap.IsPrayerEnabled: Boolean;
-begin
-  Result := SRL.CountColor(CTS2(6566212, 2, 0.12, 0.46), Self.GetPrayerCircle().Bounds) = 0;
-end;
 
-function TRSMinimap.EnablePrayer: Boolean;
-var
-  T: UInt64;
-begin
-  if not Self.IsPrayerEnabled() then
-  begin
-    Mouse.Click(Self.GetPrayerCircle(), MOUSE_LEFT);
-
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
-    while (T > GetTickCount()) do
-    begin
-      if Self.IsPrayerEnabled() then
-        Exit(True);
-
-      Wait(0, 1000, wdLeft);
-    end;
-  end;
-end;
-
-function TRSMinimap.DisablePrayer: Boolean;
-var
-  T: UInt64;
-begin
-  if Self.IsPrayerEnabled() then
-  begin
-    Mouse.Click(Self.GetPrayerCircle(), MOUSE_LEFT);
-
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
-    while (T > GetTickCount()) do
-    begin
-      if not Self.IsPrayerEnabled() then
-        Exit(True);
-
-      Wait(0, 1000, wdLeft);
-    end;
-  end;
-end;
 
 function TRSMinimap.IsRunEnabled: Boolean;
 begin
