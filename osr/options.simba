@@ -68,7 +68,7 @@ end;
 
 function TRSOptions.FindHouseOptionsButtons: TRSButtonArray;
 begin
-  Result := Self.FindButtons([[21,21], [164,30]]);
+  Result := Self.FindButtons([[21, 21], [164, 30]]);
 end;
 
 function TRSOptions.GetHouseOptionsButton(Button: ERSHouseOptionsButton): TRSButton;
@@ -91,7 +91,7 @@ begin
     Exit(True);
   if (not Self.Open()) or (not Self.OpenTab(ERSOptionsTab.CONTROLS)) then
     Exit(False);
-    
+
   Self.GetButton(ERSOptionsButton.HOUSE).Click();
 
   Result := WaitUntil(Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
@@ -101,11 +101,12 @@ function TRSOptions.CloseHouseOptions: Boolean;
 begin
   if not Self.IsHouseOptionsOpen() then
     Exit(True);
-    
+
   Self.GetHouseOptionsButton(ERSHouseOptionsButton.CLOSE).Click();
-  
+
   Result := WaitUntil(not Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
 end;
+
 
 function TRSOptions.GetZoomSliderBounds: TBox;
 begin
@@ -210,6 +211,8 @@ begin
 
   if (not Self.IsHouseOptionsOpen()) and (Self.GetCurrentTab() = ERSOptionsTab.CONTROLS) then
     Bitmap.DrawBox(Self.GetZoomSliderBounds(), False, $00FFFF);
+
+  Bitmap.DrawButtons(Self.GetButtons);
 end;
 
 var
