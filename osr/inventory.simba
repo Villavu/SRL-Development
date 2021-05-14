@@ -466,6 +466,9 @@ function TRSInventory.FindItem(Item: TRSItem; out Slot: Int32): Boolean; overloa
 var
   Slots: TIntegerArray;
 begin
+  if not Self.Open() then
+    Exit;
+
   Slots := ItemFinder.Find(Item, Self.GetSlotBoxes(), 1);
   
   if Length(Slots) > 0 then
