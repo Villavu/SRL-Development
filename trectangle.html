@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>TRectangle &mdash; SRL  documentation</title>
@@ -13,6 +14,8 @@
   
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
 
   
   
@@ -29,6 +32,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
@@ -38,8 +42,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="TPoint" href="tpoint.html" />
-    <link rel="prev" title="String" href="string.html" /> 
+    <link rel="next" title="Mouse" href="mouse.html" />
+    <link rel="prev" title="TCircle" href="tcircle.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -85,11 +89,9 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
-<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
-<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
-<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">TRectangle</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#trectangle-totpa">TRectangle.ToTPA</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#trectangle-bounds">TRectangle.Bounds</a></li>
@@ -107,36 +109,38 @@
 <li class="toctree-l2"><a class="reference internal" href="#trectangle-nearestedge">TRectangle.NearestEdge</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
 <li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
-<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
-<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
 </ul>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="bank.html">Bank</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="login.html">Login</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grandexchange.html">BankScreen.Open</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsclient.html">RSClient</a></li>
 <li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
-<li class="toctree-l1"><a class="reference internal" href="grandexchange.html">BankScreen.Open</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rsclient.html">RSClient</a></li>
-<li class="toctree-l1"><a class="reference internal" href="login.html">Login</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bank.html">Bank</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="itemfinder.html">Item Finder</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
-<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
-<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
 </ul>
 
             
@@ -204,45 +208,45 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="trectangle">
+  <section id="trectangle">
 <h1>TRectangle<a class="headerlink" href="#trectangle" title="Permalink to this headline">¶</a></h1>
 <p>TRectangle related methods</p>
 <p>Type definition is found in shared/globals.simba</p>
 <p>The rectangle is defined in clockwise order, from <code class="docutils literal notranslate"><span class="pre">Top</span></code> to <code class="docutils literal notranslate"><span class="pre">Left</span></code></p>
 <hr class="docutils" />
-<div class="section" id="trectangle-totpa">
+<section id="trectangle-totpa">
 <h2>TRectangle.ToTPA<a class="headerlink" href="#trectangle-totpa" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">ToTPA</span><span class="p">()</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>TPA from the rectangle.</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-bounds">
+<section id="trectangle-bounds">
 <h2>TRectangle.Bounds<a class="headerlink" href="#trectangle-bounds" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">Bounds</span><span class="p">()</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns the minimum bounding box covering the rectangle</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-radius">
+<section id="trectangle-radius">
 <h2>TRectangle.Radius<a class="headerlink" href="#trectangle-radius" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">Radius</span><span class="p">()</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns the radius of the shortest side, for the maximum see MaxRadius</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-maxradius">
+<section id="trectangle-maxradius">
 <h2>TRectangle.MaxRadius<a class="headerlink" href="#trectangle-maxradius" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">MaxRadius</span><span class="p">()</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns the radius of the longest side, for minimum see Radius</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-mean">
+<section id="trectangle-mean">
 <h2>TRectangle.Mean<a class="headerlink" href="#trectangle-mean" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">Mean</span><span class="p">()</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
@@ -252,35 +256,35 @@
 <p class="admonition-title">Note</p>
 <p>by slacky</p>
 </div>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-fixorder">
+<section id="trectangle-fixorder">
 <h2>TRectangle.FixOrder<a class="headerlink" href="#trectangle-fixorder" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">FixOrder</span><span class="p">()</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>As long as the order of the points are clockwise, this will shift the points so that
 <code class="docutils literal notranslate"><span class="pre">Top</span></code>, is the topmost,``Right`` is the right-most etc…</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-rotate">
+<section id="trectangle-rotate">
 <h2>TRectangle.Rotate<a class="headerlink" href="#trectangle-rotate" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">Rotate</span><span class="p">(</span><span class="n">Angle</span><span class="o">:</span> <span class="kt">Double</span><span class="p">)</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns a rotated copy of the rectangle</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-contains">
+<section id="trectangle-contains">
 <h2>TRectangle.Contains<a class="headerlink" href="#trectangle-contains" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">Contains</span><span class="p">(</span><span class="n">Pt</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if the point <cite>Pt</cite> is inside the rectangle.
 .. note:: by slacky</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-dirbylen">
+<section id="trectangle-dirbylen">
 <h2>TRectangle.DirByLen<a class="headerlink" href="#trectangle-dirbylen" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">DirByLen</span><span class="p">(</span><span class="n">Longest</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="o">:</span> <span class="n">ESplitDirection</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
@@ -290,9 +294,9 @@
 <p class="admonition-title">Note</p>
 <p>by slacky</p>
 </div>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-partition">
+<section id="trectangle-partition">
 <h2>TRectangle.Partition<a class="headerlink" href="#trectangle-partition" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">Partition</span><span class="p">(</span><span class="n">m</span><span class="o">,</span><span class="n">n</span><span class="o">:</span><span class="n">Int32</span><span class="o">;</span> <span class="n">dir</span><span class="o">:</span><span class="n">ESplitDirection</span><span class="o">=</span><span class="n">rpTopLeft</span><span class="p">)</span><span class="o">:</span> <span class="n">TRectArray</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
@@ -302,41 +306,41 @@
 <p class="admonition-title">Note</p>
 <p>by slacky</p>
 </div>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-offset">
+<section id="trectangle-offset">
 <h2>TRectangle.Offset<a class="headerlink" href="#trectangle-offset" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">Offset</span><span class="p">(</span><span class="n">pt</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Offset the rectangle.</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-filter">
+<section id="trectangle-filter">
 <h2>TRectangle.Filter<a class="headerlink" href="#trectangle-filter" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">Filter</span><span class="p">(</span><span class="n">TestSet</span><span class="o">:</span> <span class="n">TPointArray</span><span class="p">)</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Extract all the points from <cite>TestSet</cite> that fits within this rectangle.</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-expand">
+<section id="trectangle-expand">
 <h2>TRectangle.Expand<a class="headerlink" href="#trectangle-expand" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">Expand</span><span class="p">(</span><span class="nb">Inc</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Increase or decrease the dimensions of the rectangle.</p>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="trectangle-nearestedge">
+<section id="trectangle-nearestedge">
 <h2>TRectangle.NearestEdge<a class="headerlink" href="#trectangle-nearestedge" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRectangle</span><span class="o">.</span><span class="nf">NearestEdge</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns the closest edge point (think Rect.ToTPA.Connect) to the TPoint <cite>P</cite>.</p>
 <hr class="docutils" />
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
@@ -344,8 +348,8 @@
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="tpoint.html" class="btn btn-neutral float-right" title="TPoint" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="string.html" class="btn btn-neutral float-left" title="String" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mouse.html" class="btn btn-neutral float-right" title="Mouse" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tcircle.html" class="btn btn-neutral float-left" title="TCircle" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
