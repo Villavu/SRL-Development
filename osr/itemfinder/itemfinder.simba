@@ -102,7 +102,7 @@ begin
     // grey/brightness calculation. Works for magic logs
     if ((ImagePtr^.R + ImagePtr^.G + ImagePtr^.B) div 3 > 130) or    
        ((TemplPtr^.R + TemplPtr^.G + TemplPtr^.B) div 3 > 130) then
-      ImagePtr^ := TemplPtr^ := TRGB32(0);
+      ImagePtr^ := TemplPtr^ := Default(TRGB32);
     
     Inc(ImagePtr);
     Inc(TemplPtr);
