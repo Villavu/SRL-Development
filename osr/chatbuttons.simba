@@ -6,18 +6,79 @@
 type
   TRSChatButtons = type TRSInterface;
 
+  ERSChatButton = (
+    CLOSED,
+
+    ALL_CHAT,
+    GAME_CHAT,
+    PUBLIC_CHAT,
+    PRIVATE_CHAT,
+    CHANNEL_CHAT,
+    CLAN_CHAT,
+    TRADE_CHAT,
+
+    REPORT
+  );
+
+  ERSChatButtonState = (
+    NONE,       //All and report button
+    ENABLED,    //Chat on
+    FILTERED,   //Chat filtered (friends only for example)
+    DISABLED,   //Chat off
+    HIDE,       //Hide for public chat
+    AUTOCHAT    //Chat autochat (only for the public chat button)
+  );
+
+function TRSChatButtons.GetButtons: TRSButtonArray;
+var
+  I: Int32;
+  Boxes: TBoxArray;
+begin
+  SetLength(Boxes, 7);
+  for I := 0 to High(Boxes) do
+    Boxes[I] := [(Self.X1 + 3 + (I * 62)), Self.Y1, (Self.X1 + 58 + (I * 62)), (Self.Y2 - 1)];
+
+  Boxes += [[(Self.X1 + 436), Self.Y1, (Self.X1 + 515), (Self.Y2 - 1)]];
+
+  for I := 0 to High(Boxes) do
+    Result += [[CTS1(1555, 6), CTS1(5399922, 0), CTS1(795452, 0)], I, Boxes[I], Boxes[I].Middle];
+end;
+
+function TRSChatButtons.GetButton(Button: ERSChatButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetButtons();
+begin
+  if Button = ERSChatButton.CLOSED then
+    Exit;
+  if Length(Buttons) = (Length(ERSChatButton) - 1) then
+    Result := Buttons[Button - 1];
+end;
+
+
+function TRSChatButtons.GetActive: ERSChatButton;
+var
+  Buttons: TRSButtonArray := Self.GetButtons();
+  i: Int32;
+begin
+  Result := ERSChatButton.CLOSED;
+  for i := 0 to High(Buttons) do
+    if Buttons[i].Enabled then
+      Exit(ERSChatButton((i+1)));
+end;
+
 function TRSChatButtons.IsOpen: Boolean;
 begin
-  Result := True;
+  Result := Self.GetActive = ERSChatButton.CLOSED;
 end;
+
 
 procedure TRSChatButtons.Draw(Bitmap: TMufasaBitmap); override;
 begin
-  if not Self.IsOpen() then
-    Exit;
-
   inherited;
+
+  Bitmap.DrawButtons(Self.GetButtons());
 end;
+
 
 procedure TRSChatButtons.Setup; override;
 begin
@@ -35,6 +96,74 @@ begin
   Self.Alignment.Top := [@RootInterface.Y2, -22];
   Self.Alignment.Bottom := [@RootInterface.Y2];
 end;
+
+
+function TRSChatButtons.IsActive(Button: ERSChatButton): Boolean;
+begin
+  Result := Self.GetButton(Button).Enabled;
+end;
+
+function TRSChatButtons.Open(Button: ERSChatButton): Boolean;
+begin
+  Result := Self.GetButton(Button).Enable;
+end;
+
+function TRSChatButtons.Close: Boolean;
+begin
+  if RSClient.Mode = ERSClientMode.FIXED then
+    Exit(False);
+
+  if Self.GetActive = ERSChatButton.CLOSED then
+    Exit(True);
+
+  Result := Self.GetButton(Self.GetActive).Click();
+end;
+
+
+function TRSChatButtons.GetState(Button: ERSChatButton): ERSChatButtonState;
+var
+  TPA: TPointArray;
+begin
+  if (Button = ERSChatButton.ALL_CHAT) or (Button = ERSChatButton.REPORT) then
+    Exit(ERSChatButtonState.NONE);
+
+  if SRL.FindColors(TPA, CTS0(65280, 0), Self.GetButton(Button).Bounds) then
+    Result := ERSChatButtonState.ENABLED
+  else if SRL.FindColors(TPA, CTS0(65535, 0), Self.GetButton(Button).Bounds) then
+    Result := ERSChatButtonState.FILTERED
+  else if SRL.FindColors(TPA, CTS0(255, 0), Self.GetButton(Button).Bounds) then
+    Result := ERSChatButtonState.DISABLED
+  else if SRL.FindColors(TPA, CTS0(16776960, 0), Self.GetButton(Button).Bounds) then
+    Result := ERSChatButtonState.HIDE
+  else if SRL.FindColors(TPA, CTS0(16756480, 0), Self.GetButton(Button).Bounds) then
+    Result := ERSChatButtonState.AUTOCHAT;
+end;
+
+function TRSChatButtons.ChangeState(Button: ERSChatButton; State: ERSChatButtonState): Boolean;
+begin
+  if Self.GetState(Button) = State then
+    Exit(True);
+
+  Self.GetButton(Button).Click(MOUSE_RIGHT);
+  if ChooseOption.IsOpen() then
+  begin
+    if State = ERSChatButtonState.ENABLED then
+      ChooseOption.Select(['Filter', 'standard', 'all'])
+    else if State = ERSChatButtonState.FILTERED then
+      ChooseOption.Select(['Filter', 'friends'])
+    else if State = ERSChatButtonState.DISABLED then
+      ChooseOption.Select(['none'])
+    else if State = ERSChatButtonState.HIDE then
+      ChooseOption.Select(['Hide'])
+    else if State = ERSChatButtonState.AUTOCHAT then
+      ChooseOption.Select(['autochat'])
+  end;
+
+  Result := Self.GetState(Button) = State;
+end;
+
+
+
 
 var
   ChatButtons: TRSChatButtons;
