@@ -72,16 +72,23 @@ var
 begin
   if not Self.Open() then
     Exit;
-    
+
   Boxes := Self.GetButtons().ToBoxes();
-  
+
   Slots := ItemFinder.Find(Item, Boxes, 1);
   if Length(Slots) > 0 then
   begin
     Bounds := Boxes[Slots[0]];
-    
+
     Result := True;
   end;
+end;
+
+function TRSEquipment.FindItem(Item: TRSItem): Boolean; overload;
+var
+  B: TBox;
+begin
+  Result := Self.FindItem(Item, B);
 end;
 
 function TRSEquipment.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
@@ -101,13 +108,6 @@ begin
       Mouse.Click(MOUSE_LEFT);
     end;
   end;
-end;
-
-function TRSEquipment.IsEquipped(Item: TRSItem): Boolean;
-var
-  B: TBox;
-begin
-  Result := Self.FindItem(Item, B);
 end;
 
 var
