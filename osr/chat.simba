@@ -10,6 +10,8 @@ const
   CHAT_COLOR_PURPLE       = $7F007F; 
   CHAT_COLOR_RED          = $2010EF;
   CHAT_COLOR_LIGHT_RED    = $0000FF;
+  //still need to check if this is new red or the regular red just changed color.
+  //I think it's a new red though.
   CHAT_COLOR_WHITE        = $FFFFFF; 
   CHAT_COLOR_LIGHT_PURPLE = $FF9090; 
   CHAT_COLOR_NAVY         = $800000;  
