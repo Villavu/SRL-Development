@@ -441,6 +441,22 @@ begin
   end;
 end;
 
+
+// Nasty lape bug right now.
+
+(*
+function TRSInterface.CanScroll: Boolean;
+var
+  ScrollBar: TRSScrollBar := Self.GetScrollBar();
+begin
+  WriteLn ScrollBar;
+  
+  Result := Scrollbar.IsVisible() and (ScrollBar.Slider <> ScrollBar.SliderRegion);
+  WriteLn('Result: ', Result);
+  WriteLn('This: ', Scrollbar.IsVisible() and (ScrollBar.Slider <> ScrollBar.SliderRegion));
+end;
+*)
+
 function TRSInterface.GetScrollPosition: Int32;
 var
   ScrollBar: TRSScrollBar;
