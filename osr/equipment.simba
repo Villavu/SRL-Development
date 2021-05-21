@@ -84,6 +84,7 @@ begin
   end;
 end;
 
+//for use without having to pass extra parameters
 function TRSEquipment.FindItem(Item: TRSItem): Boolean; overload;
 var
   B: TBox;
