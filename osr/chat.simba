@@ -100,14 +100,17 @@ begin
   Result := OCR.Recognize(Self.Bounds(), [8388608], RS_FONT_BOLD_12);
 end;
 
-function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TRSChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if Interval = -1 then
     Interval := SRL.TruncatedGauss(50, 1500);
-    
+
   Result := WaitUntil(Query in Self.GetQuery(), Interval, WaitTime);
-  
-  if Result then
+end;
+
+function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+begin
+  if Result := FindQuery(Query, WaitTime, Interval) then
   begin
     if Self.GetQueryAnswer() <> Answer then
       while Self.GetQueryAnswer() <> '*' do
