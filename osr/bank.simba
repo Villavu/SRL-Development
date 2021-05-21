@@ -218,20 +218,37 @@ Example
 
   Bank.Search('logs'); // Search for logs
 *)
+
+function TRSBank.IsSearchOpen(WaitTime: Int32): Boolean;
+begin
+  Result := Chat.FindQuery('Show items', WaitTime);
+end;
+
+function TRSBank.OpenSearch(WaitTime: Int32): Boolean;
+begin
+  Result := Self.GetButton(ERSBankButton.SEARCH).Click;
+end;
+
+function TRSBank.ClearSearch: Boolean;
+begin
+  Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Click();
+end;
+
 function TRSBank.Search(Item: String): Boolean; 
 begin
   if Self.IsTitle('Showing items: ' + LowerCase(Item)) then
     Exit(True);
 
   Result := Self.ClearSearch() and
-            Self.GetButton(ERSBankButton.SEARCH).Enable() and
+            Self.OpenSearch(Random(2000, 2500)) and
             Chat.AnswerQuery('Show items', Item, Random(2000, 2500)) and
             Self.IsTitle('Showing items: ' + LowerCase(Item), Random(2000, 2500));
 end;
 
-function TRSBank.ClearSearch: Boolean;
+function TRSBank.CloseSearch: Boolean;
 begin
-  Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Disable();
+  Result := Self.ClearSearch() and
+            Chat.AnswerQuery('Show items', '', Random(2000, 2500));
 end;
 
 function TRSBank.FindItemBoundaries: TBoxArray;
@@ -687,6 +704,7 @@ begin
 
   Result := inherited();
 end;
+
 
 procedure TRSClient.ClientModeChanged; override;
 begin
