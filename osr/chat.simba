@@ -8,7 +8,11 @@ const
   CHAT_COLOR_MAROON       = $7F0000; 
   CHAT_COLOR_BLUE         = $FF0000; 
   CHAT_COLOR_PURPLE       = $7F007F; 
-  CHAT_COLOR_RED          = $2010EF; 
+  CHAT_COLOR_RED          = $2010EF;
+  CHAT_COLOR_LIGHT_RED    = $0000FF;
+  //still need to check if this is new red or the regular red just changed color.
+  //I think it's a new red though.
+  //an example that uses this red is dodgy necklace.
   CHAT_COLOR_WHITE        = $FFFFFF; 
   CHAT_COLOR_LIGHT_PURPLE = $FF9090; 
   CHAT_COLOR_NAVY         = $800000;  
@@ -19,6 +23,7 @@ const
     CHAT_COLOR_BLUE,
     CHAT_COLOR_PURPLE,
     CHAT_COLOR_RED,
+    CHAT_COLOR_LIGHT_RED,
     CHAT_COLOR_WHITE,
     CHAT_COLOR_LIGHT_PURPLE
   ];
@@ -98,14 +103,17 @@ begin
   Result := OCR.Recognize(Self.Bounds(), [8388608], RS_FONT_BOLD_12);
 end;
 
-function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TRSChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if Interval = -1 then
     Interval := SRL.TruncatedGauss(50, 1500);
-    
+
   Result := WaitUntil(Query in Self.GetQuery(), Interval, WaitTime);
-  
-  if Result then
+end;
+
+function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+begin
+  if Result := FindQuery(Query, WaitTime, Interval) then
   begin
     if Self.GetQueryAnswer() <> Answer then
       while Self.GetQueryAnswer() <> '*' do

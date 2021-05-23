@@ -487,11 +487,18 @@ Rotates the camera to face point `P`.
 function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean; override;
 var
   Angle: Double;
+  CurrentAngle: Double;
+  Adjuster: Double;
 begin
   Angle := Self.PointToMM(P).ToPoint.AngleBetween(Minimap.Center);
   Angle += Random(-Randomness, Randomness);
 
-  Minimap.SetCompassAngle(Angle);
+  CurrentAngle := Minimap.GetCompassAngle;
+
+  if CurrentAngle > 180 then
+    CurrentAngle -= 360;
+
+  Minimap.SetCompassAngle(-(Angle - CurrentAngle));
 end;
 
 (*

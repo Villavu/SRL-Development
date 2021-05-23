@@ -58,7 +58,7 @@ end;
 
 function TRSInventory.Open: Boolean;
 begin
-  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.INVENTORY);
+  Result := GameTabs.Open(ERSGameTab.INVENTORY);
 end;
 
 function TRSInventory.GetSlotBoxes: TBoxArray;
@@ -278,12 +278,17 @@ Example
   Inventory.Use(1, 5); // Use item in slot 1 on Item in slot 5
 *)
 function TRSInventory.Use(Slot, OtherSlot: Int32): Boolean;
+var
+  B: TBox := Self.GetSlotBox(OtherSlot);
 begin
-  Self.SetSelectedSlot(Slot);
+  if B = [] then
+    Exit;
+
+  Result := Self.SetSelectedSlot(Slot);
 
   Wait(0, 1000, wdLeft);
 
-  Mouse.Click(Self.GetSlotBox(OtherSlot), MOUSE_LEFT);
+  Mouse.Click(B, MOUSE_LEFT);
 end;
 
 function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
@@ -461,6 +466,9 @@ function TRSInventory.FindItem(Item: TRSItem; out Slot: Int32): Boolean; overloa
 var
   Slots: TIntegerArray;
 begin
+  if not Self.Open() then
+    Exit;
+
   Slots := ItemFinder.Find(Item, Self.GetSlotBoxes(), 1);
   
   if Length(Slots) > 0 then
@@ -469,6 +477,14 @@ begin
     
     Result := True;
   end;
+end;
+
+//for use without having to pass extra parameters.
+function TRSInventory.FindItem(Item: TRSItem): Boolean; overload;
+var
+  Slots: TIntegerArray;
+begin
+  Result := Self.FindItems([Item], Slots);
 end;
 
 function TRSInventory.CountItem(Item: TRSItem): Int32;
@@ -524,7 +540,7 @@ begin
     Slot := Slots[Random(Length(Slots))];
     OtherSlot := Self.RandomSlotNearby(Slot, OtherSlots);
   
-    Self.Use(Slot, OtherSlot);
+    Result := Self.Use(Slot, OtherSlot);
   end;
 end;
 

@@ -38,7 +38,7 @@ type
 procedure TRSInterface.Setup; 
 begin
   Self.Name := 'Unnamed';
-  Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20)];
+  Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20), CTS1(2369440, 5), CTS1(2700350, 5)];
   Self.ButtonEnabledColors := [CTS1(2369440, 5), CTS1(2700350, 5)];
   Self.Cache.Enabled := True;
 end;
@@ -340,11 +340,11 @@ begin
   end;
 end;
 
-function TRSButton.Click: Boolean; constref;
+function TRSButton.Click(MouseButton: Int32 = MOUSE_LEFT): Boolean; constref;
 begin
   Result := Self.Visible();
   if Result then
-    Mouse.Click(Self.Bounds, MOUSE_LEFT);
+    Mouse.Click(Self.Bounds, MouseButton);
 end;
 
 function TRSButton.Enable: Boolean; constref;

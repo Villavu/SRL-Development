@@ -218,20 +218,40 @@ Example
 
   Bank.Search('logs'); // Search for logs
 *)
-function TRSBank.Search(Item: String): Boolean; 
+
+//should look for the query instead of interface title. Check the comment below for more info.
+function TRSBank.IsSearchOpen(WaitTime: Int32): Boolean;
 begin
-  if Self.IsTitle('Showing items: ' + LowerCase(Item)) then
-    Exit(True);
-    
-  Result := Self.ClearSearch() and
-            Self.GetButton(ERSBankButton.SEARCH).Enable() and
-            Chat.AnswerQuery('Show items', Item, Random(2000, 2500)) and
-            Self.IsTitle('Showing items: ' + LowerCase(Item), Random(2000, 2500));
+  Result := Chat.FindQuery('Show items', WaitTime);
+end;
+
+//Click instead of enable becuse the button can be enabled without search being "open".
+//if you search an item and press enter the button stays enabled while the query is closed.
+function TRSBank.OpenSearch(WaitTime: Int32): Boolean;
+begin
+  Result := Self.GetButton(ERSBankButton.SEARCH).Click;
 end;
 
 function TRSBank.ClearSearch: Boolean;
 begin
-  Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Disable();
+  Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Click();
+end;
+
+function TRSBank.Search(Item: String): Boolean; 
+begin
+  if Self.IsTitle('Showing items: ' + LowerCase(Item)) then
+    Exit(True);
+
+  Result := Self.ClearSearch() and
+            Self.OpenSearch(Random(2000, 2500)) and
+            Chat.AnswerQuery('Show items', Item, Random(2000, 2500)) and
+            Self.IsTitle('Showing items: ' + LowerCase(Item), Random(2000, 2500));
+end;
+
+function TRSBank.CloseSearch: Boolean;
+begin
+  Result := Self.ClearSearch() and
+            Chat.AnswerQuery('Show items', '', Random(2000, 2500));
 end;
 
 function TRSBank.FindItemBoundaries: TBoxArray;
@@ -393,6 +413,7 @@ begin
     P.X += Random(-2, 2);
     P.Y += Random(-2, 2);
 
+    Mouse.Move(P);
     if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
     begin
       if HoverOption then
@@ -655,16 +676,20 @@ var Bank
 var
   Bank: TRSBank;
 
-(*
-Inventory.IsOpen
-~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.IsOpen: Boolean; override;
 
-Overrides **Inventory.IsOpen** to return true if the Bank is open.
+(*
+GameTabs.Open
+~~~~~~~~~~~~~
+.. pascal:: function TRSGameTabs.GetCurrentTab: ERSGametab; override;
+
+Overrides **GameTabs.GetCurrentTab** to return the inventory tab if bank is open.
 *)
-function TRSInventory.IsOpen: Boolean; override;
+function TRSGameTabs.GetCurrentTab: ERSGametab; override;
 begin
-  Result := inherited() or Bank.IsOpen();
+  Result := inherited;
+
+  if (Result = ERSGameTab.UNKNOWN) and Bank.IsOpen then
+    Result := ERSGameTab.INVENTORY;
 end;
 
 (*
@@ -680,12 +705,14 @@ begin
   begin
     if (Tab = ERSGameTab.INVENTORY) then
       Exit(True);
-      
+
     Bank.Close();
-  end; 
+  end;
 
   Result := inherited();
 end;
+
+
 
 procedure TRSClient.ClientModeChanged; override;
 begin
