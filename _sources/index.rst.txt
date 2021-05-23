@@ -6,52 +6,24 @@ Welcome to SRL documentation!
 
 	:caption: UTILS
 
+   keyboard
+   tpointarrays
+   string
+   mouse
+   pixelshift
+   wrappers
+   extendedarrays
    tboxarrays
+   tpoint
+   math
+   trectangle
+   color
    time
    tcircle
-   trectangle
-   mouse
-   math
-   color
-   string
-   tpointarrays
-   extendedarrays
-   random
-   wrappers
    integerarrays
    tbox
-   keyboard
-   tpoint
    drawing
-   pixelshift
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR
-
-   bank
-   mm2ms
-   login
-   grandexchange
-   interface
-   mainscreen
-   rsclient
-   inventory
-   misc
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> WALKER
-
-   webber
-   walker
-   webgraph
+   random
 
 -----------
 
@@ -61,6 +33,34 @@ Welcome to SRL documentation!
 	:caption: OSR -> ITEMFINDER
 
    itemfinder
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR
+
+   mainscreen
+   misc
+   mm2ms
+   interface
+   grandexchange
+   bank
+   rsclient
+   login
+   inventory
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> WALKER
+
+   webgraph
+   webber
+   walker
 
 -----------
 

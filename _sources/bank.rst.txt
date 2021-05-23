@@ -123,13 +123,13 @@ var Bank
 
 ------------
 
-Inventory.IsOpen
-~~~~~~~~~~~~~~~~
+GameTabs.Open
+~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSInventory.IsOpen: Boolean; override;
+ function TRSGameTabs.GetCurrentTab: ERSGametab; override;
 
-Overrides **Inventory.IsOpen** to return true if the Bank is open.
+Overrides **GameTabs.GetCurrentTab** to return the inventory tab if bank is open.
 
 
 ------------
