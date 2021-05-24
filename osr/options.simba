@@ -66,7 +66,7 @@ begin
     Result := Buttons[Button];
 end;
 
-function TRSOptions.FindHouseOptionsButtons: TRSButtonArray;
+function TRSOptions.GetHouseOptionsButtons: TRSButtonArray;
 begin
   Result := Self.FindButtons([[21, 21], [164, 30]]);
 end;
@@ -75,7 +75,7 @@ function TRSOptions.GetHouseOptionsButton(Button: ERSHouseOptionsButton): TRSBut
 var
   Buttons: TRSButtonArray;
 begin
-  Buttons := Self.FindHouseOptionsButtons();
+  Buttons := Self.GetHouseOptionsButtons();
   if High(Buttons) = Ord(High(ERSHouseOptionsButton)) then 
     Result := Buttons[Button];
 end;
@@ -175,7 +175,7 @@ end;
 
 function TRSOptions.GetTabs: TBoxArray;
 begin
-  Result := Grid(3, 1, 55, 23, [9], [Self.X1, Self.Y1 + 5]);
+  Result := Grid(3, 1, 55, 24, [9], [Self.X1, Self.Y1 + 5]);
 end;
 
 function TRSOptions.GetCurrentTab: ERSOptionsTab;
@@ -183,11 +183,13 @@ var
   Tabs: TBoxArray;
   I: Int32;
 begin 
-  Tabs := GetTabs();
+  Tabs := Self.GetTabs();
   
   for I := 0 to High(Tabs) do
-    if SRL.CountColor(2700606, Tabs[I]) > 0 then
+  begin
+    if SRL.CountColor(4741213, Tabs[I]) < 50 then //finds the one without the bottom white line
       Exit(ERSOptionsTab(I));
+  end
 end;
 
 function TRSOptions.OpenTab(Tab: ERSOptionsTab): Boolean;
@@ -209,8 +211,15 @@ begin
 
   inherited();
 
-  if (not Self.IsHouseOptionsOpen()) and (Self.GetCurrentTab() = ERSOptionsTab.CONTROLS) then
+  Writeln(Self.IsHouseOptionsOpen);
+
+  if Self.IsHouseOptionsOpen then
+    Bitmap.DrawButtons(Self.GetHouseOptionsButtons)
+  else if Self.GetCurrentTab() = ERSOptionsTab.CONTROLS then
+  begin
+    Bitmap.DrawBoxes(Self.GetTabs, False, $00FFFF);
     Bitmap.DrawBox(Self.GetZoomSliderBounds(), False, $00FFFF);
+  end;
 
   Bitmap.DrawButtons(Self.GetButtons);
 end;
