@@ -479,6 +479,14 @@ begin
   end;
 end;
 
+//for use without having to pass extra parameters.
+function TRSInventory.FindItem(Item: TRSItem): Boolean; overload;
+var
+  Slots: TIntegerArray;
+begin
+  Result := Self.FindItems([Item], Slots);
+end;
+
 function TRSInventory.CountItem(Item: TRSItem): Int32;
 var
   Slots: TIntegerArray;
