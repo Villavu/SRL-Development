@@ -78,7 +78,7 @@ String.Startswith
 
 Returns ``True`` if the string starts with the given string ``Prefix``
 *)
-function String.Startswith(Prefix: String): Boolean; constref;
+function String.StartsWith(Prefix: String): Boolean; constref;
 begin
   Result := Self.Pos(Prefix) = 1;
 end;
@@ -90,7 +90,7 @@ String.Endswith
 
 Returns ``True`` if the string ends with the given string ``Suffix``
 *)
-function String.Endswith(Suffix: String): Boolean; constref;
+function String.EndsWith(Suffix: String): Boolean; constref;
 var
   i,l: Int32;
 begin
