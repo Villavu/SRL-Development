@@ -18,7 +18,8 @@ type
   );
   
   ERSHouseOptionsButton = (
-    CLOSE, 
+    CLOSE,
+    VIEWER,
     EXPEL, 
     SERVANT, 
     LEAVE
@@ -66,45 +67,47 @@ begin
     Result := Buttons[Button];
 end;
 
-function TRSOptions.GetHouseOptionsButtons: TRSButtonArray;
+function TRSOptions.HouseOptionsGetButtons: TRSButtonArray;
 begin
-  Result := Self.FindButtons([[21, 21], [164, 30]]);
+  Result := Self.FindButtons([[21, 21], [103, 38], [164, 30]]);
+  Writeln(Length(Result));
 end;
 
-function TRSOptions.GetHouseOptionsButton(Button: ERSHouseOptionsButton): TRSButton;
+function TRSOptions.HouseOptionsGetButton(Button: ERSHouseOptionsButton): TRSButton;
 var
   Buttons: TRSButtonArray;
 begin
-  Buttons := Self.GetHouseOptionsButtons();
+  Buttons := Self.HouseOptionsGetButtons;
   if High(Buttons) = Ord(High(ERSHouseOptionsButton)) then 
     Result := Buttons[Button];
 end;
 
-function TRSOptions.IsHouseOptionsOpen: Boolean;
+function TRSOptions.HouseOptionsIsOpen: Boolean;
 begin
-  Result := Self.GetHouseOptionsButton(ERSHouseOptionsButton.CLOSE).Visible();
+  Result := Self.HouseOptionsGetButton(ERSHouseOptionsButton.CLOSE).Visible();
 end;
 
-function TRSOptions.OpenHouseOptions: Boolean;
+function TRSOptions.HouseOptionsOpen: Boolean;
 begin
-  if Self.IsHouseOptionsOpen() then
+  if Self.HouseOptionsIsOpen() then
     Exit(True);
-  if (not Self.Open()) or (not Self.OpenTab(ERSOptionsTab.CONTROLS)) then
+
+  if not Self.Open() or not Self.OpenTab(ERSOptionsTab.CONTROLS) then
     Exit(False);
 
   Self.GetButton(ERSOptionsButton.HOUSE).Click();
 
-  Result := WaitUntil(Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(Self.HouseOptionsIsOpen, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
-function TRSOptions.CloseHouseOptions: Boolean;
+function TRSOptions.HouseOptionsClose: Boolean;
 begin
-  if not Self.IsHouseOptionsOpen() then
+  if not Self.HouseOptionsIsOpen then
     Exit(True);
 
-  Self.GetHouseOptionsButton(ERSHouseOptionsButton.CLOSE).Click();
+  Self.HouseOptionsGetButton(ERSHouseOptionsButton.CLOSE).Click();
 
-  Result := WaitUntil(not Self.IsHouseOptionsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(not Self.HouseOptionsIsOpen, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
 
@@ -194,27 +197,27 @@ end;
 
 function TRSOptions.OpenTab(Tab: ERSOptionsTab): Boolean;
 begin
-  if (not Self.Open()) or (not Self.CloseHouseOptions()) then
+  if not Self.Open or not Self.HouseOptionsClose then
     Exit(False);
-  if (Self.GetCurrentTab() = Tab) then
+  if Self.GetCurrentTab = Tab then
     Exit(True);
       
-  Mouse.Click(Self.GetTabs()[Tab], MOUSE_LEFT); 
+  Mouse.Click(Self.GetTabs[Tab], MOUSE_LEFT);
     
-  Result := WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(Self.GetCurrentTab = Tab, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
 procedure TRSOptions.Draw(Bitmap: TMufasaBitmap); override;
 begin
-  if not Self.IsOpen() then
+  if not Self.IsOpen then
     Exit;
 
   inherited();
 
-  Writeln(Self.IsHouseOptionsOpen);
+  Writeln(Self.HouseOptionsIsOpen);
 
-  if Self.IsHouseOptionsOpen then
-    Bitmap.DrawButtons(Self.GetHouseOptionsButtons)
+  if Self.HouseOptionsIsOpen then
+    Bitmap.DrawButtons(Self.HouseOptionsGetButtons)
   else if Self.GetCurrentTab() = ERSOptionsTab.CONTROLS then
   begin
     Bitmap.DrawBoxes(Self.GetTabs, False, $00FFFF);
@@ -231,7 +234,7 @@ function TRSGameTabs.GetCurrentTab: ERSGameTab; override;
 begin
   Result := inherited;
   
-  if (Result = ERSGameTab.UNKNOWN) and Options.IsHouseOptionsOpen() then
+  if (Result = ERSGameTab.UNKNOWN) and Options.HouseOptionsIsOpen then
     Result := ERSGameTab.OPTIONS;
 end;  
   
