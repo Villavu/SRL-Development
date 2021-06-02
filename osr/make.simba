@@ -34,10 +34,17 @@ end;
 function TRSMake.GetItemButtons: TRSButtonArray;
 var
   Button: TRSButton;
+  i: Int32;
 begin
   for Button in Self.FindButtons([[0,0]]) do
     if (Button.Bounds.Height > 60) and (Button.Bounds.Width > 20) then
       Result += Button;
+
+  // buttons sometimes come with weird indexes because found buttons were not
+  // added to the result.
+  // This for loop fixes their index order.
+  for i := 0 to High(Result) do
+    Result[i].Index := i;
 end;
 
 function TRSMake.GetQuantityButtons: TRSButtonArray;
@@ -143,6 +150,18 @@ begin
   end;
 end;
 
+
+procedure TRSMake.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen then
+    Exit;
+
+  inherited;
+
+  Bitmap.DrawButtons(Self.GetItemButtons);
+  Bitmap.DrawButtons(Self.GetQuantityButtons);
+end;
+
 var
   Make: TRSMake;
 
@@ -158,4 +177,11 @@ begin
   inherited;
 
   Make.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Make.Draw(Bitmap);
 end;
