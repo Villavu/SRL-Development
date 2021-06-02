@@ -350,8 +350,8 @@ function TRSMagic.MouseSpell(Spell: ERSSpell; Button: Int32 = MOUSE_MOVE): Boole
 var
   Box: TBox;
 begin
-  Result := Self.IsOpen() and Self.GetSpellBox(Spell, Box);
-  
+  Result := Self.Open() and Self.GetSpellBox(Spell, Box);
+
   if Result then
   begin
     Mouse.Move(Box);
