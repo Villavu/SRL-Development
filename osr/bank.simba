@@ -20,7 +20,8 @@ type
     CASTLE_WARS,
     FEROX,
     GRAND_EXCHANGE,
-    FALADOR_EAST
+    FALADOR_EAST,
+    WINTERTODT
   );
   
   // In order FindButtons returns
@@ -529,6 +530,7 @@ begin
     ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
     ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
     ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
+    ERSBankLocation.WINTERTODT:     ATPA := Self._FindWintertodt();
   end;
 
   ATPA.SortBySize();
@@ -559,6 +561,7 @@ begin
     ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
     ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
     ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
+    ERSBankLocation.WINTERTODT:     ATPA := Self._FindWintertodt();
   end;
 
   ATPA.SortBySize();
