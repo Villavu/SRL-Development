@@ -399,7 +399,7 @@ begin
   Minimap.EnableRun();
 end;
 
-procedure TRSWalker.WaitMoving(Destination: TPoint; WaitUntilDistance: Int32);
+procedure TRSWalker.WaitMoving(Destination: TPoint; WaitUntilDistance: Int32); overload;
 var
   Timeout, Countdown: TCountDown;
   Position: record
@@ -470,7 +470,7 @@ begin
 end;
 
 // Walks to the final point in the path
-function TRSWalker.WalkFinalStep(PlayerPoint, WorldPoint: TPoint; WaitUntilDistance: Int32): Boolean;
+function TRSWalker.WalkFinalStep(PlayerPoint, WorldPoint: TPoint; WaitUntilDistance: Int32): Boolean; overload;
 var
   MinimapPoint: TPoint;
 begin
@@ -494,7 +494,7 @@ begin
 end;
 
 // Walks to a (non final) point in the path
-function TRSWalker.WalkStep(PlayerPoint, WorldPoint: TPoint): Boolean;
+function TRSWalker.WalkStep(PlayerPoint, WorldPoint: TPoint): Boolean; overload;
 var
   MinimapPoint: TPoint;
   WaitUntilDistance: Int32;
