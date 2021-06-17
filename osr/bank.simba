@@ -347,7 +347,7 @@ var
 begin
   if Self.FindItem(Item, Box) then
   begin
-    if not Bank.GetButton(ERSBankButton.SEARCH).Enabled then
+    if not Self.GetButton(ERSBankButton.SEARCH).Enabled then
       Exit(Self.GetCurrentTab);
   end
   else if not Self.Search(Self._SimplifyItemName(Item)) or not Self.FindItem(Item, Box) then
