@@ -72,12 +72,15 @@ type
     Gravity, Wind: Double;
     Distribution: EMouseDistribution;
     MissChance: Double;
+    
     IdleInterval: Double;
     IdleProgress: Double;
     IdleGoal: Double;
     OnMoving: TMouseMovingEvent;
     OnTeleport: TMouseTeleportEvent;
 
+    CanIdle: Boolean;
+    
     {$IFDEF SRL_DEBUG_MOUSE}
     DebugBitmap: TMufasaBitmap;
     {$ENDIF}
@@ -375,7 +378,7 @@ var
 begin
   Start := Self.Position();
 
-  if (Self.IdleInterval > 0) then
+  if Self.CanIdle and (Self.IdleInterval > 0) then
   begin
     GetClientDimensions(W, H);
 

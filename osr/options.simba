@@ -210,7 +210,7 @@ begin
   inherited();
 
   if (not Self.IsHouseOptionsOpen()) and (Self.GetCurrentTab() = ERSOptionsTab.CONTROLS) then
-    Bitmap.DrawBox(Self.GetZoomSliderBounds(), False, $00FFFF);
+    Bitmap.DrawBox(Self.GetZoomSliderBounds(), $00FFFF);
 
   Bitmap.DrawButtons(Self.GetButtons);
 end;

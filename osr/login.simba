@@ -91,10 +91,10 @@ const
 
 function TRSLogin.FindText(Text: String; out B: TBox): Boolean; overload;
 begin
-  Result := (OCR.LocateText(Self.Bounds, Text, RS_FONT_BOLD_12,  [$FFFFFF], B) = 1) or
-            (OCR.LocateText(Self.Bounds, Text, RS_FONT_BOLD_12,  [$00FFFF], B) = 1) or
-            (OCR.LocateText(Self.Bounds, Text, RS_FONT_PLAIN_12, [$FFFFFF], B) = 1) or
-            (OCR.LocateText(Self.Bounds, Text, RS_FONT_PLAIN_11, [$FFFFFF], B) = 1);
+  Result := (OCR.LocateText(Self.Bounds, Text, RS_FONT_BOLD_12,  TOCRColorRule.Create([$FFFFFF]), B) = 1) or
+            (OCR.LocateText(Self.Bounds, Text, RS_FONT_BOLD_12,  TOCRColorRule.Create([$00FFFF]), B) = 1) or
+            (OCR.LocateText(Self.Bounds, Text, RS_FONT_PLAIN_12, TOCRColorRule.Create([$FFFFFF]), B) = 1) or
+            (OCR.LocateText(Self.Bounds, Text, RS_FONT_PLAIN_11, TOCRColorRule.Create([$FFFFFF]), B) = 1);
 end;
 
 function TRSLogin.FindText(Text: String): Boolean; overload;
@@ -117,7 +117,7 @@ function TRSLogin.ClickWorld(World: Int32): Boolean;
 var
   B: TBox;
 begin
-  Result := OCR.LocateText(Self.Bounds, ToString(World), RS_FONT_BOLD_12, [$000000], B) = 1;
+  Result := OCR.LocateText(Self.Bounds, ToString(World), RS_FONT_BOLD_12, TOCRColorRule.Create([$000000]), B) = 1;
   
   if Result then 
   begin
@@ -161,7 +161,7 @@ begin
   begin
     B.Y1 -= 25;
     
-    Result := OCR.RecognizeNumber(B, [$FFFFFF], RS_FONT_BOLD_12);
+    Result := OCR.RecognizeNumber(B, TOCRColorRule.Create([$FFFFFF]), RS_FONT_BOLD_12);
   end;
 end;
 

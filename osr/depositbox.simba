@@ -95,7 +95,7 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(GetSlotBoxes(), $00FFFF);
 end;
 
 var

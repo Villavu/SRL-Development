@@ -6,36 +6,39 @@
 (*
 Drawing
 =======
-The drawing file holds TMufasaBitmap drawing functions to aid drawing onto bitmaps.
-
-The source for this file can be found `here <https://github.com/SRL/SRL/blob/master/shared/drawing.simba>`.
+Extends TMufasaBitmap with mostly drawing functions.
 *)
 
 const
-  clBlack      = TColor($000000);
-  clMaroon     = TColor($000080);
-  clGreen      = TColor($008000);
-  clOlive      = TColor($008080);
-  clNavy       = TColor($800000);
-  clPurple     = TColor($800080);
-  clTeal       = TColor($808000);
-  clRed        = TColor($0000FF);
-  clLime       = TColor($00FF00);
-  clYellow     = TColor($00FFFF);
-  clBlue       = TColor($FF0000);
-  clFuchsia    = TColor($FF00FF);
-  clAqua       = TColor($FFFF00);
-  clGray       = TColor($808080);
-  clSilver     = TColor($C0C0C0);
-  clLtGray     = TColor($C0C0C0);
-  clMedGray    = TColor($A4A0A0);
-  clDkGray     = TColor($808080);
-  clWhite      = TColor($FFFFFF);
-  clMoneyGreen = TColor($65BB85);
-  clSkyBlue    = TColor($F0CAA6);
-  clCream      = TColor($F0FBFF);
-  clPink       = TColor($B3A2EA);
-  clOrange     = TColor($0099FF);
+  clBlack      = Int32($000000);
+  clMaroon     = Int32($000080);
+  clGreen      = Int32($008000);
+  clOlive      = Int32($008080);
+  clNavy       = Int32($800000);
+  clPurple     = Int32($800080);
+  clTeal       = Int32($808000);
+  clRed        = Int32($0000FF);
+  clLime       = Int32($00FF00);
+  clYellow     = Int32($00FFFF);
+  clBlue       = Int32($FF0000);
+  clFuchsia    = Int32($FF00FF);
+  clAqua       = Int32($FFFF00);
+  clGray       = Int32($808080);
+  clSilver     = Int32($C0C0C0);
+  clLtGray     = Int32($C0C0C0);
+  clMedGray    = Int32($A4A0A0);
+  clDkGray     = Int32($808080);
+  clWhite      = Int32($FFFFFF);
+  clMoneyGreen = Int32($65BB85);
+  clSkyBlue    = Int32($F0CAA6);
+  clCream      = Int32($F0FBFF);
+  clPink       = Int32($B3A2EA);
+  clOrange     = Int32($0099FF);
+  
+var
+  BRIGHT_COLORS = [
+    clRed, clBlue, clFuchsia, clLime, clMaroon, clOrange, clYellow, clAqua, clWhite, clPink, clPurple
+  ];  
   
 (*
 TMufasaBitmap.FromClient
@@ -57,58 +60,15 @@ begin
   Self.CopyClientToBitmap(client.GetIOManager, True, Area.X1, Area.Y1, Area.X2, Area.Y2);
 end;
   
-(*
-TMufasaBitmap.Clear
-~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.Clear();
-
-Will clear the entire TMufasaBitmap
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.Clear();
-
-*)
-procedure TMufasaBitmap.Clear();
+procedure TMufasaBitmap.Clear; constref; overload;
 begin
-  self.DrawClear(0);
+  Self.DrawClear(0);
 end;
 
-(*
-TMufasaBitmap.ClearArea
-~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.ClearArea(area: TBox);
-
-Will clear the desired area of the TMufasaBitmap
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.ClearArea(intToBox(5, 5, 10, 10));
-
-*)
-procedure TMufasaBitmap.ClearArea(area: TBox);
+procedure TMufasaBitmap.Clear(Area: TBox); constref; overload;
 begin
-  self.Rectangle(area, 0);
+  Self.DrawBoxFilled(Area, False, 0);
 end;
-
 
 (*
 TMufasaBitmap.ClearAllBut
@@ -119,24 +79,9 @@ TMufasaBitmap.ClearAllBut
 
 Will clear the image, except for the given area.
 *)
-procedure TMufasaBitmap.ClearAllBut(Area: TBox);
-var
-  CL: TBox;
+procedure TMufasaBitmap.ClearAllBut(Area: TBox); constref;
 begin
-  CL := [0, 0, Self.GetWidth()-1, Self.GetHeight()-1];
-  Area.X1 := Max(CL.X1, Area.X1-1); 
-  Area.X2 := Min(CL.X2, Area.X2+1);
-  Area.Y1 := Max(CL.Y1, Area.Y1-1); 
-  Area.Y2 := Min(CL.Y2, Area.Y2+1);
-  
-  Self.Rectangle(TBox([CL.X1,   CL.Y1,   Area.x1, Area.y1]), 0);  //Top Left
-  Self.Rectangle(TBox([CL.X1,   Area.y1, Area.x1, Area.y2]), 0);  //Mid Left
-  Self.Rectangle(TBox([CL.X1,   Area.y1, Area.x1, CL.y2  ]), 0);  //Btm Left
-  Self.Rectangle(TBox([Area.x1, CL.Y1,   Area.x2, Area.y1]), 0);  //Top Mid
-  Self.Rectangle(TBox([Area.x1, Area.y2, Area.x2, CL.y2  ]), 0);  //Btm Mid
-  Self.Rectangle(TBox([Area.x2, CL.Y1,   CL.x2,   Area.y1]), 0);  //Top Right
-  Self.Rectangle(TBox([Area.x2, Area.y1, CL.x2,   Area.y2]), 0);  //Mid Right
-  Self.Rectangle(TBox([Area.x2, Area.y1, CL.x2,   CL.y2  ]), 0);  //Btm Right
+  Self.DrawBoxFilled(Area, True, 0);
 end;
 
 (*
@@ -169,7 +114,6 @@ begin
   Result /= self.GetHeight();
 end;
 
-
 (*
 TMufasaBitmap.PeakBrightness
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -197,43 +141,9 @@ begin
   Result := Round(Result / 255 * 100);
 end;
 
-
-(*
-TMufasaBitmap.DrawBox
-~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBox(box: TBox; fill: boolean; color: TColor);
-
-Draws a TBox onto the TMufasaBitmap
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawBox(intToBox(50, 50, 345, 345), false, clLime);
-
-*)
-procedure TMufasaBitmap.DrawBox(box: TBox; fill: boolean; color: TColor);
-var
-  TPA: TPointArray;
+procedure TMufasaBitmap.DrawBox(Box: TBox; Color: Int32); constref; overload;
 begin
-  if not fill then
-  begin
-    try
-      TPA := EdgeFromBox(box);
-    except
-      TPA := [Point(box.x1, box.y1)];
-    finally
-      self.DrawTPA(TPA, color);
-    end;
-  end else
-    self.Rectangle(box, color);
+  Self.DrawTPA(EdgeFromBox(Box), Color);
 end;
 
 (*
@@ -241,108 +151,36 @@ TMufasaBitmap.DrawBox
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    procedure TMufasaBitmap.DrawBox(pt:TPoint; Radius:UInt32; Fill: Boolean; color: TColor);
+    procedure TMufasaBitmap.DrawBox(Center:TPoint; Radius:UInt32; Fill: Boolean; Color: Int32);
 
 Draws a TBox onto the TMufasaBitmap
 *)
-procedure TMufasaBitmap.DrawBox(pt:TPoint; Radius:UInt32; fill: Boolean; color: TColor); overload;
+procedure TMufasaBitmap.DrawBox(Center:TPoint; Radius:UInt32; Color: Int32); constref; overload;
+begin
+  with Center do
+    Self.DrawBox([X - Radius, Y - Radius, X + Radius, Y + Radius], Color);
+end;
+
+procedure TMufasaBitmap.DrawBoxFilled(Center:TPoint; Radius:UInt32; Invert: Boolean; Color: Int32); constref; overload;
+begin
+  with Center do
+    Self.DrawBoxFilled([X - Radius, Y - Radius, X + Radius, Y + Radius], Invert, Color);
+end;
+
+procedure TMufasaBitmap.DrawBoxes(Boxes: TBoxArray; Color: Int32); constref;
 var
-  TPA: TPointArray;
+  Box: TBox;
 begin
-  if not fill then
-  begin
-    if Radius = 0 then
-      TPA := [pt]
-    else
-      TPA := EdgeFromBox(TBox([pt.x-Radius,pt.y-Radius, pt.x+Radius,pt.y+Radius]));
-    self.DrawTPA(TPA, color);
-  end else
-    self.Rectangle(TBox([pt.x-Radius,pt.y-Radius, pt.x+Radius,pt.y+Radius]), color);
+  for Box in Boxes do
+    Self.DrawBox(Box, Color);
 end;
 
-(*
-TMufasaBitmap.DrawBox
-~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBox(box:TBox; color:TColor = clRed); overload;
-
-Overloaded function, will draw the outline of the "box" and includes a optional
-color parameter (default red).
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 August 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    bmp.DrawBox(IntToBox(50, 50, 345, 345));
-
-*)
-procedure TMufasaBitmap.DrawBox(box: TBox; color: TColor = clRed); overload;
-begin
-  self.DrawBox(box, false, color);
-end;
-
-(*
-TMufasaBitmap.DrawBox; overload
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBox(x1,y1,x2,y2:Integer; fill:Boolean; color:TColor); overload;
-
-Draws a box using the x1, y1, x2, y2 parameters, will fill if 'fill' is set to
-true using color 'color'.
-
-.. note::
-
-    - by Olly
-    - Last Updated: 29 October 2013 by Olly
-
-Example:
-
-.. code-block:: pascal
-
-    bmp.DrawBox(Box(50, 50, 345, 345));
-*)
-procedure TMufasaBitmap.DrawBox(x1,y1,x2,y2:Int32; fill:Boolean; color:TColor); overload;
-begin
-  self.DrawBox(IntToBox(x1, y1, x2, y2), fill, color);
-end;
-
-(*
-TMufasaBitmap.DrawBoxes
-~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBoxes(boxArr: TBoxArray; fill: boolean; color: TColor);
-
-Draws a TBoxArray onto the TMufasaBitmap.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawBoxes([Box(10, 10, 20, 20), Box(50, 50, 250, 250),
-                     Box(440, 440, 600, 600)], true, clRed);
-
-*)
-procedure TMufasaBitmap.DrawBoxes(boxArr: TBoxArray; fill: boolean; color: TColor);
+procedure TMufasaBitmap.DrawFilledBoxes(Boxes: TBoxArray; Color: Int32); constref;
 var
-  i, h:Int32;
+  Box: TBox;
 begin
-  h := High(boxArr);
-
-  for i:=0 to h do
-    self.DrawBox(boxArr[i], fill, color);
+  for Box in Boxes do
+    Self.DrawBoxFilled(Box, False, Color);
 end;
 
 (*
@@ -350,25 +188,21 @@ TMufasaBitmap.DrawRect
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    procedure TMufasaBitmap.DrawRect(Rect: TRectangle; color: TColor);
+    procedure TMufasaBitmap.DrawRect(Rect: TRectangle; Color: Int32);
 
 Draws a TRectangle onto the TMufasaBitmap
 *)
-procedure TMufasaBitmap.DrawRect(Rect: TRectangle; color: TColor);
-var
-  TPA: TPointArray;
+procedure TMufasaBitmap.DrawRect(Rect: TRectangle; Color: Int32); constref;
 begin
-  TPA := Rect.ToTPA().Connect();
-  FilterPointsBox(TPA, 0,0,Self.GetWidth()-1,Self.GetHeight()-1);
-  Self.DrawTPA(TPA, color);
+  Self.DrawTPA(Rect.ToTPA().Connect(), Color);
 end;
 
-procedure TMufasaBitmap.DrawCuboid(Top, Btm: TRectangle; color: Int32);
+procedure TMufasaBitmap.DrawCuboid(Top, Btm: TRectangle; Color: Int32); constref;
 begin
-  Self.DrawRect([Top.Left, Top.Btm, Btm.Btm, Btm.Left], color);
-  Self.DrawRect([Top.Top, Top.Right, Btm.Right, Btm.Top], color);
-  Self.DrawRect([Top.Top, Btm.Top, Btm.Left, Top.Left], color);
-  Self.DrawRect([Top.Right, Btm.Right, Btm.Btm, Top.Btm], color);
+  Self.DrawRect([Top.Left, Top.Btm, Btm.Btm, Btm.Left], Color);
+  Self.DrawRect([Top.Top, Top.Right, Btm.Right, Btm.Top], Color);
+  Self.DrawRect([Top.Top, Btm.Top, Btm.Left, Top.Left], Color);
+  Self.DrawRect([Top.Right, Btm.Right, Btm.Btm, Top.Btm], Color);
 end;
 
 (*
@@ -376,277 +210,57 @@ TMufasaBitmap.DrawPoly
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    procedure TMufasaBitmap.DrawPoly(Poly: TPointArray; color: TColor);
+    procedure TMufasaBitmap.DrawPoly(Poly: TPointArray; Color: Int32);
 
 Draws a polygon onto the TMufasaBitmap
 *)
-procedure TMufasaBitmap.DrawPoly(Poly: TPointArray; color: TColor);
+procedure TMufasaBitmap.DrawPoly(Poly: TPointArray; Color: Int32); constref;
 begin
-  Self.DrawTPA(Poly.Connect(), color);
+  Self.DrawTPA(Poly.Connect(), Color);
 end;
 
-(*
-TMufasaBitmap.DrawBitmap
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBitmap(bmp: Integer; pnt: TPoint);
-
-Draws a bitmap onto the TMufasaBitmap at the desired point.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawBitmap(bmp, point(50, 50));
-
-*)
-procedure TMufasaBitmap.DrawBitmap(bmp: Integer; pnt: TPoint);
-var
-  img:TMufasaBitmap;
+procedure TMufasaBitmap.DrawBitmap(Bitmap: TMufasaBitmap; TopLeft: TPoint); constref;
 begin
-  if (BitmapExists(bmp)) then
-  begin
-    img := GetMufasaBitmap(bmp);
-    img.DrawTransparent(pnt.x, pnt.y, self)
-  end else
-    WriteLn('-- ERROR: TMufasaBitmap.DrawBitmap(): bitmap does not exist');
+  Bitmap.DrawTransparent(TopLeft.X, TopLeft.Y, Self);
 end;
 
-(*
-TMufasaBitmap.DrawBitmap; overload
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function TMufasaBitmap.DrawBitmap(path: string; pt: TPoint): boolean; overload;
-
-Same as TMufasaBitmap.DrawBitmap but will load a bitmap from a file specified
-by the paramter "path", will return if succesful or not.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawBitmap('simba/scripts/foo.png', point(11, 11));
-
-*)
-function TMufasaBitmap.DrawBitmap(path: string; pt: TPoint): boolean; overload;
-var
-  bmp:Integer;
-begin
-  result := FileExists(path);
-
-  if not result then
-  begin
-    WriteLn('-- ERROR: TMufasaBitmap.DrawBitmap(): File path does not exist ("' + path + '"), result = false');
-    exit;
-  end;
-
-  bmp := LoadBitmap(path);
-  self.DrawBitmap(bmp, pt);
-  FreeBitmap(bmp);
-end;
-
-(*
-TMufasaBitmap.DrawCross
-~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawCross(pt: TPoint; size: Integer; color: TColor);
-
-Draws a cross on the TMufasaBitmap at the TPoint ``pt`` with the desired size.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawCross(Point(200, 200), 4, clLime);
-
-*)
-procedure TMufasaBitmap.DrawCross(pt: TPoint; Radius: Integer; color: TColor);
+procedure TMufasaBitmap.DrawCross(Center: TPoint; Radius: Integer; Color: Int32); constref;
 begin
   Radius := Round(Radius/2*Sqrt(2));
-  if (Radius < 1) then
-    exit();
-
-  try self.LineTo(Point(pt.x - Radius, pt.y - Radius), Point(pt.x + Radius, pt.y + Radius), color);
-  except end;
-  try self.LineTo(Point(pt.x + Radius, pt.y - Radius), Point(pt.x - Radius, pt.y + Radius), color);
-  except end;
+  
+  if (Radius > 1) then
+    with Center do
+    begin
+      Self.LineTo(Point(X - Radius, Y - Radius), Point(X + Radius, Y + Radius), Color);
+      Self.LineTo(Point(X + Radius, Y - Radius), Point(X - Radius, Y + Radius), Color);
+    end;
 end;
 
-(*
-TMufasaBitmap.DrawEllipse
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawEllipse(const pnt: TPoint; const xRadius, yRadius: Integer; const fill: boolean; const color: TColor);
-
-Draws an ellipse on the TMufasaBitmap defined by 'pnt', 'xRadius', and
-'yRadius'. If 'fill' is true it will fill the ellipse, otherwise it draws just
-the border.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawEllipse(point(500, 500), 20, 50, true, clLime);
-
-*)
-procedure TMufasaBitmap.DrawEllipse(const pnt: TPoint; const xRadius, yRadius: Integer; const fill: boolean; const color: TColor);
-var
-  tpa: TPointArray;
+procedure TMufasaBitmap.DrawCircle(X, Y, Radius: Int32; Color: Int32); constref; overload;
 begin
-  tpa := TPAFromEllipse(pnt.x, pnt.y, xRadius, yRadius);
-
-  if (fill) then
-    FillEllipse(tpa);
-
-  self.DrawTPA(tpa, color);
+  Self.DrawTPA(TPAFromCircle(X, Y, Radius), Color);
 end;
 
-(*
-TMufasaBitmap.DrawCircle
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawCircle(pnt: TPoint; radius: Integer; fill: boolean; color: TColor);
-
-Draws a circle on the TMufasaBitmap defined by 'pnt' and 'radius'. If 'fill'
-is true it will fill the circle, otherwise it draws just the border.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawCircle(point(500, 500), 50, false, clLime);
-
-*)
-procedure TMufasaBitmap.DrawCircle(pnt: TPoint; radius: Integer; fill: boolean; color: TColor);
+procedure TMufasaBitmap.DrawCircle(Center: TPoint; Radius: Int32; Color: Int32); constref; overload;
 begin
-  self.DrawEllipse(pnt, radius, radius, fill, color);
+  Self.DrawCircle(Center.X, Center.Y, Radius, Color);
 end;
 
-(*
-TMufasaBitmap.DrawClippedText
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawClippedText(txt: string; pt: TPoint; font: string; shadow: boolean; color: TColor);
-
-Same as drawText, but is clipped so it won't draw off the bounds of the bitmap.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawClippedText('hello world!', point(55, 55), 'StatChars07', true, clLime);
-*)
-procedure TMufasaBitmap.DrawClippedText(txt: string; pt: TPoint; font: string; shadow: boolean; color: TColor);
-var
-  tpa, tpaShadow: TPointArray;
-  w,h: Int32;
+procedure TMufasaBitmap.DrawCircleFilled(Center: TPoint; Radius: Int32; Invert: Boolean; Color: Int32); constref; overload;
 begin
-  TPAFromText(txt, font, w,h);
-  OffsetTPA(TPA, pt);
-
-  if (shadow) then
-  begin
-    tpaShadow := CopyTPA(tpa);
-    OffsetTPA(tpaShadow, point(1, 1));
-    FilterPointsBox(tpaShadow, 0, 0, self.GetWidth()-1, self.GetHeight()-1);
-    self.DrawTPA(tpaShadow, $000000);
-  end;
-
-  FilterPointsBox(tpa, 0, 0, self.GetWidth()-1, self.GetHeight()-1);
-  self.DrawTPA(tpa, color);
+  Self.DrawCircleFilled(Center.X, Center.Y, Radius, Invert, Color);
 end;
 
-(*
-TMufasaBitmap.DrawTextLines
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawTextLines(txtArr: TStringArray; pnt: TPoint; font: string; shadow: boolean; color: TColor);
-
-Draws text onto the TMufasaBitmap, each index in the txtArr is put on a different line.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-**Example:**
-
-.. code-block:: pascal
-
-    image.drawTextLines(['olly', 'is', 'the', 'best', ':D'], point(2, 2), 'StatChars07', false, clRed);
-
-*)
-procedure TMufasaBitmap.DrawTextLines(txtArr: TStringArray; pnt: TPoint; font: string; shadow: boolean; color: TColor);
-var
-  ATPA: T2DPointArray;
-  TPA, shadowTPA: TPointArray;
-  w, h, i, l: Integer;
+procedure TMufasaBitmap.DrawCrosshairs(Center: TPoint; Size: Int32; Color: Int32); constref; overload;
 begin
-  l := Length(txtArr);
-  setLength(ATPA, l);
-
-  for i := 0 to (l-1) do
-  begin
-    ATPA[i] := TPAFromText(txtArr[i], font, w, h);
-    OffsetTPA(ATPA[i], point(pnt.x, pnt.y + 1 + (i * h)));
-  end;
-
-  TPA := MergeATPA(ATPA);
-
-  if (shadow) then
-  begin
-    shadowTPA := CopyTPA(TPA);
-    OffsetTPA(shadowTPA, Point(1, 1));
-    self.DrawTPA(shadowTPA, $000000);
-  end;
-
-  self.DrawTPA(TPA, color);
+  Self.Rectangle([Center.X - Size, Center.Y, Center.X + Size, Center.Y], Color); 
+  Self.Rectangle([Center.X, Center.Y - Size, Center.X, Center.Y + Size], Color);
 end;
 
-procedure TMufasaBitmap.DrawCrosshairs(const box: TBox; const pt: TPoint; const color: TColor; const boxColor: Integer = -1);
+procedure TMufasaBitmap.DrawCrosshairs(Box: TBox; Size: Int32; BoxColor, CrosshairColor: Int32); constref; overload;
 begin
-  self.Rectangle(TBox([box.x1, box.y1 + pt.y, box.x2, box.y1 + pt.y]), color); // faster than LineTo :)
-  self.Rectangle(TBox([box.x1 + pt.x, box.y1, box.x1 + pt.x, box.y2]), color);
-
-  if (boxColor > -1) then
-    self.DrawBox(box, false, boxColor);
+  Self.DrawCrosshairs(Box.Middle, Size, CrosshairColor);
+  Self.DrawBox(Box, BoxColor);
 end;
 
 procedure TMufasaBitmap.Debug;
@@ -654,47 +268,53 @@ begin
   ShowBitmap(Self);
 end;
 
-procedure Debug(TPA: TPointArray; Color: TColor = $0000FF); overload;
-var
-  BMP: TMufasaBitmap;
-begin
-  BMP.FromClient();
-  BMP.DrawTPA(TPA, Color);
-  BMP.Debug();
-  BMP.Free();
-end;
-
 procedure Debug(ATPA: T2DPointArray); overload;
 var
-  BMP: TMufasaBitmap;
-  TPA: TPointArray;
+  Bitmap: TMufasaBitmap;
+  I: Int32;
 begin
-  BMP.FromClient();
-
-  for TPA in ATPA do
-    BMP.DrawTPA(TPA, Random($FFFFFF));
-
-  BMP.Debug();
-  BMP.Free();
+  Bitmap.FromClient();
+  
+  for I := 0 to High(ATPA) do
+    Bitmap.DrawTPA(ATPA[I], BRIGHT_COLORS[I mod Length(BRIGHT_COLORS)]);
+  
+  Bitmap.Debug();
+  Bitmap.Free();
 end;
 
-procedure Debug(R: TRectangle; Color: TColor = $0000FF); overload;
+procedure Debug(TPA: TPointArray); overload;
 begin
-  Debug(R.ToTPA.Connect(), Color);
+  Debug([TPA]); 
 end;
 
-procedure Debug(B: TBox; Color: TColor = $0000FF); overload;
+procedure Debug(R: TRectangle); overload;
 begin
-  Debug(EdgeFromBox(B), Color);
+  Debug(R.ToTPA.Connect());
+end;
+
+procedure Debug(Box: TBox); overload;
+begin
+  Debug(EdgeFromBox(Box));
 end;
 
 procedure Debug(Boxes: TBoxArray); overload;
 var
-  B: TBox;
   ATPA: T2DPointArray;
+  I: Int32;
 begin
-  for B in Boxes do
-    ATPA := ATPA + EdgeFromBox(B);
-
+  SetLength(ATPA, Length(Boxes));
+  for I := 0 to High(ATPA) do
+    ATPA[I] := EdgeFromBox(Boxes[I]);
+  
   Debug(ATPA);
+end;
+
+procedure Debug(Matrix: T2DIntegerArray); overload;
+var
+  Bitmap: TMufasaBitmap;
+begin
+  Bitmap.Init();
+  Bitmap.DrawMatrix(Matrix);
+  Bitmap.Debug();
+  Bitmap.Free();
 end;

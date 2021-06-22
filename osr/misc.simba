@@ -62,13 +62,13 @@ get the number of stacked items there are.
 function TSRL.GetItemAmount(constref Area: TBox): Int32; constref;
 begin
   if SRL.CountColor(RS_ITEM_YELLOW_STACK, Area) > 0 then
-    Result := OCR.RecognizeNumber(Area, [RS_ITEM_YELLOW_STACK], RS_FONT_PLAIN_11)
+    Result := OCR.RecognizeNumber(Area, TOCRColorRule.Create([RS_ITEM_YELLOW_STACK]), RS_FONT_PLAIN_11)
   else
   if SRL.CountColor(RS_ITEM_WHITE_STACK, Area) > 0 then
-    Result := OCR.RecognizeNumber(Area, [RS_ITEM_WHITE_STACK], RS_FONT_PLAIN_11) * 1000
+    Result := OCR.RecognizeNumber(Area, TOCRColorRule.Create([RS_ITEM_WHITE_STACK]), RS_FONT_PLAIN_11) * 1000
   else
   if SRL.CountColor(RS_ITEM_GREEN_STACK, Area) > 0 then
-    Result := OCR.RecognizeNumber(Area, [RS_ITEM_GREEN_STACK], RS_FONT_PLAIN_11) * 1000000;
+    Result := OCR.RecognizeNumber(Area, TOCRColorRule.Create([RS_ITEM_GREEN_STACK]), RS_FONT_PLAIN_11) * 1000000;
 end;
 
 (*

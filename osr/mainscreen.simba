@@ -175,12 +175,9 @@ begin
   
   Self.Name := 'MainScreen';
 
-  Self.UpTextFilter.Color := -1;
-  Self.UpTextFilter.Tolerance := 85;
-  Self.UpTextFilter.UseShadow := True;
-  Self.UpTextFilter.ShadowMaxValue := 70;
-  Self.UpTextFilter.MinCharacterMatch := 18; // Filter out tiny characters (likely junk)
-
+  Self.UpTextFilter := TOCRAnyColorRule.Create(85, 70);
+  Self.UpTextFilter.MinCharacterMatch := ','; 
+  
   Self.YellowClicks := [
     BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
     BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCWjieCxCU4xHGVbF+AOEDAOJcSQeHxEZSsSHPEmxSWQKAQAWmB8k'),
@@ -241,7 +238,7 @@ Example
 *)
 function TRSMainScreen.GetUpText: String;
 begin
-  Result := OCR.Recognize(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW, True);
+  Result := OCR.RecognizeStatic(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
 
   {$IFDEF SRL_DEBUG_UPTEXT}
   Self.DebugLn('UpText: ' + Result);
@@ -600,6 +597,7 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
     TPA: TPointArray;
     B: TBox;
     Text: String;
+    Hit: Int32;
   begin
     if SRL.FindColors(TPA, CTS0(Color), Area) = 0 then
       Exit;
@@ -607,10 +605,9 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
     for B in TPA.Cluster(3).ToTBA() do
       if (B.Width >= 10) and (B.Height >= 10) then
       begin
-        Text := OCR.Recognize(B.Expand(5, Area), [$FFFFFF], RS_FONT_PLAIN_11, False);
-        Text := Text.Replace('O', '0');
-
-        Result += [B.Middle(), StrToIntDef(Text, -1), Red];
+        Hit := OCR.RecognizeNumber(B.Expand(5, Area), TOCRColorRule.Create([$FFFFFF]), RS_FONT_PLAIN_11);
+        
+        Result += [B.Middle(), Hit, Red];
       end;
   end;
 
@@ -884,9 +881,9 @@ begin
   inherited;
 
   for Splat in Self.FindHitsplats() do
-    Bitmap.DrawCircle(Splat.Position, 10, False, $00FF00);
+    Bitmap.DrawCircle(Splat.Position, 10, $00FF00);
   for Bar in Self.FindHPBars() do
-    Bitmap.DrawBox(Bar.Bounds, False, $00FFFF);
+    Bitmap.DrawBox(Bar.Bounds, $00FFFF);
 end;
 
 var

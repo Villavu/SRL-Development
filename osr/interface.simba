@@ -38,7 +38,7 @@ type
 procedure TRSInterface.Setup; 
 begin
   Self.Name := 'Unnamed';
-  Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20), CTS1(1514268, 10), CTS1(2369440, 5), CTS1(2700350, 5)];
+  Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20), CTS1(1514268, 10)];
   Self.ButtonEnabledColors := [CTS1(2369440, 5), CTS1(2700350, 5)];
   Self.Cache.Enabled := True;
 end;
@@ -286,8 +286,8 @@ begin
   
   for TPA in ATPA do
   begin
-   // if Length(TPA) < 50 then
-   //   Continue;
+    if Length(TPA) < 50 then
+      Continue;
       
     B := TPA.Bounds();
     B.GetDimensions(W, H);
@@ -362,12 +362,12 @@ end;
 
 function TRSButton.FindText(constref Text: String; constref Font: TFontSet; Color: Int32): Boolean; constref; overload;
 begin
-  Result := OCR.LocateText(Self.Bounds, Text, Font, [Color], 1);
+  Result := OCR.LocateText(Self.Bounds, Text, Font, TOCRColorRule.Create([Color]), 1);
 end;
 
 function TRSButton.FindText(constref Text: String; constref Font: TFontSet): Boolean; constref; overload;
 begin
-  Result := OCR.LocateText(Self.Bounds, Text, Font, [-1], 1);
+  Result := OCR.LocateText(Self.Bounds, Text, Font, TOCRAnyColorRule.Create(0), 1);
 end;
 
 function TRSButton.FindText(Text: TStringArray; constref Font: TFontSet; out Found: String): Boolean; constref; overload;
@@ -392,8 +392,8 @@ type
   
 procedure TRSScrollBar.Draw(Bitmap: TMufasaBitmap); constref;
 begin
-  Bitmap.DrawBox(Self.SliderRegion, False, $00FFFF);
-  Bitmap.DrawBox(Self.Slider, False, $00FFFF);
+  Bitmap.DrawBox(Self.SliderRegion, $00FFFF);
+  Bitmap.DrawBox(Self.Slider, $00FFFF);
   Bitmap.SetFontAntialiasing(False);
   Bitmap.SetFontSize(30);
   with Bitmap.TextSize(ToString(Self.Position)) do
@@ -444,21 +444,12 @@ begin
   end;
 end;
 
-
-// Nasty lape bug right now.
-
-(*
 function TRSInterface.CanScroll: Boolean;
 var
   ScrollBar: TRSScrollBar := Self.GetScrollBar();
 begin
-  WriteLn ScrollBar;
-  
   Result := Scrollbar.IsVisible() and (ScrollBar.Slider <> ScrollBar.SliderRegion);
-  WriteLn('Result: ', Result);
-  WriteLn('This: ', Scrollbar.IsVisible() and (ScrollBar.Slider <> ScrollBar.SliderRegion));
 end;
-*)
 
 function TRSInterface.GetScrollPosition: Int32;
 var
@@ -522,7 +513,6 @@ type
 function TRSTitledInteface.GetTitle: String;
 var
   B: TBox;
-  Filter: TCompareRules;
 begin
   B := Self.Bounds();
   B.X1 += 50;
@@ -531,10 +521,7 @@ begin
   B.Y2 := B.Y1 + 15;
   B.LimitTo(Self.Bounds);
 
-  Filter.Threshold := True;
-  Filter.ThresholdAmount := 15;
-
-  Result := OCR.Recognize(B, Filter, RS_FONT_BOLD_12);
+  Result := OCR.Recognize(B, TOCRThresholdRule.Create(15), RS_FONT_BOLD_12);
 end;
 
 function TRSTitledInteface.ClickCloseButton(PressEscape: Boolean = False): Boolean;
@@ -617,7 +604,7 @@ begin
   begin
     Self.SetFontSize(20);
     Self.SetFontAntialiasing(False);
-    Self.DrawBox(Buttons[I].Bounds, False, $00FFFF);
+    Self.DrawBox(Buttons[I].Bounds, $00FFFF);
     Self.DrawText(ToStr(Buttons[I].Index), Buttons[I].Bounds, True, $00FF00);
   end;
 end;

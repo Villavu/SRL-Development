@@ -126,7 +126,7 @@ procedure TRSGameTabs.Draw(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Bitmap.DrawBoxes(GetTabBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(GetTabBoxes(), $00FFFF);
 end;
 
 procedure TRSGameTabs.Setup; override;

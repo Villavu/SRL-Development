@@ -59,7 +59,7 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(Self.GetLineBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetLineBoxes(), $00FFFF);
 end;
 
 function TRSChat.GetLineBoxes: TBoxArray;
@@ -74,7 +74,7 @@ var
 begin
   for Color in Colors do
   begin
-    Result := OCR.Recognize(Self.GetLineBoxes()[CHAT_INPUT_LINE], [Color], RS_FONT_PLAIN_12, True);
+    Result := OCR.RecognizeStatic(Self.GetLineBoxes()[CHAT_INPUT_LINE], TOCRColorRule.Create([Color]), RS_FONT_PLAIN_12);
     if Result <> '' then
       Break;
   end;
@@ -95,12 +95,12 @@ end;
 
 function TRSChat.GetQuery: String;
 begin
-  Result := OCR.Recognize(Self.Bounds(), [$000000], RS_FONT_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds(), TOCRColorRule.Create([$000000]), RS_FONT_BOLD_12);
 end;
 
 function TRSChat.GetQueryAnswer: String;
 begin
-  Result := OCR.Recognize(Self.Bounds(), [8388608], RS_FONT_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds(), TOCRColorRule.Create([8388608]), RS_FONT_BOLD_12);
 end;
 
 function TRSChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
@@ -132,51 +132,22 @@ type
   TRSChatboxOptionArray = array of TRSChatboxOption;
 
 function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatboxOptionArray; 
-
-  function FindLines(TPA: TPointArray): TBoxArray;
-  var
-    ATPA: T2DPointArray;
-    I: Int32;
-  begin
-    ATPA := TPA.Split(1);
-    TPA := [];
-    for I := 0 to High(ATPA) do
-      if InRange(ATPA[I].Bounds.Height(), 4, 12) then
-        TPA += ATPA[I].Mean();
-
-    ATPA := TPA.Cluster(100, 5);
-    ATPA.SortByY(True);
-    
-    Result := ATPA.ToTBA();
-  end;
-
 var
-  TPA: TPointArray;
-  B: TBox;
+  Strings: TStringArray;
+  Boxes: TBoxArray;
   I, Key: Int32;
-  Lines: TBoxArray;
-  Text: String;
 begin
-  if SRL.FindColors(TPA, Colors, Self.Bounds) > 0 then
+  Strings := OCR.RecognizeMulti(Self.Bounds(), TOCRColorRule.Create(Colors), RS_FONT_QUILL_8, Boxes);
+
+  SetLength(Result, Length(Strings));
+  for I := 0 to High(Result) do
   begin
-    Lines := FindLines(TPA);
-    
-    for I := 0 to High(Lines) do
-    begin
-      B := Lines[I].Expand(8, Self.Bounds());
+    if ('Click here to continue' in Strings[I]) then
+      Key := VK_SPACE
+    else
+      Key := VK_0 + I;
       
-      Text := OCR.Recognize(TPA.FilterBox(B), RS_FONT_QUILL_8);
-      
-      if (Text <> '') then
-      begin
-        if (Text = 'Click here to continue') then 
-          Key := VK_SPACE 
-        else 
-          Key := VK_0 + I;
-          
-        Result += [Text, Lines[I], Key];
-      end;
-    end;
+    Result[I] := [Strings[I], Boxes[I], Key];
   end;
 end;
 
@@ -225,47 +196,34 @@ begin
   Result := Self.ClickOption(Option);
 end;
 
-function TRSChat.GetMessage(Line: Int32; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
+function TRSChat.GetMessage(Line: Int32; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): String; 
 const
-  OffsetToMakeStatic = 2;
+  StaticOffset = 2; // Make static text placement so RecognizeStatic can be used
 var
-  TPA: TPointArray;
-  ATPA: T2DPointArray;
-  Color: Int32;
   B: TBox;
+  X: Int32;
+  Transparent: Boolean;
   Matrix: T2DIntegerArray;
-  P: TPoint;
 begin
   B := GetLineBoxes()[Line];
-  SetLength(Matrix, B.Height + OffsetToMakeStatic, B.Width);
-
-  // If transparent the text has a shadow:
-  // Problem: 1 pixel of the shadow of the line above falls into our line.
-  // Solution: Mark the above shadow as a hit since SimpleOCR needs every point of a character to match. 
-  if Self.IsTransparent() then
+  B.Y1 -= StaticOffset; 
+  
+  Transparent := Self.IsTransparent();
+  if Transparent then
+    Colors.Remove(CHAT_COLOR_BLACK, True);
+  
+  if (Length(Colors) > 0) then
   begin
-    if SRL.FindColors(TPA, CTS0($000000), B) > 0 then
-      for P in TPA.Offset(-B.X1, -B.Y1) do
-        if (P.Y = 0) then
-          Matrix[OffsetToMakeStatic, P.X] := 255;
+    Matrix := GetColorsMatrix(B.X1, B.Y1, B.X2, B.Y2);
     
-    Colors.Remove($000000); // Shadow
-  end;
+    // Shadow from above line draws over our line.
+    // Mark the shadow as a match since OCR requires 100% character match.
+    if Transparent then
+      for X := 0 to High(Matrix[StaticOffset]) do
+        if (Matrix[StaticOffset][X] = CHAT_COLOR_BLACK) theN
+          Matrix[StaticOffset][X] := Colors[0];
   
-  for Color in Colors do
-    if SRL.FindColors(TPA, CTS0(Color), B) > 0 then
-      ATPA += TPA;
-     
-  if Length(ATPA) > 0 then
-  begin     
-    TPA := ATPA.Merge();
-    TPA := TPA.Offset(-B.X1, -B.Y1);
-    TPA := TPA.Offset(-TPA.Bounds.X1 + 1, OffsetToMakeStatic);
-  
-    for P in TPA do
-      Matrix[P.Y, P.X] := 255;
-
-    Result := OCR.Recognize(Matrix, [255], RS_FONT_PLAIN_12, True);
+    Result := OCR.RecognizeStatic(Matrix, TOCRColorRule.Create(Colors), RS_FONT_PLAIN_12);
   end;
 end;
 

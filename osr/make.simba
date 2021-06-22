@@ -131,7 +131,7 @@ begin
     Mouse.Move(Buttons[I].Bounds);
     
     if WaitUntil(FindColors(TPA, HINT_COLOR, Self.Bounds()), SRL.TruncatedGauss(50, 1500), 4000) then
-      if SameText(OCR.Recognize(TPA.Bounds(), [0], RS_FONT_PLAIN_12), Item) then
+      if SameText(OCR.Recognize(TPA.Bounds(), TOCRColorRule.Create([0]), RS_FONT_PLAIN_12), Item) then
        begin
          Self.Items += [Item, Buttons[I].Index];
          

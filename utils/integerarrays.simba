@@ -148,7 +148,7 @@ begin
     Quicksort(Self);
 end;
 
-function TIntegerArray.Sorted(): TIntegerArray;
+function TIntegerArray.Sorted(): TIntegerArray; constref;
 begin
   Result := Copy(Self);
   if Length(Result) > 0 then
@@ -487,10 +487,9 @@ begin
   Result := True;
 end;
 
-function T2DIntegerArray.Merge(): TIntegerArray;
+function T2DIntegerArray.Merge(): TIntegerArray; constref;
 var i:Int32;
 begin
   for i:=0 to High(self) do
     Result.Extend(self[i]);
 end;
-
