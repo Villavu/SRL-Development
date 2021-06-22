@@ -129,6 +129,7 @@ begin
   Self.Wind := 5;
   Self.MissChance := 15;
   Self.Distribution := MOUSE_DISTRIBUTION_ROWP;
+  Self.CanIdle := True;
 
   {$IFDEF SRL_DEBUG_MOUSE}
   Self.OnTeleport := @Self._DebugCallback;

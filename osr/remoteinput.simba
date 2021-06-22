@@ -22,7 +22,7 @@ begin
     if (Self.PID = 0) then
     begin
       if (MessageDlg('SRL', 'Automatically try to find a RS client?', mtConfirmation, [mbYes, mbNo]) = mrNo) then
-        raise 'No client to target';
+        raise 'Found no RS client';
       
       RIInject(RS_EXECUTABLE); Self.PID := EIOS_GetClientPID(0);
     end else
