@@ -1,0 +1,105 @@
+{$loadlib ../includes/srl/plugins/libremoteinput}
+
+type
+  TRemoteInput = record(TSRLBaseRecord)
+    Image: TMufasaBitmap;
+    EIOS: Pointer;
+    PID: UInt32;
+  end;
+
+procedure TRemoteInput.Setup;
+const
+  RS_EXECUTABLE = {$IFDEF WINDOWS}'JagexLauncher.exe'{$ELSE}'java'{$ENDIF};
+begin
+  Self.Name := 'Remote Input';
+
+  {$IFNDEF SIMBAHEADLESS}
+  if (Self.PID = 0) then
+    Self.PID := GetSimbaTargetPID();
+  {$ENDIF}
+  
+  try
+    if (Self.PID = 0) then
+    begin
+      if (MessageDlg('SRL', 'Automatically try to find a RS client?', mtConfirmation, [mbYes, mbNo]) = mrNo) then
+        raise 'No client to target';
+      
+      RIInject(RS_EXECUTABLE); Self.PID := EIOS_GetClientPID(0);
+    end else
+      RIInject(Self.PID);
+  
+    Self.EIOS := EIOS_PairClient(Self.PID);
+    if (Self.EIOS <> nil) then
+      SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
+  except
+    Self.Fatal(GetExceptionMessage());
+  end;
+end;
+
+function TRemoteInput.GetImage: TMufasaBitmap;
+begin
+  if (Self.Image = nil) then
+  begin
+    EIOS_SetGraphicsDebugging(Self.EIOS, True);
+      
+    Self.Image.Init();
+    Self.Image.SetPersistentMemory(
+       PtrUInt(EIOS_GetDebugImageBuffer(Self.EIOS)),
+       GetClientBounds().Width(), GetClientBounds().Height()
+    );
+    
+    Self.Image.Clear();
+  end;
+  
+  Result := Self.Image;
+end;
+
+procedure TRemoteInput.LoseFocus;
+var
+  Space: TBoxArray;
+begin
+  Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(1000));
+
+  if (Length(Space) > 0) then
+  begin
+    Mouse.CanIdle := False;
+    Mouse.Click(Space[Random(Length(Space))], MOUSE_LEFT);
+    Mouse.CanIdle := True;
+  end;
+end;
+
+function EIOS_GetClientPIDs: TIntegerArray;
+var
+  I: Int32;
+begin
+  for I := 0 to EIOS_GetClients(True) - 1 do
+    Result += EIOS_GetClientPID(I); 
+end;
+
+function EIOS_PairClient(Pid: Int32): Pointer; override;
+begin
+  Result := inherited();
+  if (Result = nil) then
+    raise 'Failed to pair client';
+end;
+
+procedure RIInject(PID: Int32); override;
+var
+  Pids: TIntegerArray;
+begin
+  inherited();
+
+  if (not WaitUntil(Length(Pids := EIOS_GetClientPIDs()) > 0, 100, 1000) and (Pids.Find(Pid) > -1)) then
+    raise 'Failed to inject into pid ' + ToString(pid);  
+end;
+
+procedure RIInject(ProcessName: String); override;
+var
+  Pids: TIntegerArray;
+begin
+  inherited();
+
+  if (not WaitUntil(Length(EIOS_GetClientPIDs()) > 0, 100, 1000)) then
+    raise 'Failed to inject into "' + ProcessName + '"';  
+end;
+
