@@ -44,6 +44,15 @@ begin
     Result := Length(GetButtonCircle().Filter(TPA)) > 50;
 end;
 
+function TRSXPBar.Open: Boolean;
+begin
+  if Self.IsOpen then Exit(True);
+
+  Mouse.Click(Self.GetButtonCircle, MOUSE_LEFT);
+
+  Result := Self.IsOpen;
+end;
+
 procedure TRSXPBar.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then

@@ -334,6 +334,12 @@ var
 
 
 // Minimap prayer
+
+function TRSMinimap.GetPrayerLevel: Int32;
+begin
+  Result := Self.GetOrbLevel(Self.GetPrayerCircle);
+end;
+
 function TRSMinimap.IsPrayerEnabled: Boolean;
 begin
   Result := SRL.CountColor(CTS0(1168105, 33), Self.GetPrayerCircle().Bounds) > 20;

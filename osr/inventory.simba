@@ -22,8 +22,28 @@ const
   DROP_PATTERN_TOPDOWN: TIntegerArray = [0,4,8,12,16,20,24,  1,5,9,13,17,21,25,  2,6,10,14,18,22,26, 3,7,11,15,19,23,27];
   DROP_PATTERN_TOPDOWN_R: TIntegerArray = [3,7,11,15,19,23,27, 2,6,10,14,18,22,26, 1,5,9,13,17,21,25,  0,4,8,12,16,20,24];
 
+  //Vertical 2 item columns snake pattern. Normal and "reversed"
+  DROP_PATTERN_TWO_ROW_SNAKE: TIntegerArray = [0,1,5,4,8,9,13,12,16,17,21,20,24,25,26,27,23,22,18,19,15,14,10,11,7,6,2,3];
+  DROP_PATTERN_TWO_ROW_SNAKE_R: TIntegerArray = [3,2,6,7,11,10,14,15,19,18,22,23,27,26,25,24,20,21,17,16,12,13,9,8,4,5,1,0];
+
   //Spiral pattern: Starts in slot 0(top left corner of invy) and circles in a clockwise spiral
   DROP_PATTERN_SPIRAL: TIntegerArray   = [0,1,2,3, 7,11,15,19,23, 27,26,25,24, 20,16,12,8,4, 5, 6,10,14,18,22, 21,17,13,9];
+
+  INVENTORY_PATTERNS: T2DIntegerArray = [
+    DROP_PATTERN_REGULAR,
+    DROP_PATTERN_REGULAR_R,
+
+    DROP_PATTERN_SNAKE,
+    DROP_PATTERN_SNAKE_R,
+
+    DROP_PATTERN_TOPDOWN,
+    DROP_PATTERN_TOPDOWN_R,
+
+    DROP_PATTERN_TWO_ROW_SNAKE,
+    DROP_PATTERN_TWO_ROW_SNAKE_R,
+
+    DROP_PATTERN_SPIRAL
+  ];
 
 type
   TRSInventory = record(TRSInterface)
@@ -566,6 +586,12 @@ Example
   // Shift drop maple & willow logs in the snake pattern
   Inventory.ShiftDrop(['Maple logs', 'Willow logs'], DROP_PATTERN_SNAKE);
 *)
+
+function TRSInventory.RandomPattern(): TIntegerArray;
+begin
+  Result := INVENTORY_PATTERNS[Random(High(INVENTORY_PATTERNS))];
+end;
+
 function TRSInventory.ShiftDrop(Items: TRSItemArray; Pattern: TIntegerArray): Boolean; overload;
 var
   Slots, Order: TIntegerArray;

@@ -47,15 +47,110 @@ begin
   Result := [Self.X1 + Self.SpecAttackCircleOffset.X, Self.Y1 + Self.SpecAttackCircleOffset.Y, 12];
 end;
 
+
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
 begin
-  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y, Orb.X-15, Orb.Y+10], TOCRShadowRule.Create(), RS_FONT_PLAIN_11); 
+  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y-1, Orb.X-15, Orb.Y+9], TOCRShadowRule.Create(), RS_FONT_PLAIN_11);
+end;
+
+function TRSMinimap.GetHPLevel: Int32;
+begin
+  Result := Self.GetOrbLevel(Self.GetHPCircle());
+end;
+
+function TRSMinimap.GetHPPercent: Int32;
+var
+  TPA: TPointArray;
+  Circle: TCircle;
+begin
+  Circle := Self.GetHPCircle();
+  if SRL.FindColors(TPA, CTS1(1250067, 20), Circle.Bounds) > 0 then
+    TPA := TPA.FilterDist(0, Circle.Radius, Circle.X, Circle.Y);
+
+  with TPA.Bounds() do
+    Result := 100 - Ceil((Y2 - Y1) / (Circle.Bounds.Y2 - Circle.Bounds.Y1) * 100);
 end;
 
 function TRSMinimap.GetRunEnergy: Int32;
 begin
   Result := Self.GetOrbLevel(GetRunCircle());
 end;
+
+
+function TRSMinimap.IsPoisoned: Boolean;
+begin
+  Result := SRL.CountColor(CTS2(271525, 10, 0.05, 0.37), Self.GetHPCircle().Bounds) = 0;
+end;
+
+function TRSMinimap.CurePoison: Boolean;
+var
+  T: UInt64;
+begin
+  if Self.IsPoisoned() then
+  begin
+    Mouse.Click(Self.GetHPCircle(), MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if not Self.IsPoisoned() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+
+function TRSMinimap.IsRunEnabled: Boolean;
+begin
+  Result := SRL.CountColor(CTS2(4211520, 6, 2.84, 0.14), Self.GetRunCircle().Bounds) = 0;
+end;
+
+function TRSMinimap.EnableRun: Boolean;
+var
+  T: UInt64;
+begin
+  if not Self.IsRunEnabled() then
+  begin
+    Mouse.Click(Self.GetRunCircle(), MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if Self.IsRunEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+function TRSMinimap.DisableRun: Boolean;
+var
+  T: UInt64;
+begin
+  if Self.IsRunEnabled() then
+  begin
+    Mouse.Click(Self.GetRunCircle(), MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if not Self.IsRunEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+function TRSMinimap.HasStamina: Boolean;
+begin
+  Result := SRL.CountColor(CTS0(2709951, 38), Self.GetRunCircle.Bounds) > 0;
+end;
+
+
 
 function TRSMinimap.GetPolygon: TPointArray;
 begin
@@ -238,74 +333,8 @@ begin
   Result := SRL.PointInPoly(P, ExpandPolygon(Self.GetPolygon(), Expand));
 end;
 
-function TRSMinimap.IsPoisoned: Boolean;
-begin
-  Result := SRL.CountColor(CTS2(271525, 10, 0.05, 0.37), Self.GetHPCircle().Bounds) = 0;
-end;
-
-function TRSMinimap.CurePoison: Boolean;
-var
-  T: UInt64;
-begin
-  if Self.IsPoisoned() then
-  begin
-    Mouse.Click(Self.GetHPCircle(), MOUSE_LEFT);
-
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
-    while (T > GetTickCount()) do
-    begin
-      if not Self.IsPoisoned() then
-        Exit(True);
-
-      Wait(0, 1000, wdLeft);
-    end;
-  end;
-end;
 
 
-
-function TRSMinimap.IsRunEnabled: Boolean;
-begin
-  Result := SRL.CountColor(CTS2(4211520, 6, 2.84, 0.14), Self.GetRunCircle().Bounds) = 0;
-end;
-
-function TRSMinimap.EnableRun: Boolean;
-var
-  T: UInt64;
-begin
-  if not Self.IsRunEnabled() then
-  begin
-    Mouse.Click(Self.GetRunCircle(), MOUSE_LEFT);
-
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
-    while (T > GetTickCount()) do
-    begin
-      if Self.IsRunEnabled() then
-        Exit(True);
-
-      Wait(0, 1000, wdLeft);
-    end;
-  end;
-end;
-
-function TRSMinimap.DisableRun: Boolean;
-var
-  T: UInt64;
-begin
-  if Self.IsRunEnabled() then
-  begin
-    Mouse.Click(Self.GetRunCircle(), MOUSE_LEFT);
-
-    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
-    while (T > GetTickCount()) do
-    begin
-      if not Self.IsRunEnabled() then
-        Exit(True);
-
-      Wait(0, 1000, wdLeft);
-    end;
-  end;
-end;
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
@@ -467,24 +496,6 @@ begin
   T := GetTickCount + TimeOut;
   while (T > GetTickCount()) and Self.IsPlayerMoving(MinShift) do
     ;
-end;
-
-function TRSMinimap.GetHPLevel: Int32;
-begin
-  Result := Self.GetOrbLevel(Self.GetHPCircle());
-end;
-
-function TRSMinimap.GetHPPercent: Int32;
-var
-  TPA: TPointArray;
-  Circle: TCircle;
-begin
-  Circle := Self.GetHPCircle();
-  if SRL.FindColors(TPA, CTS1(1250067, 20), Circle.Bounds) > 0 then
-    TPA := TPA.FilterDist(0, Circle.Radius, Circle.X, Circle.Y);
-
-  with TPA.Bounds() do
-    Result := 100 - Ceil((Y2 - Y1) / (Circle.Bounds.Y2 - Circle.Bounds.Y1) * 100);
 end;
 
 var
