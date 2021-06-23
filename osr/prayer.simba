@@ -192,7 +192,7 @@ end;
 
 function TRSPrayer.ActivatePrayer(Prayer: ERSPrayer): Boolean;
 begin
-  if not Self.Open() then
+  if not Self.Open or not Self.CanActivate(Prayer) then
     Exit(False);
 
   if Self.IsPrayerActive(Prayer) then
