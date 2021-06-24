@@ -156,8 +156,8 @@ begin
   inherited;
 
   Bitmap.DrawButtons(Self.GetButtons());
-  Bitmap.DrawBoxes(Self.GetTabBoxes(), False, $00FFFF);
-  Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetTabBoxes(), $00FFFF);
+  Bitmap.DrawBoxes(Self.GetSlotBoxes(), $00FFFF);
 end;
 
 (*

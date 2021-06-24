@@ -61,26 +61,17 @@ begin
   Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
-function TRSPrayer.GetPointsBox: TBox;
-begin
-  Result := [Self.X1 + 37, Self.Y1 + 239, Self.X2 - 37, Self.Y2 - 5];
-end;
-
 function TRSPrayer.GetPrayerLevel: Int32;
 var
   Text: String;
-  TPA: TPointArray;
 begin
   Result := -1;
 
-  if not (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) then
-    Exit;
-
-  if SRL.FindColors(TPA, CTS0($1f98ff), Self.GetPointsBox) then
+  if (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) then
   begin
-    Text := OCR.Recognize(TPA, RS_FONT_PLAIN_12);
-    if Text.Pos('/') > 0 then
-      Result := StrToIntDef(ExtractFromStr(Text.Before('/'), Numbers), 0);
+    Text := OCR.Recognize(Self.Bounds, TOCRColorRule.Create([$1F98FF]), RS_FONT_PLAIN_12); 
+    
+    Result := Text.Before('/').ExtractNumber();
   end;
 end;
 
@@ -94,8 +85,7 @@ begin
   Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.PRAYER);
 end;
 
-
-function TRSPrayer.GetPrayerBoxes: TBoxArray; overload;
+function TRSPrayer.GetPrayerBoxes: TBoxArray; overload; 
 begin
   Result := Grid(5, 6, 33, 33, [4, 4], [Self.X1 + 1, Self.Y1 + 10])
 end;
@@ -112,7 +102,6 @@ begin
   for Prayer in Prayers do
     Result += Self.GetPrayerBox(Prayer);
 end;
-
 
 function TRSPrayer.PointToPrayer(P: TPoint): Int32;
 var
@@ -192,7 +181,7 @@ end;
 
 function TRSPrayer.ActivatePrayer(Prayer: ERSPrayer): Boolean;
 begin
-  if not Self.Open() then
+  if not Self.Open or not Self.CanActivate(Prayer) then
     Exit(False);
 
   if Self.IsPrayerActive(Prayer) then
@@ -211,7 +200,6 @@ begin
     Self.ActivatePrayer(Prayer);
 end;
 
-
 procedure TRSPrayer.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
@@ -219,16 +207,13 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetPrayerBoxes, False, $00FFFF);
-  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetAvailablePrayers), False, $00FF22);
-  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetActivePrayers), False, $FFFFFF);
-  Bitmap.DrawBox(Self.GetPointsBox, False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetAvailablePrayers), $00FF22);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetActivePrayers), $FFFFFF);
 end;
 
 var
   Prayer: TRSPrayer;
-
-
 
 procedure TRSQuickPrayer.Setup; overload;
 begin
@@ -330,9 +315,6 @@ begin
     Self.SelectPrayer(QPrayer);
 end;
 
-
-
-
 procedure TRSQuickPrayer.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
@@ -340,10 +322,10 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(), False, $00FFFF);
-  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers), False, $00ff22);
-  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Self.GetSelectedPrayers), False, $FFFFFF);
-  Bitmap.DrawBox(Self.GetButton, False, $00FFFF);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(), $00FFFF);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers), $00ff22);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Self.GetSelectedPrayers), $FFFFFF);
+  Bitmap.DrawBox(Self.GetButton, $00FFFF);
 end;
 
 

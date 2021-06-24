@@ -50,14 +50,14 @@ begin
     Exit;
 
   with Self.GetButtonCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
 
   inherited;
 end;
 
 function TRSXPBar.Read: Int32;
 begin
-  Result := OCR.RecognizeNumber(Self.Bounds, [$FFFFFF], RS_FONT_PLAIN_11);
+  Result := OCR.RecognizeNumber(Self.Bounds, TOCRColorRule.Create([$FFFFFF]), RS_FONT_PLAIN_11);
 end;
 
 var

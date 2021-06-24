@@ -186,49 +186,57 @@ type
     
     // Arceuus
     ARCEUUS_HOME_TELEPORT,
-    REANIMATE_GOBLIN,
-    LUMBRIDGE_GRAVEYARD_TELEPORT,
-    REANIMATE_MONKEY,
-
-    REANIMATE_IMP,
-    REANIMATE_MINOTAUR,
+    ARCEUUS_LIBRARY_TELEPORT,
+    BASIC_REANIMATION,
     DRAYNOR_MANOR_TELEPORT,
-    REANIMATE_SCORPION,
-
-    REANIMATE_BEAR,
-    REANIMATE_UNICORN,
     BATTLEFRONT_TELEPORT,
-    REANIMATE_DOG,
 
     MIND_ALTAR_TELEPORT,
-    REANIMATE_CHAOS_DRUID,
     RESPAWN_TELEPORT,
-    REANIMATE_GIANT,
+    GHOSTLY_GRASP,
+    RESURRECT_LESSER_GHOST,
+    RESURRECT_LESSER_SKELETON,
 
+    RESURRECT_LESSER_ZOMBIE,
     SALVE_GRAVEYARD_TELEPORT,
-    REANIMATE_OGRE,
-    REANIMATE_ELF,
-    REANIMATE_TROLL,
+    ADEPT_REANIMATION,
+    INFERIOR_DEMONBANE,
+    SHADOW_VEIL,
 
     FENKENSTRAINS_CASTLE_TELEPORT,
-    REANIMATE_HORROR,
-    REANIMATE_KALPHITE,
+    DARK_LURE,
+    SKELETAL_GRASP,
+    RESURRECT_SUPERIOR_GHOST,
+    RESURRECT_SUPERIOR_SKELETON,
+
+    RESURRECT_SUPERIOR_ZOMBIE,
+    MARK_OF_DARKNESS,
     WEST_ARDOUGNE_TELEPORT,
+    SUPERIOR_DEMONBANE,
+    LESSER_CORRUPTION,
 
-    REANIMATE_DAGANNOTH,
-    REANIMATE_BLOODVELD,
     HARMONY_ISLAND_TELEPORT,
-    REANIMATE_TZHAAR,
-
+    VILE_VIGOUR,
+    DEGRIME,
     CEMETERY_TELEPORT,
-    REANIMATE_DEMON,
-    REANIMATE_AVIANSIE,
+    EXPERT_REANIMATION,
+
+    WARD_OF_ARCEUUS,
+    RESURRECT_GREATER_GHOST,
+    RESURRECT_GREATER_SKELETON,
+    RESURRECT_GREATER_ZOMBIE,
     RESURRECT_CROPS,
 
+    UNDEAD_GRASP,
+    DEATH_CHARGE,
+    DARK_DEMONBANE,
     BARROWS_TELEPORT,
-    REANIMATE_ABYSSAL_CREATURE,
+    DEMONIC_OFFERING,
+
+    GREATER_CORRUPTION,
+    MASTER_REANIMATION,
     APE_ATOLL_TELEPORT,
-    REANIMATE_DRAGON
+    SINISTER_OFFERING
   );
 
 const
@@ -242,7 +250,7 @@ const
   RS_LUNAR_SPELL_LAST     = ERSSpell.SPELLBOOK_SWAP;
 
   RS_ARCEUUS_SPELL_FIRST  = ERSSpell.ARCEUUS_HOME_TELEPORT;
-  RS_ARCEUUS_SPELL_LAST   = ERSSpell.REANIMATE_DRAGON;
+  RS_ARCEUUS_SPELL_LAST   = ERSSpell.SINISTER_OFFERING;
   
   RS_STANDARD_SPELLS = [RS_STANDARD_SPELL_FIRST..RS_STANDARD_SPELL_LAST];
   RS_ANCIENT_SPELLS  = [RS_ANCIENT_SPELL_FIRST..RS_ANCIENT_SPELL_LAST];
@@ -281,7 +289,7 @@ end;
 
 function TRSMagic.GetSpellBook: ERSSpellBook;
 const
-  ARCEUUS_COLOR := CTS1(4008752, 10); // Colors of the book on the gametab
+  ARCEUUS_COLOR := CTS0(9801276, 78); // Colors of the book on the gametab
   ANCIENT_COLOR := CTS1(8273495, 27);
   LUNAR_COLOR   := CTS1(12761525, 27);
 var
@@ -299,10 +307,10 @@ end;
 
 function TRSMagic.GetSpellBoxes(out Spellbook: ERSSpellBook): TBoxArray;
 begin 
-  Spellbook := Self.GetSpellBook();
+  Spellbook := Self.GetSpellBook;
   case Spellbook of
     ERSSpellBook.STANDARD: Result := Grid(7, 10, 23, 23, [3, 1],   [Self.X1 + 2, Self.Y1 + 1]);
-    ERSSpellBook.ARCEUUS:  Result := Grid(4, 9,  23, 23, [25, 4],  [Self.X1 + 8, Self.Y1 + 1]);
+    ERSSpellBook.ARCEUUS:  Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1, Self.Y1 + 1]);
     ERSSpellBook.LUNAR:    Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 2, Self.Y1 + 1]);
     ERSSpellBook.ANCIENT:  Result := Grid(4, 7,  23, 23, [25, 13], [Self.X1 + 8, Self.Y1 + 1]);
   end;
@@ -350,8 +358,8 @@ function TRSMagic.MouseSpell(Spell: ERSSpell; Button: Int32 = MOUSE_MOVE): Boole
 var
   Box: TBox;
 begin
-  Result := Self.IsOpen() and Self.GetSpellBox(Spell, Box);
-  
+  Result := Self.Open() and Self.GetSpellBox(Spell, Box);
+
   if Result then
   begin
     Mouse.Move(Box);
@@ -386,7 +394,7 @@ begin
   Boxes := Self.GetSpellBoxes(Spellbook);
  
   for I := 0 to High(Boxes) do 
-    if SRL.CountColor($FFFFFF, Boxes[I]) > 10 then 
+    if SRL.CountColor($FFFFFF, Boxes[I]) > 30 then
     case SpellBook of
       ERSSpellBook.STANDARD: Exit(ERSSpell(RS_STANDARD_SPELL_FIRST + I));
       ERSSpellBook.ARCEUUS:  Exit(ERSSpell(RS_ARCEUUS_SPELL_FIRST + I));
@@ -422,7 +430,7 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSpellBoxes(Spellbook), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetSpellBoxes(Spellbook), $00FFFF);
 end;
 
 var

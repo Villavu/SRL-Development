@@ -158,7 +158,7 @@ begin
   B := Self.Bounds;
   B.Y2 := B.Y1 + 25;
 
-  Result := OCR.Recognize(B, [2070783], RS_FONT_QUILL_8, False);
+  Result := OCR.Recognize(B, TOCRColorRule.Create([2070783]), RS_FONT_QUILL_8);
 end;
 
 var

@@ -2,6 +2,10 @@
 RSClient
 ========
 Methods relating to targeting the RS client and detecting client states.
+
+if `SRL_DISABLE_REMOTEINPUT` is defined. RemoteInput plugin will not be loaded.
+if `SRL_USE_REMOTEINPUT` is defined. RemoteInput will be automatically setup.
+if `SRL_USE_REMOTEINPUT_DEBUG` is defined. Debug() calls will drawn on the RS client.
 *)
 
 {$DEFINE SRL_RSCLIENT_INCLUDED}
@@ -9,8 +13,11 @@ Methods relating to targeting the RS client and detecting client states.
   {$I SRL/osr.simba}
 {$ENDIF}
 
-{$IFDEF SRL_USE_REMOTEINPUT}
-  {$loadlib ../plugins/libremoteinput}
+{$IFDEF SRL_DISABLE_REMOTEINPUT}
+  {$UNDEF SRL_USE_REMOTEINPUT}
+  {$UNDEF SRL_USE_REMOTEINPUT_DEBUG}
+{$ELSE}
+  {$I remoteinput.simba}
 {$ENDIF}
 
 (*
@@ -36,61 +43,20 @@ type
   TRSClient = record(TSRLBaseRecord)
     Mode: ERSClientMode;
 
-    {$IFDEF SRL_USE_REMOTEINPUT}
-    EIOS: Pointer;
-    PID: UInt32;
+    {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+    RemoteInput: TRemoteInput;
     {$ENDIF}
   end;
 
-(*
-RSClient.SetupRemoteInput
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSClient.SetupRemoteInput;
-
-If `SRL_USE_REMOTEINPUT` has been defined this method will be automatically called to setup the remote input plugin.
-*)
-{$IFDEF SRL_USE_REMOTEINPUT}
-procedure TRSClient.SetupRemoteInput;
+function TRSClient.Image: TMufasaBitmap;
 begin
-  {$IFNDEF SIMBAHEADLESS}
-  Self.PID := GetSimbaTargetPID();
-  if Self.PID > 0 then
-  begin
-    RIInject(Self.PID);
-    
-    if WaitUntil(EIOS_GetClients(True) > 0, 100, 1000) then
-    begin
-      Self.EIOS := EIOS_PairClient(Self.PID);
-      try
-        SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
-        
-        Exit;
-      except
-        Self.Fatal('SetupRemoteInput: ' + GetExceptionMessage());
-      end;
-    end;
-  end;
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if RemoteInput.IsSetup() then
+    Exit(RemoteInput.GetImage());
   {$ENDIF}
-
-  if MessageDlg('SRL', 'Do you want to automatically target a RS client?', mtConfirmation, [mbYes, mbNo]) = mrYes then
-  begin
-    RIInject({$IFDEF WINDOWS}'JagexLauncher.exe'{$ELSE}'java'{$ENDIF});
-
-    if WaitUntil(EIOS_GetClients(True) > 0, 100, 1000) then
-    begin
-      Self.PID := EIOS_GetClientPID(0);
-      Self.EIOS := EIOS_PairClient(Self.PID);
-      try
-        SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
-        
-        Exit;
-      except
-        Self.Fatal('SetupRemoteInput: ' + GetExceptionMessage());
-      end;
-    end;
-  end;
+  
+  Self.Fatal('Unable to draw on this client');
 end;
-{$ENDIF}
 
 (*
 RSClient.DetectClientMode
@@ -119,26 +85,29 @@ begin
     Self.Mode := Result;
 end;
 
+(*
+RSClient.ClientModeChanged
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSClient.ClientModeChanged;
+
+Anything that needs an alert when the client mode changes should override this.
+*)
 procedure TRSClient.ClientModeChanged;
 begin
   Self.DebugLn('Client mode changed: ' + ToString(Self.Mode));
-  
-  { override me }
 end;
 
 function TRSClient.IsLoggedIn: Boolean; overload;
 var
-  Test: ERSClientMode;
+  ClientMode: ERSClientMode := Self.DetectClientMode();
 begin
-  Test := Self.DetectClientMode();
-
-  if (Test <> ERSClientMode.UNKNOWN) and (Test <> Self.Mode) then
+  if (ClientMode <> ERSClientMode.UNKNOWN) and (ClientMode <> Self.Mode) then
   begin
-    Self.Mode := Test;
+    Self.Mode := ClientMode;
     Self.ClientModeChanged();
   end;
 
-  Result := Test <> ERSClientMode.UNKNOWN;
+  Result := ClientMode <> ERSClientMode.UNKNOWN;
 end;
 
 function TRSClient.IsLoggedIn(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
@@ -154,31 +123,29 @@ RSClient.LoseFocus
 ~~~~~~~~~~~~~~~~~~
 .. pascal:: procedure TRSClient.LoseFocus;
 
-Loses focus. Maybe useful for antiban.
+Loses focus if available. Maybe useful for antiban.
 *)
 procedure TRSClient.LoseFocus; overload;
-{$IFDEF SRL_USE_REMOTEINPUT}
-var
-  Space: TBoxArray;
-  Temp: Double;
 begin
-  Space := GetClientBounds().Expand(50).Invert(GetClientBounds().Expand(1000));
-
-  if (Length(Space) > 0) then
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if RemoteInput.IsSetup() then
   begin
-    Temp := Mouse.IdleInterval; // don't count this
-
-    Mouse.IdleInterval := 0;
-    Mouse.Click(Space[Random(Length(Space))], MOUSE_LEFT);
-    Mouse.IdleInterval := Temp;
+    RemoteInput.LoseFocus();
+    
+    Exit;
   end;
-end;
-{$ELSE}
-begin
+  {$ENDIF}
+  
   Self.DebugLn('Lose focus not yet implemented for this target!');
 end;
-{$ENDIF}
 
+(*
+RSClient.LoseFocus
+~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSClient.LoseFocus(Delay: Int32);
+
+Waits `Delay` before losing focus.
+*)
 procedure TRSClient.LoseFocus(Delay: Int32); overload;
 begin
   Wait(Delay);
@@ -200,18 +167,51 @@ begin
   Self.Name := 'RSClient';
 
   {$IFDEF SRL_USE_REMOTEINPUT}
-  Self.SetupRemoteInput();
+  Self.RemoteInput.Setup();
   {$ENDIF}
 
   Self.Mode := Self.DetectClientMode();
   if Self.Mode = ERSClientMode.UNKNOWN then
     Self.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
+  
+  Self.ClientModeChanged();
 end;
 
 var
   RSClient: TRSClient;
+  
+(*
+Debug
+~~~~~
+.. pascal:: procedure Debug(ATPA: T2DPointArray); override;
+
+If `SRL_USE_REMOTEINPUT_DEBUG` is defined graphical debug methods happen on the RS client.
+*)
+{$IFDEF SRL_USE_REMOTEINPUT_DEBUG}  
+procedure Debug(ATPA: T2DPointArray); override;
+var
+  I: Int32;
+begin
+  with RSClient.Image() do
+  begin
+    Clear();
+    for I := 0 to High(ATPA) do
+      DrawTPA(ATPA[I], DEBUG_COLORS[I mod Length(DEBUG_COLORS)]);  
+  end;
+end;
+
+procedure TSRL.Debug; override;
+begin
+  Freeze();
+
+  try
+    Self.Debug(RSClient.Image());
+  finally
+    Unfreeze();
+  end;
+end;
+{$ENDIF}  
 
 begin
   RSClient.Setup();
-  RSClient.ClientModeChanged();
 end;

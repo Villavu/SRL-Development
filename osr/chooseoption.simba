@@ -87,11 +87,10 @@ function TRSChooseOption.GetOptions: TRSChooseOption_OptionArray;
 var
   I: Int32;
   B: TBox;
-  BMP: TMufasaBitmap;
 begin
   if Self.Open() then
   begin
-    if Bounds.Height < 15 then
+    if (Bounds.Height() < 15) then
       Exit;
 
     SetLength(Result, Bounds.Height() div 15);
@@ -101,15 +100,8 @@ begin
       if (B.Y2 > Bounds.Y2) then
         Exit;
 
-      BMP.FromClient(B);
-      BMP.ReplaceColor(4674653, 0);
-      BMP.ThresholdAdaptive(0, 255, False, TM_Mean, -1);
-
+      Result[I].Text := OCR.RecognizeStatic(B, TOCRThresholdRule.Create(-1), RS_FONT_BOLD_12_SHADOW);
       Result[I].Bounds := B;
-      Result[I].Text := OCR.Recognize(BMP.ToMatrix(), [255], RS_FONT_BOLD_12_SHADOW, True);
-
-      BMP.Free();
-      BMP := nil;
     end;
   end;
 end;

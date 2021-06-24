@@ -9,13 +9,7 @@ String
 String related methods
 *)
 
-{
- `String` is used instead of `string`, because 
-  code completion doesn't support `string`
-  
-  Another code completion workaround:
-}
-const STR_WHITESPACE := #9#10#11#12#13#32;
+const STR_WHITESPACE = #9#10#11#12#13#32;
 
 (*
 String.Len
@@ -24,7 +18,7 @@ String.Len
 
 Returns the length of the string
 *)
-function String.Len(): Int32; constref;
+function String.Len: Int32; constref;
 begin
   Result := Length(Self);
 end;
@@ -376,6 +370,11 @@ end;
 function Char.IsAlpha(): Boolean;
 begin
   Result := (Self in ['A'..'Z', 'a'..'z']);
+end;
+
+function String.ExtractNumber(DefaultValue: Int64 = -1): Int64; constref;
+begin
+  Result := StrToIntDef(ExtractFromStr(Self, Numbers), DefaultValue);
 end;
 
 (*

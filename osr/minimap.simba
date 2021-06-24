@@ -48,12 +48,8 @@ begin
 end;
 
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
-var
-  Filter: TCompareRules;
 begin
-  Filter.UseShadowForColor := True;
-  
-  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y, Orb.X-15, Orb.Y+10], Filter, RS_FONT_PLAIN_11); 
+  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y, Orb.X-15, Orb.Y+10], TOCRShadowRule.Create(), RS_FONT_PLAIN_11); 
 end;
 
 function TRSMinimap.GetRunEnergy: Int32;
@@ -165,15 +161,15 @@ begin
   inherited;
 
   with Self.GetCompassCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
   with Self.GetHPCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
   with Self.GetPrayerCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
   with Self.GetRunCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
   with Self.GetSpecAttackCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, False, $00FFFF);
+    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
 
   Bitmap.DrawPoly(Self.GetPolygon(), $0000FF);
   Bitmap.DrawTPA(Self.GetPolygon(), $00FF00);
