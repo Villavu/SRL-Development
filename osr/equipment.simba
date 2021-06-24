@@ -111,6 +111,37 @@ begin
   end;
 end;
 
+//to count arrows, darts, etc.
+function TRSEquipment.CountItemStack(Item: TRSItem): Int32;
+var
+  B: TBox;
+begin
+  if Self.FindItem(Item, B) then
+    Result := SRL.GetItemAmount(B);
+end;
+
+
+function TRSEquipment.IsSlotUsed(B: TBox): Boolean; overload;
+begin
+  // black with tolerance for when item is transparent
+  Result := SRL.CountColor(CTS1(1118740, 35), B) > 0;
+end;
+
+function TRSEquipment.IsSlotUsed(Slot: ERSEquipmentButton): Boolean; overload;
+begin
+  Result := Self.Open and Self.IsSlotUsed(Self.GetButton(Slot).Bounds);
+end;
+
+function TRSEquipment.CountGear: Int32;
+var
+  i: ERSEquipmentButton;
+begin
+  for i := ERSEquipmentButton.HELM to ERSEquipmentButton.Ring do
+    if Self.IsSlotUsed(i) then
+      Result += 1;
+end;
+
+
 var
   Equipment: TRSEquipment;
 
