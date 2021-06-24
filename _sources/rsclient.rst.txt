@@ -3,6 +3,10 @@ RSClient
 ========
 Methods relating to targeting the RS client and detecting client states.
 
+if `SRL_DISABLE_REMOTEINPUT` is defined. RemoteInput plugin will not be loaded.
+if `SRL_USE_REMOTEINPUT` is defined. RemoteInput will be automatically setup.
+if `SRL_USE_REMOTEINPUT_DEBUG` is defined. Debug() calls will drawn on the RS client.
+
 
 ------------
 
@@ -22,17 +26,6 @@ The modes of the client.
 
 ------------
 
-RSClient.SetupRemoteInput
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
- procedure TRSClient.SetupRemoteInput;
-
-If `SRL_USE_REMOTEINPUT` has been defined this method will be automatically called to setup the remote input plugin.
-
-
-------------
-
 RSClient.DetectClientMode
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -46,13 +39,35 @@ Are there any other cases where music tab won't be visible?
 
 ------------
 
+RSClient.ClientModeChanged
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSClient.ClientModeChanged;
+
+Anything that needs an alert when the client mode changes should override this.
+
+
+------------
+
 RSClient.LoseFocus
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
  procedure TRSClient.LoseFocus;
 
-Loses focus. Maybe useful for antiban.
+Loses focus if available. Maybe useful for antiban.
+
+
+------------
+
+RSClient.LoseFocus
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSClient.LoseFocus(Delay: Int32);
+
+Waits `Delay` before losing focus.
 
 
 ------------
@@ -66,6 +81,17 @@ RSClient.Setup
 Setup method.
 
 .. note:: This is automatically called on the **RSClient** variable.
+
+
+------------
+
+Debug
+~~~~~
+.. code-block:: pascal
+
+ procedure Debug(ATPA: T2DPointArray); override;
+
+If `SRL_USE_REMOTEINPUT_DEBUG` is defined graphical debug methods happen on the RS client.
 
 
 ------------

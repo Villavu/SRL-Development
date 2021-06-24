@@ -1,9 +1,7 @@
 
 Drawing
 =======
-The drawing file holds TMufasaBitmap drawing functions to aid drawing onto bitmaps.
-
-The source for this file can be found `here <https://github.com/SRL/SRL/blob/master/shared/drawing.simba>`.
+Extends TMufasaBitmap with mostly drawing functions.
 
 
 ------------
@@ -15,52 +13,6 @@ TMufasaBitmap.FromClient
     procedure TMufasaBitmap.FromClient(Area: TBox);
 
 Copy client to bitmap.
-
-
-------------
-
-TMufasaBitmap.Clear
-~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.Clear();
-
-Will clear the entire TMufasaBitmap
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.Clear();
-
-
-
-------------
-
-TMufasaBitmap.ClearArea
-~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.ClearArea(area: TBox);
-
-Will clear the desired area of the TMufasaBitmap
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.ClearArea(intToBox(5, 5, 10, 10));
-
 
 
 ------------
@@ -102,103 +54,9 @@ TMufasaBitmap.DrawBox
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    procedure TMufasaBitmap.DrawBox(box: TBox; fill: boolean; color: TColor);
+    procedure TMufasaBitmap.DrawBox(Center:TPoint; Radius:UInt32; Fill: Boolean; Color: Int32);
 
 Draws a TBox onto the TMufasaBitmap
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawBox(intToBox(50, 50, 345, 345), false, clLime);
-
-
-
-------------
-
-TMufasaBitmap.DrawBox
-~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBox(pt:TPoint; Radius:UInt32; Fill: Boolean; color: TColor);
-
-Draws a TBox onto the TMufasaBitmap
-
-
-------------
-
-TMufasaBitmap.DrawBox
-~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBox(box:TBox; color:TColor = clRed); overload;
-
-Overloaded function, will draw the outline of the "box" and includes a optional
-color parameter (default red).
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 August 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    bmp.DrawBox(IntToBox(50, 50, 345, 345));
-
-
-
-------------
-
-TMufasaBitmap.DrawBox; overload
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBox(x1,y1,x2,y2:Integer; fill:Boolean; color:TColor); overload;
-
-Draws a box using the x1, y1, x2, y2 parameters, will fill if 'fill' is set to
-true using color 'color'.
-
-.. note::
-
-    - by Olly
-    - Last Updated: 29 October 2013 by Olly
-
-Example:
-
-.. code-block:: pascal
-
-    bmp.DrawBox(Box(50, 50, 345, 345));
-
-
-------------
-
-TMufasaBitmap.DrawBoxes
-~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBoxes(boxArr: TBoxArray; fill: boolean; color: TColor);
-
-Draws a TBoxArray onto the TMufasaBitmap.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawBoxes([Box(10, 10, 20, 20), Box(50, 50, 250, 250),
-                     Box(440, 440, 600, 600)], true, clRed);
-
 
 
 ------------
@@ -207,7 +65,7 @@ TMufasaBitmap.DrawRect
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    procedure TMufasaBitmap.DrawRect(Rect: TRectangle; color: TColor);
+    procedure TMufasaBitmap.DrawRect(Rect: TRectangle; Color: Int32);
 
 Draws a TRectangle onto the TMufasaBitmap
 
@@ -218,173 +76,9 @@ TMufasaBitmap.DrawPoly
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    procedure TMufasaBitmap.DrawPoly(Poly: TPointArray; color: TColor);
+    procedure TMufasaBitmap.DrawPoly(Poly: TPointArray; Color: Int32);
 
 Draws a polygon onto the TMufasaBitmap
-
-
-------------
-
-TMufasaBitmap.DrawBitmap
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawBitmap(bmp: Integer; pnt: TPoint);
-
-Draws a bitmap onto the TMufasaBitmap at the desired point.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawBitmap(bmp, point(50, 50));
-
-
-
-------------
-
-TMufasaBitmap.DrawBitmap; overload
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function TMufasaBitmap.DrawBitmap(path: string; pt: TPoint): boolean; overload;
-
-Same as TMufasaBitmap.DrawBitmap but will load a bitmap from a file specified
-by the paramter "path", will return if succesful or not.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawBitmap('simba/scripts/foo.png', point(11, 11));
-
-
-
-------------
-
-TMufasaBitmap.DrawCross
-~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawCross(pt: TPoint; size: Integer; color: TColor);
-
-Draws a cross on the TMufasaBitmap at the TPoint ``pt`` with the desired size.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawCross(Point(200, 200), 4, clLime);
-
-
-
-------------
-
-TMufasaBitmap.DrawEllipse
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawEllipse(const pnt: TPoint; const xRadius, yRadius: Integer; const fill: boolean; const color: TColor);
-
-Draws an ellipse on the TMufasaBitmap defined by 'pnt', 'xRadius', and
-'yRadius'. If 'fill' is true it will fill the ellipse, otherwise it draws just
-the border.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawEllipse(point(500, 500), 20, 50, true, clLime);
-
-
-
-------------
-
-TMufasaBitmap.DrawCircle
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawCircle(pnt: TPoint; radius: Integer; fill: boolean; color: TColor);
-
-Draws a circle on the TMufasaBitmap defined by 'pnt' and 'radius'. If 'fill'
-is true it will fill the circle, otherwise it draws just the border.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawCircle(point(500, 500), 50, false, clLime);
-
-
-
-------------
-
-TMufasaBitmap.DrawClippedText
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawClippedText(txt: string; pt: TPoint; font: string; shadow: boolean; color: TColor);
-
-Same as drawText, but is clipped so it won't draw off the bounds of the bitmap.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-Example:
-
-.. code-block:: pascal
-
-    image.DrawClippedText('hello world!', point(55, 55), 'StatChars07', true, clLime);
-
-
-------------
-
-TMufasaBitmap.DrawTextLines
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    procedure TMufasaBitmap.DrawTextLines(txtArr: TStringArray; pnt: TPoint; font: string; shadow: boolean; color: TColor);
-
-Draws text onto the TMufasaBitmap, each index in the txtArr is put on a different line.
-
-.. note::
-
-    - by Ollybest
-    - Last Updated: 19 July 2013 by Ollybest
-
-**Example:**
-
-.. code-block:: pascal
-
-    image.drawTextLines(['olly', 'is', 'the', 'best', ':D'], point(2, 2), 'StatChars07', false, clRed);
-
 
 
 ------------
