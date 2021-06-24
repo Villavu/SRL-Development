@@ -1,10 +1,10 @@
-{$loadlib ../includes/srl/plugins/libremoteinput}
+{$loadlib ../plugins/libremoteinput}
 
 type
   TRemoteInput = record(TSRLBaseRecord)
     Image: TMufasaBitmap;
     EIOS: Pointer;
-    PID: UInt32;
+    PID: Int32;
   end;
 
 procedure TRemoteInput.Setup;
@@ -22,9 +22,9 @@ begin
     if (Self.PID = 0) then
     begin
       if (MessageDlg('SRL', 'Automatically try to find a RS client?', mtConfirmation, [mbYes, mbNo]) = mrNo) then
-        raise 'Found no RS client';
+        raise 'No RS clients found';
       
-      RIInject(RS_EXECUTABLE); Self.PID := EIOS_GetClientPID(0);
+      RIInject(RS_EXECUTABLE, Self.PID); 
     end else
       RIInject(Self.PID);
   
@@ -34,6 +34,11 @@ begin
   except
     Self.Fatal(GetExceptionMessage());
   end;
+end;
+
+function TRemoteInput.IsSetup: Boolean;
+begin
+  Result := (Self.PID > 0);
 end;
 
 function TRemoteInput.GetImage: TMufasaBitmap;
@@ -85,21 +90,22 @@ end;
 
 procedure RIInject(PID: Int32); override;
 var
-  Pids: TIntegerArray;
+  PIDs: TIntegerArray;
 begin
   inherited();
 
-  if (not WaitUntil(Length(Pids := EIOS_GetClientPIDs()) > 0, 100, 1000) and (Pids.Find(Pid) > -1)) then
+  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000) and (Pids.Find(Pid) > -1)) then
     raise 'Failed to inject into pid ' + ToString(pid);  
 end;
 
-procedure RIInject(ProcessName: String); override;
+procedure RIInject(ProcessName: String; out PID: Int32); overload;
 var
-  Pids: TIntegerArray;
+  PIDs: TIntegerArray;
 begin
-  inherited();
-
-  if (not WaitUntil(Length(EIOS_GetClientPIDs()) > 0, 100, 1000)) then
-    raise 'Failed to inject into "' + ProcessName + '"';  
+  RIInject(ProcessName);
+  
+  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000)) then
+    raise 'Failed to inject into "' + ProcessName + '"'; 
+    
+  PID := PIDs[0];
 end;
-

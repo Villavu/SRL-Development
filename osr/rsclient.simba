@@ -3,6 +3,7 @@ RSClient
 ========
 Methods relating to targeting the RS client and detecting client states.
 
+if `SRL_DISABLE_REMOTEINPUT` is defined. RemoteInput plugin will not be loaded.
 if `SRL_USE_REMOTEINPUT` is defined. RemoteInput will be automatically setup.
 if `SRL_USE_REMOTEINPUT_DEBUG` is defined. Debug() calls will drawn on the RS client.
 *)
@@ -12,12 +13,11 @@ if `SRL_USE_REMOTEINPUT_DEBUG` is defined. Debug() calls will drawn on the RS cl
   {$I SRL/osr.simba}
 {$ENDIF}
 
-{$IFDEF SRL_USE_REMOTEINPUT}
-  {$I remoteinput.simba}
-{$ENDIF}
-
-{$IFNDEF SRL_USE_REMOTEINPUT}
+{$IFDEF SRL_DISABLE_REMOTEINPUT}
+  {$UNDEF SRL_USE_REMOTEINPUT}
   {$UNDEF SRL_USE_REMOTEINPUT_DEBUG}
+{$ELSE}
+  {$I remoteinput.simba}
 {$ENDIF}
 
 (*
@@ -43,18 +43,19 @@ type
   TRSClient = record(TSRLBaseRecord)
     Mode: ERSClientMode;
 
-    {$IFDEF SRL_USE_REMOTEINPUT}
+    {$IFNDEF SRL_DISABLE_REMOTEINPUT}
     RemoteInput: TRemoteInput;
     {$ENDIF}
   end;
 
 function TRSClient.Image: TMufasaBitmap;
 begin
-  {$IFDEF SRL_USE_REMOTEINPUT}
-  Result := RemoteInput.GetImage();
-  {$ELSE}
-  Self.Fatal('Unable to draw on this client');
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if RemoteInput.IsSetup() then
+    Exit(RemoteInput.GetImage());
   {$ENDIF}
+  
+  Self.Fatal('Unable to draw on this client');
 end;
 
 (*
@@ -126,11 +127,16 @@ Loses focus if available. Maybe useful for antiban.
 *)
 procedure TRSClient.LoseFocus; overload;
 begin
-  {$IFDEF SRL_USE_REMOTEINPUT}
-  RemoteInput.LoseFocus();
-  {$ELSE}
-  Self.DebugLn('Lose focus not yet implemented for this target!');
+  {$IFNDEF SRL_DISABLE_REMOTEINPUT}
+  if RemoteInput.IsSetup() then
+  begin
+    RemoteInput.LoseFocus();
+    
+    Exit;
+  end;
   {$ENDIF}
+  
+  Self.DebugLn('Lose focus not yet implemented for this target!');
 end;
 
 (*
@@ -190,7 +196,7 @@ begin
   begin
     Clear();
     for I := 0 to High(ATPA) do
-      DrawTPA(ATPA[I], BRIGHT_COLORS[I mod Length(BRIGHT_COLORS)]);  
+      DrawTPA(ATPA[I], DEBUG_COLORS[I mod Length(DEBUG_COLORS)]);  
   end;
 end;
 

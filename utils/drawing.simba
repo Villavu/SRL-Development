@@ -36,8 +36,8 @@ const
   clOrange     = Int32($0099FF);
   
 var
-  BRIGHT_COLORS = [
-    clRed, clBlue, clFuchsia, clLime, clMaroon, clOrange, clYellow, clAqua, clWhite, clPink, clPurple
+  DEBUG_COLORS = [
+    clRed, clBlue, clGreen, clLime, clMaroon, clOrange, clYellow, clAqua, clWhite, clPink, clPurple
   ];  
   
 (*
@@ -175,7 +175,7 @@ begin
     Self.DrawBox(Box, Color);
 end;
 
-procedure TMufasaBitmap.DrawFilledBoxes(Boxes: TBoxArray; Color: Int32); constref;
+procedure TMufasaBitmap.DrawBoxesFilled(Boxes: TBoxArray; Color: Int32); constref;
 var
   Box: TBox;
 begin
@@ -276,7 +276,7 @@ begin
   Bitmap.FromClient();
   
   for I := 0 to High(ATPA) do
-    Bitmap.DrawTPA(ATPA[I], BRIGHT_COLORS[I mod Length(BRIGHT_COLORS)]);
+    Bitmap.DrawTPA(ATPA[I], DEBUG_COLORS[I mod Length(DEBUG_COLORS)]);
   
   Bitmap.Debug();
   Bitmap.Free();
