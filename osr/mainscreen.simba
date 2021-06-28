@@ -175,8 +175,8 @@ begin
   
   Self.Name := 'MainScreen';
 
-  Self.UpTextFilter := TOCRAnyColorRule.Create(85, 70);
-  Self.UpTextFilter.MinCharacterMatch := ','; 
+  Self.UpTextFilter := TOCRAnyColorRule.Create(85, 50);
+  Self.UpTextFilter.MinCharacterMatch := '-'; 
   
   Self.YellowClicks := [
     BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
