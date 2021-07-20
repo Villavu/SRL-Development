@@ -175,7 +175,7 @@ begin
   
   Self.Name := 'MainScreen';
 
-  Self.UpTextFilter := TOCRAnyColorRule.Create(85, 55);
+  Self.UpTextFilter := TOCRAnyColorRule.Create(85, 60);
   Self.UpTextFilter.MinCharacterMatch := '-'; 
   
   Self.YellowClicks := [
