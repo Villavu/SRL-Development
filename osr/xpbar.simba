@@ -4,59 +4,130 @@
 {$ENDIF}
 
 type
+  ERSXPBarLocations = (UNKNOWN, RIGHT, MIDDLE, LEFT);
+
   TRSXPBar = record(TRSInterface)
-    ButtonOffset: TPoint;
+    Location: ERSXPBarLocations;
+    ValidBounds: TBoxArray;
   end;
+
 
 procedure TRSXPBar.Setup; override;
 begin
   inherited;
 
   Self.Name := 'XPBar';
+  Location := ERSXPBarLocations.UNKNOWN;
+end;
+
+procedure TRSXPBar.SetBounds;
+var
+  B: TBox;
+begin
+  ValidBounds := [];
+  B := [InterfaceArea.X2 - 120, InterfaceArea.Y1,
+        InterfaceArea.X2 - 2, InterfaceArea.Y1 + 28];
+  ValidBounds += B;
+  B := [InterfaceArea.Center.X - 60, InterfaceArea.Y1 + 23,
+        InterfaceArea.Center.X + 59, InterfaceArea.Y1 + 51];
+  ValidBounds += B;
+  B := [InterfaceArea.X1 + 2, InterfaceArea.Y1 + 23,
+        InterfaceArea.X1 + 120, InterfaceArea.Y1 + 51];
+  ValidBounds += B;
 end;
 
 procedure TRSXPBar.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
 
-  Self.Alignment.Left := [@InterfaceArea.X2, -120];
-  Self.Alignment.Right := [@InterfaceArea.X2, -2];
-  Self.Alignment.Top := [@InterfaceArea.Y1, 2];
-  Self.Alignment.Bottom := [@InterfaceArea.Y1, 30];
+  case Location of
+    ERSXPBarLocations.RIGHT:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X2, -120];
+        Self.Alignment.Right := [@InterfaceArea.X2, -2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, 0];
+        Self.Alignment.Bottom := [@InterfaceArea.Y1, 28];
+      end;
 
-  case Self.Mode of
-    ERSClientMode.RESIZABLE_CLASSIC: Self.ButtonOffset := [173, 38];
-    ERSClientMode.RESIZABLE_MODERN:  Self.ButtonOffset := [138, 38];
-    ERSClientMode.FIXED:             Self.ButtonOffset := [134, 28];
+    ERSXPBarLocations.MIDDLE:
+      begin
+        Self.Alignment.Left   := [@InterfaceArea.X1];
+        Self.Alignment.Right  := [@InterfaceArea.X2];
+        Self.Alignment.Top    := [@InterfaceArea.Y1, 23];
+        Self.Alignment.Bottom := [@InterfaceArea.Y1, 51];
+        Self.Alignment.Center.MaxWidth := 119;
+      end;
+
+    ERSXPBarLocations.LEFT:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1, 2];
+        Self.Alignment.Right := [@InterfaceArea.X1, 120];
+        Self.Alignment.Top := [@InterfaceArea.Y1, 23];
+        Self.Alignment.Bottom := [@InterfaceArea.Y1, 51];
+      end;
   end;
+
+  Self.SetBounds;
 end;
 
-function TRSXPBar.GetButtonCircle: TCircle;
+procedure TRSXPBar.FindLocation;
+var
+  i: Int32;
 begin
-  Result := [Self.X1 + ButtonOffset.X, Self.Y1 + ButtonOffset.Y, 11];
+  for i := 0 to High(ValidBounds) do
+  begin
+    if SRL.CountColor(4543066, ValidBounds[i]) = 284 then
+      Break
+    else if i = High(ValidBounds) then
+      Exit;
+  end;
+
+  Location := ERSXPBarLocations(i+1);
+
+  Self.SetupAlignment(RSClient.Mode);
 end;
+
 
 function TRSXPBar.IsOpen: Boolean;
 var
   TPA: TPointArray;
 begin
-  if FindColors(TPA, 11592943, GetButtonCircle().Bounds()) then
-    Result := Length(GetButtonCircle().Filter(TPA)) > 50;
+  if FindColors(TPA, 11592943, Minimap.GetXPCircle.Bounds) then
+    Result := Length(Minimap.GetXPCircle().Filter(TPA)) > 50;
+
+  if Result and (Location = ERSXPBarLocations.UNKNOWN) then
+    Self.FindLocation;
 end;
 
+function TRSXPBar.Open: Boolean;
+begin
+  if Self.IsOpen then Exit(True);
+
+  Mouse.Click(Minimap.GetXPCircle, MOUSE_LEFT);
+
+  Result := Self.IsOpen;
+end;
+
+
+
+
 procedure TRSXPBar.Draw(Bitmap: TMufasaBitmap); override;
+var
+  B: TBox;
 begin
   if not Self.IsOpen() then
     Exit;
 
-  with Self.GetButtonCircle() do
-    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
+  //Bitmap.DrawBoxes(Self.ValidBounds, $00FFFF);
 
   inherited;
 end;
 
 function TRSXPBar.Read: Int32;
 begin
+  if not Self.Open then
+    Exit;
+
   Result := OCR.RecognizeNumber(Self.Bounds, TOCRColorRule.Create([$FFFFFF]), RS_FONT_PLAIN_11);
 end;
 

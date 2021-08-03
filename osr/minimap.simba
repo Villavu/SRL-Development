@@ -14,6 +14,7 @@ type
 type
   TRSMinimap = record(TRSInterface)
     CompassCircleOffset: TPoint;
+    XPCircleOffset: TPoint;
     HitpointsCircleOffset: TPoint;
     PrayerCircleOffset: TPoint;
     RunCircleOffset: TPoint;
@@ -25,6 +26,11 @@ type
 function TRSMinimap.GetCompassCircle: TCircle;
 begin
   Result := [Self.X1 + Self.CompassCircleOffset.X, Self.Y1 + Self.CompassCircleOffset.Y, 17];
+end;
+
+function TRSMinimap.GetXPCircle: TCircle;
+begin
+  Result := [Self.X1 + Self.XPCircleOffset.X + 10, Self.Y1 + Self.XPCircleOffset.Y, 11];
 end;
 
 function TRSMinimap.GetHPCircle: TCircle;
@@ -162,6 +168,8 @@ begin
 
   with Self.GetCompassCircle() do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
+  with Self.GetXPCircle() do
+    Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
   with Self.GetHPCircle() do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
   with Self.GetPrayerCircle() do
@@ -204,6 +212,7 @@ begin
         Self.Alignment.Bottom := [@RootInterface.Y1, 159];
 
         Self.CompassCircleOffset := [-2, 14];
+        Self.XPCircleOffset := [-50, 32];
         Self.HitpointsCircleOffset := [-13, 55];
         Self.PrayerCircleOffset := [-13, 90];
         Self.RunCircleOffset := [-3, 121];
@@ -219,6 +228,7 @@ begin
         Self.Alignment.Bottom := [@RootInterface.Y1, 159];
 
         Self.CompassCircleOffset := [-8, 12];
+        Self.XPCircleOffset := [-50, 26];
         Self.HitpointsCircleOffset := [-13, 49];
         Self.PrayerCircleOffset := [-13, 84];
         Self.RunCircleOffset := [-3, 116];

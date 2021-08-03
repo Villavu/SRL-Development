@@ -9,7 +9,9 @@ String
 String related methods
 *)
 
-const STR_WHITESPACE = #9#10#11#12#13#32;
+const
+  STR_WHITESPACE = #9#10#11#12#13#32;
+  STR_NEW_LINE = #13#10;
 
 (*
 String.Len
