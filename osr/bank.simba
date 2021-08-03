@@ -206,18 +206,7 @@ begin
   end;
 end;
 
-(*
-Bank.Search
-~~~~~~~~~~~
-.. pascal:: function TRSBank.Search(Item: String): Boolean;
 
-Searches for an item.
-
-Example
--------
-
-  Bank.Search('logs'); // Search for logs
-*)
 
 //should look for the query instead of interface title. Check the comment below for more info.
 function TRSBank.IsSearchOpen(WaitTime: Int32): Boolean;
@@ -237,6 +226,18 @@ begin
   Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Click();
 end;
 
+(*
+Bank.Search
+~~~~~~~~~~~
+.. pascal:: function TRSBank.Search(Item: String): Boolean;
+
+Searches for an item.
+
+Example
+-------
+
+  Bank.Search('logs'); // Search for logs
+*)
 function TRSBank.Search(Item: String): Boolean; 
 begin
   if Self.IsTitle('Showing items: ' + LowerCase(Item)) then
