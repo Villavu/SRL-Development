@@ -129,7 +129,7 @@ begin
   if not Self.Open then
     Exit;
 
-  Result := OCR.RecognizeNumber(Self.Bounds, TOCRShadowRule.Create(1), RS_FONT_PLAIN_11);
+  Result := OCR.RecognizeNumber(Self.Bounds, TOCRColorRule.Create([$FFFFFF]), RS_FONT_PLAIN_11);
 end;
 
 var
