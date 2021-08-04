@@ -77,7 +77,7 @@ var
 begin
   for i := 0 to High(ValidBounds) do
   begin
-    if SRL.FindColors(TPA, 0, ValidBounds[i]) then
+    if SRL.FindColors(TPA, $FFFFFF, ValidBounds[i]) then
       Break
     else if i = High(ValidBounds) then
       Exit;
