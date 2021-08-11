@@ -68,6 +68,57 @@ Example
 
 ------------
 
+Bank.CountTabs
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.CountTabs: Int32;
+
+Counts the existing bank tabs.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Bank.CountTabs;
+
+
+------------
+
+Bank.GetCurrentTab
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.GetCurrentTab: Int32;
+
+Get the current active bank tab.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Bank.GetCurrentTab;
+
+
+------------
+
+Bank.OpenTab
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.OpenTab(Tab: Int32): Boolean;
+
+Open the specified bank tab.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Bank.OpenTab(0);
+
+
+------------
+
 Bank.WithdrawItem
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
