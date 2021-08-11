@@ -5,8 +5,15 @@
 
 type
   TRSInterfaceAlignment = record
-    Method: function: Int32 of object;
-    Offset: Int32;
+    Left, Right, Top, Bottom: record
+      Method: function: Int32 of object;
+      Offset: Int32;
+    end;
+
+    Center: record
+      MaxWidth: Int32;
+      MaxHeight: Int32;
+    end;
   end;
   
   TRSInterface = record(TSRLBaseRecord)
@@ -25,14 +32,7 @@ type
       end;
     end;
     
-    Alignment: record
-      Left, Right, Top, Bottom: TRSInterfaceAlignment;
-
-      Center: record
-        MaxWidth: Int32;
-        MaxHeight: Int32;
-      end;
-    end;
+    Alignment: TRSInterfaceAlignment;
   end;
 
 procedure TRSInterface.Setup; 
