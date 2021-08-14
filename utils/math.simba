@@ -131,8 +131,8 @@ var
   s, t, det: Double;
   s1, s2: TPoint;
 begin
- // s1 := p2-p1;
- // s2 := q2-q1;
+  s1 := p2-p1;
+  s2 := q2-q1;
   det := (-s2.x * s1.y + s1.x * s2.y);
   if det = 0 then Exit(False);
 
