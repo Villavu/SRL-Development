@@ -59,8 +59,9 @@ end;
 function TRSInventory.Open: Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.INVENTORY);
+  if Result then
   Wait(200, 700);
-end;
+end;  
 
 function TRSInventory.GetSlotBoxes: TBoxArray;
 begin
