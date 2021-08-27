@@ -145,7 +145,7 @@ begin
     if ('Click here to continue' in Strings[I]) then
       Key := VK_SPACE
     else
-      Key := VK_0 + I;
+      Key := VK_1 + I;
       
     Result[I] := [Strings[I], Boxes[I], Key];
   end;
