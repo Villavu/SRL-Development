@@ -466,7 +466,7 @@ begin
 end;
 
 
-function TRSInventory.FindItem(Item: TRSItem; out Slots: TIntegerArray): Boolean; overload;
+function TRSInventory.FindItem(Item: TRSItem; out Slots: TIntegerArray): Boolean;
 begin
   Result := Self.FindItems([Item], Slots);
 end;

@@ -97,7 +97,7 @@ begin
   Self.DebugLn('Client mode changed: ' + ToString(Self.Mode));
 end;
 
-function TRSClient.IsLoggedIn: Boolean; overload;
+function TRSClient.IsLoggedIn: Boolean;
 var
   ClientMode: ERSClientMode := Self.DetectClientMode();
 begin
