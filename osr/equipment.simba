@@ -92,14 +92,21 @@ begin
   Result := Self.FindItem(Item, B);
 end;
 
-function TRSEquipment.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
+function TRSEquipment.HoverItem(Item: TRSItem): Boolean;
 var
   B: TBox;
 begin
   if Self.FindItem(Item, B) then
   begin
     Mouse.Move(B);
+    Result := True;
+  end;
+end;
 
+function TRSEquipment.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
+begin
+  if Self.HoverItem(Item) then
+  begin
     if Option <> '' then
       Result := ChooseOption.Select(Option)
     else
