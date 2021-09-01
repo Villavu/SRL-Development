@@ -32,6 +32,7 @@ begin
   inherited;  
     
   Self.Name := 'Options';
+  Self.ButtonColors += CTS1(2369440, 5);
 end;
 
 procedure TRSOptions.SetupAlignment(Mode: ERSClientMode); override;
