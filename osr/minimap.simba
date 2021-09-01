@@ -55,7 +55,7 @@ end;
 
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
 begin
-  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y, Orb.X-15, Orb.Y+10], TOCRShadowRule.Create(), RS_FONT_PLAIN_11); 
+  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y-1, Orb.X-15, Orb.Y+9], TOCRShadowRule.Create(), RS_FONT_PLAIN_11);
 end;
 
 function TRSMinimap.GetRunEnergy: Int32;
