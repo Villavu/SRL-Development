@@ -101,6 +101,8 @@ begin
     if Bank.IsOpen(3000) then
       Exit(True);
   end;
+
+  Result := Bank.IsOpen(3000); // wait 3 extra seconds before failing.
 end;
 
 function TRSBankPin.IsOpen: Boolean;
