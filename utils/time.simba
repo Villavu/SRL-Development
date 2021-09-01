@@ -124,6 +124,13 @@ type
     Paused: UInt64;
   end;
 
+procedure TCountDown.Setup(Time: UInt32);
+begin
+  Self.Length  := Time;
+  Self.Timeout := GetTickCount();
+  Self.Paused := 0;
+end;
+
 procedure TCountDown.Init(Time: UInt32);
 begin
   Self.Length  := Time;
