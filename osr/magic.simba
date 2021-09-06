@@ -1,3 +1,9 @@
+(*
+Magic
+=====
+Methods to interact with the magic tab.
+*)
+
 {$DEFINE SRL_MAGIC_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -260,6 +266,15 @@ const
 type
   TRSMagic = type TRSInterface;
 
+(*
+Magic.Setup
+~~~~~~~~~~~
+.. pascal:: procedure TRSMagic.Setup; ; override;
+
+Initializes **Magic** variables.
+
+.. note:: This is automatically called on the **Magic** variable.
+*)
 procedure TRSMagic.Setup; override;
 begin
   inherited;
@@ -267,6 +282,15 @@ begin
   Self.Name := 'Magic';
 end;
 
+(*
+Magic.SetupAlignment
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSMagic.SetupAlignment(Mode: ERSClientMode); override;
+
+Setups up the interface aligment for the current client mode.
+
+.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
+*)
 procedure TRSMagic.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -277,16 +301,52 @@ begin
   Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
+(*
+Magic.IsOpen
+~~~~~~~~~~~~
+.. pascal:: function TRSMagic.IsOpen: Boolean;
+
+Returns true if the Magic tab is open.
+
+Example
+-------
+
+  WriteLn Magic.IsOpen;
+*)
 function TRSMagic.IsOpen: Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.MAGIC);
 end;
 
+(*
+Magic.Open
+~~~~~~~~~~
+.. pascal:: function TRSMagic.Open: Boolean;
+
+Attempts to open the magic tab.
+
+Example
+-------
+
+  Magic.Open;
+*)
 function TRSMagic.Open: Boolean;
 begin
   Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.MAGIC);
 end;
 
+(*
+Magic.GetSpellBook
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMagic.GetSpellBook: ERSSpellBook;
+
+Returns the current spell book.
+
+Example
+-------
+
+  WriteLn Magic.GetSpellBook;
+*)
 function TRSMagic.GetSpellBook: ERSSpellBook;
 const
   ARCEUUS_COLOR := CTS0(9801276, 78); // Colors of the book on the gametab
@@ -300,11 +360,30 @@ begin
   if SRL.CountColor(LUNAR_COLOR,   Box) >= 85 then Exit(ERSSpellBook.LUNAR);
 end;
 
+(*
+Magic.IsSpellBook
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMagic.IsSpellBook(SpellBook: ERSSpellBook): Boolean;
+
+Returns true if we are using the specified spell book.
+
+Example
+-------
+
+  WriteLn Magic.IsSpellBook(ERSSpellBook.LUNAR);
+*)
 function TRSMagic.IsSpellBook(SpellBook: ERSSpellBook): Boolean;
 begin
   Result := SpellBook = Self.GetSpellBook();
 end;
 
+(*
+Magic.GetSpellBoxes
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMagic.GetSpellBoxes(out Spellbook: ERSSpellBook): TBoxArray;
+
+Internal function to get the bounds of the spells of the current spell book.
+*)
 function TRSMagic.GetSpellBoxes(out Spellbook: ERSSpellBook): TBoxArray;
 begin 
   Spellbook := Self.GetSpellBook;
@@ -316,6 +395,13 @@ begin
   end;
 end;
 
+(*
+Magic.GetSpellBox
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMagic.GetSpellBox(Spell: ERSSpell; out Box: TBox): Boolean;
+
+Internal function to get the specified spell bounds.
+*)
 function TRSMagic.GetSpellBox(Spell: ERSSpell; out Box: TBox): Boolean;
 var
   Spellbook: ERSSpellBook;
@@ -354,6 +440,18 @@ begin
   end;
 end;
 
+(*
+Magic.MouseSpell
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMagic.MouseSpell(Spell: ERSSpell; Button: Int32 = MOUSE_MOVE): Boolean;
+
+Used to interact with the specified spell.
+
+Example
+-------
+
+  Magic.MouseSpell(ERSSpell.HIGH_LEVEL_ALCHEMY, MOUSE_LEFT);
+*)
 function TRSMagic.MouseSpell(Spell: ERSSpell; Button: Int32 = MOUSE_MOVE): Boolean;
 var
   Box: TBox;
@@ -368,6 +466,18 @@ begin
   end;
 end;
 
+(*
+Magic.CanActivate
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMagic.CanActivate(Spell: ERSSpell): Boolean;
+
+Returns true if we can activate the spell (we have runes, level and the spell unlocked).
+
+Example
+-------
+
+  Magic.CanActivate(ERSSpell.HIGH_LEVEL_ALCHEMY);
+*)
 function TRSMagic.CanActivate(Spell: ERSSpell): Boolean;
 var
   Box: TBox;
@@ -375,6 +485,18 @@ begin
   Result := Self.GetSpellBox(Spell, Box) and Self.Open() and (SRL.PeakBrightness(Box) > 35);
 end;
 
+(*
+Magic.IsSpellSelected
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMagic.IsSpellSelected(Spell: ERSSpell): Boolean;
+
+Returns true if the specified spell is currently active (with white outline).
+
+Example
+-------
+
+  Magic.IsSpellSelected(ERSSpell.ICE_BARRAGE);
+*)
 function TRSMagic.IsSpellSelected(Spell: ERSSpell): Boolean; 
 var
   Box: TBox;
@@ -382,6 +504,18 @@ begin
   Result := Self.GetSpellBox(Spell, Box) and Self.Open() and (SRL.CountColor($FFFFFF, Box) > 10);
 end;
 
+(*
+Magic.GetSelectedSpell
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMagic.GetSelectedSpell: ERSSpell;
+
+Returns the currently selected spell.
+
+Example
+-------
+
+  WriteLn Magic.GetSelectedSpell;
+*)
 function TRSMagic.GetSelectedSpell: ERSSpell;
 var
   I: Int32;
@@ -403,6 +537,18 @@ begin
     end;
 end;
 
+(*
+Magic.CastSpell
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSMagic.CastSpell(Spell: ERSSpell): Boolean;
+
+Attempts to cast the specified spell.
+
+Example
+-------
+
+  Magic.CastSpell(ERSSpell.LOW_LEVEL_ALCHEMY);
+*)
 function TRSMagic.CastSpell(Spell: ERSSpell): Boolean;
 var
   Selected: ERSSpell;
@@ -433,6 +579,11 @@ begin
   Bitmap.DrawBoxes(Self.GetSpellBoxes(Spellbook), $00FFFF);
 end;
 
+(*
+var Magic
+~~~~~~~~~~
+  Global Magic variable.
+*)
 var
   Magic: TRSMagic;
 
