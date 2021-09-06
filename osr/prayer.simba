@@ -51,7 +51,7 @@ begin
   Self.Name := 'Prayer';
 end;
 
-procedure TRSPrayer.Setup(Mode: ERSClientMode); overload;
+procedure TRSPrayer.SetupAlignment(Mode: ERSClientMode); override;
 begin
   Self.Mode := Mode;
 
@@ -85,7 +85,7 @@ begin
   Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.PRAYER);
 end;
 
-function TRSPrayer.GetPrayerBoxes: TBoxArray; overload; 
+function TRSPrayer.GetPrayerBoxes: TBoxArray;
 begin
   Result := Grid(5, 6, 33, 33, [4, 4], [Self.X1 + 1, Self.Y1 + 10])
 end;
@@ -222,7 +222,7 @@ begin
   Self.Name := 'QuickPrayer';
 end;
 
-procedure TRSQuickPrayer.Setup(Mode: ERSClientMode); overload;
+procedure TRSQuickPrayer.SetupAlignment(Mode: ERSClientMode); override;
 begin
   Self.Mode := Mode;
 
@@ -332,6 +332,10 @@ end;
 var
   QuickPrayer: TRSQuickPrayer;
 
+function TRSMinimap.GetPrayerLevel: Int32;
+begin
+  Result := Self.GetOrbLevel(Self.GetPrayerCircle);
+end;
 
 // Minimap prayer
 function TRSMinimap.IsPrayerEnabled: Boolean;
@@ -412,8 +416,8 @@ procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
 
-  Prayer.Setup(Self.Mode);
-  QuickPrayer.Setup(Self.Mode);
+  Prayer.SetupAlignment(Self.Mode);
+  QuickPrayer.SetupAlignment(Self.Mode);
 end;
 
 procedure TSRL.Setup; override;
