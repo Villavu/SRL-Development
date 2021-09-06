@@ -1,3 +1,9 @@
+(*
+Prayer
+=======
+Methods to handle Prayer and QuickPrayer.
+*)
+
 {$DEFINE SRL_PRAYER_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -44,6 +50,16 @@ type
   TRSPrayer = type TRSInterface;
   TRSQuickPrayer = type TRSInterface;
 
+
+(*
+Prayer.Setup
+~~~~~~~~~~~~
+.. pascal:: procedure Prayer.Setup;
+
+Initializes Prayer variables.
+
+.. note:: This is automatically called on the **Prayer** variable.
+*)
 procedure TRSPrayer.Setup; overload;
 begin
   if Self <> [] then
@@ -61,6 +77,18 @@ begin
   Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
+(*
+Prayer.GetPrayerLevel
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.GetPrayerLevel: Int32;
+
+**Prayer.GetPrayerLevel** is used to retrieve the prayer level from the prayer tab.
+
+Example
+-------
+
+  Writeln Prayer.GetPrayerLevel;
+*)
 function TRSPrayer.GetPrayerLevel: Int32;
 var
   Text: String;
@@ -75,21 +103,50 @@ begin
   end;
 end;
 
+(*
+Prayer.IsOpen
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.IsOpen: Boolean;
+
+Returns true if the Prayer tab is open.
+*)
 function TRSPrayer.IsOpen: Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) and (Self.GetPrayerLevel <> -1);
 end;
 
+(*
+Prayer.Open
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.Open: Boolean;
+
+Attempts to open the prayer tab.
+*)
 function TRSPrayer.Open: Boolean;
 begin
   Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.PRAYER);
 end;
 
+(*
+Prayer.GetPrayerBoxes
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.GetPrayerBoxes: TBoxArray;
+.. pascal:: function Prayer.GetPrayerBoxes(Prayers: array of ERSPrayer): TBoxArray; overload;
+
+Internal function to get the bounds of all or the specified prayers.
+*)
 function TRSPrayer.GetPrayerBoxes: TBoxArray;
 begin
   Result := Grid(5, 6, 33, 33, [4, 4], [Self.X1 + 1, Self.Y1 + 10])
 end;
 
+(*
+Prayer.GetPrayerBox
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.GetPrayerBox(Prayer: ERSPrayer): TBox;
+
+Internal function to get the bounds of a single prayer.
+*)
 function TRSPrayer.GetPrayerBox(Prayer: ERSPrayer): TBox;
 begin
   Result := Self.GetPrayerBoxes[Prayer];
@@ -103,12 +160,25 @@ begin
     Result += Self.GetPrayerBox(Prayer);
 end;
 
+(*
+Prayer.PointToPrayer
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.PointToPrayer(P: TPoint): Int32;
+
+Returns the prayer number that **P** is part of.
+-1 is returned if there's no result.
+
+Example
+-------
+
+  WriteLn('Mouse is hovering prayer ', Prayer.PointToPrayer(Mouse.Position));
+*)
 function TRSPrayer.PointToPrayer(P: TPoint): Int32;
 var
   I: Int32;
   Prayers: TBoxArray;
 begin
-  Prayers := Self.GetPrayerBoxes();
+  Prayers := Self.GetPrayerBoxes;
   for I := 0 to High(Prayers) do
     if Prayers[I].Contains(P) then
       Exit(I);
@@ -116,6 +186,18 @@ begin
   Result := -1;
 end;
 
+(*
+Prayer.MouseOver
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.MouseOver(Prayer: ERSPrayer): Boolean;
+
+Hovers the specified prayer.
+
+Example
+-------
+
+  Prayer.MouseOver(ERSPrayer.PROTECT_FROM_MELEE);
+*)
 function TRSPrayer.MouseOver(Prayer: ERSPrayer): Boolean;
 begin
   if not Self.Open() then
@@ -125,15 +207,33 @@ begin
   Mouse.Move(Self.GetPrayerBox(Prayer));
 end;
 
+(*
+Prayer.CanActivate
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.CanActivate(Prayer: ERSPrayer): Boolean;
 
+Returns true if we have enough level and have unlocked the specified prayer.
+
+Example
+-------
+
+  WriteLn Prayer.CanActivate(ERSPrayer.PROTECT_FROM_MELEE);
+*)
 function TRSPrayer.CanActivate(Prayer: ERSPrayer): Boolean;
 begin
-  if not Self.IsOpen() then
-    Exit();
+  if not Self.IsOpen then
+    Exit;
 
   Result := SRL.PeakBrightness(Self.GetPrayerBox(Prayer)) > 55;
 end;
 
+(*
+Prayer.GetAvailablePrayers
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.GetAvailablePrayers: array of ERSPrayer;
+
+Returns an array of all available prayers.
+*)
 function TRSPrayer.GetAvailablePrayers: array of ERSPrayer;
 var
   Prayer: ERSPrayer;
@@ -147,6 +247,18 @@ begin
       Result += Prayer;
 end;
 
+(*
+Prayer.IsPrayerActive
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.IsPrayerActive(Prayer: ERSPrayer): Boolean;
+
+Returns true if the specified prayer is active right now.
+
+Example
+-------
+
+  WriteLn Prayer.IsPrayerActive(ERSPrayer.SMITE);
+*)
 function TRSPrayer.IsPrayerActive(Prayer: ERSPrayer): Boolean;
 var
   B: TBox;
@@ -158,6 +270,13 @@ begin
   Result := SRL.CountColor(CTS0(7315120, 27), B) > 10;
 end;
 
+(*
+Prayer.GetActivePrayers
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.GetActivePrayers: array of ERSPrayer;
+
+Returns an array of all active prayers.
+*)
 function TRSPrayer.GetActivePrayers: array of ERSPrayer;
 var
   Prayer: ERSPrayer;
@@ -171,14 +290,33 @@ begin
       Result += Prayer;
 end;
 
+(*
+Prayer.PrayerActive
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.PrayerActive: Boolean;
+
+Returns true if any prayer is active.
+*)
 function TRSPrayer.PrayerActive: Boolean;
 begin
   if not Self.Open then
     Exit;
 
-  Result := Self.GetActivePrayers() <> [];
+  Result := Self.GetActivePrayers <> [];
 end;
 
+(*
+Prayer.ActivatePrayer
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.ActivatePrayer(Prayer: ERSPrayer): Boolean;
+
+Attempts to activate the specified prayer.
+
+Example
+-------
+
+  Prayer.ActivatePrayer(ERSPrayer.PROTECT_FROM_MELEE);
+*)
 function TRSPrayer.ActivatePrayer(Prayer: ERSPrayer): Boolean;
 begin
   if not Self.Open or not Self.CanActivate(Prayer) then
@@ -192,6 +330,18 @@ begin
   Result := WaitUntil(Self.IsPrayerActive(Prayer), 50, SRL.TruncatedGauss(1000, 2000));
 end;
 
+(*
+Prayer.ActivatePrayer
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Prayer.ActivatePrayer(Prayers: array of ERSPrayer): Boolean; overload;
+
+Attempts to activate the several prayers.
+
+Example
+-------
+
+  Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE, ERSPrayer.PIETY]);
+*)
 function TRSPrayer.ActivatePrayer(Prayers: array of ERSPrayer): Boolean; overload;
 var
   Prayer: ERSPrayer;
@@ -212,9 +362,23 @@ begin
   Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetActivePrayers), $FFFFFF);
 end;
 
+(*
+var Prayer
+~~~~~~~~~~
+  Global Prayer variable.
+*)
 var
   Prayer: TRSPrayer;
 
+(*
+QuickPrayer.Setup
+~~~~~~~~~~~~~~~~~
+.. pascal:: procedure QuickPrayer.Setup;
+
+Initializes QuickPrayer variables.
+
+.. note:: This is automatically called on the **QuickPrayer** variable.
+*)
 procedure TRSQuickPrayer.Setup; overload;
 begin
   if Self <> [] then
@@ -328,21 +492,66 @@ begin
   Bitmap.DrawBox(Self.GetButton, $00FFFF);
 end;
 
-
+(*
+var QuickPrayer
+~~~~~~~~~~
+  Global QuickPrayer variable.
+*)
 var
   QuickPrayer: TRSQuickPrayer;
 
+(*
+Minimap
+=======
+Methods to handle the minimap prayer orb.
+*)
+
+(*
+Minimap.GetPrayerLevel
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.GetPrayerLevel: Int32;
+
+**Minimap.GetPrayerLevel** is used to retrieve the prayer level from the minimap orb.
+
+Example
+-------
+
+  Writeln Minimap.GetPrayerLevel;
+*)
 function TRSMinimap.GetPrayerLevel: Int32;
 begin
   Result := Self.GetOrbLevel(Self.GetPrayerCircle);
 end;
 
-// Minimap prayer
+(*
+Minimap.IsPrayerEnabled
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.IsPrayerEnabled: Boolean;
+
+**Minimap.IsPrayerEnabled** is used to retrieve the quick prayer state (enabled or disabled).
+
+Example
+-------
+
+  Writeln Minimap.IsPrayerEnabled;
+*)
 function TRSMinimap.IsPrayerEnabled: Boolean;
 begin
   Result := SRL.CountColor(CTS0(1168105, 33), Self.GetPrayerCircle().Bounds) > 20;
 end;
 
+(*
+Minimap.EnablePrayer
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.EnablePrayer: Boolean;
+
+**Minimap.EnablePrayer** is used to enable quick prayers.
+
+Example
+-------
+
+  Minimap.EnablePrayer;
+*)
 function TRSMinimap.EnablePrayer: Boolean;
 var
   T: UInt64;
@@ -362,6 +571,18 @@ begin
   end;
 end;
 
+(*
+Minimap.DisablePrayer
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.DisablePrayer: Boolean;
+
+**Minimap.DisablePrayer** is used to disable quick prayers.
+
+Example
+-------
+
+  Minimap.DisablePrayer;
+*)
 function TRSMinimap.DisablePrayer: Boolean;
 var
   T: UInt64;
@@ -383,20 +604,40 @@ end;
 
 
 
-// Prayer overrides to handle quickprayers in case they are open
+(*
+Prayer.Open
+~~~~~~~~~~~
+.. pascal:: function TRSPrayer.Open: Boolean; override;
+
+Overrides **Prayer.Open** to handle quick prayers if they are open.
+*)
 function TRSPrayer.Open: Boolean; override;
 begin
-  Result := Self.IsOpen() or (GameTabs.Open(ERSGameTab.PRAYER) and QuickPrayer.Close);
+  Result := Self.IsOpen or (GameTabs.Open(ERSGameTab.PRAYER) and QuickPrayer.Close);
 end;
 
+(*
+Prayer.CanActivate
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSPrayer.CanActivate(Prayer: ERSPrayer): Boolean; override;
+
+Overrides **Prayer.CanActivate** to handle quick prayers.
+*)
 function TRSPrayer.CanActivate(Prayer: ERSPrayer): Boolean; override;
 begin
   if not Self.IsOpen and not QuickPrayer.IsOpen then
-    Exit();
+    Exit;
 
   Result := SRL.PeakBrightness(Self.GetPrayerBox(Prayer)) > 55;
 end;
 
+(*
+Prayer.GetAvailablePrayers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSPrayer.GetAvailablePrayers: array of ERSPrayer; override;
+
+Overrides **Prayer.GetAvailablePrayers** to handle quick prayers.
+*)
 function TRSPrayer.GetAvailablePrayers: array of ERSPrayer; override;
 var
   Prayer: ERSPrayer;
