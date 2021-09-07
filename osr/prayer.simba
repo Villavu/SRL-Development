@@ -638,6 +638,7 @@ var
 (*
 Minimap
 =======
+
 Methods to handle the minimap prayer orb.
 *)
 

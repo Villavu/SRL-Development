@@ -1,3 +1,9 @@
+(*
+Combat
+======
+Methods to interact with the combat tab.
+*)
+
 {$DEFINE SRL_COMBAT_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -42,6 +48,15 @@ var
 type
   TRSCombat = type TRSInterface;
 
+(*
+Combat.Setup
+~~~~~~~~~~~~
+.. pascal:: procedure TRSCombat.Setup; ; override;
+
+Initializes **Combat** variables.
+
+.. note:: This is automatically called on the **Combat** variable.
+*)
 procedure TRSCombat.Setup; override;
 begin
   inherited;
@@ -49,6 +64,15 @@ begin
   Self.Name := 'Combat';
 end;
 
+(*
+Combat.SetupAlignment
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSCombat.SetupAlignment(Mode: ERSClientMode); override;
+
+Setups up the interface aligment for the current client mode.
+
+.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
+*)
 procedure TRSCombat.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -59,21 +83,71 @@ begin
   Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
+(*
+Combat.IsOpen
+~~~~~~~~~~~~~
+.. pascal:: function TRSCombat.IsOpen: Boolean;
+
+Returns true if the combat tab is open.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  WriteLn Combat.IsOpen;
+*)
 function TRSCombat.IsOpen: Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.COMBAT);
 end;
 
+(*
+Combat.Open
+~~~~~~~~~~~
+.. pascal:: function TRSCombat.Open: Boolean;
+
+Attempts to open the combat tab.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  Combat.Open;
+*)
 function TRSCombat.Open: Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.COMBAT);
 end;
 
+(*
+Combat.GetButtons
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSCombat.GetButtons: TRSButtonArray;
+
+Internal function to get the available buttons in the combat tab.
+*)
 function TRSCombat.GetButtons: TRSButtonArray;
 begin
   Result := Self.FindButtons([[69,45], [148,24], [148,42], [69,30], [69,48]])
 end;
 
+(*
+Combat.GetCombatStyle
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSCombat.GetCombatStyle: String;
+
+Get the current attack style.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  WriteLn('The current combat style is: ', Combat.GetCombatStyle);
+
+*)
 function TRSCombat.GetCombatStyle: String;
 var
   I: Int32;
@@ -94,6 +168,21 @@ begin
   end;
 end;
 
+(*
+Combat.SetCombatStyle
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSCombat.SetCombatStyle(Style: String): Boolean;
+
+Set the attack style to the **Style** specified.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  Combat.SetCombatStyle(COMBAT_STYLE_SLASH);
+
+*)
 function TRSCombat.SetCombatStyle(Style: String): Boolean;
 var
   Buttons: TRSButtonArray;
@@ -112,6 +201,21 @@ begin
     end;
 end;
 
+(*
+Combat.GetAutoRetaliate
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSCombat.GetAutoRetaliate: Boolean;
+
+Get the current state of auto retaliate.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  WriteLn Combat.GetAutoRetaliate;
+
+*)
 function TRSCombat.GetAutoRetaliate: Boolean;
 var
   Buttons: TRSButtonArray;
@@ -130,6 +234,21 @@ begin
     end;
 end;
 
+(*
+Combat.SetAutoRetaliate
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSCombat.SetAutoRetaliate(Value: Boolean): Boolean;
+
+Set the state of auto retaliate on or off.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  Combat.SetAutoRetaliate(True);
+
+*)
 function TRSCombat.SetAutoRetaliate(Value: Boolean): Boolean;
 var
   Buttons: TRSButtonArray;
@@ -148,6 +267,21 @@ begin
     end;
 end;
 
+(*
+Combat.GetWeapon
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSCombat.GetWeapon: String;
+
+Get the name of the current worn weapon.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  WriteLn('The current weapon is: ', Combat.GetWeapon);
+
+*)
 function TRSCombat.GetWeapon: String;
 var
   B: TBox;
@@ -161,6 +295,21 @@ begin
   Result := OCR.Recognize(B, TOCRColorRule.Create([2070783]), RS_FONT_QUILL_8);
 end;
 
+(*
+Combat.GetCombatLevel
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSCombat.GetCombatLevel: Int32;
+
+Get the current combat level.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  WriteLn('Current combat level is: ', Combat.GetCombatLevel);
+
+*)
 function TRSCombat.GetCombatLevel: Int32;
 var
   B: TBox;
@@ -177,8 +326,150 @@ begin
   Result := OCR.RecognizeNumber(B, TOCRColorRule.Create([2070783]), RS_FONT_PLAIN_11);
 end;
 
+(*
+var Combat
+~~~~~~~~~~
+  Global Combat variable.
+*)
 var
   Combat: TRSCombat;
+
+(*
+Minimap
+=======
+Methods to handle the minimap special attack orb.
+*)
+
+(*
+Minimap.GetSpecLevel
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSMinimap.GetSpecLevel: Int32;
+
+**Minimap.GetSpecLevel** is used to retrieve the special attack level from the minimap orb.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  Writeln Minimap.GetSpecLevel;
+*)
+function TRSMinimap.GetSpecLevel: Int32;
+begin
+  Result := Self.GetOrbLevel(Self.GetSpecAttackCircle);
+end;
+
+(*
+Minimap.IsSpecEnabled
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.IsSpecEnabled;
+
+**Minimap.IsSpecEnabled** returns true if the special attack is enabled.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  Writeln Minimap.IsSpecEnabled;
+*)
+function TRSMinimap.IsSpecEnabled: Boolean;
+begin
+  Result := SRL.CountColor(CTS2(8682326, 16, 0.03, 1.15), Self.GetSpecAttackCircle.Bounds) > 1;
+end;
+
+(*
+Minimap.IsSpecWeapon
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.IsSpecWeapon;
+
+**Minimap.IsSpecWeapon** returns true if the current weapon has a special attack.
+Returns false if the special attack level is at 0 or if the weapon doesn't have a special attack.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  Writeln Minimap.IsSpecWeapon;
+*)
+function TRSMinimap.IsSpecWeapon: Boolean;
+begin
+  Result := ((SRL.CountColor(CTS2(8480786, 19, 0.05, 1.36), Self.GetSpecAttackCircle.Bounds) > 0) or
+            Self.IsSpecEnabled);
+end;
+
+(*
+Minimap.EnableSpec
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.EnableSpec(MinSpec: Int32): Boolean;
+
+**Minimap.EnableSpec** attempts to enable the special attack if we have at leas **MinSpec** special attack level.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  Minimap.EnableSpec(25);
+*)
+function TRSMinimap.EnableSpec(MinSpec: Int32): Boolean;
+var
+  T: UInt64;
+begin
+  if not Self.IsSpecWeapon or (Self.GetSpecLevel < MinSpec) then
+    Exit(False);
+
+  Result := Self.IsSpecEnabled;
+  if not Result then
+  begin
+    Mouse.Click(Self.GetSpecAttackCircle, MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if Self.IsSpecEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
+
+(*
+Minimap.DisableSpec
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.DisableSpec;
+
+**Minimap.DisableSpec** attempts to disable the special attack.
+
+Example
+-------
+
+.. code-block:: pascal
+
+  Minimap.DisableSpec;
+*)
+function TRSMinimap.DisableSpec: Boolean;
+var
+  T: UInt64;
+begin
+  Result := not Self.IsSpecEnabled;
+
+  if Result then
+  begin
+    Mouse.Click(Self.GetSpecAttackCircle, MOUSE_LEFT);
+
+    T := GetTickCount() + Round(SRL.TruncatedGauss(1000, 2000));
+    while (T > GetTickCount()) do
+    begin
+      if not Self.IsSpecEnabled() then
+        Exit(True);
+
+      Wait(0, 1000, wdLeft);
+    end;
+  end;
+end;
 
 procedure TRSClient.ClientModeChanged; override;
 begin
