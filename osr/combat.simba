@@ -51,7 +51,7 @@ type
 (*
 Combat.Setup
 ~~~~~~~~~~~~
-.. pascal:: procedure TRSCombat.Setup; ; override;
+.. pascal:: procedure TRSCombat.Setup; override;
 
 Initializes **Combat** variables.
 

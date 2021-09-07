@@ -269,7 +269,7 @@ type
 (*
 Magic.Setup
 ~~~~~~~~~~~
-.. pascal:: procedure TRSMagic.Setup; ; override;
+.. pascal:: procedure TRSMagic.Setup; override;
 
 Initializes **Magic** variables.
 
