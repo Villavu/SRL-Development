@@ -161,6 +161,22 @@ begin
   Result := OCR.Recognize(B, TOCRColorRule.Create([2070783]), RS_FONT_QUILL_8);
 end;
 
+function TRSCombat.GetCombatLevel: Int32;
+var
+  B: TBox;
+begin
+  if not Self.Open() then
+    Exit;
+
+  B := Self.Bounds;
+  B.Y1 += 27;
+  B.Y2 := B.Y1 + 15;
+  B.X1 += 20;
+  B.X2 -= 20;
+
+  Result := OCR.RecognizeNumber(B, TOCRColorRule.Create([2070783]), RS_FONT_PLAIN_11);
+end;
+
 var
   Combat: TRSCombat;
 
