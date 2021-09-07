@@ -93,8 +93,6 @@ Returns true if the combat tab is open.
 Example
 -------
 
-.. code-block:: pascal
-
   WriteLn Combat.IsOpen;
 *)
 function TRSCombat.IsOpen: Boolean;
@@ -111,8 +109,6 @@ Attempts to open the combat tab.
 
 Example
 -------
-
-.. code-block:: pascal
 
   Combat.Open;
 *)
@@ -142,8 +138,6 @@ Get the current attack style.
 
 Example
 -------
-
-.. code-block:: pascal
 
   WriteLn('The current combat style is: ', Combat.GetCombatStyle);
 
@@ -178,8 +172,6 @@ Set the attack style to the **Style** specified.
 Example
 -------
 
-.. code-block:: pascal
-
   Combat.SetCombatStyle(COMBAT_STYLE_SLASH);
 
 *)
@@ -210,8 +202,6 @@ Get the current state of auto retaliate.
 
 Example
 -------
-
-.. code-block:: pascal
 
   WriteLn Combat.GetAutoRetaliate;
 
@@ -244,8 +234,6 @@ Set the state of auto retaliate on or off.
 Example
 -------
 
-.. code-block:: pascal
-
   Combat.SetAutoRetaliate(True);
 
 *)
@@ -277,8 +265,6 @@ Get the name of the current worn weapon.
 Example
 -------
 
-.. code-block:: pascal
-
   WriteLn('The current weapon is: ', Combat.GetWeapon);
 
 *)
@@ -304,8 +290,6 @@ Get the current combat level.
 
 Example
 -------
-
-.. code-block:: pascal
 
   WriteLn('Current combat level is: ', Combat.GetCombatLevel);
 
@@ -350,8 +334,6 @@ Minimap.GetSpecLevel
 Example
 -------
 
-.. code-block:: pascal
-
   Writeln Minimap.GetSpecLevel;
 *)
 function TRSMinimap.GetSpecLevel: Int32;
@@ -368,8 +350,6 @@ Minimap.IsSpecEnabled
 
 Example
 -------
-
-.. code-block:: pascal
 
   Writeln Minimap.IsSpecEnabled;
 *)
@@ -389,8 +369,6 @@ Returns false if the special attack level is at 0 or if the weapon doesn't have 
 Example
 -------
 
-.. code-block:: pascal
-
   Writeln Minimap.IsSpecWeapon;
 *)
 function TRSMinimap.IsSpecWeapon: Boolean;
@@ -408,8 +386,6 @@ Minimap.EnableSpec
 
 Example
 -------
-
-.. code-block:: pascal
 
   Minimap.EnableSpec(25);
 *)
@@ -445,8 +421,6 @@ Minimap.DisableSpec
 
 Example
 -------
-
-.. code-block:: pascal
 
   Minimap.DisableSpec;
 *)

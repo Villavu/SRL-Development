@@ -311,8 +311,6 @@ Returns true if the Magic tab is open.
 Example
 -------
 
-.. code-block:: pascal
-
   WriteLn Magic.IsOpen;
 *)
 function TRSMagic.IsOpen: Boolean;
@@ -330,8 +328,6 @@ Attempts to open the magic tab.
 Example
 -------
 
-.. code-block:: pascal
-
   Magic.Open;
 *)
 function TRSMagic.Open: Boolean;
@@ -348,8 +344,6 @@ Returns the current spell book.
 
 Example
 -------
-
-.. code-block:: pascal
 
   WriteLn Magic.GetSpellBook;
 *)
@@ -375,8 +369,6 @@ Returns true if we are using the specified spell book.
 
 Example
 -------
-
-.. code-block:: pascal
 
   WriteLn Magic.IsSpellBook(ERSSpellBook.LUNAR);
 *)
@@ -458,8 +450,6 @@ Used to interact with the specified spell.
 Example
 -------
 
-.. code-block:: pascal
-
   Magic.MouseSpell(ERSSpell.HIGH_LEVEL_ALCHEMY, MOUSE_LEFT);
 *)
 function TRSMagic.MouseSpell(Spell: ERSSpell; Button: Int32 = MOUSE_MOVE): Boolean;
@@ -486,8 +476,6 @@ Returns true if we can activate the spell (we have runes, level and the spell un
 Example
 -------
 
-.. code-block:: pascal
-
   Magic.CanActivate(ERSSpell.HIGH_LEVEL_ALCHEMY);
 *)
 function TRSMagic.CanActivate(Spell: ERSSpell): Boolean;
@@ -507,8 +495,6 @@ Returns true if the specified spell is currently active (with white outline).
 Example
 -------
 
-.. code-block:: pascal
-
   Magic.IsSpellSelected(ERSSpell.ICE_BARRAGE);
 *)
 function TRSMagic.IsSpellSelected(Spell: ERSSpell): Boolean; 
@@ -527,8 +513,6 @@ Returns the currently selected spell.
 
 Example
 -------
-
-.. code-block:: pascal
 
   WriteLn Magic.GetSelectedSpell;
 *)
@@ -562,8 +546,6 @@ Attempts to cast the specified spell.
 
 Example
 -------
-
-.. code-block:: pascal
 
   Magic.CastSpell(ERSSpell.LOW_LEVEL_ALCHEMY);
 *)

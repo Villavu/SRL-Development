@@ -96,8 +96,6 @@ Prayer.GetPrayerLevel
 Example
 -------
 
-.. code-block:: pascal
-
   Writeln Prayer.GetPrayerLevel;
 *)
 function TRSPrayer.GetPrayerLevel: Int32;
@@ -135,8 +133,6 @@ Attempts to open the prayer tab.
 
 Example
 -------
-
-.. code-block:: pascal
 
   Prayer.Open;
 *)
@@ -189,8 +185,6 @@ Returns the prayer number that **P** is part of.
 Example
 -------
 
-.. code-block:: pascal
-
   WriteLn('Mouse is hovering prayer ', Prayer.PointToPrayer(Mouse.Position));
 *)
 function TRSPrayer.PointToPrayer(P: TPoint): Int32;
@@ -216,8 +210,6 @@ Hovers the specified prayer.
 Example
 -------
 
-.. code-block:: pascal
-
   Prayer.MouseOver(ERSPrayer.PROTECT_FROM_MELEE);
 *)
 function TRSPrayer.MouseOver(Prayer: ERSPrayer): Boolean;
@@ -238,8 +230,6 @@ Returns true if we have enough level and have unlocked the specified prayer.
 
 Example
 -------
-
-.. code-block:: pascal
 
   WriteLn Prayer.CanActivate(ERSPrayer.PROTECT_FROM_MELEE);
 *)
@@ -280,8 +270,6 @@ Returns true if the specified prayer is active right now.
 
 Example
 -------
-
-.. code-block:: pascal
 
   WriteLn Prayer.IsPrayerActive(ERSPrayer.SMITE);
 *)
@@ -341,8 +329,6 @@ Attempts to activate the specified prayer.
 Example
 -------
 
-.. code-block:: pascal
-
   Prayer.ActivatePrayer(ERSPrayer.PROTECT_FROM_MELEE);
 *)
 function TRSPrayer.ActivatePrayer(Prayer: ERSPrayer): Boolean;
@@ -367,8 +353,6 @@ Attempts to activate the several prayers.
 
 Example
 -------
-
-.. code-block:: pascal
 
   Prayer.ActivatePrayer([ERSPrayer.PROTECT_FROM_MELEE, ERSPrayer.PIETY]);
 *)
@@ -468,8 +452,6 @@ Attempts to open the quick prayers.
 Example
 -------
 
-.. code-block:: pascal
-
   QuickPrayer.Open;
 *)
 function TRSQuickPrayer.Open: Boolean;
@@ -505,8 +487,6 @@ Attempts to close the quick prayers.
 Example
 -------
 
-.. code-block:: pascal
-
   QuickPrayers.Close;
 *)
 function TRSQuickPrayer.Close: Boolean;
@@ -529,8 +509,6 @@ Returns true if the specified quick prayer is selected.
 Example
 -------
 
-.. code-block:: pascal
-
   WriteLn QuickPrayers.IsPrayerSelected(ERSPrayer.PROTECT_FROM_MAGIC);
 *)
 function TRSQuickPrayer.IsPrayerSelected(QPrayer: ERSPrayer): Boolean;
@@ -552,8 +530,6 @@ Returns an array of all selected quick prayers
 
 Example
 -------
-
-.. code-block:: pascal
 
   WriteLn QuickPrayers.GetSelectedPrayers;
 *)
@@ -580,8 +556,6 @@ Attempts to select the specified quick prayer/prayers.
 
 Example
 -------
-
-.. code-block:: pascal
 
   QuickPrayers.SelectPrayer(ERSPrayer.PROTECT_ITEM);
 *)
@@ -645,8 +619,6 @@ Minimap.GetPrayerLevel
 Example
 -------
 
-.. code-block:: pascal
-
   Writeln Minimap.GetPrayerLevel;
 *)
 function TRSMinimap.GetPrayerLevel: Int32;
@@ -664,8 +636,6 @@ Minimap.IsPrayerEnabled
 Example
 -------
 
-.. code-block:: pascal
-
   Writeln Minimap.IsPrayerEnabled;
 *)
 function TRSMinimap.IsPrayerEnabled: Boolean;
@@ -682,8 +652,6 @@ Minimap.EnablePrayer
 
 Example
 -------
-
-.. code-block:: pascal
 
   Minimap.EnablePrayer;
 *)
@@ -715,8 +683,6 @@ Minimap.DisablePrayer
 
 Example
 -------
-
-.. code-block:: pascal
 
   Minimap.DisablePrayer;
 *)
