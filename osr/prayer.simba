@@ -54,16 +54,16 @@ type
 (*
 Prayer.Setup
 ~~~~~~~~~~~~
-.. pascal:: procedure TRSPrayer.Setup;
+.. pascal:: procedure TRSPrayer.Setup; override;
 
-Initializes Prayer variables.
+Initializes **Prayer** variables.
 
 .. note:: This is automatically called on the **Prayer** variable.
 *)
-procedure TRSPrayer.Setup; overload;
+procedure TRSPrayer.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
+
   Self.Name := 'Prayer';
 end;
 
@@ -378,6 +378,8 @@ var
 begin
   for Prayer in Prayers do
     Self.ActivatePrayer(Prayer);
+
+  Result := Prayers = Self.GetActivePrayers;
 end;
 
 procedure TRSPrayer.Draw(Bitmap: TMufasaBitmap); override;
@@ -405,24 +407,14 @@ QuickPrayer.Setup
 ~~~~~~~~~~~~~~~~~
 .. pascal:: procedure QuickPrayer.Setup;
 
-Initializes QuickPrayer variables.
+Initializes **QuickPrayer** variables.
 
 .. note:: This is automatically called on the **QuickPrayer** variable.
 *)
-
-(*
-QuickPrayer.Setup
-~~~~~~~~~~~~
-.. pascal:: procedure QuickPrayer.Setup;
-
-Initializes QuickPrayer variables.
-
-.. note:: This is automatically called on the **QuickPrayer** variable.
-*)
-procedure TRSQuickPrayer.Setup; overload;
+procedure TRSQuickPrayer.Setup; override;
 begin
-  if Self <> [] then
-    Exit;
+  inherited;
+
   Self.Name := 'QuickPrayer';
 end;
 
@@ -612,6 +604,8 @@ var
 begin
   for QPrayer in QPrayers do
     Self.SelectPrayer(QPrayer);
+
+  Result := QPrayers = Self.GetSelectedPrayers;
 end;
 
 procedure TRSQuickPrayer.Draw(Bitmap: TMufasaBitmap); override;
@@ -638,7 +632,6 @@ var
 (*
 Minimap
 =======
-
 Methods to handle the minimap prayer orb.
 *)
 
