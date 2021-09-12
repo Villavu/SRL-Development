@@ -1,3 +1,9 @@
+(*
+Chat
+====
+Methods to interact with the chat box.
+*)
+
 {$DEFINE SRL_CHAT_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -32,6 +38,16 @@ const
 type
   TRSChat = type TRSInterface;
   
+
+(*
+Chat.Setup
+~~~~~~~~~~
+.. pascal:: procedure TRSChat.Setup; override;
+
+Initializes **Chat** variables.
+
+.. note:: This is automatically called on the **Chat** variable.
+*)
 procedure TRSChat.Setup; override;
 begin
   inherited;
@@ -39,6 +55,15 @@ begin
   Self.Name := 'Chatbox';
 end;
 
+(*
+Chat.SetupAlignment
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSChat.SetupAlignment(Mode: ERSClientMode); override;
+
+Setups up the interface aligment for the current client mode.
+
+.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
+*)
 procedure TRSChat.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -59,12 +84,31 @@ begin
   Bitmap.DrawBoxes(Self.GetLineBoxes(), $00FFFF);
 end;
 
+(*
+Chat.GetLineBoxes
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.GetLineBoxes: TBoxArray;
+
+Internal function that returns the bounds of the chat lines.
+*)
 function TRSChat.GetLineBoxes: TBoxArray;
 begin
   Result := Grid(1, 9, Width - 35, 13, [0, 1], [Self.X1 + 10, Self.Y1 + 8]);
   Result[CHAT_INPUT_LINE].Y2 += 2;
 end;
 
+(*
+Chat.GetDisplayName
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
+
+Get the user displayed name.
+
+Example
+-------
+
+  WriteLn('The user name is: ', Chat.GetDisplayName);
+*)
 function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
 var
   Color: Int32;
@@ -80,26 +124,87 @@ begin
     Result := Result.Before(':');
 end;
 
+(*
+Chat.IsTransparent
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.IsTransparent: Boolean;
+
+Returns true if the chat box is in transparent mode.
+
+Example
+-------
+
+  WriteLn Chat.IsTransparent;
+*)
 function TRSChat.IsTransparent: Boolean;
 begin
   Result := Self.GetDisplayName([$FFFFFF]) <> '';
 end;
 
+(*
+Chat.IsOpen
+~~~~~~~~~~~
+.. pascal:: function TRSChat.IsOpen: Boolean;
+
+Returns true if the chat box is open.
+
+Example
+-------
+
+  WriteLn Chat.IsOpen;
+*)
 function TRSChat.IsOpen: Boolean;
 begin
   Result := (SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000) or Self.IsTransparent();
 end;
 
+
+(*
+Chat.GetQuery
+~~~~~~~~~~~~~
+.. pascal:: function TRSChat.GetQuery: String;
+
+Returns the query question.
+
+Example
+-------
+
+  WriteLn Chat.GetQuery;
+*)
 function TRSChat.GetQuery: String;
 begin
   Result := OCR.Recognize(Self.Bounds(), TOCRColorRule.Create([$000000]), RS_FONT_BOLD_12);
 end;
 
+(*
+Chat.GetQueryAnswer
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.GetQueryAnswer: String;
+
+Returns the currently typed answer.
+
+Example
+-------
+
+  WriteLn Chat.GetQueryAnswer;
+*)
 function TRSChat.GetQueryAnswer: String;
 begin
   Result := OCR.Recognize(Self.Bounds(), TOCRColorRule.Create([8388608]), RS_FONT_BOLD_12);
 end;
 
+(*
+Chat.FindQuery
+~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+
+Returns true if the specified **Query** is currently open or opens up within **WaitTime**.
+
+Example
+-------
+
+  WriteLn Chat.FindQuery('How many doses', 2000); //Example query of NMZ Potion Barrels.
+*)
 function TRSChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if Interval = -1 then
@@ -108,6 +213,18 @@ begin
   Result := WaitUntil(Query in Self.GetQuery(), Interval, WaitTime);
 end;
 
+(*
+Chat.AnswerQuery
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+
+Replies with **Answer** to the specified **Query**.
+
+Example
+-------
+
+  Chat.AnswerQuery('How many doses', '20', 2000); //Example query of NMZ Potion Barrels.
+*)
 function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if Result := FindQuery(Query, WaitTime, Interval) then
@@ -128,6 +245,13 @@ type
   end;
   TRSChatboxOptionArray = array of TRSChatboxOption;
 
+(*
+Chat.GetOptions
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatboxOptionArray;
+
+Internal function to retrieve the currently available chat options.
+*)
 function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatboxOptionArray; 
 var
   Strings: TStringArray;
@@ -148,6 +272,18 @@ begin
   end;
 end;
 
+(*
+Chat.FindOption
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
+
+Returns true if the specified **Text** is an available option.
+
+Example
+-------
+
+  Chat.FindOption('Yes'); //Common chat option in several instances as an example where you are asked Yes or No.
+*)
 function TRSChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
 var
   Option: TRSChatboxOption;
@@ -157,6 +293,18 @@ begin
       Exit(True);
 end;
 
+(*
+Chat.ClickOption
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
+
+Attempts to click the specied chat option. If **UseKeyboard** is true, the keyboard will be used.
+
+Example
+-------
+
+  Chat.ClickOption('Yes', True); //Common chat option in several instances as an example where you are asked Yes or No.
+*)
 function TRSChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
 var
   Option: TRSChatboxOption;
@@ -173,6 +321,18 @@ begin
     end;
 end;
 
+(*
+Chat.ClickContinue
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
+
+Attempts to click the continue chat option. If **UseKeyboard** is true, the keyboard will be used.
+
+Example
+-------
+
+  Chat.ClickContinue(True);
+*)
 function TRSChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
 begin
   if Self.ClickOption('Click here to continue', UseKeyboard, [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]) then
@@ -182,6 +342,18 @@ begin
   end;
 end;
 
+(*
+Chat.ChatToOption
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.ChatToOption(Option: String): Boolean;
+
+Continuously advances the chat with **TRSChat.ClickContinue** until the specified **Option** appears.
+
+Example
+-------
+
+  Chat.ChatToOption('Yes');
+*)
 function TRSChat.ChatToOption(Option: String): Boolean;
 var
   Timeout: TCountdown;
@@ -193,6 +365,18 @@ begin
   Result := Self.ClickOption(Option);
 end;
 
+(*
+Chat.GetMessage
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.GetMessage(Line: Int32; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
+
+Get the message in the specified **Line**.
+
+Example
+-------
+
+  WriteLn Chat.GetMessage(5);
+*)
 function TRSChat.GetMessage(Line: Int32; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): String; 
 const
   StaticOffset = 2; // Make static text placement so RecognizeStatic can be used
@@ -224,6 +408,18 @@ begin
   end;
 end;
 
+(*
+Chat.FindMessage
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
+
+Returns true if **Message** is found in any chat line.
+
+Example
+-------
+
+  WriteLn Chat.FindMessage('Buying gf');
+*)
 function TRSChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
 var
   I: Int32;
@@ -233,6 +429,18 @@ begin
       Exit(True);    
 end;
 
+(*
+Chat.GetChat
+~~~~~~~~~~~~
+.. pascal:: function TRSChat.GetChat: String;
+
+Returns the message displayed in a chat when we are talking with an NPC or interacting with something.
+
+Example
+-------
+
+  WriteLn Chat.GetChat;
+*)
 function TRSChat.GetChat: String;
 var
   Option: TRSChatboxOption;
@@ -246,6 +454,19 @@ begin
   end;
 end;
 
+(*
+Chat.GetChatTitle
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.GetChatTitle: String;
+
+Returns the chat title if available. This is usually a red text and sometimes has 2 swords pointing to it.
+
+Example
+-------
+
+  if 'Select an Option' = Chat.GetChatTitle then
+    Chat.ClickOption('access my bank');
+*)
 function TRSChat.GetChatTitle: String;
 var
   Options: TRSChatboxOptionArray;
@@ -255,11 +476,29 @@ begin
     Result := Options[0].Text;
 end;
 
+(*
+Chat.LeveledUp
+~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.LeveledUp: Boolean;
+
+Returns true if we have the level up message on the chat box.
+
+Example
+-------
+
+  if Chat.LeveledUp then
+    Chat.ClickContinue(True);
+*)
 function TRSChat.LeveledUp: Boolean;
 begin
   Result := Self.FindOption('Congratulations', [CHAT_COLOR_NAVY]); 
 end;
 
+(*
+var Chat
+~~~~~~~~
+  Global Chat variable.
+*)
 var
   Chat: TRSChat;
 
