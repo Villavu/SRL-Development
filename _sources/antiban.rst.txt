@@ -1,0 +1,157 @@
+
+Antiban
+=======
+Methods to handle antiban.
+
+
+------------
+
+Antiban.AddSleep
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TAntiban.AddSleep(Time: String; Length: Double; Randomness: Double = 0.10; LogoutChance: Double = 0.50);
+
+Schedule a sleep break. A sleep break is a large break, it can be any length but it's usually the several hours and also the largest one/ones.
+
+**Time** is the aproximate time you want the break to occur and should be written in a **TTimeFormat.Time_Bare** format (00:00:00). https://ollydev.github.io/SRL-Development/time.html?highlight=ttime#ttimeformat
+**Length** is how long we will sleep for in milliseconds.
+**Randomness** is self explanatory, gives variance to the time our script will sleep at and it's length too.
+**LogoutChance** is the probability of logging out for the sleep break or to simply afk and logout from inactivity.
+
+This sleep break will only occur when **TAntiban.DoAntiban** is called.
+
+Example
+-------
+.. code-block:: pascal  
+
+.. code-block:: pascal
+
+  Antiban.AddSleep('01:30:00', 8 * ONE_HOUR, 0.1, 0.8); //ONE_HOUR constant holds the value 3600000 which is one hour in milliseconds.
+
+
+------------
+
+Antiban.AddBreak
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TAntiban.AddBreak(Interval, Length: Double; Randomness: Double = 0.2; LogoutChance: Double = 0.50);
+
+Schedule a break. Breaks can be of short or medium length and should be shorter than any sleep breaks.
+
+**Interval** is the aproximate interval of time that has to pass for the break to occur and it will be repeated everytime that interval passes. In other words this runs on a loop and interval is the time in between.
+Length, Randomness and LogoutChance are the same as **TAntiban.AddSleep**.
+
+This break will only occur when **TAntiban.DoAntiban** is called.
+
+Example
+-------
+.. code-block:: pascal  
+
+.. code-block:: pascal
+
+  Antiban.AddBreak(30 * ONE_MINUTE, 5 * ONE_MINUTE); //Every 30 minutes the script will take a 5 minute break, subject to variance from the Randomness variable.
+
+
+------------
+
+Antiban.AddTask
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TAntiban.AddTask(Interval: Double; Method: TAntibanMethod; Randomness: Double = 0.2); overload;
+
+Schedule a antiban task. An antiban task can be any procedure but they are should be short things that won't break your main script.
+
+**Interval** is the aproximate interval of time that has to pass for the antiban task to occur and it will be repeated everytime that interval passes.
+**Method** is a pointer to the task you want to perform. SRL includes a couple of them.
+
+This task will only occur when **TAntiban.DoAntiban** is called.
+
+Example
+-------
+.. code-block:: pascal  
+
+.. code-block:: pascal
+
+  Antiban.AddTask(15 * ONE_MINUTE, @Antiban.HoverSkills); //Every 15 minutes the script will hover the skills.
+
+
+------------
+
+Antiban.DoAntiban
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TAntiban.DoAntiban(CheckBreaks: Boolean = True; CheckSleeps: Boolean = True): Boolean;
+
+Antiban.DoAntiban should be called in your script when antiban sleeps, breaks or tasks won't break your script.
+When this is called, the setup sleep breaks, breaks and tasks will be checked, if enough time has passed to perform any of them (subject to the parameters you pass in too), they will be performed, otherwise, nothing will happen.
+
+Example
+-------
+.. code-block:: pascal  
+
+.. code-block:: pascal
+
+  Antiban.AddTask(15 * ONE_MINUTE, @Antiban.HoverSkills);
+
+  while True do        //Infinite loop
+    Antiban.DoAntiban; //Antiban.HoverSkills will be called every time 15 minutes passed when this is called.
+
+
+------------
+
+Built in Antiban Tasks
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TAntiban.SmallRandomMouse;
+.. code-block:: pascal
+
+ procedure TAntiban.RandomMouse;
+.. code-block:: pascal
+
+ procedure TAntiban.RandomRotate;
+.. code-block:: pascal
+
+ procedure TAntiban.HoverSkill(Skill: ERSSkill; HoverTime: Int32; ReturnToCurrentTab: Boolean);
+.. code-block:: pascal
+
+ procedure TAntiban.HoverSkills;
+.. code-block:: pascal
+
+ procedure TAntiban.LoseFocus;
+.. code-block:: pascal
+
+ procedure TAntiban.LoseFocus(Idle: Int32); overload;
+.. code-block:: pascal
+
+ procedure TAntiban.RandomTab;
+.. code-block:: pascal
+
+ procedure TAntiban.RandomRightClick;
+.. code-block:: pascal
+
+ procedure TAntiban.AdjustZoom;
+
+SRL built in Antiban Tasks that can be added with **TAntiban.AddTask**.
+
+Example
+-------
+.. code-block:: pascal  
+
+.. code-block:: pascal
+
+  Antiban.AddTask(15 * ONE_MINUTE, @Antiban.HoverSkills);
+
+
+------------
+
+var Antiban
+~~~~~~~~~~~
+  Global Antiban variable.
+
+
+------------

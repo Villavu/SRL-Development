@@ -32,13 +32,18 @@ Welcome to SRL documentation!
 
 	:caption: OSR
 
+   magic
    mainscreen
    bank
    mm2ms
    rsclient
    misc
+   prayer
    grandexchange
+   antiban
    login
+   combat
+   chat
    inventory
 
 -----------

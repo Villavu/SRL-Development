@@ -1,0 +1,215 @@
+
+Magic
+=====
+Methods to interact with the magic tab.
+
+
+------------
+
+Magic.Setup
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMagic.Setup; override;
+
+Initializes **Magic** variables.
+
+.. note:: This is automatically called on the **Magic** variable.
+
+
+------------
+
+Magic.SetupAlignment
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMagic.SetupAlignment(Mode: ERSClientMode); override;
+
+Setups up the interface aligment for the current client mode.
+
+.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
+
+
+------------
+
+Magic.IsOpen
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.IsOpen: Boolean;
+
+Returns true if the Magic tab is open.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Magic.IsOpen;
+
+
+------------
+
+Magic.Open
+~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.Open: Boolean;
+
+Attempts to open the magic tab.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.Open;
+
+
+------------
+
+Magic.GetSpellBook
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.GetSpellBook: ERSSpellBook;
+
+Returns the current spell book.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Magic.GetSpellBook;
+
+
+------------
+
+Magic.IsSpellBook
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.IsSpellBook(SpellBook: ERSSpellBook): Boolean;
+
+Returns true if we are using the specified spell book.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Magic.IsSpellBook(ERSSpellBook.LUNAR);
+
+
+------------
+
+Magic.GetSpellBoxes
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.GetSpellBoxes(out Spellbook: ERSSpellBook): TBoxArray;
+
+Internal function to get the bounds of the spells of the current spell book.
+
+
+------------
+
+Magic.GetSpellBox
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.GetSpellBox(Spell: ERSSpell; out Box: TBox): Boolean;
+
+Internal function to get the specified spell bounds.
+
+
+------------
+
+Magic.MouseSpell
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.MouseSpell(Spell: ERSSpell; Button: Int32 = MOUSE_MOVE): Boolean;
+
+Used to interact with the specified spell.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.MouseSpell(ERSSpell.HIGH_LEVEL_ALCHEMY, MOUSE_LEFT);
+
+
+------------
+
+Magic.CanActivate
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.CanActivate(Spell: ERSSpell): Boolean;
+
+Returns true if we can activate the spell (we have runes, level and the spell unlocked).
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.CanActivate(ERSSpell.HIGH_LEVEL_ALCHEMY);
+
+
+------------
+
+Magic.IsSpellSelected
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.IsSpellSelected(Spell: ERSSpell): Boolean;
+
+Returns true if the specified spell is currently active (with white outline).
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.IsSpellSelected(ERSSpell.ICE_BARRAGE);
+
+
+------------
+
+Magic.GetSelectedSpell
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.GetSelectedSpell: ERSSpell;
+
+Returns the currently selected spell.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Magic.GetSelectedSpell;
+
+
+------------
+
+Magic.CastSpell
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMagic.CastSpell(Spell: ERSSpell): Boolean;
+
+Attempts to cast the specified spell.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Magic.CastSpell(ERSSpell.LOW_LEVEL_ALCHEMY);
+
+
+------------
+
+var Magic
+~~~~~~~~~~
+  Global Magic variable.
+
+
+------------

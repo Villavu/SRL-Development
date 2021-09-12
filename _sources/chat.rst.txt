@@ -1,0 +1,336 @@
+
+Chat
+====
+Methods to interact with the chat box.
+
+
+------------
+
+Chat.Setup
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSChat.Setup; override;
+
+Initializes **Chat** variables.
+
+.. note:: This is automatically called on the **Chat** variable.
+
+
+------------
+
+Chat.SetupAlignment
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSChat.SetupAlignment(Mode: ERSClientMode); override;
+
+Setups up the interface aligment for the current client mode.
+
+.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
+
+
+------------
+
+Chat.GetLineBoxes
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.GetLineBoxes: TBoxArray;
+
+Internal function that returns the bounds of the chat lines.
+
+
+------------
+
+Chat.GetDisplayName
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
+
+Get the user displayed name.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn('The user name is: ', Chat.GetDisplayName);
+
+
+------------
+
+Chat.IsTransparent
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.IsTransparent: Boolean;
+
+Returns true if the chat box is in transparent mode.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Chat.IsTransparent;
+
+
+------------
+
+Chat.IsOpen
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.IsOpen: Boolean;
+
+Returns true if the chat box is open.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Chat.IsOpen;
+
+
+------------
+
+Chat.GetQuery
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.GetQuery: String;
+
+Returns the query question.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Chat.GetQuery;
+
+
+------------
+
+Chat.GetQueryAnswer
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.GetQueryAnswer: String;
+
+Returns the currently typed answer.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Chat.GetQueryAnswer;
+
+
+------------
+
+Chat.FindQuery
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+
+Returns true if the specified **Query** is currently open or opens up within **WaitTime**.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Chat.FindQuery('How many doses', 2000); //Example query of NMZ Potion Barrels.
+
+
+------------
+
+Chat.AnswerQuery
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+
+Replies with **Answer** to the specified **Query**.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Chat.AnswerQuery('How many doses', '20', 2000); //Example query of NMZ Potion Barrels.
+
+
+------------
+
+Chat.GetOptions
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatboxOptionArray;
+
+Internal function to retrieve the currently available chat options.
+
+
+------------
+
+Chat.FindOption
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
+
+Returns true if the specified **Text** is an available option.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Chat.FindOption('Yes'); //Common chat option in several instances as an example where you are asked Yes or No.
+
+
+------------
+
+Chat.ClickOption
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
+
+Attempts to click the specied chat option. If **UseKeyboard** is true, the keyboard will be used.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Chat.ClickOption('Yes', True); //Common chat option in several instances as an example where you are asked Yes or No.
+
+
+------------
+
+Chat.ClickContinue
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
+
+Attempts to click the continue chat option. If **UseKeyboard** is true, the keyboard will be used.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Chat.ClickContinue(True);
+
+
+------------
+
+Chat.ChatToOption
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.ChatToOption(Option: String): Boolean;
+
+Continuously advances the chat with **TRSChat.ClickContinue** until the specified **Option** appears.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Chat.ChatToOption('Yes');
+
+
+------------
+
+Chat.GetMessage
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.GetMessage(Line: Int32; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): String;
+
+Get the message in the specified **Line**.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Chat.GetMessage(5);
+
+
+------------
+
+Chat.FindMessage
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.FindMessage(Message: String; Colors: TIntegerArray = CHAT_MESSAGE_COLORS): Boolean;
+
+Returns true if **Message** is found in any chat line.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Chat.FindMessage('Buying gf');
+
+
+------------
+
+Chat.GetChat
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.GetChat: String;
+
+Returns the message displayed in a chat when we are talking with an NPC or interacting with something.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Chat.GetChat;
+
+
+------------
+
+Chat.GetChatTitle
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.GetChatTitle: String;
+
+Returns the chat title if available. This is usually a red text and sometimes has 2 swords pointing to it.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if 'Select an Option' = Chat.GetChatTitle then
+    Chat.ClickOption('access my bank');
+
+
+------------
+
+Chat.LeveledUp
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSChat.LeveledUp: Boolean;
+
+Returns true if we have the level up message on the chat box.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if Chat.LeveledUp then
+    Chat.ClickContinue(True);
+
+
+------------
+
+var Chat
+~~~~~~~~
+  Global Chat variable.
+
+
+------------

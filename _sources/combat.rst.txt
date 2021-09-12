@@ -1,0 +1,286 @@
+
+Combat
+======
+Methods to interact with the combat tab.
+
+
+------------
+
+Combat.Setup
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSCombat.Setup; override;
+
+Initializes **Combat** variables.
+
+.. note:: This is automatically called on the **Combat** variable.
+
+
+------------
+
+Combat.SetupAlignment
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSCombat.SetupAlignment(Mode: ERSClientMode); override;
+
+Setups up the interface aligment for the current client mode.
+
+.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
+
+
+------------
+
+Combat.IsOpen
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSCombat.IsOpen: Boolean;
+
+Returns true if the combat tab is open.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Combat.IsOpen;
+
+
+------------
+
+Combat.Open
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSCombat.Open: Boolean;
+
+Attempts to open the combat tab.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Combat.Open;
+
+
+------------
+
+Combat.GetButtons
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSCombat.GetButtons: TRSButtonArray;
+
+Internal function to get the available buttons in the combat tab.
+
+
+------------
+
+Combat.GetCombatStyle
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSCombat.GetCombatStyle: String;
+
+Get the current attack style.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn('The current combat style is: ', Combat.GetCombatStyle);
+
+
+
+------------
+
+Combat.SetCombatStyle
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSCombat.SetCombatStyle(Style: String): Boolean;
+
+Set the attack style to the **Style** specified.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Combat.SetCombatStyle(COMBAT_STYLE_SLASH);
+
+
+
+------------
+
+Combat.GetAutoRetaliate
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSCombat.GetAutoRetaliate: Boolean;
+
+Get the current state of auto retaliate.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Combat.GetAutoRetaliate;
+
+
+
+------------
+
+Combat.SetAutoRetaliate
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSCombat.SetAutoRetaliate(Value: Boolean): Boolean;
+
+Set the state of auto retaliate on or off.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Combat.SetAutoRetaliate(True);
+
+
+
+------------
+
+Combat.GetWeapon
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSCombat.GetWeapon: String;
+
+Get the name of the current worn weapon.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn('The current weapon is: ', Combat.GetWeapon);
+
+
+
+------------
+
+Combat.GetCombatLevel
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSCombat.GetCombatLevel: Int32;
+
+Get the current combat level.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn('Current combat level is: ', Combat.GetCombatLevel);
+
+
+
+------------
+
+var Combat
+~~~~~~~~~~
+  Global Combat variable.
+
+
+------------
+
+Minimap
+=======
+Methods to handle the minimap special attack orb.
+
+
+------------
+
+Minimap.GetSpecLevel
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMinimap.GetSpecLevel: Int32;
+
+**Minimap.GetSpecLevel** is used to retrieve the special attack level from the minimap orb.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.GetSpecLevel;
+
+
+------------
+
+Minimap.IsSpecEnabled
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.IsSpecEnabled;
+
+**Minimap.IsSpecEnabled** returns true if the special attack is enabled.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.IsSpecEnabled;
+
+
+------------
+
+Minimap.IsSpecWeapon
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.IsSpecWeapon;
+
+**Minimap.IsSpecWeapon** returns true if the current weapon has a special attack.
+Returns false if the special attack level is at 0 or if the weapon doesn't have a special attack.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Writeln Minimap.IsSpecWeapon;
+
+
+------------
+
+Minimap.EnableSpec
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.EnableSpec(MinSpec: Int32): Boolean;
+
+**Minimap.EnableSpec** attempts to enable the special attack if we have at leas **MinSpec** special attack level.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Minimap.EnableSpec(25);
+
+
+------------
+
+Minimap.DisableSpec
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMinimap.DisableSpec;
+
+**Minimap.DisableSpec** attempts to disable the special attack.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Minimap.DisableSpec;
+
+
+------------

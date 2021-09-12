@@ -1,0 +1,404 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Antiban &mdash; SRL  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Login" href="login.html" />
+    <link rel="prev" title="BankScreen.Open" href="grandexchange.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SRL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="magic.html">Magic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bank.html">Bank</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsclient.html">RSClient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prayer.html">Prayer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prayer.html#minimap">Minimap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grandexchange.html">BankScreen.Open</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Antiban</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#antiban-addsleep">Antiban.AddSleep</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#antiban-addbreak">Antiban.AddBreak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#antiban-addtask">Antiban.AddTask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#antiban-doantiban">Antiban.DoAntiban</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#built-in-antiban-tasks">Built in Antiban Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#var-antiban">var Antiban</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="login.html">Login</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combat.html">Combat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combat.html#minimap">Minimap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chat.html">Chat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html">Item Finder</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SRL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Antiban</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/antiban.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="antiban">
+<h1>Antiban<a class="headerlink" href="#antiban" title="Permalink to this headline">¶</a></h1>
+<p>Methods to handle antiban.</p>
+<hr class="docutils" />
+<section id="antiban-addsleep">
+<h2>Antiban.AddSleep<a class="headerlink" href="#antiban-addsleep" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">AddSleep</span><span class="p">(</span><span class="nb">Time</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="nb">Length</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">Randomness</span><span class="o">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="mf">0.10</span><span class="o">;</span> <span class="n">LogoutChance</span><span class="o">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="mf">0.50</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Schedule a sleep break. A sleep break is a large break, it can be any length but it’s usually the several hours and also the largest one/ones.</p>
+<p><strong>Time</strong> is the aproximate time you want the break to occur and should be written in a <strong>TTimeFormat.Time_Bare</strong> format (00:00:00). <a class="reference external" href="https://ollydev.github.io/SRL-Development/time.html?highlight=ttime#ttimeformat">https://ollydev.github.io/SRL-Development/time.html?highlight=ttime#ttimeformat</a>
+<strong>Length</strong> is how long we will sleep for in milliseconds.
+<strong>Randomness</strong> is self explanatory, gives variance to the time our script will sleep at and it’s length too.
+<strong>LogoutChance</strong> is the probability of logging out for the sleep break or to simply afk and logout from inactivity.</p>
+<p>This sleep break will only occur when <strong>TAntiban.DoAntiban</strong> is called.</p>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddSleep</span><span class="p">(</span><span class="s">&#39;01:30:00&#39;</span><span class="o">,</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">ONE_HOUR</span><span class="o">,</span> <span class="mf">0.1</span><span class="o">,</span> <span class="mf">0.8</span><span class="p">)</span><span class="o">;</span> <span class="c1">//ONE_HOUR constant holds the value 3600000 which is one hour in milliseconds.</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="antiban-addbreak">
+<h2>Antiban.AddBreak<a class="headerlink" href="#antiban-addbreak" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">AddBreak</span><span class="p">(</span><span class="n">Interval</span><span class="o">,</span> <span class="nb">Length</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">Randomness</span><span class="o">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="mf">0.2</span><span class="o">;</span> <span class="n">LogoutChance</span><span class="o">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="mf">0.50</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Schedule a break. Breaks can be of short or medium length and should be shorter than any sleep breaks.</p>
+<p><strong>Interval</strong> is the aproximate interval of time that has to pass for the break to occur and it will be repeated everytime that interval passes. In other words this runs on a loop and interval is the time in between.
+Length, Randomness and LogoutChance are the same as <strong>TAntiban.AddSleep</strong>.</p>
+<p>This break will only occur when <strong>TAntiban.DoAntiban</strong> is called.</p>
+<section id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddBreak</span><span class="p">(</span><span class="mi">30</span> <span class="o">*</span> <span class="n">ONE_MINUTE</span><span class="o">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">ONE_MINUTE</span><span class="p">)</span><span class="o">;</span> <span class="c1">//Every 30 minutes the script will take a 5 minute break, subject to variance from the Randomness variable.</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="antiban-addtask">
+<h2>Antiban.AddTask<a class="headerlink" href="#antiban-addtask" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">AddTask</span><span class="p">(</span><span class="n">Interval</span><span class="o">:</span> <span class="kt">Double</span><span class="o">;</span> <span class="n">Method</span><span class="o">:</span> <span class="n">TAntibanMethod</span><span class="o">;</span> <span class="n">Randomness</span><span class="o">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Schedule a antiban task. An antiban task can be any procedure but they are should be short things that won’t break your main script.</p>
+<p><strong>Interval</strong> is the aproximate interval of time that has to pass for the antiban task to occur and it will be repeated everytime that interval passes.
+<strong>Method</strong> is a pointer to the task you want to perform. SRL includes a couple of them.</p>
+<p>This task will only occur when <strong>TAntiban.DoAntiban</strong> is called.</p>
+<section id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddTask</span><span class="p">(</span><span class="mi">15</span> <span class="o">*</span> <span class="n">ONE_MINUTE</span><span class="o">,</span> <span class="o">@</span><span class="n">Antiban</span><span class="o">.</span><span class="n">HoverSkills</span><span class="p">)</span><span class="o">;</span> <span class="c1">//Every 15 minutes the script will hover the skills.</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="antiban-doantiban">
+<h2>Antiban.DoAntiban<a class="headerlink" href="#antiban-doantiban" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">DoAntiban</span><span class="p">(</span><span class="n">CheckBreaks</span><span class="o">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="k">True</span><span class="o">;</span> <span class="n">CheckSleeps</span><span class="o">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="k">True</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Antiban.DoAntiban should be called in your script when antiban sleeps, breaks or tasks won’t break your script.
+When this is called, the setup sleep breaks, breaks and tasks will be checked, if enough time has passed to perform any of them (subject to the parameters you pass in too), they will be performed, otherwise, nothing will happen.</p>
+<section id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddTask</span><span class="p">(</span><span class="mi">15</span> <span class="o">*</span> <span class="n">ONE_MINUTE</span><span class="o">,</span> <span class="o">@</span><span class="n">Antiban</span><span class="o">.</span><span class="n">HoverSkills</span><span class="p">)</span><span class="o">;</span>
+
+<span class="k">while</span> <span class="k">True</span> <span class="k">do</span>        <span class="c1">//Infinite loop</span>
+  <span class="n">Antiban</span><span class="o">.</span><span class="n">DoAntiban</span><span class="o">;</span> <span class="c1">//Antiban.HoverSkills will be called every time 15 minutes passed when this is called.</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="built-in-antiban-tasks">
+<h2>Built in Antiban Tasks<a class="headerlink" href="#built-in-antiban-tasks" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">SmallRandomMouse</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">RandomMouse</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">RandomRotate</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">HoverSkill</span><span class="p">(</span><span class="n">Skill</span><span class="o">:</span> <span class="n">ERSSkill</span><span class="o">;</span> <span class="n">HoverTime</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">ReturnToCurrentTab</span><span class="o">:</span> <span class="kt">Boolean</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">HoverSkills</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">LoseFocus</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">LoseFocus</span><span class="p">(</span><span class="n">Idle</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">RandomTab</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">RandomRightClick</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TAntiban</span><span class="o">.</span><span class="nf">AdjustZoom</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>SRL built in Antiban Tasks that can be added with <strong>TAntiban.AddTask</strong>.</p>
+<section id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Antiban</span><span class="o">.</span><span class="n">AddTask</span><span class="p">(</span><span class="mi">15</span> <span class="o">*</span> <span class="n">ONE_MINUTE</span><span class="o">,</span> <span class="o">@</span><span class="n">Antiban</span><span class="o">.</span><span class="n">HoverSkills</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="var-antiban">
+<h2>var Antiban<a class="headerlink" href="#var-antiban" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Global Antiban variable.</p>
+</div></blockquote>
+<hr class="docutils" />
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="login.html" class="btn btn-neutral float-right" title="Login" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="grandexchange.html" class="btn btn-neutral float-left" title="BankScreen.Open" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, SRL Group.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+
+
+</body>
+</html>
