@@ -71,7 +71,7 @@ type
 
 function TRSBank.GetSlotBoxes: TBoxArray; 
 begin
-  Result := Grid(8, (Self.Height() - 135) div 35, 31, 31, [17, 5], [Self.X1 + 57, Self.Y1 + 77]);
+  Result := Grid(8, ((Self.Height() - 135) div 36)+1, 31, 31, [17, 5], [Self.X1 + 57, Self.Y1 + 77]);
 end;
 
 
