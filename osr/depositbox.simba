@@ -3,6 +3,9 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
+const
+  DEPOSITBOX_DEPOSIT_ALL  = -1;
+
 type
   ERSDepositButton = (
     QUANTITY_1,
@@ -15,6 +18,12 @@ type
     DEPOSIT_WORN,
     DEPOSIT_LOOT
   );
+
+type
+  TRSDepositBoxItem = record
+    Item: TRSItem;
+    Quantity: Int32;
+  end;
 
   TRSDepositBox = type TRSTitledInteface;
 
@@ -86,6 +95,166 @@ begin
     Exit(True);
 
   Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
+end;
+
+function TRSDepositBox.IsCustomQuantity(Quantity: Int32): Boolean;
+begin
+  Result := not (Quantity in [1,5,10,DEPOSITBOX_DEPOSIT_ALL]);
+end;
+
+function TRSDepositBox.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
+var
+  Boxes: TBoxArray;
+  Indices: TIntegerArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Boxes := Self.GetSlotBoxes();
+  Indices := ItemFinder.Find(Item, Boxes, 1);
+  if Result := Indices <> [] then
+    Bounds := Boxes[Indices[0]];
+end;
+
+//overload to not require passing a TBox.
+function TRSDepositBox.FindItem(Item: TRSItem): Boolean; overload;
+var
+  B: TBox;
+begin
+  Result := Self.FindItem(Item, B);
+end;
+
+(*
+TRSDepositBox.CountSlots
+~~~~~~~~~~
+.. pascal:: function TRSDepositBox.CountSlots(): Int32;
+
+Counts the total number of individual items in the depositbox
+
+.. note:: This is automatically called on the **Bank** variable.
+*)
+function TRSDepositBox.CountSlots(): Int32;
+var
+  Box: TBox;
+  Pt: TPoint;
+  TPA: TPointArray;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  if SRL.FindColors(TPA, RS_ITEM_BORDER, Self.Bounds) > 0 then
+    for Box in Self.GetSlotBoxes() do
+      for Pt in TPA do
+        if Pt.InBox(Box) then
+        begin
+          Inc(Result);
+          break;
+        end;
+end;
+
+function TRSDepositBox.CountItem(Item: TRSItem): Int32;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  Result := Length(ItemFinder.Find(Item, Self.GetSlotBoxes()));
+end;
+
+function TRSDepositBox.CountItemStack(Item: TRSItem): Int32;
+var
+  B: TBox;
+begin
+  Result := -1;
+  if Self.FindItem(Item, B) then
+    Result := SRL.GetItemAmount(B);
+end;
+
+function TRSDepositBox.HoverItem(Item: TRSItem): Boolean;
+var
+  B: TBox;
+begin
+  Result := Self.FindItem(Item, B);
+  if Result then
+    Mouse.Move(B);
+end;
+
+function TRSDepositBox.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
+begin
+  if Self.HoverItem(Item) then
+  begin
+    if Option <> '' then
+      Result := ChooseOption.Select(Option)
+    else
+    begin
+      Mouse.Click(MOUSE_LEFT);
+
+      Result := True;
+    end;
+  end;
+end;
+
+function TRSDepositBox.DepositHelper(B: TBox; Amount: Int32; UseQuantityButtons: Boolean): Boolean;
+var
+  Button: TRSButton;
+begin
+  if UseQuantityButtons then
+  begin
+    if Self.IsCustomQuantity(Amount) then
+    begin
+      Button := Self.GetButton(ERSDepositButton.QUANTITY_CUSTOM);
+
+      if Button.Enable() then
+      begin
+        Mouse.Move(B);
+
+        if MainScreen.IsUpText('Deposit-' + ToString(Amount)) then
+        begin
+          Mouse.Click(MOUSE_LEFT);
+
+          Result := True;
+        end else
+          Result := ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
+      end;
+    end else
+    begin
+      case Amount of
+        1:  Button := Self.GetButton(ERSDepositButton.QUANTITY_1);
+        5:  Button := Self.GetButton(ERSDepositButton.QUANTITY_5);
+        10: Button := Self.GetButton(ERSDepositButton.QUANTITY_10);
+        else
+            Button := Self.GetButton(ERSDepositButton.QUANTITY_ALL)
+      end;
+
+      if Button.Enable() then
+      begin
+        Result := True;
+
+        Mouse.Click(B, MOUSE_LEFT);
+      end;
+    end;
+  end else
+  begin
+    Mouse.Move(B);
+
+    if (Amount = DEPOSITBOX_DEPOSIT_ALL) then
+      Result := ChooseOption.Select('Deposit-All')
+    else
+      Result := ChooseOption.Select('Deposit-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False) or
+                ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500));
+  end;
+end;
+
+function TRSDepositBox.DepositItem(Item: TRSDepositBoxItem; UseQuantityButtons: Boolean): Boolean;
+var
+  Box: TBox;
+begin
+  if Self.FindItem(Item.Item, Box) then
+    Result := Self.DepositHelper(Box, Item.Quantity, UseQuantityButtons);
+end;
+
+function TRSDepositBox.DepositAll: Boolean;
+begin
+  Result := (Inventory.Count() = 0) or Self.GetButton(ERSDepositButton.DEPOSIT_INVENTORY).Click();
 end;
 
 procedure TRSDepositBox.Draw(Bitmap: TMufasaBitmap); override;
