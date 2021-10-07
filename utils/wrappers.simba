@@ -454,28 +454,6 @@ begin
 end;
 
 (*
-InRange; overload
-~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function InRange(const Value, Min, Max: Extended): Boolean; overload;
-
-Takes a extended variable instead of an integer variable.
-
-.. note:: by Olly
-
-Example:
-
-.. code-block:: pascal
-
-    WriteLn(InRange(15.0, 10.0, 20.0));
-*)
-function InRange(const Value, Min, Max: Extended): Boolean; overload;
-begin
-  Result := (value >= min) and (value <= max);
-end;
-
-(*
 Distance; overload
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal

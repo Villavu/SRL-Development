@@ -53,8 +53,8 @@ end;
 {$IFNDEF SRL_MISC_INCLUDED}            {$I osr/misc.simba}
 {$IFNDEF SRL_ITEMFINDER_INCLUDED}      {$I osr/itemfinder/itemfinder.simba}
 {$IFNDEF SRL_RSCLIENT_INCLUDED}        {$I osr/rsclient.simba}
-{$IFNDEF SRL_INTERFACE_INCLUDED}       {$I osr/interface.simba}
 {$IFNDEF SRL_CHOOSEOPTION_INCLUDED}    {$I osr/chooseoption.simba}
+{$IFNDEF SRL_INTERFACE_INCLUDED}       {$I osr/interface.simba}
 {$IFNDEF SRL_CHATBUTTONS_INCLUDED}     {$I osr/chatbuttons.simba}
 {$IFNDEF SRL_LOGIN_INCLUDED}           {$I osr/login.simba}
 {$IFNDEF SRL_CHAT_INCLUDED}            {$I osr/chat.simba}

@@ -1,0 +1,97 @@
+type
+  ERSMakeElement = (
+    QUANTITY_1,
+    QUANTITY_2,
+    QUANTITY_3,
+    QUANTITY_4,
+    QUANTITY_5
+  );
+
+procedure TRSMake.Setup; override;
+begin
+  inherited();
+
+  Self.Name := 'Make';
+
+  SetLength(Self.Elements, Length(ERSMakeElement));
+
+  with Self.Elements[ERSMakeElement.QUANTITY_1] do
+  begin
+    Name   := 'quantity_1';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [325, 15];
+    Width  := 30;
+    Height := 30;
+  end;
+
+  with Self.Elements[ERSMakeElement.QUANTITY_2] do
+  begin
+    Name   := 'quantity_2';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [360, 15];
+    Width  := 30;
+    Height := 30;
+  end;
+
+  with Self.Elements[ERSMakeElement.QUANTITY_3] do
+  begin
+    Name   := 'quantity_3';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [395, 15];
+    Width  := 30;
+    Height := 30;
+  end;
+
+  with Self.Elements[ERSMakeElement.QUANTITY_4] do
+  begin
+    Name   := 'quantity_4';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [430, 15];
+    Width  := 30;
+    Height := 30;
+  end;
+
+  with Self.Elements[ERSMakeElement.QUANTITY_5] do
+  begin
+    Name   := 'quantity_5';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [465, 15];
+    Width  := 35;
+    Height := 30;
+  end;
+end;
+
+function TRSMake.ElementBounds(constref Element: ERSMakeElement): TBox;
+begin
+  Result := Self._ElementBounds(Self.Elements[Element]);
+end;
+
+procedure TRSMake.ElementClick(constref Element: ERSMakeElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self._ElementClick(Self.Elements[Element], Button);
+end;
+
+function TRSMake.ElementClick(constref Element: ERSMakeElement; Option: String): Boolean; overload;
+begin
+  Result := Self._ElementClick(Self.Elements[Element], Option);
+end;
+
+function TRSMake.ElementCountColor(constref Element: ERSMakeElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSMake.ElementFindText(constref Element: ERSMakeElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSMake.ElementGetText(constref Element: ERSMakeElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self._ElementGetText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSMake.ElementToggle(constref Element: ERSMakeElement; Color: Integer; Tolerance: Integer = 0): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance);
+end;

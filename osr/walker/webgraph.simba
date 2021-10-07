@@ -6,7 +6,7 @@ Web Graph
 type
   TWebGraph = record
     Nodes: TPointArray;
-    Paths: T2DIntArray;
+    Paths: T2DIntegerArray;
     Names: TStringArray;
     Blocking: TIntegerArray;
   end;
@@ -43,7 +43,7 @@ type
   end;
 var
   queue: array of TNode;
-  visited: TBoolArray;
+  visited: TBooleanArray;
   cIdx, pathIdx, i: Int32;
   current, node: TNode;
   altPaths: array of TIntegerArray;

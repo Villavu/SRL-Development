@@ -1,0 +1,512 @@
+begin
+  //SetTargetBitmap(LoadBitmap('bank.bmp'));
+end;
+
+{$DEFINE SRL_USE_REMOTEINPUT}
+{.$DEFINE SRL_USE_REMOTEINPUT_DEBUG}
+
+{$I SRL/osr.simba}
+{$hints off}
+
+{$scopedenums on}
+
+begin
+  //WriteLn(Bank.FindElementText(ERSBankElement.QUANTITY_ALL, [2070783], 'All', RS_FONT_PLAIN_12));
+  //Halt;
+end;
+
+function BoxToButton(Name: String; Box: TBox; Anchor: ERSInterfaceElementAnchor; InterfaceBounds: TBox): TRSInterfaceElement;
+begin
+  case Anchor of
+    ERSInterfaceElementAnchor.TOP:     Result.Offset := [Box.X1, Box.Y1];
+    ERSInterfaceElementAnchor.BOTTOM:  Result.Offset := [Box.X1, Box.Y2 - InterfaceBounds.Height()];
+  end;
+
+  Result.Anchor := Anchor;
+  Result.Name := Name;
+  Result.Width := Box.Width - 1;
+  Result.Height := Box.Height - 1;
+end;
+
+function ButtonToBox(Button: TRSInterfaceElement; InterfaceBounds: TBox): TBox;
+begin
+  case Button.Anchor of
+    ERSInterfaceElementAnchor.TOP:
+      begin
+        Result.X1 := Button.Offset.X;
+        Result.Y1 := Button.Offset.Y;
+
+        Result.X2 := Result.X1 + Button.Width;
+        Result.Y2 := Result.Y1 + Button.Height;
+      end;
+
+    ERSInterfaceElementAnchor.BOTTOM:
+      begin
+        Result.X1 := Button.Offset.X;
+        Result.Y2 := Button.Offset.Y + InterfaceBounds.Height();
+
+        Result.X2 := Result.X1 + Button.Width;
+        Result.Y1 := Result.Y2 - Button.Height;
+      end;
+  end;
+end;
+
+type
+  TRSInterfaceBuilder = record
+    Form: TForm;
+    ImageBox: TSimbaImageBox;
+    ListBox: TListBox;
+    // add listbox onselectionchange
+    // wait for cleardebug?
+
+    Selected: record
+      Name: String;
+      Anchor: ERSInterfaceElementAnchor;
+      Box: TBox;
+      Corner: record x,y: ^Integer; end;
+    end;
+
+    MovingStart: TPoint;
+    Moving: Boolean;
+    Dragging: Boolean;
+
+    Name: String;
+    Buttons: array of TRSInterfaceElement;
+    Bounds: TBox;
+
+    SelectedButtonIndex: Int32;
+  end;
+
+var
+  InterfaceBuilder: TRSInterfaceBuilder;
+
+procedure TRSInterfaceBuilder.WriteButtons(Buttons: array of TRSInterfaceElement);
+var
+  Include: String;
+
+  procedure Write(S: String; Args: array of Variant = []);
+  begin
+    Include := Include + Format(S, Args) + LineEnding;
+  end;
+
+  function InterfaceType: String;
+  begin
+    Result := 'TRS' + Self.Name;
+  end;
+
+  function EnumType: String;
+  begin
+    Result := 'ERS' + Self.Name + 'Element';
+  end;
+
+  function EnumElement(Name: String; Scoped: Boolean): String;
+  begin
+    if Scoped then
+      Result := EnumType() + '.';
+
+    Result += StringReplace(UpperCase(Name), ' ', '_', [rfReplaceAll]);
+  end;
+
+var
+  I: Int32;
+begin
+  if Length(Buttons) > 0 then
+  begin
+    Write('type');
+    Write('  %s = (', [EnumType]);
+    for I := 0 to High(Buttons) do
+    begin
+      if (I < High(Buttons)) then
+        Write('    %s,', [EnumElement(Buttons[I].Name, False)])
+      else
+        Write('    %s', [EnumElement(Buttons[I].Name, False)]);
+    end;
+    Write('  );');
+
+    Write('');
+    Write('procedure %s.Setup; override;', [InterfaceType()]);
+    Write('begin');
+    Write('  inherited();');
+    Write('');
+    Write('  Self.Name := ''%s'';', [Self.Name]);
+    Write('');
+    Write('  SetLength(Self.Elements, Length(%s));', [EnumType()]);
+    Write('');
+    for I := 0 to High(Buttons) do
+    begin
+      if (I > 0) then
+        Write('');
+
+      Write('  with Self.Elements[%s] do', [EnumElement(Buttons[I].Name, True)]);
+      Write('  begin');
+      Write('    Name   := ''%s'';', [Buttons[I].Name]);
+      Write('    Anchor := ERSInterfaceElementAnchor.%s;', [ToString(Buttons[I].Anchor)]);
+      Write('    Offset := [%d, %d];', [Buttons[I].Offset.X, Buttons[I].Offset.Y]);
+      Write('    Width  := %d;', [Buttons[I].Width]);
+      Write('    Height := %d;', [Buttons[I].Height]);
+      Write('  end;');
+    end;
+    Write('end;');
+    Write('');
+
+    Write('function %s.ElementBounds(constref Element: %s): TBox;', [InterfaceType(), EnumType()]);
+    Write('begin');
+    Write('  Result := Self._ElementBounds(Self.Elements[Element]);');
+    Write('end;');
+    Write('');
+    Write('procedure %s.ElementClick(constref Element: %s; Button: Integer = MOUSE_LEFT); overload;', [InterfaceType(), EnumType()]);
+    Write('begin');
+    Write('  Self._ElementClick(Self.Elements[Element], Button);');
+    Write('end;');
+    Write('');
+    Write('function %s.ElementClick(constref Element: %s; Option: String): Boolean; overload;', [InterfaceType(), EnumType()]);
+    Write('begin');
+    Write('  Result := Self._ElementClick(Self.Elements[Element], Option);');
+    Write('end;');
+    Write('');
+    Write('function %s.ElementCountColor(constref Element: %s; Color, Tolerance: Integer): Integer;', [InterfaceType(), EnumType()]);
+    Write('begin');
+    Write('  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);');
+    Write('end;');
+    Write('');
+    Write('function %s.ElementFindText(constref Element: %s; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;', [InterfaceType(), EnumType()]);
+    Write('begin');
+    Write('  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);');
+    Write('end;');
+    Write('');
+    Write('function %s.ElementGetText(constref Element: %s; constref Colors: TIntegerArray; constref Font: TFontSet): String;', [InterfaceType(), EnumType()]);
+    Write('begin');
+    Write('  Result := Self._ElementGetText(Self.Elements[Element], Colors, Font);');
+    Write('end;');
+    Write('');
+    Write('function %s.ElementToggle(constref Element: %s; Color: Integer; Tolerance: Integer = 0): Boolean;', [InterfaceType(), EnumType()]);
+    Write('begin');
+    Write('  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance);');
+    Write('end;');
+  end;
+
+  WriteFileContents({$macro CURRENT_DIRECTORY} + '/' + Self.Name.Lower() + '.elements', Include, False);
+end;
+
+procedure TRSInterfaceBuilder.OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Int32);
+var
+  Corner: record X, Y: ^Int32; end;
+  I: Int32;
+begin
+  if (Button = mbLeft) then
+  begin
+    // New Box
+    if (Self.SelectedButtonIndex > -1) and (Self.Selected.Box = []) then
+    begin
+      Self.Dragging := True;
+      Self.Selected.Box.X1 := X;
+      Self.Selected.Box.Y1 := Y;
+
+      Exit;
+    end;
+
+    // Select Corner
+    if (Self.SelectedButtonIndex > -1) then
+    begin
+      Self.Selected.Corner := [];
+      with Self.Selected.Box do
+        for Corner in [[@X1, @Y1], [@X2, @Y1], [@X1, @Y2], [@X2, @Y2]] do
+          if (Distance(X, Y, Corner.X^, Corner.Y^) < 3) then
+          begin
+            Self.Dragging := True;
+            Selected.Corner := Corner;
+
+            Exit;
+          end;
+    end;
+
+    // Select Box
+    for I := High(Self.Buttons) downto 0 do
+      if PointInBox([X, Y], ButtonToBox(Self.Buttons[I], Self.Bounds)) then
+      begin
+        Self.Moving := True;
+        Self.MovingStart := [X, Y];
+        Self.Selected.Box := ButtonToBox(Self.Buttons[I], Self.Bounds);
+
+        Self.ListBox.SetItemIndex(I);
+        Self.OnListBoxChange(nil);
+
+        Exit;
+      end;
+  end;
+end;
+
+procedure TRSInterfaceBuilder.OnMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Int32);
+begin
+  if (Button = mbLeft) then
+  begin
+    if Self.Dragging or Self.Moving then
+      Self.Buttons[Self.SelectedButtonIndex] := BoxToButton(Self.Selected.Name, Self.Selected.Box, Self.Selected.Anchor, Self.Bounds);
+
+    Self.Dragging := False;
+    Self.Moving := False;
+  end;
+end;
+
+procedure TRSInterfaceBuilder.OnMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Int32);
+begin
+  if Self.Moving then
+  begin
+    Self.Selected.Box := ButtonToBox(Self.Buttons[SelectedButtonIndex], Self.Bounds);
+    Self.Selected.Box := Self.Selected.Box.Offset([X,Y] - Self.MovingStart);
+
+    Self.ImageBox.Repaint();
+  end else
+  if Self.Dragging then
+  begin
+    if Self.Selected.Corner <> [] then
+    begin
+      Self.Selected.Corner.X^ := X;
+      Self.Selected.Corner.Y^ := Y;
+    end else
+    begin
+      if (X > Self.Selected.Box.X1) then
+        Self.Selected.Box.X2 := X;
+      if (Y > Self.Selected.Box.Y1) then
+        Self.Selected.Box.Y2 := Y;
+    end;
+
+    Self.ImageBox.Repaint();
+  end;
+end;
+
+procedure TRSInterfaceBuilder.OnPaintArea(Sender: TObject; Canvas: TCanvas; R: TRect);
+
+  procedure DrawAnchorLines(From: TPoint; X, Y: Integer);
+  begin
+    Canvas.MoveTo(From.X, From.Y);
+    Canvas.LineTo(X, From.Y);
+
+    Canvas.MoveTo(From.X, From.Y);
+    Canvas.LineTo(From.X, Y);
+  end;
+
+var
+  I: Int32;
+begin
+  Canvas.GetPen.SetColor(clRed);
+
+  for I := 0 to High(Self.Buttons) do
+    if (Self.SelectedButtonIndex <> I) then
+      with ButtonToBox(Self.Buttons[I], Self.Bounds) do
+        Canvas.Frame(X1, Y1, X2, Y2);
+
+  if (Self.SelectedButtonIndex > -1) then
+  begin
+    Canvas.GetPen.SetColor(clYellow);
+    Canvas.GetPen.SetStyle(psDot);
+    Canvas.GetBrush.SetStyle(bsClear);
+
+    case Self.Selected.Anchor of
+      ERSInterfaceElementAnchor.TOP:
+        DrawAnchorLines([Self.Selected.Box.X1, Self.Selected.Box.Y1], R.Left, R.Top);
+
+      ERSInterfaceElementAnchor.BOTTOM:
+        DrawAnchorLines([Self.Selected.Box.X1, Self.Selected.Box.Y2], R.Left, R.Bottom);
+    end;
+
+    Canvas.GetPen.SetStyle(psSolid);
+    Canvas.GetPen.SetColor(clLime);
+    Canvas.Frame(Self.Selected.Box.X1, Self.Selected.Box.Y1, Self.Selected.Box.X2, Self.Selected.Box.Y2);
+  end;
+end;
+
+procedure TRSInterfaceBuilder.UpdateSelectedElement;
+begin
+  if (Self.SelectedButtonIndex < 0) then
+  begin
+    WriteLn('No selected element!');
+
+    Exit;
+  end;
+
+  Self.Buttons[Self.SelectedButtonIndex] := BoxToButton(Self.Selected.Name, Self.Selected.Box, Self.Selected.Anchor, Self.Bounds);
+  Self.ImageBox.Repaint();
+end;
+
+procedure TRSInterfaceBuilder.OnAnchorButtonClick(Sender: TObject);
+begin
+  case TButton(Sender).GetCaption() of
+    'Anchor: Top':     Self.Selected.Anchor := ERSInterfaceElementAnchor.TOP;
+    'Anchor: Bottom':  Self.Selected.Anchor := ERSInterfaceElementAnchor.BOTTOM;
+  end;
+
+  Self.UpdateSelectedElement();
+end;
+
+procedure TRSInterfaceBuilder.OnCopyButtonClick(Sender: TObject);
+var
+  Name: String;
+begin
+  if (Self.SelectedButtonIndex > -1) and InputQuery('Copy Element', 'Element name:', Name) and (Name <> '') then
+  begin
+    Self.Buttons += [Self.Buttons[Self.SelectedButtonIndex]];
+
+    Self.ListBox.SetItemIndex(Self.ListBox.GetItems().Add(Name));
+    Self.OnListBoxChange(nil);
+  end;
+end;
+
+procedure TRSInterfaceBuilder.OnNewButtonClick(Sender: TObject);
+var
+  Name: String;
+begin
+  if InputQuery('New Element', 'Element name:', Name) and (Name <> '') then
+  begin
+    SetLength(Self.Buttons, Length(Self.Buttons) + 1);
+
+    Self.ListBox.SetItemIndex(Self.ListBox.GetItems().Add(Name));
+    Self.OnListBoxChange(nil);
+  end;
+end;
+
+procedure TRSInterfaceBuilder.OnRemoveButtonClick(Sender: TObject);
+var
+  Name: String;
+begin
+  if (Self.SelectedButtonIndex > -1) then
+  begin
+    Delete(Self.Buttons, Self.SelectedButtonIndex, 1);
+
+    Self.ListBox.GetItems().Delete(Self.SelectedButtonIndex);
+    Self.ListBox.SetItemIndex(-1);
+
+    Self.OnListBoxChange(nil);
+  end;
+end;
+
+procedure TRSInterfaceBuilder.OnListBoxChange(Sender:TObject);
+var
+  Button: TRSInterfaceElement;
+begin
+  //if (Self.SelectedButtonIndex > -1) then
+  //  Self.Buttons[Self.SelectedButtonIndex] := BoxToButton(Self.Selected.Name, Self.Selected.Box, Self.Selected.Anchor, Self.InterfaceBounds);
+
+  Self.SelectedButtonIndex := Self.Listbox.GetItemIndex();
+  if (Self.SelectedButtonIndex > -1) then
+  begin
+    Button := Self.Buttons[Self.SelectedButtonIndex];
+
+    Self.Selected.Box := ButtonToBox(Button, Self.Bounds);
+    Self.Selected.Anchor := Button.Anchor;
+    Self.Selected.Name := Listbox.GetItems.GetStrings(Self.SelectedButtonIndex);
+    Self.Selected.Corner := [];
+  end;
+
+  Self.ImageBox.Repaint();
+end;
+
+procedure TRSInterfaceBuilder.OnFormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  WriteButtons(Self.Buttons);
+end;
+
+procedure TRSInterfaceBuilder.Run;
+var
+  Bitmap: TMufasaBitmap;
+  Panel: TPanel;
+  Button: TButton;
+  I: Int32;
+begin
+  Bitmap.FromClient(Self.Bounds);
+
+  Self.SelectedButtonIndex := -1;
+
+  try
+    Self.Form.Init(nil);
+    //Self.Form.SetPosition(poScreenCenter);
+    Self.Form.SetCaption('RS Interface Builder');
+    Self.Form.SetWidth(1000);
+    Self.Form.SetHeight(1000);
+    Self.form.setLeft(-1500);
+    Self.form.settop(300);
+    Self.Form.GetFont().SetSize(12);
+    Self.Form.SetOnClose(@OnFormClose);
+
+    Panel.Init(Self.Form);
+    Panel.SetParent(Self.Form);
+    Panel.SetAutoSize(True);
+    Panel.SetAlign(alTop);
+
+    Button.Init(Panel);
+    Button.SetParent(Panel);
+    Button.SetAutoSize(True);
+    Button.SetCaption('Anchor: Top');
+    Button.SetOnClick(@Self.OnAnchorButtonClick);
+    Button.setAlign(alLeft);
+
+    Button.Init(Panel);
+    Button.SetParent(Panel);
+    Button.SetAutoSize(True);
+    Button.SetCaption('Anchor: Bottom');
+    Button.SetOnClick(@Self.OnAnchorButtonClick);
+    Button.setAlign(alLeft);
+
+    Button.Init(Panel);
+    Button.SetParent(Panel);
+    Button.SetAutoSize(True);
+    Button.SetCaption('Copy Button');
+    Button.SetOnClick(@Self.OnCopyButtonClick);
+    Button.SetAlign(alLeft);
+
+    Button.Init(Panel);
+    Button.SetParent(Panel);
+    Button.SetAutoSize(True);
+    Button.SetCaption('Remove Button');
+    Button.SetOnClick(@Self.OnRemoveButtonClick);
+    Button.SetAlign(alLeft);
+
+    Button.Init(Panel);
+    Button.SetParent(Panel);
+    Button.SetAutoSize(True);
+    Button.SetCaption('New Button');
+    Button.SetOnClick(@Self.OnNewButtonClick);
+    Button.SetAlign(alLeft);
+
+    Self.ListBox.Init(Form);
+    Self.ListBox.SetParent(Form);
+    Self.ListBox.SetAlign(alLeft);
+    Self.ListBox.setWidth(200);
+    Self.ListBox.setOnClick(@OnListBoxChange);
+
+    Self.ImageBox.Init(Form);
+    Self.ImageBox.SetParent(Form);
+    Self.ImageBox.SetAlign(alClient);
+    Self.ImageBox.SetOnPaintArea(@Self.OnPaintArea);
+    Self.ImageBox.SetOnMouseMove(@Self.OnMouseMove);
+    Self.ImageBox.SetOnMouseDown(@Self.OnMouseDown);
+    Self.ImageBox.SetOnMouseUp(@Self.OnMouseUp);
+    Self.ImageBox.GetBackground().LoadFromMufasaBitmap(Bitmap);
+    Self.ImageBox.BackgroundChanged();
+
+    for I := 0 to High(Self.Buttons) do
+      Self.ListBox.GetItems().Add(Buttons[I].Name);
+
+    Self.Form.ShowModal();
+    Self.Form.Free();
+  except
+    Writeln GetExceptionMessage();
+  end;
+
+  Bitmap.Free();
+end;
+
+begin
+
+   {
+  InterfaceBuilder.Name := 'Bank';
+  InterfaceBuilder.Buttons := Bank.Elements;
+  InterfaceBuilder.Bounds := Bank.Bounds;
+  }
+
+  InterfaceBuilder.Name := 'Make';
+  InterfaceBuilder.Buttons := Make.Elements;
+  InterfaceBuilder.Bounds := Make.Bounds;
+
+  Sync(@InterfaceBuilder.Run);
+end;

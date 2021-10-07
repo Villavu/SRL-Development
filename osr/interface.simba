@@ -4,6 +4,15 @@
 {$ENDIF}
 
 type
+  ERSInterfaceElementAnchor = (TOP, BOTTOM);
+
+  TRSInterfaceElement = record
+    Name: String;
+    Anchor: ERSInterfaceElementAnchor;
+    Offset: TPoint;
+    Width, Height: Int32;
+  end;
+
   TRSInterfaceAlignment = record
     Left, Right, Top, Bottom: record
       Method: function: Int32 of object;
@@ -17,8 +26,15 @@ type
   end;
   
   TRSInterface = record(TSRLBaseRecord)
+  // Some common interface colors
+  class const
+    COLOR_TEXT_WHITE  = $FFFFFF;
+    COLOR_TEXT_ORANGE = $1F98FF;
+  var
     Mode: ERSClientMode;
-    
+
+    Elements: array of TRSInterfaceElement;
+
     ButtonColors: array of TCTS1Color;
     ButtonEnabledColors: array of TCTS1Color;
     
@@ -33,7 +49,127 @@ type
     end;
     
     Alignment: TRSInterfaceAlignment;
+
+    OnGetItemBoxes: function: TBoxArray of object;
   end;
+
+{%codetools off}
+function TRSInterface._ElementBounds(constref Element: TRSInterfaceElement): TBox;
+var
+  B: TBox;
+begin
+  B := Self.Bounds();
+
+  case Element.Anchor of
+    ERSInterfaceElementAnchor.TOP:
+      begin
+        Result.X1 := B.X1 + Element.Offset.X;
+        Result.Y1 := B.Y1 + Element.Offset.Y;
+
+        Result.X2 := Result.X1 + Element.Width;
+        Result.Y2 := Result.Y1 + Element.Height;
+      end;
+
+    ERSInterfaceElementAnchor.BOTTOM:
+      begin
+        Result.X1 := B.X1 + Element.Offset.X;
+        Result.Y2 := B.Y1 + Element.Offset.Y + B.Height;
+
+        Result.X2 := Result.X1 + Element.Width;
+        Result.Y1 := Result.Y2 - Element.Height;
+      end;
+  end;
+end;
+
+procedure TRSInterface._ElementClick(constref Element: TRSInterfaceElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Mouse.Click(Self._ElementBounds(Element), Button);
+end;
+
+function TRSInterface._ElementClick(constref Element: TRSInterfaceElement; Option: String): Boolean; overload;
+begin
+  Mouse.Move(Self._ElementBounds(Element));
+
+  Result := ChooseOption.Select(Option);
+end;
+
+function TRSInterface._ElementCountColor(constref Element: TRSInterfaceElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := CountColorTolerance(Color, Self._ElementBounds(Element), Tolerance);
+end;
+
+function TRSInterface._ElementFindText(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := OCR.LocateText(Self._ElementBounds(Element), Text, Font, TOCRColorRule.Create(Colors), 1);
+end;
+
+function TRSInterface._ElementToggle(constref Element: TRSInterfaceElement; Color: Integer; Tolerance: Integer = 0): Boolean;
+begin
+  if Self._ElementCountColor(Element, Color, Tolerance) > 0 then
+    Exit(True);
+
+  Self._ElementClick(Element);
+
+  Result := WaitUntil(Self._ElementCountColor(Element, Color, Tolerance) > 0, 50, SRL.TruncatedGauss(1000, 1500));
+end;
+
+function TRSInterface._ElementGetText(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := OCR.Recognize(Self._ElementBounds(Element), TOCRColorRule.Create(Colors), Font);
+end;
+{%codetools on}
+
+function TRSInterface.FindItem(Item: TRSItem): TBoxArray; overload;
+begin
+  Result := ItemFinder.Find2(Item, Self.OnGetItemBoxes(), 1);
+end;
+
+function TRSInterface.FindItem(Item: TRSItem; out Match: TBox): Boolean; overload;
+var
+  Matches: TBoxArray;
+begin
+  Matches := ItemFinder.Find2(Item, Self.OnGetItemBoxes(), 1);
+
+  Result := Length(Matches) > 0;
+  if Result then
+    Match := Matches[0];
+end;
+
+function TRSInterface.MouseItem(Item: TRSItem): Boolean;
+var
+  Match: TBox;
+begin
+  Result := Self.FindItem(Item, Match);
+  if Result then
+    Mouse.Move(Match);
+end;
+
+function TRSInterface.ClickItem(Item: TRSItem; Option: String): Boolean; overload;
+begin
+  // TODO
+  //if Self.MouseItem(Item) then
+  //  Result := ChooseOption.Select([Option]);
+end;
+
+function TRSInterface.ClickItem(Item: TRSItem): Boolean; overload;
+begin
+  Result := Self.MouseItem(Item);
+  if Result then
+    Mouse.Click(MOUSE_LEFT);
+end;
+
+function TRSInterface.CountItem(Item: TRSItem): Int32;
+begin
+  Result := Length(Self.FindItem(Item));
+end;
+
+function TRSInterface.CountItemStack(Item: TRSItem): Int32;
+var
+  B: TBox;
+begin
+  if Self.FindItem(Item, B) then
+    Result := SRL.GetItemAmount(B);
+end;
 
 procedure TRSInterface.Setup; 
 begin
@@ -499,9 +635,13 @@ end;
 procedure TRSInterface.Draw(Bitmap: TMufasaBitmap);
 var
   ScrollBar: TRSScrollBar;
+  I: Integer;
 begin
   Bitmap.DrawBox(Self.Bounds(), $00FFFF);
-  
+
+  for I:=0 to High(Self.Elements) do
+    Bitmap.DrawBox(Self._ElementBounds(Self.Elements[I]), $00FF00);
+
   ScrollBar := Self.GetScrollBar();
   if ScrollBar.IsVisible() then
     ScrollBar.Draw(Bitmap); 

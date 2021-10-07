@@ -100,18 +100,6 @@ begin
 end;
 
 (*
-String.Capitalize
-~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function String.Capitalize(): String; constref;
-
-Returns the string with every word captalized
-*)
-function String.Capitalize(): String; constref;
-begin
-  Result := System.Capitalize(Self);
-end;
-
-(*
 String.Upper
 ~~~~~~~~~~~~~~~~~
 .. pascal:: function String.Upper(): String; constref;

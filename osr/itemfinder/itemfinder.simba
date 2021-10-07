@@ -265,6 +265,35 @@ begin
     end;
 end;
 
+function TRSItemFinder.Find2(constref Item: TRSItem; constref Slots: TBoxArray; constref MaxToFind: Int32 = -1): TBoxArray;
+var
+  Templ: TMufasaBitmap;
+  I, J: Int32;
+  Images: array of TMufasaBitmap;
+  CustomFilter: TRSItemFinderCustomFilter;
+begin
+  if Length(Slots) = 0 then
+    Exit;
+
+  Images := Self.GetItemImages(Item);
+
+  for I := 0 to High(Self.ClearSparkleItems) do
+    if (SameText(Self.ClearSparkleItems[I], Item)) then
+      CustomFilter := @Self.ClearSparkles;
+
+  for I := 0 to High(Slots) do
+    for J := 0 to High(Images) do
+    begin
+      Templ.FromClient(Slots[I]);
+      if Self.CompareItems(Images[J], Templ, @CustomFilter) >= Self.Similarity then
+        Result += Slots[I];
+      Templ.Free();
+
+      if (MaxToFind > 0) and (Length(Result) = MaxToFind) then
+        Exit;
+    end;
+end;
+
 var
   ItemFinder: TRSItemFinder;
 

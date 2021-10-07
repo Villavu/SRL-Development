@@ -65,6 +65,7 @@ begin
     Result := Buttons[Button];
 end;
 
+{
 function TRSEquipment.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
 var
   Boxes: TBoxArray;
@@ -126,6 +127,7 @@ begin
   if Self.FindItem(Item, B) then
     Result := SRL.GetItemAmount(B);
 end;
+}
 
 
 function TRSEquipment.IsSlotUsed(B: TBox): Boolean; overload;
