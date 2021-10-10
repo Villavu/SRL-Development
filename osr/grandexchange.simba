@@ -487,24 +487,7 @@ begin
   else
     Result := inherited();
 end;
-  
-procedure TRSClient.ClientModeChanged; override;
+
 begin
-  inherited;
-
-  GrandExchange.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  GrandExchange.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  GrandExchange.Draw(Bitmap);
+  RegisterInterface(@GrandExchange.Setup, @GrandExchange.Draw, @GrandExchange.SetupAlignment);
 end;

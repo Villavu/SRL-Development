@@ -1,9 +1,7 @@
 {$DEFINE SRL_UTILS}
 
 type
-  TSRL = record
-    IsSetup: Boolean;
-  end;
+  TSRL = type Pointer;
 
 var
   SRL: TSRL;

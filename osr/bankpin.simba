@@ -139,23 +139,6 @@ begin
   Result := inherited(WaitForItems);
 end;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  BankPin.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  BankPin.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  BankPin.Draw(Bitmap);
+  RegisterInterface(@BankPin.Setup, @BankPin.Draw, @BankPin.SetupAlignment);
 end;

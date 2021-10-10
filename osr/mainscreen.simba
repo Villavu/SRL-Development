@@ -889,24 +889,7 @@ end;
 var
   MainScreen: TRSMainScreen;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  MainScreen.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  MainScreen.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  MainScreen.Draw(Bitmap);
+  RegisterInterface(@MainScreen.Setup, @MainScreen.Draw, @MainScreen.SetupAlignment);
 end;
 

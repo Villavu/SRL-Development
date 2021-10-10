@@ -47,23 +47,6 @@ end;
 var
   InterfaceArea: TRSInterfaceArea;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  InterfaceArea.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  InterfaceArea.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  InterfaceArea.Draw(Bitmap);
+  RegisterInterface(@InterfaceArea.Setup, @InterfaceArea.Draw, @InterfaceArea.SetupAlignment);
 end;

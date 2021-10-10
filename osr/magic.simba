@@ -587,23 +587,6 @@ var Magic
 var
   Magic: TRSMagic;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Magic.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Magic.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Magic.Draw(Bitmap);
+  RegisterInterface(@Magic.Setup, @Magic.Draw, @Magic.SetupAlignment);
 end;

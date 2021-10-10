@@ -170,24 +170,7 @@ end;
 var
   GameTabs: TRSGameTabs;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  GameTabs.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  GameTabs.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  GameTabs.Draw(Bitmap);
+  RegisterInterface(@GameTabs.Setup, @GameTabs.Draw, @GameTabs.SetupAlignment);
 end;
 

@@ -500,23 +500,6 @@ end;
 var
   Minimap: TRSMinimap;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Minimap.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Minimap.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Minimap.Draw(Bitmap);
+  RegisterInterface(@Minimap.Setup, @Minimap.Draw, @Minimap.SetupAlignment);
 end;

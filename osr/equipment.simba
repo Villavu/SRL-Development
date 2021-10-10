@@ -150,27 +150,9 @@ begin
       Result += 1;
 end;
 
-
 var
   Equipment: TRSEquipment;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Equipment.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Equipment.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Equipment.Draw(Bitmap);
+  RegisterInterface(@Equipment.Setup, @Equipment.Draw, @Equipment.SetupAlignment);
 end;

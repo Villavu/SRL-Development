@@ -184,24 +184,7 @@ end;
 var
   Stats: TRSStats;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Stats.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Stats.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Stats.Draw(Bitmap);
+  RegisterInterface(@Stats.Setup, @Stats.Draw, @Stats.SetupAlignment);
 end;
 

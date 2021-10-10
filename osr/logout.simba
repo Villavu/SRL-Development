@@ -98,23 +98,6 @@ end;
 var
   Logout: TRSLogout;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Logout.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Logout.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Logout.Draw(Bitmap);
+  RegisterInterface(@Logout.Setup, @Logout.Draw, @Logout.SetupAlignment);
 end;

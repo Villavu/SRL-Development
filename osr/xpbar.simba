@@ -171,23 +171,6 @@ end;
 var
   XPBar: TRSXPBar;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  XPBar.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  XPBar.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  XPBar.Draw(Bitmap);
+  RegisterInterface(@XPBar.Setup, @XPBar.Draw, @XPBar.SetupAlignment);
 end;

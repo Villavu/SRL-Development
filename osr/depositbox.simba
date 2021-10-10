@@ -159,23 +159,6 @@ end;
 var
   DepositBox: TRSDepositBox;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  DepositBox.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  DepositBox.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  DepositBox.Draw(Bitmap);
+  RegisterInterface(@DepositBox.Setup, @DepositBox.Draw, @DepositBox.SetupAlignment);
 end;

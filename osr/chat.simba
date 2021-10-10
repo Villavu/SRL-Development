@@ -504,23 +504,6 @@ var Chat
 var
   Chat: TRSChat;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Chat.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Chat.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Chat.Draw(Bitmap);
+  RegisterInterface(@Chat.Setup, @Chat.Draw, @Chat.SetupAlignment);
 end;

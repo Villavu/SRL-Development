@@ -431,23 +431,6 @@ end;
 var
   Login: TRSLogin;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Login.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Login.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Login.Draw(Bitmap);
+  RegisterInterface(@Login.Setup, @Login.Draw, @Login.SetupAlignment);
 end;

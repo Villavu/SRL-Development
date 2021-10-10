@@ -469,23 +469,6 @@ end;
 var
   Inventory: TRSInventory;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Inventory.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  Inventory.Setup();
-
-  inherited;
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Inventory.Draw(Bitmap);
+  RegisterInterface(@Inventory.Setup, @Inventory.Draw, @Inventory.SetupAlignment);
 end;

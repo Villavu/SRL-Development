@@ -445,24 +445,7 @@ begin
   end;
 end;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Combat.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Combat.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Combat.Draw(Bitmap);
+  RegisterInterface(@Combat.Setup, @Combat.Draw, @Combat.SetupAlignment);
 end;
 

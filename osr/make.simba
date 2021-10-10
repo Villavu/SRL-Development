@@ -187,27 +187,9 @@ begin
   Bitmap.Drawboxes(Self.GetItemBoxes(), clRed);
 end;
 
-
 var
   Make: TRSMake;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Make.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Make.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Make.Draw(Bitmap);
+  RegisterInterface(@Make.Setup, @Make.Draw, @Make.SetupAlignment);
 end;

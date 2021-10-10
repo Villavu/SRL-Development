@@ -10,40 +10,6 @@
 
 {$I utils.simba}
 
-procedure TSRL.Setup;
-begin
-  { override me to setup things }
-  
-  Self.IsSetup := True;
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); overload;
-begin
-  { override me to debug things }
-end;
-
-procedure TSRL.Debug; overload;
-var
-  Bitmap: TMufasaBitmap;
-begin
-  Freeze();
-
-  try
-    Bitmap.FromClient();
-
-    Self.Debug(Bitmap);
-
-    Bitmap.Debug();
-    Bitmap.Free();
-  finally
-    Unfreeze();
-  end;
-end;
-
-begin
-  SRL.Setup();
-end;
-
 {$SCOPEDENUMS ON}
 
 // The following allows individual include files to compile on their own with just having {$I SRL/osr.simba}
@@ -123,10 +89,19 @@ end;
   {$HINTS ON}
 {$ENDIF}
 
-procedure TSRL.Setup; override; // Called first. Don't setup multiple times.
+procedure TRSClient.ClientModeChanged; override;
 begin
-  if Self.IsSetup then
-    Exit;
-    
-  inherited;
+  Self.DebugLn('Client mode changed: ' + ToString(Self.Mode));
+
+  SetupInterfaceAlignments(Self.Mode);
+end;
+
+begin
+  SetupInterfaces();
+
+  // Initial mode... for now.
+  RSClient.Mode := RSClient.DetectClientMode();
+  if RSClient.Mode = ERSClientMode.UNKNOWN then
+    RSClient.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
+  RSClient.ClientModeChanged();
 end;

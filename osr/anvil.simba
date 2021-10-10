@@ -65,23 +65,6 @@ end;
 var
   Anvil: TRSAnvil;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Anvil.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Anvil.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Anvil.Draw(Bitmap);
+  RegisterInterface(@Anvil.Setup, @Anvil.Draw, @Anvil.SetupAlignment);
 end;

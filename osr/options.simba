@@ -236,24 +236,7 @@ begin
     Result := ERSGameTab.OPTIONS;
 end;  
   
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Options.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Options.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Options.Draw(Bitmap);
+  RegisterInterface(@Options.Setup, @Options.Draw, @Options.SetupAlignment);
 end;
 

@@ -169,48 +169,10 @@ begin
   {$IFDEF SRL_USE_REMOTEINPUT}
   Self.RemoteInput.Setup();
   {$ENDIF}
-
-  Self.Mode := Self.DetectClientMode();
-  if Self.Mode = ERSClientMode.UNKNOWN then
-    Self.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
-  
-  Self.ClientModeChanged();
 end;
 
 var
   RSClient: TRSClient;
-  
-(*
-Debug
-~~~~~
-.. pascal:: procedure Debug(ATPA: T2DPointArray); override;
-
-If `SRL_USE_REMOTEINPUT_DEBUG` is defined graphical debug methods happen on the RS client.
-*)
-{$IFDEF SRL_USE_REMOTEINPUT_DEBUG}  
-procedure Debug(ATPA: T2DPointArray); override;
-var
-  I: Int32;
-begin
-  with RSClient.Image() do
-  begin
-    Clear();
-    for I := 0 to High(ATPA) do
-      DrawTPA(ATPA[I], DEBUG_COLORS[I mod Length(DEBUG_COLORS)]);  
-  end;
-end;
-
-procedure TSRL.Debug; override;
-begin
-  Freeze();
-
-  try
-    Self.Debug(RSClient.Image());
-  finally
-    Unfreeze();
-  end;
-end;
-{$ENDIF}  
 
 begin
   RSClient.Setup();

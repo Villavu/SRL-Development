@@ -4,6 +4,62 @@
 {$ENDIF}
 
 type
+  TRSInterfaceSetupMethod = procedure of object;
+  TRSInterfaceDrawMethod = procedure(Bitmap: TMufasaBitmap) of object;
+  TRSInterfaceSetupAlignmentMethod = procedure(Mode: ERSClientMode) of object;
+
+var
+  InterfaceSetupMethods: array of TRSInterfaceSetupMethod;
+  InterfaceDrawMethods: array of TRSInterfaceDrawMethod;
+  InterfaceSetupAlignmentMethods: array of TRSInterfaceSetupAlignmentMethod;
+
+procedure RegisterInterface(
+  Setup: TRSInterfaceSetupMethod;
+  Draw: TRSInterfaceDrawMethod;
+  SetupAlignment: TRSInterfaceSetupAlignmentMethod)
+begin
+  InterfaceSetupMethods += @Setup;
+  InterfaceDrawMethods += @Draw;
+  InterfaceSetupAlignmentMethods += @SetupAlignment;
+end;
+
+procedure SetupInterfaces;
+var
+  I: Integer;
+begin
+  for I:=0 to High(InterfaceSetupMethods) do
+    InterfaceSetupMethods[I]();
+end;
+
+procedure SetupInterfaceAlignments(Mode: ERSClientMode);
+var
+  I: Integer;
+begin
+  for I:=0 to High(InterfaceSetupAlignmentMethods) do
+    InterfaceSetupAlignmentMethods[I](Mode);
+end;
+
+procedure DebugInterfaces;
+var
+  Bitmap: TMufasaBitmap;
+  I: Integer;
+begin
+  Freeze();
+
+  try
+    Bitmap.FromClient();
+
+    for I:=0 to High(InterfaceDrawMethods) do
+      InterfaceDrawMethods[I](Bitmap);
+
+    Bitmap.Debug();
+    Bitmap.Free();
+  finally
+    Unfreeze();
+  end;
+end;
+
+type
   ERSInterfaceElementAnchor = (TOP, BOTTOM);
 
   TRSInterfaceElement = record

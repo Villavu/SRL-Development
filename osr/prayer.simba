@@ -754,28 +754,7 @@ begin
       Result += Prayer;
 end;
 
-
-
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Prayer.SetupAlignment(Self.Mode);
-  QuickPrayer.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Prayer.Setup();
-  QuickPrayer.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Prayer.Draw(Bitmap);
-  QuickPrayer.Draw(Bitmap);
+  RegisterInterface(@Prayer.Setup, @Prayer.Draw, @Prayer.SetupAlignment);
+  RegisterInterface(@QuickPrayer.Setup, @QuickPrayer.Draw, @QuickPrayer.SetupAlignment);
 end;

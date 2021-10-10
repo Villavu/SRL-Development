@@ -162,29 +162,9 @@ begin
   Result := Self.GetState(Button) = State;
 end;
 
-
-
-
 var
   ChatButtons: TRSChatButtons;
 
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  ChatButtons.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  ChatButtons.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  ChatButtons.Draw(Bitmap);
+  RegisterInterface(@ChatButtons.Setup, @ChatButtons.Draw, @ChatButtons.SetupAlignment);
 end;

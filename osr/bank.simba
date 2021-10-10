@@ -753,26 +753,7 @@ begin
   Result := inherited();
 end;
 
-
-
-procedure TRSClient.ClientModeChanged; override;
 begin
-  inherited;
-
-  Bank.SetupAlignment(Self.Mode);
-end;
-
-procedure TSRL.Setup; override;
-begin
-  inherited;
-
-  Bank.Setup();
-end;
-
-procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
-begin
-  inherited;
-
-  Bank.Draw(Bitmap);
+  RegisterInterface(@Bank.Setup, @Bank.Draw, @Bank.SetupAlignment);
 end;
 
