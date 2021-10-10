@@ -1,0 +1,87 @@
+{$DEFINE SRL_ANVIL_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  TRSAnvil = type TRSTitledInteface;
+
+{$i elements/anvil.elements}
+
+function TRSAnvil.GetItemBoxes: TBoxArray;
+begin
+  Result := Grid(5, 5, 77, 42, [2, 13], [Self.X1 + 10, Self.Y1 + 36]);
+end;
+
+procedure TRSAnvil.Setup; override;
+begin
+  inherited;
+
+  Self.OnGetItemBoxes := @Self.GetItemBoxes;
+end;
+
+procedure TRSAnvil.SetupAlignment(Mode: ERSClientMode); override;
+begin
+  inherited;
+
+  case Self.Mode of
+    ERSClientMode.FIXED:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2];
+        Self.Alignment.Center.MaxWidth := 500;
+        Self.Alignment.Center.MaxHeight := 320;
+      end;
+
+    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
+      begin
+        Self.Alignment.Left := [@InterfaceArea.X1];
+        Self.Alignment.Right := [@InterfaceArea.X2];
+        Self.Alignment.Top := [@InterfaceArea.Y1, -1];
+        Self.Alignment.Bottom := [@InterfaceArea.Y2];
+        Self.Alignment.Center.MaxWidth := 500;
+        Self.Alignment.Center.MaxHeight := 320;
+      end;
+  end;
+end;
+
+function TRSAnvil.IsOpen: Boolean;
+begin
+  Result := Self.ElementFindText(ERSAnvilElement.QUANTITY_ALL, [Self.COLOR_TEXT_WHITE, Self.COLOR_TEXT_ORANGE], 'All', RS_FONT_PLAIN_11);
+end;
+
+procedure TRSAnvil.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+
+  Bitmap.DrawBoxes(Self.GetItemBoxes(), $00FFFF);
+end;
+
+var
+  Anvil: TRSAnvil;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  Anvil.SetupAlignment(Self.Mode);
+end;
+
+procedure TSRL.Setup; override;
+begin
+  inherited;
+
+  Anvil.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  Anvil.Draw(Bitmap);
+end;

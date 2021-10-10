@@ -3,26 +3,33 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
-type
-  ERSDepositButton = (
-    QUANTITY_1,
-    QUANTITY_5,
-    QUANTITY_10,
-    QUANTITY_CUSTOM,
-    QUANTITY_ALL,
-    
-    DEPOSIT_INVENTORY,
-    DEPOSIT_WORN,
-    DEPOSIT_LOOT
-  );
+const
+  DEPOSITBOX_DEPOSIT_ALL  = -1;
 
-  TRSDepositBox = type TRSTitledInteface;
+type
+  TRSDepositBox = record(TRSTitledInteface)
+  class const
+    COLOR_BUTTON_ENABLED  = 2303648;
+    COLOR_BUTTON_DISABLED = 5333872;
+  end;
+
+  TRSDepositBoxItem = record
+    Item: TRSItem;
+    Quantity: Int32;
+  end;
+
+{$i elements/depositbox.elements}
+
+function TRSDepositBox.GetSlotBoxes: TBoxArray;
+begin
+  Result := Grid(7, 4, 31, 31, [25, 17], [Self.X1 + 38, Self.Y1 + 42]);
+end;
 
 procedure TRSDepositBox.Setup; override;
 begin
   inherited;
 
-  Self.Name := 'Deposit Screen';
+  Self.OnGetItemBoxes := @Self.GetSlotBoxes;
 end;
 
 procedure TRSDepositBox.SetupAlignment(Mode: ERSClientMode); override;
@@ -52,32 +59,83 @@ begin
   end;
 end;
 
-function TRSDepositBox.GetButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[34,34]]);
-end;
-
-function TRSDepositBox.GetButton(Button: ERSDepositButton): TRSButton;
-var
-  Buttons: TRSButtonArray := Self.GetButtons();
-begin
-  if (Length(Buttons) = Length(ERSDepositButton)) then
-    Result := Buttons[Button];
-end;
-
-function TRSDepositBox.GetSlotBoxes: TBoxArray; 
-begin
-  Result := Grid(7, 4, 31, 31, [25, 17], [Self.X1 + 38, Self.Y1 + 42]);
-end;
-
 function TRSDepositBox.IsOpen: Boolean; overload;
 begin
-  Result := Self.GetButton(ERSDepositButton.QUANTITY_1).Visible();
+  Result := Self.ElementFindText(ERSDepositBoxElement.QUANTITY_1, [Self.COLOR_TEXT_WHITE, Self.COLOR_TEXT_ORANGE], '1', RS_FONT_PLAIN_12);
 end;
 
 function TRSDepositBox.IsOpen(WaitTime: Int32): Boolean; overload;
 begin
   Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(50, 1500), WaitTime);
+end;
+
+function TRSDepositBox.IsCustomQuantity(Quantity: Int32): Boolean;
+begin
+  Result := not (Quantity in [1,5,10,DEPOSITBOX_DEPOSIT_ALL]);
+end;
+
+function TRSDepositBox.DepositHelper(B: TBox; Amount: Int32; UseQuantityButtons: Boolean): Boolean;
+var
+  Element: ERSDepositBoxElement;
+begin
+  if UseQuantityButtons then
+  begin
+    if Self.IsCustomQuantity(Amount) then
+    begin
+      if Self.ElementToggle(ERSDepositBoxElement.QUANTITY_X, Self.COLOR_BUTTON_ENABLED) then
+      begin
+        Mouse.Move(B);
+
+        if MainScreen.IsUpText('Deposit-' + ToString(Amount)) then
+        begin
+          Mouse.Click(MOUSE_LEFT);
+
+          Result := True;
+        end else
+          Result := ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 4000));
+      end;
+    end else
+    begin
+      case Amount of
+        1:  Element := ERSDepositBoxElement.QUANTITY_1;
+        5:  Element := ERSDepositBoxElement.QUANTITY_5;
+        10: Element := ERSDepositBoxElement.QUANTITY_10;
+        else
+          Element := ERSDepositBoxElement.QUANTITY_ALL;
+      end;
+
+      Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED);
+      if Result then
+        Mouse.Click(B, MOUSE_LEFT);
+    end;
+  end else
+  begin
+    Mouse.Move(B);
+
+    if (Amount = BANK_DEPOSIT_ALL) then
+      Result := ChooseOption.Select('Deposit-All')
+    else
+      Result := ChooseOption.Select('Deposit-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False) or
+                ChooseOption.Select('Deposit-X') and Chat.AnswerQuery('Enter amount', ToString(Amount), Random(2000, 2500));
+  end;
+end;
+
+function TRSDepositBox.DepositItem(Item: TRSDepositBoxItem; UseQuantityButtons: Boolean): Boolean;
+var
+  Box: TBox;
+begin
+  if Self.FindItem(Item.Item, Box) then
+    Result := Self.DepositHelper(Box, Item.Quantity, UseQuantityButtons);
+end;
+
+function TRSDepositBox.DepositAll: Boolean;
+begin
+  if (Inventory.Count() = 0) then
+    Exit(True);
+
+  Result := Self.IsOpen();
+  if Result then
+    Self.ElementClick(ERSDepositBoxElement.DEPOSIT_INVENTORY);
 end;
 
 function TRSDepositBox.Close(PressEscape: Boolean = False): Boolean; 

@@ -1,0 +1,127 @@
+type
+  ERSDepositBoxElement = (
+    QUANTITY_1,
+    QUANTITY_5,
+    QUANTITY_10,
+    QUANTITY_X,
+    QUANTITY_ALL,
+    DEPOSIT_INVENTORY,
+    DEPOSIT_WORN,
+    DEPOSIT_LOOT
+  );
+
+procedure TRSDepositBox.Setup; override;
+begin
+  inherited();
+
+  Self.Name := 'DepositBox';
+
+  SetLength(Self.Elements, Length(ERSDepositBoxElement));
+
+  with Self.Elements[ERSDepositBoxElement.QUANTITY_1] do
+  begin
+    Name   := 'quantity_1';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [16, 230];
+    Width  := 36;
+    Height := 36;
+  end;
+
+  with Self.Elements[ERSDepositBoxElement.QUANTITY_5] do
+  begin
+    Name   := 'quantity_5';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [57, 230];
+    Width  := 36;
+    Height := 36;
+  end;
+
+  with Self.Elements[ERSDepositBoxElement.QUANTITY_10] do
+  begin
+    Name   := 'quantity_10';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [100, 230];
+    Width  := 36;
+    Height := 36;
+  end;
+
+  with Self.Elements[ERSDepositBoxElement.QUANTITY_X] do
+  begin
+    Name   := 'quantity_x';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [141, 230];
+    Width  := 36;
+    Height := 36;
+  end;
+
+  with Self.Elements[ERSDepositBoxElement.QUANTITY_ALL] do
+  begin
+    Name   := 'quantity_all';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [185, 230];
+    Width  := 36;
+    Height := 36;
+  end;
+
+  with Self.Elements[ERSDepositBoxElement.DEPOSIT_INVENTORY] do
+  begin
+    Name   := 'deposit_inventory';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [282, 230];
+    Width  := 36;
+    Height := 36;
+  end;
+
+  with Self.Elements[ERSDepositBoxElement.DEPOSIT_WORN] do
+  begin
+    Name   := 'deposit_worn';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [339, 230];
+    Width  := 36;
+    Height := 36;
+  end;
+
+  with Self.Elements[ERSDepositBoxElement.DEPOSIT_LOOT] do
+  begin
+    Name   := 'deposit_loot';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [396, 230];
+    Width  := 36;
+    Height := 36;
+  end;
+end;
+
+function TRSDepositBox.ElementBounds(constref Element: ERSDepositBoxElement): TBox;
+begin
+  Result := Self._ElementBounds(Self.Elements[Element]);
+end;
+
+procedure TRSDepositBox.ElementClick(constref Element: ERSDepositBoxElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self._ElementClick(Self.Elements[Element], Button);
+end;
+
+function TRSDepositBox.ElementClick(constref Element: ERSDepositBoxElement; Option: String): Boolean; overload;
+begin
+  Result := Self._ElementClick(Self.Elements[Element], Option);
+end;
+
+function TRSDepositBox.ElementCountColor(constref Element: ERSDepositBoxElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSDepositBox.ElementFindText(constref Element: ERSDepositBoxElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSDepositBox.ElementGetText(constref Element: ERSDepositBoxElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self._ElementGetText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSDepositBox.ElementToggle(constref Element: ERSDepositBoxElement; Color: Integer; Tolerance: Integer = 0): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance);
+end;

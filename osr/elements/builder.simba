@@ -419,12 +419,10 @@ begin
 
   try
     Self.Form.Init(nil);
-    //Self.Form.SetPosition(poScreenCenter);
+    Self.Form.SetPosition(poScreenCenter);
     Self.Form.SetCaption('RS Interface Builder');
     Self.Form.SetWidth(1000);
     Self.Form.SetHeight(1000);
-    Self.form.setLeft(-1500);
-    Self.form.settop(300);
     Self.Form.GetFont().SetSize(12);
     Self.Form.SetOnClose(@OnFormClose);
 
@@ -498,15 +496,25 @@ end;
 
 begin
 
-   {
+  {
   InterfaceBuilder.Name := 'Bank';
   InterfaceBuilder.Buttons := Bank.Elements;
   InterfaceBuilder.Bounds := Bank.Bounds;
   }
 
+  {
   InterfaceBuilder.Name := 'Make';
   InterfaceBuilder.Buttons := Make.Elements;
   InterfaceBuilder.Bounds := Make.Bounds;
+  }
+  {
+  InterfaceBuilder.Name := 'DepositBox';
+  InterfaceBuilder.Buttons := DepositBox.Elements;
+  InterfaceBuilder.Bounds := DepositBox.Bounds;
+  }
+  InterfaceBuilder.Name := 'Anvil';
+  InterfaceBuilder.Buttons := Anvil.Elements;
+  InterfaceBuilder.Bounds := Anvil.Bounds;
 
   Sync(@InterfaceBuilder.Run);
 end;

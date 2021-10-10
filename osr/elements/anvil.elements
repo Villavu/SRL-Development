@@ -1,0 +1,97 @@
+type
+  ERSAnvilElement = (
+    QUANTITY_1,
+    QUANTITY_5,
+    QUANTITY_10,
+    QUANTITY_X,
+    QUANTITY_ALL
+  );
+
+procedure TRSAnvil.Setup; override;
+begin
+  inherited();
+
+  Self.Name := 'Anvil';
+
+  SetLength(Self.Elements, Length(ERSAnvilElement));
+
+  with Self.Elements[ERSAnvilElement.QUANTITY_1] do
+  begin
+    Name   := 'quantity_1';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [453, 36];
+    Width  := 37;
+    Height := 37;
+  end;
+
+  with Self.Elements[ERSAnvilElement.QUANTITY_5] do
+  begin
+    Name   := 'quantity_5';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [453, 81];
+    Width  := 37;
+    Height := 37;
+  end;
+
+  with Self.Elements[ERSAnvilElement.QUANTITY_10] do
+  begin
+    Name   := 'quantity_10';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [453, 126];
+    Width  := 37;
+    Height := 37;
+  end;
+
+  with Self.Elements[ERSAnvilElement.QUANTITY_X] do
+  begin
+    Name   := 'quantity_x';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [453, 171];
+    Width  := 37;
+    Height := 37;
+  end;
+
+  with Self.Elements[ERSAnvilElement.QUANTITY_ALL] do
+  begin
+    Name   := 'quantity_all';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [453, 216];
+    Width  := 37;
+    Height := 37;
+  end;
+end;
+
+function TRSAnvil.ElementBounds(constref Element: ERSAnvilElement): TBox;
+begin
+  Result := Self._ElementBounds(Self.Elements[Element]);
+end;
+
+procedure TRSAnvil.ElementClick(constref Element: ERSAnvilElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self._ElementClick(Self.Elements[Element], Button);
+end;
+
+function TRSAnvil.ElementClick(constref Element: ERSAnvilElement; Option: String): Boolean; overload;
+begin
+  Result := Self._ElementClick(Self.Elements[Element], Option);
+end;
+
+function TRSAnvil.ElementCountColor(constref Element: ERSAnvilElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSAnvil.ElementFindText(constref Element: ERSAnvilElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSAnvil.ElementGetText(constref Element: ERSAnvilElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self._ElementGetText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSAnvil.ElementToggle(constref Element: ERSAnvilElement; Color: Integer; Tolerance: Integer = 0): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance);
+end;
