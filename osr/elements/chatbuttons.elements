@@ -1,0 +1,132 @@
+type
+  ERSChatButtonsElement = (
+    ALL_CHAT,
+    GAME_CHAT,
+    PUBLIC_CHAT,
+    PRIVATE_CHAT,
+    CHANNEL_CHAT,
+    CLAN_CHAT,
+    TRADE_CHAT,
+    REPORT_CHAT
+  );
+
+procedure TRSChatButtons.Setup; override;
+begin
+  inherited();
+
+  Self.Name := 'ChatButtons';
+
+  SetLength(Self.Elements, Length(ERSChatButtonsElement));
+
+  with Self.Elements[ERSChatButtonsElement.ALL_CHAT] do
+  begin
+    Name   := 'all_chat';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [3, 0];
+    Width  := 56;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSChatButtonsElement.GAME_CHAT] do
+  begin
+    Name   := 'game_chat';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [65, 0];
+    Width  := 56;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSChatButtonsElement.PUBLIC_CHAT] do
+  begin
+    Name   := 'public_chat';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [127, 0];
+    Width  := 56;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSChatButtonsElement.PRIVATE_CHAT] do
+  begin
+    Name   := 'private_chat';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [189, 0];
+    Width  := 56;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSChatButtonsElement.CHANNEL_CHAT] do
+  begin
+    Name   := 'channel_chat';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [251, 0];
+    Width  := 56;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSChatButtonsElement.CLAN_CHAT] do
+  begin
+    Name   := 'clan_chat';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [313, 0];
+    Width  := 56;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSChatButtonsElement.TRADE_CHAT] do
+  begin
+    Name   := 'trade_chat';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [375, 0];
+    Width  := 56;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSChatButtonsElement.REPORT_CHAT] do
+  begin
+    Name   := 'report_chat';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [437, 0];
+    Width  := 79;
+    Height := 22;
+  end;
+end;
+
+function TRSChatButtons.ElementBounds(constref Element: ERSChatButtonsElement): TBox;
+begin
+  Result := Self._ElementBounds(Self.Elements[Element]);
+end;
+
+procedure TRSChatButtons.ElementClick(constref Element: ERSChatButtonsElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self._ElementClick(Self.Elements[Element], Button);
+end;
+
+function TRSChatButtons.ElementClick(constref Element: ERSChatButtonsElement; Option: String): Boolean; overload;
+begin
+  Result := Self._ElementClick(Self.Elements[Element], Option);
+end;
+
+function TRSChatButtons.ElementCountColor(constref Element: ERSChatButtonsElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSChatButtons.ElementFindText(constref Element: ERSChatButtonsElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSChatButtons.ElementRecognizeText(constref Element: ERSChatButtonsElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSChatButtons.ElementRecognizeNumber(constref Element: ERSChatButtonsElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
+begin
+  Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSChatButtons.ElementToggle(constref Element: ERSChatButtonsElement; Color: Integer; Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
+end;

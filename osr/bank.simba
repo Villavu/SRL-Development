@@ -456,7 +456,7 @@ begin
   begin
     if Self.IsCustomQuantity(Amount) then
     begin
-      if Self.ElementToggle(ERSBankElement.QUANTITY_X, Self.COLOR_BUTTON_ENABLED) then
+      if Self.ElementToggle(ERSBankElement.QUANTITY_X, Self.COLOR_BUTTON_ENABLED, 0, 5) then
       begin
         Mouse.Move(B);
       
@@ -478,7 +478,7 @@ begin
           Element := ERSBankElement.QUANTITY_ALL;
       end;
 
-      Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED);
+      Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED, 0, 5);
       if Result then
         Mouse.Click(B, MOUSE_LEFT);
     end;
@@ -503,13 +503,13 @@ begin
   else
     Element := ERSBankElement.ITEM;
 
-  if Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED) then
+  if Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED, 0, 5) then
   begin
     if UseQuantityButtons then
     begin
       if Self.IsCustomQuantity(Amount) then
       begin
-        if Self.ElementToggle(ERSBankElement.QUANTITY_X, Self.COLOR_BUTTON_ENABLED) then
+        if Self.ElementToggle(ERSBankElement.QUANTITY_X, Self.COLOR_BUTTON_ENABLED, 0, 5) then
         begin
           Mouse.Move(B);
 
@@ -531,7 +531,7 @@ begin
             Element := ERSBankElement.QUANTITY_ALL;
         end;
 
-        Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED);
+        Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED, 0, 5);
         if Result then
           Mouse.Click(B, MOUSE_LEFT);
       end;

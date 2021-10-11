@@ -48,21 +48,7 @@ var
 type
   TRSCombat = type TRSInterface;
 
-(*
-Combat.Setup
-~~~~~~~~~~~~
-.. pascal:: procedure TRSCombat.Setup; override;
-
-Initializes **Combat** variables.
-
-.. note:: This is automatically called on the **Combat** variable.
-*)
-procedure TRSCombat.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Combat';
-end;
+{$I elements/combat.elements}
 
 (*
 Combat.SetupAlignment
@@ -118,18 +104,6 @@ begin
 end;
 
 (*
-Combat.GetButtons
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSCombat.GetButtons: TRSButtonArray;
-
-Internal function to get the available buttons in the combat tab.
-*)
-function TRSCombat.GetButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[69,45], [148,24], [148,42], [69,30], [69,48]])
-end;
-
-(*
 Combat.GetCombatStyle
 ~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSCombat.GetCombatStyle: String;
@@ -144,22 +118,24 @@ Example
 *)
 function TRSCombat.GetCombatStyle: String;
 var
-  I: Int32;
-  Buttons: TRSButtonArray;
+  Element: ERSCombatElement;
+  I: Integer;
 begin
   if not Self.Open() then
     Exit;
 
-  Buttons := Self.GetButtons();
-  
-  for I := 0 to High(Buttons) do
-  begin
-    if not Buttons[I].Enabled() then
-      Continue;
-      
-    if Buttons[I].FindText(COMBAT_STYLES, RS_FONT_PLAIN_11, Result) then
+  for Element in [ERSCombatElement.STYLE_1..ERSCombatElement.STYLE_4] do
+    if Self.ElementCountColor(Element, 2040203, 10) > 0 then
+    begin
+      for I:=0 to High(COMBAT_STYLES) do
+        if Self.ElementFindText(Element, [Self.COLOR_TEXT_ORANGE], COMBAT_STYLES[I], RS_FONT_PLAIN_11) then
+        begin
+          Result := COMBAT_STYLES[I];
+          Break;
+        end;
+
       Exit;
-  end;
+    end;
 end;
 
 (*
@@ -177,19 +153,18 @@ Example
 *)
 function TRSCombat.SetCombatStyle(Style: String): Boolean;
 var
-  Buttons: TRSButtonArray;
-  Button: TRSButton;
+  Element: ERSCombatElement;
+  I: Integer;
 begin
   if not Self.Open() then
     Exit;
-    
-  Buttons := Self.GetButtons();
-  for Button in Buttons do
-    if Button.FindText(Style, RS_FONT_PLAIN_11) then
+
+  for Element in [ERSCombatElement.STYLE_1..ERSCombatElement.STYLE_4] do
+    if Self.ElementFindText(Element, [Self.COLOR_TEXT_ORANGE], Style, RS_FONT_PLAIN_11) then
     begin
-      Result := Button.Enable();
-      
-      Exit;
+      Self.ElementClick(Element);
+
+      Exit(True);
     end;
 end;
 
@@ -207,21 +182,11 @@ Example
 
 *)
 function TRSCombat.GetAutoRetaliate: Boolean;
-var
-  Buttons: TRSButtonArray;
-  Button: TRSButton;
 begin
   if not Self.Open() then
     Exit;
     
-  Buttons := Self.GetButtons();
-  for Button in Buttons do
-    if Button.FindText('Auto Retaliate', RS_FONT_PLAIN_12) then
-    begin
-      Result := Button.Enabled();
-      
-      Exit;
-    end;
+  Result := Self.ElementCountColor(ERSCombatElement.AUTO_RETALIATE, 2040203, 10) > 10;
 end;
 
 (*
@@ -238,21 +203,14 @@ Example
 
 *)
 function TRSCombat.SetAutoRetaliate(Value: Boolean): Boolean;
-var
-  Buttons: TRSButtonArray;
-  Button: TRSButton;
 begin
   if not Self.Open() then
     Exit;
-    
-  Buttons := Self.GetButtons();
-  for Button in Buttons do
-    if Button.FindText('Auto Retaliate', RS_FONT_PLAIN_12) then
-    begin
-      Result := (Value and Button.Enable()) or (not Value and Button.Disable());
-      
-      Exit;
-    end;
+
+  if Value then
+    Result := Self.ElementToggle(ERSCombatElement.AUTO_RETALIATE, 2040203, 10, 10)
+  else
+    Result := Self.ElementToggle(ERSCombatElement.AUTO_RETALIATE, 5198932, 10, 10);
 end;
 
 (*
@@ -269,16 +227,11 @@ Example
 
 *)
 function TRSCombat.GetWeapon: String;
-var
-  B: TBox;
 begin
   if not Self.Open() then
     Exit;
 
-  B := Self.Bounds;
-  B.Y2 := B.Y1 + 25;
-
-  Result := OCR.Recognize(B, TOCRColorRule.Create([2070783]), RS_FONT_QUILL_8);
+  Result := Self.ElementRecognizeText(ERSCombatElement.WEAPON, [Self.COLOR_TEXT_ORANGE], RS_FONT_QUILL_8);
 end;
 
 (*
@@ -295,19 +248,11 @@ Example
 
 *)
 function TRSCombat.GetCombatLevel: Int32;
-var
-  B: TBox;
 begin
   if not Self.Open() then
     Exit;
 
-  B := Self.Bounds;
-  B.Y1 += 27;
-  B.Y2 := B.Y1 + 15;
-  B.X1 += 20;
-  B.X2 -= 20;
-
-  Result := OCR.RecognizeNumber(B, TOCRColorRule.Create([2070783]), RS_FONT_PLAIN_11);
+  Result := Self.ElementRecognizeNumber(ERSCombatElement.COMBAT_LEVEL, [Self.COLOR_TEXT_ORANGE], RS_FONT_PLAIN_11);
 end;
 
 (*

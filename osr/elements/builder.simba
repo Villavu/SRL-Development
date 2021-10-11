@@ -174,14 +174,19 @@ begin
     Write('  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);');
     Write('end;');
     Write('');
-    Write('function %s.ElementGetText(constref Element: %s; constref Colors: TIntegerArray; constref Font: TFontSet): String;', [InterfaceType(), EnumType()]);
+    Write('function %s.ElementRecognizeText(constref Element: %s; constref Colors: TIntegerArray; constref Font: TFontSet): String;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write('  Result := Self._ElementGetText(Self.Elements[Element], Colors, Font);');
+    Write('  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);');
     Write('end;');
     Write('');
-    Write('function %s.ElementToggle(constref Element: %s; Color: Integer; Tolerance: Integer = 0): Boolean;', [InterfaceType(), EnumType()]);
+    Write('function %s.ElementRecognizeNumber(constref Element: %s; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write('  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance);');
+    Write(' Result := OCR._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);');
+    Write('end;');
+    Write('');
+    Write('function %s.ElementToggle(constref Element: %s; Color, Tolerance, MinColorCount: Integer): Boolean;', [InterfaceType(), EnumType()]);
+    Write('begin');
+    Write('  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);');
     Write('end;');
   end;
 
@@ -501,7 +506,6 @@ begin
   InterfaceBuilder.Buttons := Bank.Elements;
   InterfaceBuilder.Bounds := Bank.Bounds;
   }
-
   {
   InterfaceBuilder.Name := 'Make';
   InterfaceBuilder.Buttons := Make.Elements;
@@ -512,9 +516,20 @@ begin
   InterfaceBuilder.Buttons := DepositBox.Elements;
   InterfaceBuilder.Bounds := DepositBox.Bounds;
   }
+  {
   InterfaceBuilder.Name := 'Anvil';
   InterfaceBuilder.Buttons := Anvil.Elements;
   InterfaceBuilder.Bounds := Anvil.Bounds;
+  }
+  {
+  InterfaceBuilder.Name := 'ChatButtons';
+  InterfaceBuilder.Buttons := ChatButtons.Elements;
+  InterfaceBuilder.Bounds := ChatButtons.Bounds;
+  }
+
+  InterfaceBuilder.Name := 'Combat';
+  InterfaceBuilder.Buttons := Combat.Elements;
+  InterfaceBuilder.Bounds := Combat.Bounds;
 
   Sync(@InterfaceBuilder.Run);
 end;

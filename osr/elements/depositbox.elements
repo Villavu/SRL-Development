@@ -116,12 +116,17 @@ begin
   Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
 end;
 
-function TRSDepositBox.ElementGetText(constref Element: ERSDepositBoxElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+function TRSDepositBox.ElementRecognizeText(constref Element: ERSDepositBoxElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
 begin
-  Result := Self._ElementGetText(Self.Elements[Element], Colors, Font);
+  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
 end;
 
-function TRSDepositBox.ElementToggle(constref Element: ERSDepositBoxElement; Color: Integer; Tolerance: Integer = 0): Boolean;
+function TRSDepositBox.ElementRecognizeNumber(constref Element: ERSDepositBoxElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
 begin
-  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance);
+  Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSDepositBox.ElementToggle(constref Element: ERSDepositBoxElement; Color, Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
 end;

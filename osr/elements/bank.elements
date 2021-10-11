@@ -166,12 +166,17 @@ begin
   Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
 end;
 
-function TRSBank.ElementGetText(constref Element: ERSBankElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+function TRSBank.ElementRecognizeText(constref Element: ERSBankElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
 begin
-  Result := Self._ElementGetText(Self.Elements[Element], Colors, Font);
+  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
 end;
 
-function TRSBank.ElementToggle(constref Element: ERSBankElement; Color: Integer; Tolerance: Integer = 0): Boolean;
+function TRSBank.ElementRecognizeNumber(constref Element: ERSBankElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
 begin
-  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance);
+  Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSBank.ElementToggle(constref Element: ERSBankElement; Color, Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
 end;

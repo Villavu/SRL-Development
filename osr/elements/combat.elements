@@ -1,0 +1,122 @@
+type
+  ERSCombatElement = (
+    STYLE_1,
+    STYLE_2,
+    STYLE_3,
+    STYLE_4,
+    AUTO_RETALIATE,
+    WEAPON,
+    COMBAT_LEVEL
+  );
+
+procedure TRSCombat.Setup; override;
+begin
+  inherited();
+
+  Self.Name := 'Combat';
+
+  SetLength(Self.Elements, Length(ERSCombatElement));
+
+  with Self.Elements[ERSCombatElement.STYLE_1] do
+  begin
+    Name   := 'style_1';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [17, 46];
+    Width  := 71;
+    Height := 47;
+  end;
+
+  with Self.Elements[ERSCombatElement.STYLE_2] do
+  begin
+    Name   := 'style_2';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [96, 46];
+    Width  := 71;
+    Height := 47;
+  end;
+
+  with Self.Elements[ERSCombatElement.STYLE_3] do
+  begin
+    Name   := 'style_3';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [17, 100];
+    Width  := 71;
+    Height := 47;
+  end;
+
+  with Self.Elements[ERSCombatElement.STYLE_4] do
+  begin
+    Name   := 'style_4';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [96, 100];
+    Width  := 71;
+    Height := 47;
+  end;
+
+  with Self.Elements[ERSCombatElement.AUTO_RETALIATE] do
+  begin
+    Name   := 'auto_retaliate';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [17, 154];
+    Width  := 150;
+    Height := 44;
+  end;
+
+  with Self.Elements[ERSCombatElement.WEAPON] do
+  begin
+    Name   := 'weapon';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [17, 7];
+    Width  := 150;
+    Height := 18;
+  end;
+
+  with Self.Elements[ERSCombatElement.COMBAT_LEVEL] do
+  begin
+    Name   := 'combat_level';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [17, 25];
+    Width  := 150;
+    Height := 18;
+  end;
+end;
+
+function TRSCombat.ElementBounds(constref Element: ERSCombatElement): TBox;
+begin
+  Result := Self._ElementBounds(Self.Elements[Element]);
+end;
+
+procedure TRSCombat.ElementClick(constref Element: ERSCombatElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self._ElementClick(Self.Elements[Element], Button);
+end;
+
+function TRSCombat.ElementClick(constref Element: ERSCombatElement; Option: String): Boolean; overload;
+begin
+  Result := Self._ElementClick(Self.Elements[Element], Option);
+end;
+
+function TRSCombat.ElementCountColor(constref Element: ERSCombatElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSCombat.ElementFindText(constref Element: ERSCombatElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSCombat.ElementRecognizeText(constref Element: ERSCombatElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSCombat.ElementRecognizeNumber(constref Element: ERSCombatElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
+begin
+  Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSCombat.ElementToggle(constref Element: ERSCombatElement; Color, Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
+end;

@@ -88,10 +88,15 @@ end;
 
 function TRSMake.ElementGetText(constref Element: ERSMakeElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
 begin
-  Result := Self._ElementGetText(Self.Elements[Element], Colors, Font);
+  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
 end;
 
-function TRSMake.ElementToggle(constref Element: ERSMakeElement; Color: Integer; Tolerance: Integer = 0): Boolean;
+function TRSMake.ElementRecognizeNumber(constref Element: ERSMakeElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
 begin
-  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance);
+  Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSMake.ElementToggle(constref Element: ERSMakeElement; Color, Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
 end;

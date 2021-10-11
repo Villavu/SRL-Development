@@ -159,17 +159,22 @@ begin
   Result := OCR.LocateText(Self._ElementBounds(Element), Text, Font, TOCRColorRule.Create(Colors), 1);
 end;
 
-function TRSInterface._ElementToggle(constref Element: TRSInterfaceElement; Color: Integer; Tolerance: Integer = 0): Boolean;
+function TRSInterface._ElementToggle(constref Element: TRSInterfaceElement; Color, Tolerance: Integer; MinColorCount: Integer): Boolean;
 begin
-  if Self._ElementCountColor(Element, Color, Tolerance) > 0 then
+  if Self._ElementCountColor(Element, Color, Tolerance) > MinColorCount then
     Exit(True);
 
   Self._ElementClick(Element);
 
-  Result := WaitUntil(Self._ElementCountColor(Element, Color, Tolerance) > 0, 50, SRL.TruncatedGauss(1000, 1500));
+  Result := WaitUntil(Self._ElementCountColor(Element, Color, Tolerance) > MinColorCount, 50, SRL.TruncatedGauss(1000, 1500));
 end;
 
-function TRSInterface._ElementGetText(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+function TRSInterface._ElementRecognizeNumber(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
+begin
+  Result := OCR.RecognizeNumber(Self._ElementBounds(Element), TOCRColorRule.Create(Colors), Font);
+end;
+
+function TRSInterface._ElementRecognizeText(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
 begin
   Result := OCR.Recognize(Self._ElementBounds(Element), TOCRColorRule.Create(Colors), Font);
 end;
@@ -202,9 +207,8 @@ end;
 
 function TRSInterface.ClickItem(Item: TRSItem; Option: String): Boolean; overload;
 begin
-  // TODO
-  //if Self.MouseItem(Item) then
-  //  Result := ChooseOption.Select([Option]);
+  if Self.MouseItem(Item) then
+    Result := ChooseOption.Select([Option]);
 end;
 
 function TRSInterface.ClickItem(Item: TRSItem): Boolean; overload;
