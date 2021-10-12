@@ -4,23 +4,9 @@
 {$ENDIF}
 
 type
-  ERSLogoutButton = (
-    WORLD_SWITCHER,
-    CLICK_HERE
-  );
-  
-  ERSLogoutWorldSwitcherButton = (
-    CLOSE
-  );
-
   TRSLogout = type TRSInterface;
 
-procedure TRSLogout.Setup; override;
-begin
-  inherited;
-  
-  Self.Name := 'Options';
-end;
+{$I elements/logout.elements}
 
 procedure TRSLogout.SetupAlignment(Mode: ERSClientMode); override;
 begin 
@@ -42,57 +28,32 @@ begin
   Result := GameTabs.Open(ERSGameTab.LOGOUT);
 end;
 
-function TRSLogout.GetButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[138, 30], [21, 21]]);
-end;
-
-function TRSLogout.GetButton(Button: ERSLogoutButton): TRSButton;
-var
-  Buttons: TRSButtonArray := Self.GetButtons();
-begin
-  if Length(Buttons) = Length(ERSLogoutButton) then
-    Result := Buttons[Button];
-end;
-
-function TRSLogout.GetWorldSwitcherButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[21, 21]]);
-end;
-
-function TRSLogout.GetWorldSwitcherButton(Button: ERSLogoutWorldSwitcherButton): TRSButton;
-var
-  Buttons: TRSButtonArray := Self.GetWorldSwitcherButtons();
-begin
-  if Length(Buttons) = Length(ERSLogoutWorldSwitcherButton) then
-    Result := Buttons[Button];
-end;
-
 function TRSLogout.IsWorldSwitcherOpen: Boolean;
 begin
-  Result := Self.IsOpen() and Self.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE).Visible();
+  Result := Self.IsOpen() and Self.ElementFindText(ERSLogoutElement.CURRENT_WORLD, [Self.COLOR_TEXT_ORANGE], 'Current world', RS_FONT_BOLD_12);
 end;
 
 function TRSLogout.CloseWorldSwitcher: Boolean;
 begin
   if Self.IsOpen() and (not Self.IsWorldSwitcherOpen()) then
     Exit(True);
-  
-  Result := Self.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE).Click() and WaitUntil(not Self.IsWorldSwitcherOpen(), 500, 5000);
+
+  Self.ElementClick(ERSLogoutElement.WORLD_SWITCHER_CLOSE);
+
+  Result := WaitUntil(not Self.IsWorldSwitcherOpen(), 500, 5000);
 end;
 
 function TRSLogout.ClickLogout(Attempts: Int32 = 5; TryTime: Int32 = 20000): Boolean;
-var
-  Interval: UInt64;
 begin
   if (not Self.Open()) or (not Self.CloseWorldSwitcher()) then
     Exit;
 
-  Interval := TryTime div Attempts;
-
   for 1 to Attempts do
-    if Self.GetButton(ERSLogoutButton.CLICK_HERE).Click() and WaitUntil(not RSClient.IsLoggedIn(), 500, Interval + SRL.NormalRange(-2000, 2000)) then 
+  begin
+    Self.ElementClick(ERSLogoutElement.LOGOUT);
+    if WaitUntil(not RSClient.IsLoggedIn(), 500, (TryTime div Attempts) + SRL.NormalRange(-2000, 2000)) then
       Exit(True);
+  end;
 end;
 
 var

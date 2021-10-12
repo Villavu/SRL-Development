@@ -1,0 +1,202 @@
+type
+  ERSEquipmentElement = (
+    HELM,
+    CAPE,
+    AMULET,
+    AMMO,
+    WEAPON,
+    BODY,
+    SHIELD,
+    LEGS,
+    GLOVES,
+    FEET,
+    RING,
+    STATS,
+    PRICES,
+    DEATH,
+    FOLLOWER
+  );
+
+procedure TRSEquipment.Setup; override;
+begin
+  inherited();
+
+  Self.Name := 'Equipment';
+
+  SetLength(Self.Elements, Length(ERSEquipmentElement));
+
+  with Self.Elements[ERSEquipmentElement.HELM] do
+  begin
+    Name   := 'helm';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [76, 7];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.CAPE] do
+  begin
+    Name   := 'cape';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [35, 46];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.AMULET] do
+  begin
+    Name   := 'amulet';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [76, 46];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.AMMO] do
+  begin
+    Name   := 'ammo';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [117, 46];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.WEAPON] do
+  begin
+    Name   := 'weapon';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [20, 85];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.BODY] do
+  begin
+    Name   := 'body';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [76, 85];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.SHIELD] do
+  begin
+    Name   := 'shield';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [132, 85];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.LEGS] do
+  begin
+    Name   := 'legs';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [76, 125];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.GLOVES] do
+  begin
+    Name   := 'gloves';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [20, 165];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.FEET] do
+  begin
+    Name   := 'feet';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [76, 165];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.RING] do
+  begin
+    Name   := 'ring';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [132, 165];
+    Width  := 32;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.STATS] do
+  begin
+    Name   := 'stats';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [5, 210];
+    Width  := 38;
+    Height := 38;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.PRICES] do
+  begin
+    Name   := 'prices';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [50, 210];
+    Width  := 38;
+    Height := 38;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.DEATH] do
+  begin
+    Name   := 'death';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [95, 210];
+    Width  := 38;
+    Height := 38;
+  end;
+
+  with Self.Elements[ERSEquipmentElement.FOLLOWER] do
+  begin
+    Name   := 'follower';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [140, 210];
+    Width  := 38;
+    Height := 38;
+  end;
+end;
+
+function TRSEquipment.ElementBounds(constref Element: ERSEquipmentElement): TBox;
+begin
+  Result := Self._ElementBounds(Self.Elements[Element]);
+end;
+
+procedure TRSEquipment.ElementClick(constref Element: ERSEquipmentElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self._ElementClick(Self.Elements[Element], Button);
+end;
+
+function TRSEquipment.ElementClick(constref Element: ERSEquipmentElement; Option: String): Boolean; overload;
+begin
+  Result := Self._ElementClick(Self.Elements[Element], Option);
+end;
+
+function TRSEquipment.ElementCountColor(constref Element: ERSEquipmentElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSEquipment.ElementFindText(constref Element: ERSEquipmentElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSEquipment.ElementRecognizeText(constref Element: ERSEquipmentElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSEquipment.ElementRecognizeNumber(constref Element: ERSEquipmentElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
+begin
+ Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSEquipment.ElementToggle(constref Element: ERSEquipmentElement; Color, Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
+end;

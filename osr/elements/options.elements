@@ -1,0 +1,212 @@
+type
+  ERSOptionsElement = (
+    ZOOM_SLIDER,
+    CONTROL_TAB,
+    AUDIO_TAB,
+    DISPLAY_TAB,
+    AID,
+    RUN,
+    HOUSE,
+    BOND,
+    PLAYER_ATTACK,
+    NPC_ATTACK,
+    TITLE,
+    HOUSE_CLOSE,
+    HOUSE_TITLE,
+    HOUSE_EXPEL,
+    HOUSE_SERVANT,
+    HOUSE_LEAVE
+  );
+
+procedure TRSOptions.Setup; override;
+begin
+  inherited();
+
+  Self.Name := 'Options';
+
+  SetLength(Self.Elements, Length(ERSOptionsElement));
+
+  with Self.Elements[ERSOptionsElement.ZOOM_SLIDER] do
+  begin
+    Name   := 'zoom slider';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [57, 72];
+    Width  := 97;
+    Height := 8;
+  end;
+
+  with Self.Elements[ERSOptionsElement.CONTROL_TAB] do
+  begin
+    Name   := 'control tab';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [3, 8];
+    Width  := 50;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSOptionsElement.AUDIO_TAB] do
+  begin
+    Name   := 'audio tab';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [67, 8];
+    Width  := 50;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSOptionsElement.DISPLAY_TAB] do
+  begin
+    Name   := 'display tab';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [131, 8];
+    Width  := 50;
+    Height := 22;
+  end;
+
+  with Self.Elements[ERSOptionsElement.AID] do
+  begin
+    Name   := 'aid';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [9, 176];
+    Width  := 40;
+    Height := 40;
+  end;
+
+  with Self.Elements[ERSOptionsElement.RUN] do
+  begin
+    Name   := 'run';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [51, 176];
+    Width  := 40;
+    Height := 40;
+  end;
+
+  with Self.Elements[ERSOptionsElement.HOUSE] do
+  begin
+    Name   := 'house';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [93, 176];
+    Width  := 40;
+    Height := 40;
+  end;
+
+  with Self.Elements[ERSOptionsElement.BOND] do
+  begin
+    Name   := 'bond';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [135, 176];
+    Width  := 40;
+    Height := 40;
+  end;
+
+  with Self.Elements[ERSOptionsElement.PLAYER_ATTACK] do
+  begin
+    Name   := 'player attack';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [11, 111];
+    Width  := 162;
+    Height := 20;
+  end;
+
+  with Self.Elements[ERSOptionsElement.NPC_ATTACK] do
+  begin
+    Name   := 'npc attack';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [11, 150];
+    Width  := 162;
+    Height := 20;
+  end;
+
+  with Self.Elements[ERSOptionsElement.TITLE] do
+  begin
+    Name   := 'title';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [3, 31];
+    Width  := 178;
+    Height := 19;
+  end;
+
+  with Self.Elements[ERSOptionsElement.HOUSE_CLOSE] do
+  begin
+    Name   := 'house close';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [161, 9];
+    Width  := 21;
+    Height := 21;
+  end;
+
+  with Self.Elements[ERSOptionsElement.HOUSE_TITLE] do
+  begin
+    Name   := 'house title';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [41, 3];
+    Width  := 101;
+    Height := 20;
+  end;
+
+  with Self.Elements[ERSOptionsElement.HOUSE_EXPEL] do
+  begin
+    Name   := 'house_expel';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [9, 138];
+    Width  := 166;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSOptionsElement.HOUSE_SERVANT] do
+  begin
+    Name   := 'house_servant';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [9, 173];
+    Width  := 166;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSOptionsElement.HOUSE_LEAVE] do
+  begin
+    Name   := 'house_leave';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [9, 208];
+    Width  := 166;
+    Height := 32;
+  end;
+end;
+
+function TRSOptions.ElementBounds(constref Element: ERSOptionsElement): TBox;
+begin
+  Result := Self._ElementBounds(Self.Elements[Element]);
+end;
+
+procedure TRSOptions.ElementClick(constref Element: ERSOptionsElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self._ElementClick(Self.Elements[Element], Button);
+end;
+
+function TRSOptions.ElementClick(constref Element: ERSOptionsElement; Option: String): Boolean; overload;
+begin
+  Result := Self._ElementClick(Self.Elements[Element], Option);
+end;
+
+function TRSOptions.ElementCountColor(constref Element: ERSOptionsElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSOptions.ElementFindText(constref Element: ERSOptionsElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSOptions.ElementRecognizeText(constref Element: ERSOptionsElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSOptions.ElementRecognizeNumber(constref Element: ERSOptionsElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
+begin
+ Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSOptions.ElementToggle(constref Element: ERSOptionsElement; Color, Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
+end;

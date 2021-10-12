@@ -181,7 +181,7 @@ begin
     Write('');
     Write('function %s.ElementRecognizeNumber(constref Element: %s; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write(' Result := OCR._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);');
+    Write(' Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);');
     Write('end;');
     Write('');
     Write('function %s.ElementToggle(constref Element: %s; Color, Tolerance, MinColorCount: Integer): Boolean;', [InterfaceType(), EnumType()]);
@@ -526,10 +526,24 @@ begin
   InterfaceBuilder.Buttons := ChatButtons.Elements;
   InterfaceBuilder.Bounds := ChatButtons.Bounds;
   }
-
+  {
   InterfaceBuilder.Name := 'Combat';
   InterfaceBuilder.Buttons := Combat.Elements;
   InterfaceBuilder.Bounds := Combat.Bounds;
+  }
+  {
+  InterfaceBuilder.Name := 'Options';
+  InterfaceBuilder.Buttons := Options.Elements;
+  InterfaceBuilder.Bounds := Options.Bounds;
+  }
+  {
+  InterfaceBuilder.Name := 'Logout';
+  InterfaceBuilder.Buttons := Logout.Elements;
+  InterfaceBuilder.Bounds := Logout.Bounds;
+  }
+  InterfaceBuilder.Name := 'Equipment';
+  InterfaceBuilder.Buttons := Equipment.Elements;
+  InterfaceBuilder.Bounds := Equipment.Bounds;
 
   Sync(@InterfaceBuilder.Run);
 end;

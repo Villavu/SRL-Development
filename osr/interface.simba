@@ -91,9 +91,6 @@ type
 
     Elements: array of TRSInterfaceElement;
 
-    ButtonColors: array of TCTS1Color;
-    ButtonEnabledColors: array of TCTS1Color;
-    
     Cache: record
       Enabled: Boolean;
     
@@ -122,8 +119,8 @@ begin
         Result.X1 := B.X1 + Element.Offset.X;
         Result.Y1 := B.Y1 + Element.Offset.Y;
 
-        Result.X2 := Result.X1 + Element.Width;
-        Result.Y2 := Result.Y1 + Element.Height;
+        Result.X2 := Result.X1 + Element.Width-1; // fixme
+        Result.Y2 := Result.Y1 + Element.Height-1;
       end;
 
     ERSInterfaceElementAnchor.BOTTOM:
@@ -131,8 +128,8 @@ begin
         Result.X1 := B.X1 + Element.Offset.X;
         Result.Y2 := B.Y1 + Element.Offset.Y + B.Height;
 
-        Result.X2 := Result.X1 + Element.Width;
-        Result.Y1 := Result.Y2 - Element.Height;
+        Result.X2 := Result.X1 + Element.Width-1;
+        Result.Y1 := Result.Y2 - Element.Height-1;
       end;
   end;
 end;
@@ -234,8 +231,6 @@ end;
 procedure TRSInterface.Setup; 
 begin
   Self.Name := 'Unnamed';
-  Self.ButtonColors := [CTS1(5334129, 2), CTS1(2303648, 1), CTS1(657930, 20), CTS1(1514268, 10)];
-  Self.ButtonEnabledColors := [CTS1(2369440, 5), CTS1(2700350, 5)];
   Self.Cache.Enabled := True;
 end;
 
@@ -398,185 +393,6 @@ end;
 function TRSInterface.Center: TPoint; 
 begin
   Result := Self.Bounds().Middle;
-end;
-
-type
-  TRSButton = record 
-    EnabledColors: array of TCTS1Color;
-  
-    Index: Int32; 
-    Bounds: TBox; 
-    Middle: TPoint;
-  end;
-  
-  TRSButtonArray = array of TRSButton;
-  TRSButtonDimensions = array of record Width, Height: Int32; end;
-  
-function TRSInterface.FindButtons(Dimensions: TRSButtonDimensions; Area: TBox): TRSButtonArray; overload;
-var
-  TPA: TPointArray;
-  ATPA: T2DPointArray;
-  I, W, H: Int32;
-  Color: TCTS1Color;
-  Boxes: TBoxArray;
-  B: TBox;
-begin
-  for Color in Self.ButtonColors do
-    if SRL.FindColors(TPA, Color, Area) > 0 then
-      ATPA += TPA;
-  
-  ATPA := ATPA.Merge().Cluster(1);
-
-  for TPA in ATPA do
-  begin
-    if Length(TPA) < 50 then
-      Continue;
-      
-    B := TPA.Bounds();
-    B.GetDimensions(W, H);
-
-    for I := 0 to High(Dimensions) do
-    begin
-      if ((W = Dimensions[I].Width) or (Dimensions[I].Width = 0)) and
-         ((H = Dimensions[I].Height) or (Dimensions[I].Height = 0)) and 
-          (TPA.Frameness > 75) then
-        Boxes += B;
-    end;
-      
-    {$IFDEF SRL_DEBUG_FINDBUTTONS}        
-    Writeln(W, ', ', H);
-    {$ENDIF}
-  end;
-  
-  Boxes.SortByXY(10);
-  
-  SetLength(Result, Length(Boxes));
-  for I := 0 to High(Boxes) do
-  begin
-    Result[I].Index := I;
-    Result[I].Bounds := Boxes[I];
-    Result[I].Middle := Boxes[I].Middle;
-    Result[I].EnabledColors := Self.ButtonEnabledColors;
-  end;
-end; 
-  
-function TRSInterface.FindButtons(Dimensions: TRSButtonDimensions): TRSButtonArray; overload;
-var
-  TPA: TPointArray;
-  ATPA: T2DPointArray;
-  I, W, H: Int32;
-  B: TBox;
-  Color: TCTS1Color;
-  Boxes: TBoxArray;
-begin
-  B := Self.Bounds();
-  
-  for Color in Self.ButtonColors do
-    if SRL.FindColors(TPA, Color, B) > 0 then
-      ATPA += TPA;
-  
-  ATPA := ATPA.Merge().Cluster(1);
-
-  //Debug(ATPA);
-  //Halt;
-  
-  for TPA in ATPA do
-  begin
-    if Length(TPA) < 50 then
-      Continue;
-      
-    B := TPA.Bounds();
-    B.GetDimensions(W, H);
-
-    for I := 0 to High(Dimensions) do
-    begin
-      if ((W = Dimensions[I].Width) or (Dimensions[I].Width = 0)) and
-         ((H = Dimensions[I].Height) or (Dimensions[I].Height = 0)) and 
-          (TPA.Frameness > 75) then
-        Boxes += B;
-    end;
-      
-    {$IFDEF SRL_DEBUG_FINDBUTTONS}        
-    Writeln(W, ', ', H);
-    {$ENDIF}
-  end;
-  
-  Boxes.SortByXY(10);
-  
-  SetLength(Result, Length(Boxes));
-  for I := 0 to High(Boxes) do
-  begin
-    Result[I].Index := I;
-    Result[I].Bounds := Boxes[I];
-    Result[I].Middle := Boxes[I].Middle;
-    Result[I].EnabledColors := Self.ButtonEnabledColors;
-  end;
-end;
-
-function TRSButtonArray.ToBoxes: TBoxArray; constref;
-var
-  I: Int32;
-begin
-  SetLength(Result, Length(Self));
-  for I := 0 to High(Result) do
-    Result[I] := Self[I].Bounds;
-end;
-
-function TRSButton.Visible: Boolean; constref;
-begin 
-  Result := Self <> [];
-end;
-
-function TRSButton.Enabled: Boolean; constref;
-var
-  Color: TCTS1Color;
-begin
-  if Self.Visible() then
-  begin
-    for Color in Self.EnabledColors do
-      if SRL.CountColor(Color, Self.Bounds) > 0 then
-        Exit(True);
-  end;
-end;
-
-function TRSButton.Click(MouseButton: Int32 = MOUSE_LEFT): Boolean; constref;
-begin
-  Result := Self.Visible();
-  if Result then
-    Mouse.Click(Self.Bounds, MouseButton);
-end;
-
-function TRSButton.Enable: Boolean; constref;
-begin
-  Result := Self.Enabled() or Self.Click();
-end;
-
-function TRSButton.Disable: Boolean; constref;
-begin
-  Result := not Self.Enabled() or Self.Click();
-end;
-
-function TRSButton.FindText(constref Text: String; constref Font: TFontSet; Color: Int32): Boolean; constref; overload;
-begin
-  Result := OCR.LocateText(Self.Bounds, Text, Font, TOCRColorRule.Create([Color]), 1);
-end;
-
-function TRSButton.FindText(constref Text: String; constref Font: TFontSet): Boolean; constref; overload;
-begin
-  Result := OCR.LocateText(Self.Bounds, Text, Font, TOCRAnyColorRule.Create(0), 1);
-end;
-
-function TRSButton.FindText(Text: TStringArray; constref Font: TFontSet; out Found: String): Boolean; constref; overload;
-var
-  I: Int32;
-begin
-  for I := 0 to High(Text) do
-    if Self.FindText(Text[I], Font) then
-    begin
-      Found := Text[I];
-      
-      Exit(True);
-    end;
 end;
 
 type
@@ -794,28 +610,5 @@ begin
   RootInterface.Alignment.Top := [@RootInterface.Y1];
   RootInterface.Alignment.Right := [@RootInterface.X2];
   RootInterface.Alignment.Bottom := [@RootInterface.Y2];
-end;
-
-procedure TMufasaBitmap.DrawButtons(Buttons: TRSButtonArray);
-var
-  I: Int32;
-begin
-  for I := 0 to High(Buttons) do
-  begin
-    Self.SetFontSize(20);
-    Self.SetFontAntialiasing(False);
-    Self.DrawBox(Buttons[I].Bounds, $00FFFF);
-    Self.DrawText(ToStr(Buttons[I].Index), Buttons[I].Bounds, True, $00FF00);
-  end;
-end;
-
-procedure Debug(Buttons: TRSButtonArray); overload;
-var
-  BMP: TMufasaBitmap;
-begin
-  BMP.FromClient();
-  BMP.DrawButtons(Buttons);
-  BMP.Debug();
-  BMP.Free();
 end;
 

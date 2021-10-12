@@ -11,7 +11,6 @@ begin
   inherited;
   
   Self.Name := 'Bank Pin';
-  Self.ButtonColors := [CTS1(988769, 30)];
 end;
 
 procedure TRSBankPin.SetupAlignment(Mode: ERSClientMode); override;
@@ -41,12 +40,10 @@ begin
   end;
 end;
 
-function TRSBankPin.GetButtons: TRSButtonArray;
+function TRSBankPin.ClickDigit(Digit: Char): Boolean;
 begin
-  Result := FindButtons([[56,56]]);
 end;
-
-function TRSBankPin.ClickDigit(Digit: Char): Boolean; overload;
+{
 var
   Buttons: TRSButtonArray;
   I: Int32;
@@ -68,7 +65,7 @@ begin
     // Already hovering
     Mouse.Click(MOUSE_LEFT);  
   end;
-end;
+end; }
 
 function TRSBankPin.Enter(Pin: String): Boolean;
 
@@ -107,7 +104,7 @@ end;
 
 function TRSBankPin.IsOpen: Boolean;
 begin
-  Result := Length(Self.GetButtons()) = 10;
+ // Result := Length(Self.GetButtons()) = 10;
 end;
 
 function TRSBankPin.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;

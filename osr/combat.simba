@@ -255,6 +255,14 @@ begin
   Result := Self.ElementRecognizeNumber(ERSCombatElement.COMBAT_LEVEL, [Self.COLOR_TEXT_ORANGE], RS_FONT_PLAIN_11);
 end;
 
+procedure TRSCombat.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited();
+end;
+
 (*
 var Combat
 ~~~~~~~~~~

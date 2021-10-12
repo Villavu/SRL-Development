@@ -3,33 +3,24 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
-type
-  ERSEquipmentButton = (
-    HELM,
-    CAPE,
-    AMULET,
-    AMMO,
-    WEAPON,
-    BODY,
-    SHIELD,
-    LEGS,
-    GLOVES,
-    FEET,
-    RING,
-    
-    STATS,
-    PRICES,
-    DEATH,
-    FOLLOWER
-  );
-  
+type  
   TRSEquipment = type TRSInterface;
+
+{$i elements/equipment.elements}
+
+function TRSEquipment.GetItemBoxes: TBoxArray;
+var
+  Element: ERSEquipmentElement;
+begin
+  for Element in [ERSEquipmentElement.HELM..ERSEquipmentElement.RING] do
+    Result += Self.ElementBounds(Element);
+end;
 
 procedure TRSEquipment.Setup; override;
 begin
   inherited;
 
-  Self.Name := 'Equipment';
+  Self.OnGetItemBoxes := @Self.GetItemBoxes;
 end;
 
 procedure TRSEquipment.SetupAlignment(Mode: ERSClientMode); override;
@@ -52,101 +43,23 @@ begin
   Result := GameTabs.Open(ERSGameTab.EQUIPMENT);
 end;
 
-function TRSEquipment.GetButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[34,34], [40,40]]);
-end;
-
-function TRSEquipment.GetButton(Button: ERSEquipmentButton): TRSButton;
-var
-  Buttons: TRSButtonArray := Self.GetButtons();
-begin
-  if Length(Buttons) = Length(ERSEquipmentButton) then
-    Result := Buttons[Button];
-end;
-
-{
-function TRSEquipment.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
-var
-  Boxes: TBoxArray;
-  Slots: TIntegerArray;
-begin
-  if not Self.Open() then
-    Exit;
-
-  Boxes := Self.GetButtons().ToBoxes();
-
-  Slots := ItemFinder.Find(Item, Boxes, 1);
-  if Length(Slots) > 0 then
-  begin
-    Bounds := Boxes[Slots[0]];
-
-    Result := True;
-  end;
-end;
-
-//for use without having to pass extra parameters
-function TRSEquipment.FindItem(Item: TRSItem): Boolean; overload;
-var
-  B: TBox;
-begin
-  Result := Self.FindItem(Item, B);
-end;
-
-function TRSEquipment.HoverItem(Item: TRSItem): Boolean;
-var
-  B: TBox;
-begin
-  if Self.FindItem(Item, B) then
-  begin
-    Mouse.Move(B);
-    Result := True;
-  end;
-end;
-
-function TRSEquipment.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
-begin
-  if Self.HoverItem(Item) then
-  begin
-    if Option <> '' then
-      Result := ChooseOption.Select(Option)
-    else
-    begin
-      Result := True;
-
-      Mouse.Click(MOUSE_LEFT);
-    end;
-  end;
-end;
-
-//to count arrows, darts, etc.
-function TRSEquipment.CountItemStack(Item: TRSItem): Int32;
-var
-  B: TBox;
-begin
-  if Self.FindItem(Item, B) then
-    Result := SRL.GetItemAmount(B);
-end;
-}
-
-
 function TRSEquipment.IsSlotUsed(B: TBox): Boolean; overload;
 begin
   // black with tolerance for when item is transparent
   Result := SRL.CountColor(CTS1(1118740, 35), B) > 0;
 end;
 
-function TRSEquipment.IsSlotUsed(Slot: ERSEquipmentButton): Boolean; overload;
+function TRSEquipment.IsSlotUsed(Slot: ERSEquipmentElement): Boolean; overload;
 begin
-  Result := Self.Open and Self.IsSlotUsed(Self.GetButton(Slot).Bounds);
+  Result := Self.Open and Self.IsSlotUsed(Self.ElementBounds(Slot));
 end;
 
 function TRSEquipment.CountGear: Int32;
 var
-  i: ERSEquipmentButton;
+  Element: ERSEquipmentElement;
 begin
-  for i := ERSEquipmentButton.HELM to ERSEquipmentButton.Ring do
-    if Self.IsSlotUsed(i) then
+  for Element in [ERSEquipmentElement.HELM..ERSEquipmentElement.RING] do
+    if Self.IsSlotUsed(Element) then
       Result += 1;
 end;
 

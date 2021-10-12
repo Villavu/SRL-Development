@@ -1,0 +1,92 @@
+type
+  ERSLogoutElement = (
+    WORLD_SWITCHER,
+    LOGOUT,
+    WORLD_SWITCHER_CLOSE,
+    CURRENT_WORLD
+  );
+
+procedure TRSLogout.Setup; override;
+begin
+  inherited();
+
+  Self.Name := 'Logout';
+
+  SetLength(Self.Elements, Length(ERSLogoutElement));
+
+  with Self.Elements[ERSLogoutElement.WORLD_SWITCHER] do
+  begin
+    Name   := 'world switcher';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [25, 164];
+    Width  := 140;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSLogoutElement.LOGOUT] do
+  begin
+    Name   := 'logout';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [25, 212];
+    Width  := 140;
+    Height := 32;
+  end;
+
+  with Self.Elements[ERSLogoutElement.WORLD_SWITCHER_CLOSE] do
+  begin
+    Name   := 'world switcher close';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [168, 2];
+    Width  := 21;
+    Height := 21;
+  end;
+
+  with Self.Elements[ERSLogoutElement.CURRENT_WORLD] do
+  begin
+    Name   := 'current world';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [11, 2];
+    Width  := 149;
+    Height := 21;
+  end;
+end;
+
+function TRSLogout.ElementBounds(constref Element: ERSLogoutElement): TBox;
+begin
+  Result := Self._ElementBounds(Self.Elements[Element]);
+end;
+
+procedure TRSLogout.ElementClick(constref Element: ERSLogoutElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self._ElementClick(Self.Elements[Element], Button);
+end;
+
+function TRSLogout.ElementClick(constref Element: ERSLogoutElement; Option: String): Boolean; overload;
+begin
+  Result := Self._ElementClick(Self.Elements[Element], Option);
+end;
+
+function TRSLogout.ElementCountColor(constref Element: ERSLogoutElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSLogout.ElementFindText(constref Element: ERSLogoutElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSLogout.ElementRecognizeText(constref Element: ERSLogoutElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSLogout.ElementRecognizeNumber(constref Element: ERSLogoutElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
+begin
+ Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSLogout.ElementToggle(constref Element: ERSLogoutElement; Color, Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
+end;
