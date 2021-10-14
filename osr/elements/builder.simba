@@ -516,11 +516,11 @@ begin
   InterfaceBuilder.Buttons := DepositBox.Elements;
   InterfaceBuilder.Bounds := DepositBox.Bounds;
   }
-  {
+
   InterfaceBuilder.Name := 'Anvil';
   InterfaceBuilder.Buttons := Anvil.Elements;
   InterfaceBuilder.Bounds := Anvil.Bounds;
-  }
+
   {
   InterfaceBuilder.Name := 'ChatButtons';
   InterfaceBuilder.Buttons := ChatButtons.Elements;
@@ -541,9 +541,16 @@ begin
   InterfaceBuilder.Buttons := Logout.Elements;
   InterfaceBuilder.Bounds := Logout.Bounds;
   }
+  {
   InterfaceBuilder.Name := 'Equipment';
   InterfaceBuilder.Buttons := Equipment.Elements;
   InterfaceBuilder.Bounds := Equipment.Bounds;
+  }
+  {
+  InterfaceBuilder.Name := 'BankPin';
+  InterfaceBuilder.Buttons := BankPin.Elements;
+  InterfaceBuilder.Bounds := BankPin.Bounds;
+  }
 
   Sync(@InterfaceBuilder.Run);
 end;

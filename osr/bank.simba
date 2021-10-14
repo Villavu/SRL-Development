@@ -45,11 +45,7 @@ type
     Quantity: Int32;
   end;
   
-  TRSBank = record(TRSTitledInteface)
-  class const
-    COLOR_BUTTON_ENABLED  = 2303648;
-    COLOR_BUTTON_DISABLED = 5333872;
-  var
+  TRSBank = record(TRSInterface)
     FINDER_UPTEXT: TStringArray;
     FINDER_OPTION: TStringArray;
   end;
@@ -456,7 +452,7 @@ begin
   begin
     if Self.IsCustomQuantity(Amount) then
     begin
-      if Self.ElementToggle(ERSBankElement.QUANTITY_X, Self.COLOR_BUTTON_ENABLED, 0, 5) then
+      if Self.ElementToggle(ERSBankElement.QUANTITY_X, Self.COLOR_BUTTON_RED, 5, 5) then
       begin
         Mouse.Move(B);
       
@@ -478,7 +474,7 @@ begin
           Element := ERSBankElement.QUANTITY_ALL;
       end;
 
-      Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED, 0, 5);
+      Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_RED, 5, 5);
       if Result then
         Mouse.Click(B, MOUSE_LEFT);
     end;
@@ -503,13 +499,13 @@ begin
   else
     Element := ERSBankElement.ITEM;
 
-  if Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED, 0, 5) then
+  if Self.ElementToggle(Element, Self.COLOR_BUTTON_RED, 5, 5) then
   begin
     if UseQuantityButtons then
     begin
       if Self.IsCustomQuantity(Amount) then
       begin
-        if Self.ElementToggle(ERSBankElement.QUANTITY_X, Self.COLOR_BUTTON_ENABLED, 0, 5) then
+        if Self.ElementToggle(ERSBankElement.QUANTITY_X, Self.COLOR_BUTTON_RED, 0, 5) then
         begin
           Mouse.Move(B);
 
@@ -531,7 +527,7 @@ begin
             Element := ERSBankElement.QUANTITY_ALL;
         end;
 
-        Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED, 0, 5);
+        Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_RED, 5, 5);
         if Result then
           Mouse.Click(B, MOUSE_LEFT);
       end;

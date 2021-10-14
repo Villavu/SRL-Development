@@ -1,10 +1,10 @@
 type
   ERSAnvilElement = (
     QUANTITY_1,
-    QUANTITY_5,
-    QUANTITY_10,
-    QUANTITY_X,
-    QUANTITY_ALL
+    QUANTITY_2,
+    QUANTITY_3,
+    QUANTITY_4,
+    QUANTITY_5
   );
 
 procedure TRSAnvil.Setup; override;
@@ -24,36 +24,36 @@ begin
     Height := 37;
   end;
 
-  with Self.Elements[ERSAnvilElement.QUANTITY_5] do
+  with Self.Elements[ERSAnvilElement.QUANTITY_2] do
   begin
-    Name   := 'quantity_5';
+    Name   := 'quantity_2';
     Anchor := ERSInterfaceElementAnchor.TOP;
     Offset := [453, 81];
     Width  := 37;
     Height := 37;
   end;
 
-  with Self.Elements[ERSAnvilElement.QUANTITY_10] do
+  with Self.Elements[ERSAnvilElement.QUANTITY_3] do
   begin
-    Name   := 'quantity_10';
+    Name   := 'quantity_3';
     Anchor := ERSInterfaceElementAnchor.TOP;
     Offset := [453, 126];
     Width  := 37;
     Height := 37;
   end;
 
-  with Self.Elements[ERSAnvilElement.QUANTITY_X] do
+  with Self.Elements[ERSAnvilElement.QUANTITY_4] do
   begin
-    Name   := 'quantity_x';
+    Name   := 'quantity_4';
     Anchor := ERSInterfaceElementAnchor.TOP;
     Offset := [453, 171];
     Width  := 37;
     Height := 37;
   end;
 
-  with Self.Elements[ERSAnvilElement.QUANTITY_ALL] do
+  with Self.Elements[ERSAnvilElement.QUANTITY_5] do
   begin
-    Name   := 'quantity_all';
+    Name   := 'quantity_5';
     Anchor := ERSInterfaceElementAnchor.TOP;
     Offset := [453, 216];
     Width  := 37;
@@ -93,7 +93,7 @@ end;
 
 function TRSAnvil.ElementRecognizeNumber(constref Element: ERSAnvilElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
 begin
-  Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+ Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
 end;
 
 function TRSAnvil.ElementToggle(constref Element: ERSAnvilElement; Color, Tolerance, MinColorCount: Integer): Boolean;

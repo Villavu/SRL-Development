@@ -7,11 +7,7 @@ const
   DEPOSITBOX_DEPOSIT_ALL  = -1;
 
 type
-  TRSDepositBox = record(TRSTitledInteface)
-  class const
-    COLOR_BUTTON_ENABLED  = 2303648;
-    COLOR_BUTTON_DISABLED = 5333872;
-  end;
+  TRSDepositBox = type TRSInterface;
 
   TRSDepositBoxItem = record
     Item: TRSItem;
@@ -82,7 +78,7 @@ begin
   begin
     if Self.IsCustomQuantity(Amount) then
     begin
-      if Self.ElementToggle(ERSDepositBoxElement.QUANTITY_X, Self.COLOR_BUTTON_ENABLED, 0, 5) then
+      if Self.ElementToggle(ERSDepositBoxElement.QUANTITY_X, Self.COLOR_BUTTON_RED, 5, 5) then
       begin
         Mouse.Move(B);
 
@@ -104,7 +100,7 @@ begin
           Element := ERSDepositBoxElement.QUANTITY_ALL;
       end;
 
-      Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_ENABLED, 0, 5);
+      Result := Self.ElementToggle(Element, Self.COLOR_BUTTON_RED, 5, 5);
       if Result then
         Mouse.Click(B, MOUSE_LEFT);
     end;

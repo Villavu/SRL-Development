@@ -4,14 +4,11 @@
 {$ENDIF}
 
 type
-  TRSBankPin = type TRSTitledInteface;
+  TRSBankPin = record(TRSInterface)
+    Entering: Boolean;
+  end;
 
-procedure TRSBankPin.Setup; override;
-begin
-  inherited;
-  
-  Self.Name := 'Bank Pin';
-end;
+{$i elements/bankpin.elements}
 
 procedure TRSBankPin.SetupAlignment(Mode: ERSClientMode); override;
 begin
@@ -40,71 +37,71 @@ begin
   end;
 end;
 
-function TRSBankPin.ClickDigit(Digit: Char): Boolean;
-begin
-end;
-{
-var
-  Buttons: TRSButtonArray;
-  I: Int32;
-begin
-  Buttons := Self.GetButtons();
-  
-  if Length(Buttons) = 10 then
-  begin
-    Result := True;
-    
-    for I := 0 to High(Buttons) do
-      if Buttons[I].FindText(Digit, RS_FONT_BOLD_12) then
-      begin
-        Mouse.Click(Buttons[I].Bounds, MOUSE_LEFT);
-        
-        Exit;
-      end;   
-      
-    // Already hovering
-    Mouse.Click(MOUSE_LEFT);  
-  end;
-end; }
-
 function TRSBankPin.Enter(Pin: String): Boolean;
 
-  function GetDigitToEnter: Char;
-  begin 
-    if OCR.LocateText(Self.Bounds, 'FIRST',  RS_FONT_BOLD_12, TOCRColorRule.Create([$FFFFFF]), 1) then Exit(Pin[1]);
-    if OCR.LocateText(Self.Bounds, 'SECOND', RS_FONT_BOLD_12, TOCRColorRule.Create([$FFFFFF]), 1) then Exit(Pin[2]);
-    if OCR.LocateText(Self.Bounds, 'THIRD',  RS_FONT_BOLD_12, TOCRColorRule.Create([$FFFFFF]), 1) then Exit(Pin[3]);
-    if OCR.LocateText(Self.Bounds, 'FOURTH', RS_FONT_BOLD_12, TOCRColorRule.Create([$FFFFFF]), 1) then Exit(Pin[4]);
+  function GetDigitToEnter: Integer;
+  begin
+    if Self.ElementFindText(ERSBankPinElement.STATE, [$FFFFFF], 'FIRST', RS_FONT_BOLD_12)  then Exit(1);
+    if Self.ElementFindText(ERSBankPinElement.STATE, [$FFFFFF], 'SECOND', RS_FONT_BOLD_12) then Exit(2);
+    if Self.ElementFindText(ERSBankPinElement.STATE, [$FFFFFF], 'THIRD', RS_FONT_BOLD_12)  then Exit(3);
+    if Self.ElementFindText(ERSBankPinElement.STATE, [$FFFFFF], 'FOURTH', RS_FONT_BOLD_12) then Exit(4);
+  end;
+
+  function ClickDigit(Digit: Char): Boolean;
+  var
+    Element: ERSBankPinElement;
+  begin
+    for 1 to 2 do // Check twice to make sure
+      for Element in [ERSBankPinElement.DIGIT_1..ERSBankPinElement.DIGIT_10] do
+        if Self.ElementFindText(Element, [$007FFF], Digit, RS_FONT_BOLD_12) then
+        begin
+          Self.ElementClick(Element);
+
+          Exit(True);
+        end;
+
+    // Already hovering?
+    for Element in [ERSBankPinElement.DIGIT_1..ERSBankPinElement.DIGIT_10] do
+      if Mouse.Position() in Self.ElementBounds(Element) then
+      begin
+        Self.ElementClick(Element);
+
+        Exit(True);
+      end;
   end;
 
 var
-  I: Int32;
-  Digit: Char;
+  Digit: Int32;
 begin
-  for 1 to 3 do // 3 Attempts
-  begin
-    for I := 1 to 4 do
+  Self.Entering := True;
+
+  try
+    while Self.IsOpen() do
     begin
       Digit := GetDigitToEnter();
-      if Digit = '' then
-        Break;
-    
-      if not Self.ClickDigit(Digit) then
-        Break;
-        
+
+      if (Digit > 0) and ClickDigit(Pin[Digit]) then
+      begin
+        if (Digit = 4) then
+        begin
+          if Bank.IsOpen(4000) then
+            Exit(True);
+        end else
+          WaitUntil(GetDigitToEnter() > Digit, 100, 2000 + Random(1000));
+      end;
+
       Wait(1000, 2000, wdLeft);
     end;
-    
-    if Bank.IsOpen(3000) then
-      Exit(True);
-  end;
 
-  Result := Bank.IsOpen(3000); // wait 3 extra seconds before failing.
+    Result := Bank.IsOpen();
+  finally
+    Self.Entering := False;
+  end;
 end;
 
 function TRSBankPin.IsOpen: Boolean;
 begin
- // Result := Length(Self.GetButtons()) = 10;
+  Result := Self.ElementFindText(ERSBankPinElement.EXIT, [$0000FF, $FFFFFF], 'Exit', RS_FONT_QUILL_8);
 end;
 
 function TRSBankPin.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
@@ -120,9 +117,7 @@ begin
   if (not Self.IsOpen()) then
     Exit;
 
-  inherited(Bitmap);
-
- // Bitmap.DrawBoxes(GetDigitBoxes(), False, $00FF00);
+  inherited;
 end;
 
 var
@@ -130,10 +125,10 @@ var
 
 function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean; override;
 begin
-  if BankPin.IsOpen() and (not BankPin.Enter(Login.GetPlayerPin())) then
+  if (not BankPin.Entering) and BankPin.IsOpen() and (not BankPin.Enter(Login.GetPlayerPin())) then
     Self.Fatal('Failed to enter bank pin');
 
-  Result := inherited(WaitForItems);
+  Result := inherited;
 end;
 
 begin

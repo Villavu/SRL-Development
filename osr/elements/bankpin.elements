@@ -1,0 +1,172 @@
+type
+  ERSBankPinElement = (
+    DIGIT_1,
+    DIGIT_2,
+    DIGIT_3,
+    DIGIT_4,
+    DIGIT_5,
+    DIGIT_6,
+    DIGIT_7,
+    DIGIT_8,
+    DIGIT_9,
+    DIGIT_10,
+    STATE,
+    EXIT
+  );
+
+procedure TRSBankPin.Setup; override;
+begin
+  inherited();
+
+  Self.Name := 'BankPin';
+
+  SetLength(Self.Elements, Length(ERSBankPinElement));
+
+  with Self.Elements[ERSBankPinElement.DIGIT_1] do
+  begin
+    Name   := 'digit 1';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [21, 83];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.DIGIT_2] do
+  begin
+    Name   := 'digit_2';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [115, 83];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.DIGIT_3] do
+  begin
+    Name   := 'digit_3';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [209, 83];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.DIGIT_4] do
+  begin
+    Name   := 'digit_4';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [293, 83];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.DIGIT_5] do
+  begin
+    Name   := 'digit_5';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [21, 155];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.DIGIT_6] do
+  begin
+    Name   := 'digit_6';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [115, 155];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.DIGIT_7] do
+  begin
+    Name   := 'digit_7';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [209, 155];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.DIGIT_8] do
+  begin
+    Name   := 'digit_8';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [21, 227];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.DIGIT_9] do
+  begin
+    Name   := 'digit_9';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [115, 227];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.DIGIT_10] do
+  begin
+    Name   := 'digit_10';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [209, 227];
+    Width  := 64;
+    Height := 64;
+  end;
+
+  with Self.Elements[ERSBankPinElement.STATE] do
+  begin
+    Name   := 'state';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [151, 58];
+    Width  := 194;
+    Height := 21;
+  end;
+
+  with Self.Elements[ERSBankPinElement.EXIT] do
+  begin
+    Name   := 'exit';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [370, 229];
+    Width  := 41;
+    Height := 18;
+  end;
+end;
+
+function TRSBankPin.ElementBounds(constref Element: ERSBankPinElement): TBox;
+begin
+  Result := Self._ElementBounds(Self.Elements[Element]);
+end;
+
+procedure TRSBankPin.ElementClick(constref Element: ERSBankPinElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self._ElementClick(Self.Elements[Element], Button);
+end;
+
+function TRSBankPin.ElementClick(constref Element: ERSBankPinElement; Option: String): Boolean; overload;
+begin
+  Result := Self._ElementClick(Self.Elements[Element], Option);
+end;
+
+function TRSBankPin.ElementCountColor(constref Element: ERSBankPinElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSBankPin.ElementFindText(constref Element: ERSBankPinElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSBankPin.ElementRecognizeText(constref Element: ERSBankPinElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSBankPin.ElementRecognizeNumber(constref Element: ERSBankPinElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
+begin
+ Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSBankPin.ElementToggle(constref Element: ERSBankPinElement; Color, Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
+end;

@@ -82,10 +82,14 @@ type
   end;
   
   TRSInterface = record(TSRLBaseRecord)
-  // Some common interface colors
   class const
+    // Common text colors
     COLOR_TEXT_WHITE  = $FFFFFF;
     COLOR_TEXT_ORANGE = $1F98FF;
+
+    // Common button colors
+    COLOR_BUTTON_RED  = $2326A0; // enabled
+    COLOR_BUTTON_GREY = $516370; // disabled
   var
     Mode: ERSClientMode;
 
@@ -523,10 +527,7 @@ begin
     ScrollBar.Draw(Bitmap); 
 end; 
 
-type
-  TRSTitledInteface = type TRSInterface;
-
-function TRSTitledInteface.GetTitle: String;
+function TRSInterface.GetTitle: String;
 var
   B: TBox;
 begin
@@ -540,7 +541,7 @@ begin
   Result := OCR.Recognize(B, TOCRThresholdRule.Create(15), RS_FONT_BOLD_12);
 end;
 
-function TRSTitledInteface.ClickCloseButton(PressEscape: Boolean = False): Boolean;
+function TRSInterface.ClickCloseButton(PressEscape: Boolean = False): Boolean;
 var
   B: TBox;
 begin
@@ -560,12 +561,12 @@ begin
   end;
 end;
 
-function TRSTitledInteface.IsTitle(Text: String): Boolean; overload;
+function TRSInterface.IsTitle(Text: String): Boolean; overload;
 begin
   Result := Text in Self.GetTitle();
 end;
 
-function TRSTitledInteface.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
+function TRSInterface.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
 begin
   Result := WaitUntil(Self.IsTitle(Text), 100, WaitTime);
 end;

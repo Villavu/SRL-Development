@@ -3,14 +3,17 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
+const
+  ANVIL_QUANTITY_ALL = -1;
+
 type
-  TRSAnvil = type TRSTitledInteface;
+  TRSAnvil = type TRSInterface;
 
 {$i elements/anvil.elements}
 
 function TRSAnvil.GetItemBoxes: TBoxArray;
 begin
-  Result := Grid(5, 5, 77, 42, [2, 13], [Self.X1 + 10, Self.Y1 + 36]);
+  Result := Grid(5, 5, 77, 53, [2, 2], [Self.X1 + 10, Self.Y1 + 36]);
 end;
 
 procedure TRSAnvil.Setup; override;
@@ -47,9 +50,49 @@ begin
   end;
 end;
 
+function TRSAnvil.CanSmith(B: TBox): Boolean;
+begin
+  Result := SRL.CountColor($00FF00, B) > 0;
+end;
+
+function TRSAnvil.SmithItem(Item: TRSItem): Boolean;
+var
+  B: TBox;
+begin
+  Result := Self.FindItem(Item, B) and Self.CanSmith(B);
+  if Result then
+    Mouse.Click(B, MOUSE_LEFT);
+end;
+
+function TRSAnvil.IsCustomQuantity(Quantity: Integer): Boolean;
+begin
+  Result := not (Quantity in [1,5,10,ANVIL_QUANTITY_ALL]);
+end;
+
+function TRSAnvil.GetQuantity: Int32;
+var
+  Element: ERSAnvilElement;
+begin
+  for Element in [ERSAnvilElement.QUANTITY_1..ERSAnvilElement.QUANTITY_5] do
+    if Self.ElementCountColor(Element, Self.COLOR_TEXT_WHITE, 0) > 0 then
+    begin
+      if Self.ElementFindText(Element, [Self.COLOR_TEXT_WHITE], 'All', RS_FONT_PLAIN_11) then
+        Result := ANVIL_QUANTITY_ALL
+      else
+        Result := Self.ElementRecognizeNumber(Element, [Self.COLOR_TEXT_WHITE], RS_FONT_PLAIN_11);
+
+      Exit;
+    end;
+end;
+
+function TRSAnvil.SetQuantity(Quantity: Int32): Boolean;
+begin
+  // todo
+end;
+
 function TRSAnvil.IsOpen: Boolean;
 begin
-  Result := Self.ElementFindText(ERSAnvilElement.QUANTITY_ALL, [Self.COLOR_TEXT_WHITE, Self.COLOR_TEXT_ORANGE], 'All', RS_FONT_PLAIN_11);
+  // todo
 end;
 
 procedure TRSAnvil.Draw(Bitmap: TMufasaBitmap); override;

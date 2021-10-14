@@ -43,7 +43,7 @@ type
     OFFER_SETUP
   );
 
-  TRSGrandExchange = record(TRSTitledInteface)
+  TRSGrandExchange = record(TRSInterface)
     FINDER_BANKER: TRSObjectFinder;
   end;
   {
