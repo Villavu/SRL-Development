@@ -40,7 +40,7 @@ begin
   Result := [Self.Cache.X1.Value, Self.Cache.Y1.Value, Self.Cache.X2.Value, Self.Cache.Y2.Value];
 end;
 
-function TRSXPBar.IsOpen: Boolean;
+function TRSXPBar._IsOpen: Boolean;
 
   function FindBorder(Size: ERSXPBarSize; Area: TBox): Boolean;
   var
@@ -109,6 +109,6 @@ var
   XPBar: TRSXPBar;
 
 begin
-  XPBar.Setup('XPBar', [@XPBar.SetupAlignment, @XPBar.Draw]);
+  XPBar.Setup('XPBar', [@XPBar.SetupAlignment, @XPBar.Draw, @XPBar._IsOpen]);
   XPBar.LoadBitmaps();
 end;

@@ -47,27 +47,8 @@ type
     AUGURY
   );
 
-  TRSPrayer = type TRSInterface;
-  TRSQuickPrayer = type TRSInterface;
-
-(*
-Prayer.SetupAlignment
-~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSPrayer.SetupAlignment(Mode: ERSClientMode); override;
-
-Setups up the interface aligment for the current client mode.
-
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
-*)
-procedure TRSPrayer.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  Self.Mode := Mode;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
+  TRSPrayer = type TRSGameTab;
+  TRSQuickPrayer = type TRSGameTab;
 
 (*
 Prayer.GetPrayerLevel
@@ -93,35 +74,6 @@ begin
     
     Result := Text.Before('/').ExtractNumber();
   end;
-end;
-
-(*
-Prayer.IsOpen
-~~~~~~~~~~~~~
-.. pascal:: function TRSPrayer.IsOpen: Boolean;
-
-Returns true if the Prayer tab is open.
-*)
-function TRSPrayer.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) and (Self.GetPrayerLevel <> -1);
-end;
-
-(*
-Prayer.Open
-~~~~~~~~~~~
-.. pascal:: function TRSPrayer.Open: Boolean;
-
-Attempts to open the prayer tab.
-
-Example
--------
-
-  Prayer.Open;
-*)
-function TRSPrayer.Open: Boolean;
-begin
-  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.PRAYER);
 end;
 
 (*
@@ -370,25 +322,6 @@ var
   Prayer: TRSPrayer;
 
 (*
-QuickPrayer.SetupSetupAlignment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure QuickPrayer.SetupSetupAlignment(Mode: ERSClientMode); override;
-
-Setups up the interface aligment for the current client mode.
-
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
-*)
-procedure TRSQuickPrayer.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  Self.Mode := Mode;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
-
-(*
 QuickPrayer.IsOpen
 ~~~~~~~~~~~~~~~~~~
 .. pascal:: function QuickPrayer.IsOpen: Boolean;
@@ -396,17 +329,9 @@ QuickPrayer.IsOpen
 
 Returns true if the quick prayers are open.
 *)
-function TRSQuickPrayer.IsOpen: Boolean;
+function TRSQuickPrayer._IsOpen: Boolean; override;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) and (Prayer.GetPrayerLevel = -1);
-end;
-
-function TRSQuickPrayer.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
-begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
-
-  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;
 
 (*
@@ -421,7 +346,7 @@ Example
 
   QuickPrayer.Open;
 *)
-function TRSQuickPrayer.Open: Boolean;
+function TRSQuickPrayer.Open: Boolean; override;
 begin
   if Self.IsOpen then
     Exit(True);
@@ -456,6 +381,7 @@ Example
 
   QuickPrayers.Close;
 *)
+{
 function TRSQuickPrayer.Close: Boolean;
 begin
   if not Self.IsOpen then
@@ -464,7 +390,7 @@ begin
   Mouse.Click(Self.GetButton, MOUSE_LEFT);
 
   Result := WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(0, 1500), Random(1500, 3000));
-end;
+end; }
 
 (*
 QuickPrayer.IsPrayerSelected
@@ -722,6 +648,8 @@ begin
 end;
 
 begin
-  Prayer.Setup('Prayer', [@Prayer.SetupAlignment, @Prayer.Draw]);
-  QuickPrayer.Setup('QuickPrayer', [@QuickPrayer.SetupAlignment, @QuickPrayer.Draw]);
+  Prayer.Setup('Prayer', [@Prayer.SetupAlignment, @Prayer.Draw, @Prayer._IsOpen]);
+  Prayer.ID := ERSGameTab.PRAYER;
+  QuickPrayer.Setup('QuickPrayer', [@QuickPrayer.SetupAlignment, @QuickPrayer.Draw, @QuickPrayer._IsOpen]);
+  QuickPrayer.ID := ERSGameTab.PRAYER;
 end;

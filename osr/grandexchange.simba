@@ -171,18 +171,19 @@ begin
     Result := ERSGEInterface.OVERVIEW;  }
 end;
 
-function TRSGrandExchange.IsOpen: Boolean;
+function TRSGrandExchange._IsOpen: Boolean;
 begin
   Result := Self.GetCurrentInterface() <> ERSGEInterface.UNKNOWN;
 end;
 
+{
 function TRSGrandExchange.Close(PressEscape: Boolean = False): Boolean; 
 begin
   if not Self.IsOpen() then
     Exit(True);
 
   Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
-end;
+end;    }
 
  {
 function TRSGrandExchange.GetItemName: String;
@@ -481,7 +482,7 @@ var
   GrandExchange: TRSGrandExchange;
 
 begin
-  GrandExchange.Setup('Grand Exchange', [@GrandExchange.SetupAlignment, @GrandExchange.Draw]);
+  GrandExchange.Setup('Grand Exchange', [@GrandExchange.SetupAlignment, @GrandExchange.Draw, @GrandExchange._IsOpen]);
 end;
 
 (*

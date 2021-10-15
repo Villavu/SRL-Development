@@ -515,7 +515,43 @@ begin
   ScrollBar := Self.GetScrollBar();
   if ScrollBar.IsVisible() then
     ScrollBar.Draw(Bitmap); 
-end; 
+end;
+
+function TRSInterface.IsOpen: Boolean; overload;
+begin
+  if (not Assigned(@Self.InternalMethods.IsOpen)) then
+    raise 'no is open';
+
+  Result := Self.InternalMethods.IsOpen();
+end;
+
+function TRSInterface.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+end;
+
+function TRSInterface.Close(PressEscape: Boolean = False): Boolean;
+const
+  bmp := BitmapFromString(21, 21, 'meJxjZGBgpAyRDaio3dwzmHhEI+0QEUz1aOL4taOZgCmIqd3SNxKC4IqxciEIj3ZkLVj1YtVuExSPjJD1okkBEUHtcBMwxYnRTqrtDuEpcITpd2RZIMKjHU0LVhMwtTvH5gARXDGEi0sQv3ZkvVjFcWknElFdOxmAKtopQQAaR5/Q');
+var
+  X, Y, W, H: Integer;
+begin
+  if PressEscape then
+    Keyboard.PressKey(VK_ESCAPE)
+  else
+  begin
+    if not FindBitmapToleranceIn(bmp, X, Y, Box(Bounds.X2 - 50, Bounds.Y1, Bounds.X2, Bounds.Y1 + 50), 45) then
+      Exit;
+
+    GetBitmapSize(bmp, W, H);
+    Mouse.Click([X,Y,X+W-1,Y+H-1], MOUSE_LEFT);
+  end;
+
+  Result := WaitUntil(not Self.IsOpen(), 100, 2000);
+end;
 
 function TRSInterface.ClickCloseButton(PressEscape: Boolean = False): Boolean;
 var

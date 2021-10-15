@@ -46,62 +46,9 @@ var
   ];
 
 type
-  TRSCombat = type TRSInterface;
+  TRSCombat = type TRSGameTab;
 
 {$I elements/combat.elements}
-
-(*
-Combat.SetupAlignment
-~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSCombat.SetupAlignment(Mode: ERSClientMode); override;
-
-Setups up the interface aligment for the current client mode.
-
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
-*)
-procedure TRSCombat.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
-
-(*
-Combat.IsOpen
-~~~~~~~~~~~~~
-.. pascal:: function TRSCombat.IsOpen: Boolean;
-
-Returns true if the combat tab is open.
-
-Example
--------
-
-  WriteLn Combat.IsOpen;
-*)
-function TRSCombat.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.COMBAT);
-end;
-
-(*
-Combat.Open
-~~~~~~~~~~~
-.. pascal:: function TRSCombat.Open: Boolean;
-
-Attempts to open the combat tab.
-
-Example
--------
-
-  Combat.Open;
-*)
-function TRSCombat.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.COMBAT);
-end;
 
 (*
 Combat.GetCombatStyle
@@ -272,7 +219,8 @@ var
   Combat: TRSCombat;
 
 begin
-  Combat.Setup('Combat', [@Combat.SetupAlignment, @Combat.Draw]);
+  Combat.Setup('Combat', [@Combat.SetupAlignment, @Combat.Draw, @Combat._IsOpen]);
+  Combat.ID := ERSGameTab.COMBAT;
 end;
 
 (*

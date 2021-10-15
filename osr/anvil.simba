@@ -83,7 +83,7 @@ begin
   // todo
 end;
 
-function TRSAnvil.IsOpen: Boolean;
+function TRSAnvil._IsOpen: Boolean;
 begin
   // todo
 end;
@@ -102,6 +102,6 @@ var
   Anvil: TRSAnvil;
 
 begin
-  Anvil.Setup('Anvil', [@Anvil.SetupAlignment, @Anvil.Draw]);
+  Anvil.Setup('Anvil', [@Anvil.SetupAlignment, @Anvil.Draw, @Anvil._IsOpen]);
   Anvil.OnGetItemBoxes := @Anvil.GetItemBoxes;
 end;

@@ -4,7 +4,7 @@
 {$ENDIF}
 
 type  
-  TRSEquipment = type TRSInterface;
+  TRSEquipment = type TRSGameTab;
 
 {$i elements/equipment.elements}
 
@@ -14,26 +14,6 @@ var
 begin
   for Element in [ERSEquipmentElement.HELM..ERSEquipmentElement.RING] do
     Result += Self.ElementBounds(Element);
-end;
-
-procedure TRSEquipment.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
-
-function TRSEquipment.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.EQUIPMENT);
-end;
-
-function TRSEquipment.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.EQUIPMENT);
 end;
 
 function TRSEquipment.IsSlotUsed(B: TBox): Boolean; overload;
@@ -60,6 +40,7 @@ var
   Equipment: TRSEquipment;
 
 begin
-  Equipment.Setup('Equipment', [@Equipment.SetupAlignment, @Equipment.Draw]);
+  Equipment.Setup('Equipment', [@Equipment.SetupAlignment, @Equipment.Draw, @Equipment._IsOpen]);
+  Equipment.ID := ERSGameTab.EQUIPMENT;
   Equipment.OnGetItemBoxes := @Equipment.GetItemBoxes;
 end;

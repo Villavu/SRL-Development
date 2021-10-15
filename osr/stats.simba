@@ -68,17 +68,7 @@ type
   end;
 
 type
-  TRSStats = type TRSInterface;
-
-procedure TRSStats.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
+  TRSStats = type TRSGameTab;
 
 function TRSStats.GetSkillBoxes: TBoxArray;
 begin
@@ -88,16 +78,6 @@ end;
 function TRSStats.GetSkillBox(Skill: ERSSkill): TBox;
 begin
   Result := Self.GetSkillBoxes()[Ord(Skill)];
-end;
-
-function TRSStats.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.STATS);
-end;
-
-function TRSStats.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.STATS);
 end;
 
 function TRSStats.MouseOver(Skill: ERSSkill): Boolean;
@@ -178,6 +158,7 @@ var
   Stats: TRSStats;
 
 begin
-  Stats.Setup('Stats', [@Stats.SetupAlignment, @Stats.Draw]);
+  Stats.Setup('Stats', [@Stats.SetupAlignment, @Stats.Draw, @Stats._IsOpen]);
+  Stats.ID := ERSGameTab.STATS;
 end;
 

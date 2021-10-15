@@ -99,7 +99,7 @@ begin
   end;
 end;
 
-function TRSBankPin.IsOpen: Boolean;
+function TRSBankPin._IsOpen: Boolean;
 begin
   Result := Self.ElementFindText(ERSBankPinElement.EXIT, [$0000FF, $FFFFFF], 'Exit', RS_FONT_QUILL_8);
 end;
@@ -124,9 +124,10 @@ var
   BankPin: TRSBankPin;
 
 begin
-  BankPin.Setup('BankPin', [@BankPin.SetupAlignment, @BankPin.Draw]);
+  BankPin.Setup('BankPin', [@BankPin.SetupAlignment, @BankPin.Draw, @BankPin._IsOpen]);
 end;
 
+{
 function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean; override;
 begin
   if (not BankPin.Entering) and BankPin.IsOpen() and (not BankPin.Enter(Login.GetPlayerPin())) then
@@ -134,3 +135,4 @@ begin
 
   Result := inherited;
 end;
+}

@@ -138,7 +138,7 @@ Example
 
   WriteLn Chat.IsOpen;
 *)
-function TRSChat.IsOpen: Boolean;
+function TRSChat._IsOpen: Boolean;
 begin
   Result := (SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000) or Self.IsTransparent();
 end;
@@ -490,5 +490,5 @@ var
   Chat: TRSChat;
 
 begin
-  Chat.Setup('Chat', [@Chat.SetupAlignment, @Chat.Draw]);
+  Chat.Setup('Chat', [@Chat.SetupAlignment, @Chat.Draw, @Chat._IsOpen]);
 end;

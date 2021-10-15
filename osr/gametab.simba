@@ -4,7 +4,9 @@
 {$ENDIF}
 
 type
-  TRSGameTab = type TRSInterface;
+  TRSGameTab = record(TRSInterface)
+    ID: ERSGameTab;
+  end;
 
 procedure TRSGameTab.SetupAlignment(Mode: ERSClientMode); override;
 begin
@@ -29,10 +31,20 @@ begin
   end;
 end;
 
+function TRSGameTab._IsOpen: Boolean;
+begin
+  Result := (GameTabs.GetCurrentTab() = Self.ID);
+end;
+
+function TRSGameTab.Open: Boolean;
+begin
+  Result := GameTabs.Open(Self.ID);
+end;
+
 var
   GameTab: TRSGameTab;
 
 begin
-  GameTab.Setup('GameTab', [@GameTab.SetupAlignment, @GameTab.Draw]);
+  GameTab.Setup('GameTab', [@GameTab.SetupAlignment, @GameTab.Draw, @GameTab._IsOpen]);
 end;
 

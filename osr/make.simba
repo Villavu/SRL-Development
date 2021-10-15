@@ -43,17 +43,9 @@ begin
   Result := ATPA.ToTBA();
 end;
 
-function TRSMake.IsOpen: Boolean;
+function TRSMake._IsOpen: Boolean;
 begin
   Result := Self.ElementFindText(ERSMakeElement.QUANTITY_5, [Self.COLOR_TEXT_WHITE, Self.COLOR_TEXT_BROWN], 'All', RS_FONT_PLAIN_11);
-end;
-
-function TRSMake.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
-begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
-
-  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;
 
 function TRSMake.SetQuantity(Amount: Int32): Boolean;
@@ -191,5 +183,5 @@ var
   Make: TRSMake;
 
 begin
-  Make.Setup('Make', [@Make.SetupAlignment, @Make.Draw]);
+  Make.Setup('Make', [@Make.SetupAlignment, @Make.Draw, @Make._IsOpen]);
 end;

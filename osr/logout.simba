@@ -4,29 +4,9 @@
 {$ENDIF}
 
 type
-  TRSLogout = type TRSInterface;
+  TRSLogout = type TRSGameTab;
 
 {$I elements/logout.elements}
-
-procedure TRSLogout.SetupAlignment(Mode: ERSClientMode); override;
-begin 
-  inherited;
-  
-  Self.Alignment.Left := [@GameTab.X1, -3];
-  Self.Alignment.Right := [@GameTab.X2, 3];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
-
-function TRSLogout.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.LOGOUT);
-end;
-
-function TRSLogout.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.LOGOUT);
-end;
 
 function TRSLogout.IsWorldSwitcherOpen: Boolean;
 begin
@@ -60,5 +40,6 @@ var
   Logout: TRSLogout;
 
 begin
-  Logout.Setup('Logout', [@Logout.SetupAlignment, @Logout.Draw]);
+  Logout.Setup('Logout', [@Logout.SetupAlignment, @Logout.Draw, @Logout._IsOpen]);
+  Logout.ID := ERSGameTab.LOGOUT;
 end;

@@ -264,60 +264,7 @@ const
   RS_ARCEUUS_SPELLS  = [RS_ARCEUUS_SPELL_FIRST..RS_ARCEUUS_SPELL_LAST];
   
 type
-  TRSMagic = type TRSInterface;
-
-(*
-Magic.SetupAlignment
-~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSMagic.SetupAlignment(Mode: ERSClientMode); override;
-
-Setups up the interface aligment for the current client mode.
-
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
-*)
-procedure TRSMagic.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
-
-(*
-Magic.IsOpen
-~~~~~~~~~~~~
-.. pascal:: function TRSMagic.IsOpen: Boolean;
-
-Returns true if the Magic tab is open.
-
-Example
--------
-
-  WriteLn Magic.IsOpen;
-*)
-function TRSMagic.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.MAGIC);
-end;
-
-(*
-Magic.Open
-~~~~~~~~~~
-.. pascal:: function TRSMagic.Open: Boolean;
-
-Attempts to open the magic tab.
-
-Example
--------
-
-  Magic.Open;
-*)
-function TRSMagic.Open: Boolean;
-begin
-  Result := Self.IsOpen() or GameTabs.Open(ERSGameTab.MAGIC);
-end;
+  TRSMagic = type TRSGameTab;
 
 (*
 Magic.GetSpellBook
@@ -572,5 +519,6 @@ var
   Magic: TRSMagic;
 
 begin
-  Magic.Setup('Magic', [@Magic.SetupAlignment, @Magic.Draw]);
+  Magic.Setup('Magic', [@Magic.SetupAlignment, @Magic.Draw, @Magic._IsOpen]);
+  Magic.ID := ERSGameTab.MAGIC;
 end;

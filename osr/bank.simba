@@ -95,20 +95,13 @@ Returns true if the Bank is visible.
 **WaitForItems** determines if the method should wait up to one second for items to to appear.
 There can be a small delay before items are visible.
 *)
-function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean; overload;
+function TRSBank._IsOpen: Boolean; overload;
 begin
   Result := Self.ElementFindText(ERSBankElement.SWAP, [COLOR_TEXT_ORANGE, COLOR_TEXT_WHITE], 'Swap', RS_FONT_PLAIN_12);
 
+  {
   if Result and WaitForItems then
-    WaitUntil(Self.HasItems(), 80, Random(800, 1200));
-end;
-
-function TRSBank.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
-begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
-
-  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+    WaitUntil(Self.HasItems(), 80, Random(800, 1200));  }
 end;
 
 (*
@@ -124,6 +117,7 @@ Example
 
  WriteLn Bank.Close();
 *)
+{
 function TRSBank.Close(PressEscape: Boolean = False): Boolean; 
 begin
   if not Self.IsOpen(False) then
@@ -131,6 +125,7 @@ begin
 
   Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(False), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
 end;
+}
 
 procedure TRSBank.Draw(Bitmap: TMufasaBitmap); override;
 begin
@@ -695,7 +690,7 @@ var
   Bank: TRSBank;
 
 begin
-  Bank.Setup('Bank', [@Bank.SetupAlignment, @Bank.Draw]);
+  Bank.Setup('Bank', [@Bank.SetupAlignment, @Bank.Draw, @Bank._IsOpen]);
   Bank.OnGetItemBoxes := @Bank.FindItemBoundaries;
 
   Bank.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
@@ -724,6 +719,7 @@ GameTabs.Open
 
 Overrides **GameTabs.Open** to close the bank if the bank open.
 *)
+{
 function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
 begin
   if Bank.IsOpen(False) then
@@ -735,5 +731,5 @@ begin
   end;
 
   Result := inherited();
-end;
+end;  }
 

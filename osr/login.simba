@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-function TRSLogin.IsOpen: Boolean;
+function TRSLogin._IsOpen: Boolean;
 begin
   Result := Self.FindText('Click to switch');
 end;
@@ -425,5 +425,5 @@ var
   Login: TRSLogin;
 
 begin
-  Login.Setup('Login', [@Login.SetupAlignment, @Login.Draw]);
+  Login.Setup('Login', [@Login.SetupAlignment, @Login.Draw, @Login._IsOpen]);
 end;

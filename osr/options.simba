@@ -21,16 +21,6 @@ type
 
 {$i elements/options.elements}
 
-function TRSOptions.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.OPTIONS);
-end;
-
-function TRSOptions.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.OPTIONS);
-end;
-
 function TRSOptions.IsHouseOptionsOpen: Boolean;
 begin
   Result := Self.ElementFindText(ERSOptionsElement.HOUSE_TITLE, [Self.COLOR_TEXT_ORANGE], 'House Options', RS_FONT_BOLD_12);
@@ -153,7 +143,8 @@ var
   Options: TRSOptions;
 
 begin
-  Options.Setup('Options', [@Options.SetupAlignment, @Options.Draw]);
+  Options.Setup('Options', [@Options.SetupAlignment, @Options.Draw, @Options._IsOpen]);
+  Options.ID := ERSGameTab.OPTIONS;
 end;
 
 function TRSGameTabs.GetCurrentTab: ERSGameTab; override;

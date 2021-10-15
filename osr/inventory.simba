@@ -26,7 +26,7 @@ const
   DROP_PATTERN_SPIRAL: TIntegerArray   = [0,1,2,3, 7,11,15,19,23, 27,26,25,24, 20,16,12,8,4, 5, 6,10,14,18,22, 21,17,13,9];
 
 type
-  TRSInventory = record(TRSInterface)
+  TRSInventory = record(TRSGameTab)
     LOW_SLOT: Int32;
     HIGH_SLOT: Int32;
   end;
@@ -34,26 +34,6 @@ type
 function TRSInventory.GetSlotBoxes: TBoxArray;
 begin
   Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
-end;
-
-procedure TRSInventory.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
-
-function TRSInventory.IsOpen: Boolean;
-begin
-  Result := (GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY);
-end;
-
-function TRSInventory.Open: Boolean;
-begin
-  Result := GameTabs.Open(ERSGameTab.INVENTORY);
 end;
 
 function TRSInventory.GetSlotBox(Slot: Int32): TBox;
@@ -475,7 +455,8 @@ var
   Inventory: TRSInventory;
 
 begin
-  Inventory.Setup('Inventory', [@Inventory.SetupAlignment, @Inventory.Draw]);
+  Inventory.Setup('Inventory', [@Inventory.SetupAlignment, @Inventory.Draw, @Inventory._IsOpen]);
+  Inventory.ID := ERSGameTab.INVENTORY;
   Inventory.OnGetItemBoxes := @Inventory.GetSlotBoxes;
 
   Inventory.LOW_SLOT := 0;
