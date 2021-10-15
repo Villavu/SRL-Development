@@ -14,11 +14,9 @@ type
     EXIT
   );
 
-procedure TRSBankPin.Setup; override;
+procedure TRSBankPin.Setup(Name: String; InternalMethods: TInternalMethods); override;
 begin
-  inherited();
-
-  Self.Name := 'BankPin';
+  inherited;
 
   SetLength(Self.Elements, Length(ERSBankPinElement));
 

@@ -431,19 +431,6 @@ begin
   inherited;
 end;
 
-procedure TRSGrandExchange.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Grand Exchange';
-
-  Self.FINDER_BANKER.ColorClusters += [CTS2(6710894, 12, 0.19, 0.07), CTS2(2110788, 11, 0.29, 0.84), 10]; // grey, brown
-  Self.FINDER_BANKER.ClusterDistance := 3;
-  Self.FINDER_BANKER.Grow := 3;
-  Self.FINDER_BANKER.Erode := 3;
-  Self.FINDER_BANKER.MinLongSide := 10;
-end;
-
 procedure TRSGrandExchange.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -471,8 +458,31 @@ begin
   end;
 end;
 
+{
+procedure TRSGrandExchange.Setup; override;
+begin
+  inherited;
+
+  Self.Name := 'Grand Exchange';
+
+  Self.InternalMethods.Setup := @Self.Setup;
+  Self.InternalMethods.SetupAlignment := @Self.SetupAlignment;
+  Self.InternalMethods.Draw := @Self.Draw;
+
+  Self.FINDER_BANKER.ColorClusters += [CTS2(6710894, 12, 0.19, 0.07), CTS2(2110788, 11, 0.29, 0.84), 10]; // grey, brown
+  Self.FINDER_BANKER.ClusterDistance := 3;
+  Self.FINDER_BANKER.Grow := 3;
+  Self.FINDER_BANKER.Erode := 3;
+  Self.FINDER_BANKER.MinLongSide := 10;
+end;
+}
+
 var
   GrandExchange: TRSGrandExchange;
+
+begin
+  GrandExchange.Setup('Grand Exchange', [@GrandExchange.SetupAlignment, @GrandExchange.Draw]);
+end;
 
 (*
 BankScreen.Open
@@ -487,8 +497,4 @@ begin
     Result := GrandExchange.OpenBank()
   else
     Result := inherited();
-end;
-
-begin
-  RegisterInterface(@GrandExchange.Setup, @GrandExchange.Draw, @GrandExchange.SetupAlignment);
 end;

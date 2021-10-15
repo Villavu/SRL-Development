@@ -10,7 +10,7 @@ type
     DEPOSIT_LOOT
   );
 
-procedure TRSDepositBox.Setup; override;
+procedure TRSDepositBox.Setup(Name: String; InternalMethods: TInternalMethods); override;
 begin
   inherited();
 

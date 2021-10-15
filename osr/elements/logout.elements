@@ -6,11 +6,9 @@ type
     CURRENT_WORLD
   );
 
-procedure TRSLogout.Setup; override;
+procedure TRSLogout.Setup(Name: String; InternalMethods: TInternalMethods); override;
 begin
-  inherited();
-
-  Self.Name := 'Logout';
+  inherited;
 
   SetLength(Self.Elements, Length(ERSLogoutElement));
 

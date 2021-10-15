@@ -6,13 +6,6 @@
 type
   TRSGameTab = type TRSInterface;
 
-procedure TRSGameTab.Setup; override;
-begin
-  inherited; 
-  
-  Self.Name := 'GameTab';
-end;
-
 procedure TRSGameTab.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -40,6 +33,6 @@ var
   GameTab: TRSGameTab;
 
 begin
-  RegisterInterface(@GameTab.Setup, @GameTab.Draw, @GameTab.SetupAlignment);
+  GameTab.Setup('GameTab', [@GameTab.SetupAlignment, @GameTab.Draw]);
 end;
 

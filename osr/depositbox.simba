@@ -21,13 +21,6 @@ begin
   Result := Grid(7, 4, 31, 31, [25, 17], [Self.X1 + 38, Self.Y1 + 42]);
 end;
 
-procedure TRSDepositBox.Setup; override;
-begin
-  inherited;
-
-  Self.OnGetItemBoxes := @Self.GetSlotBoxes;
-end;
-
 procedure TRSDepositBox.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -156,5 +149,6 @@ var
   DepositBox: TRSDepositBox;
 
 begin
-  RegisterInterface(@DepositBox.Setup, @DepositBox.Draw, @DepositBox.SetupAlignment);
+  DepositBox.Setup('DepositBox', [@DepositBox.SetupAlignment, @DepositBox.Draw]);
+  DepositBox.OnGetItemBoxes := @DepositBox.OnGetItemBoxes;
 end;

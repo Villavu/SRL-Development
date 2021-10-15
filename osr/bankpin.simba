@@ -123,14 +123,14 @@ end;
 var
   BankPin: TRSBankPin;
 
+begin
+  BankPin.Setup('BankPin', [@BankPin.SetupAlignment, @BankPin.Draw]);
+end;
+
 function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean; override;
 begin
   if (not BankPin.Entering) and BankPin.IsOpen() and (not BankPin.Enter(Login.GetPlayerPin())) then
     Self.Fatal('Failed to enter bank pin');
 
   Result := inherited;
-end;
-
-begin
-  RegisterInterface(@BankPin.Setup, @BankPin.Draw, @BankPin.SetupAlignment);
 end;

@@ -1,19 +1,8 @@
-begin
-  //SetTargetBitmap(LoadBitmap('bank.bmp'));
-end;
-
 {$DEFINE SRL_USE_REMOTEINPUT}
-{.$DEFINE SRL_USE_REMOTEINPUT_DEBUG}
-
 {$I SRL/osr.simba}
+
 {$hints off}
-
 {$scopedenums on}
-
-begin
-  //WriteLn(Bank.FindElementText(ERSBankElement.QUANTITY_ALL, [2070783], 'All', RS_FONT_PLAIN_12));
-  //Halt;
-end;
 
 function BoxToButton(Name: String; Box: TBox; Anchor: ERSInterfaceElementAnchor; InterfaceBounds: TBox): TRSInterfaceElement;
 begin
@@ -124,11 +113,9 @@ begin
     Write('  );');
 
     Write('');
-    Write('procedure %s.Setup; override;', [InterfaceType()]);
+    Write('procedure %s.Setup(Name: String; InternalMethods: TInternalMethods); override;', [InterfaceType()]);
     Write('begin');
-    Write('  inherited();');
-    Write('');
-    Write('  Self.Name := ''%s'';', [Self.Name]);
+    Write('  inherited;');
     Write('');
     Write('  SetLength(Self.Elements, Length(%s));', [EnumType()]);
     Write('');
@@ -334,6 +321,19 @@ begin
   Self.ImageBox.Repaint();
 end;
 
+procedure TRSInterfaceBuilder.OnUpdateImageButtonClick(Sender: TObject);
+var
+  Bitmap: TMufasaBitmap;
+begin
+  Bitmap.FromClient(Self.Bounds);
+
+  Self.ImageBox.GetBackground().LoadFromMufasaBitmap(Bitmap);
+  Self.ImageBox.BackgroundChanged();
+  Self.ImageBox.Update();
+
+  Bitmap.Free();
+end;
+
 procedure TRSInterfaceBuilder.OnAnchorButtonClick(Sender: TObject);
 begin
   case TButton(Sender).GetCaption() of
@@ -413,13 +413,10 @@ end;
 
 procedure TRSInterfaceBuilder.Run;
 var
-  Bitmap: TMufasaBitmap;
   Panel: TPanel;
   Button: TButton;
   I: Int32;
 begin
-  Bitmap.FromClient(Self.Bounds);
-
   Self.SelectedButtonIndex := -1;
 
   try
@@ -439,16 +436,23 @@ begin
     Button.Init(Panel);
     Button.SetParent(Panel);
     Button.SetAutoSize(True);
+    Button.SetCaption('Update Image');
+    Button.SetOnClick(@Self.OnUpdateImageButtonClick);
+    Button.SetAlign(alLeft);
+
+    Button.Init(Panel);
+    Button.SetParent(Panel);
+    Button.SetAutoSize(True);
     Button.SetCaption('Anchor: Top');
     Button.SetOnClick(@Self.OnAnchorButtonClick);
-    Button.setAlign(alLeft);
+    Button.SetAlign(alLeft);
 
     Button.Init(Panel);
     Button.SetParent(Panel);
     Button.SetAutoSize(True);
     Button.SetCaption('Anchor: Bottom');
     Button.SetOnClick(@Self.OnAnchorButtonClick);
-    Button.setAlign(alLeft);
+    Button.SetAlign(alLeft);
 
     Button.Init(Panel);
     Button.SetParent(Panel);
@@ -474,8 +478,8 @@ begin
     Self.ListBox.Init(Form);
     Self.ListBox.SetParent(Form);
     Self.ListBox.SetAlign(alLeft);
-    Self.ListBox.setWidth(200);
-    Self.ListBox.setOnClick(@OnListBoxChange);
+    Self.ListBox.SetWidth(200);
+    Self.ListBox.SetOnClick(@OnListBoxChange);
 
     Self.ImageBox.Init(Form);
     Self.ImageBox.SetParent(Form);
@@ -484,19 +488,17 @@ begin
     Self.ImageBox.SetOnMouseMove(@Self.OnMouseMove);
     Self.ImageBox.SetOnMouseDown(@Self.OnMouseDown);
     Self.ImageBox.SetOnMouseUp(@Self.OnMouseUp);
-    Self.ImageBox.GetBackground().LoadFromMufasaBitmap(Bitmap);
-    Self.ImageBox.BackgroundChanged();
 
     for I := 0 to High(Self.Buttons) do
       Self.ListBox.GetItems().Add(Buttons[I].Name);
+
+    Self.OnUpdateImageButtonClick(nil);
 
     Self.Form.ShowModal();
     Self.Form.Free();
   except
     Writeln GetExceptionMessage();
   end;
-
-  Bitmap.Free();
 end;
 
 begin
@@ -516,11 +518,11 @@ begin
   InterfaceBuilder.Buttons := DepositBox.Elements;
   InterfaceBuilder.Bounds := DepositBox.Bounds;
   }
-
+  {
   InterfaceBuilder.Name := 'Anvil';
   InterfaceBuilder.Buttons := Anvil.Elements;
   InterfaceBuilder.Bounds := Anvil.Bounds;
-
+  }
   {
   InterfaceBuilder.Name := 'ChatButtons';
   InterfaceBuilder.Buttons := ChatButtons.Elements;
@@ -546,11 +548,10 @@ begin
   InterfaceBuilder.Buttons := Equipment.Elements;
   InterfaceBuilder.Bounds := Equipment.Bounds;
   }
-  {
+
   InterfaceBuilder.Name := 'BankPin';
   InterfaceBuilder.Buttons := BankPin.Elements;
   InterfaceBuilder.Bounds := BankPin.Bounds;
-  }
 
   Sync(@InterfaceBuilder.Run);
 end;

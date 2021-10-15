@@ -9,7 +9,7 @@ type
     COMBAT_LEVEL
   );
 
-procedure TRSCombat.Setup; override;
+procedure TRSCombat.Setup(Name: String; InternalMethods: TInternalMethods); override;
 begin
   inherited();
 

@@ -34,5 +34,5 @@ var
   ChatButtons: TRSChatButtons;
 
 begin
-  RegisterInterface(@ChatButtons.Setup, @ChatButtons.Draw, @ChatButtons.SetupAlignment);
+  ChatButtons.Setup('ChatButtons', [@ChatButtons.SetupAlignment, @ChatButtons.Draw]);
 end;

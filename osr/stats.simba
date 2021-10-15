@@ -70,13 +70,6 @@ type
 type
   TRSStats = type TRSInterface;
 
-procedure TRSStats.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Stats';
-end;
-
 procedure TRSStats.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -133,7 +126,7 @@ begin
 
       SetLength(Lines, B.Height div 12);
       for I := 0 to High(Lines) do
-        Lines[I] := OCR.Recognize([B.X1, B.Y1 + (I * 12), B.X2, B.Y1 + ((I+1) * 12) + 3],  TOCRColorRule.Create([0]), RS_FONT_PLAIN_12);
+        Lines[I] := OCR.Recognize([B.X1, B.Y1 + (I * 12), B.X2, B.Y1 + ((I+1) * 12) + 3], TOCRColorFilter.Create([0]), RS_FONT_PLAIN_12);
 
       if Length(Lines) = 0 then
         Continue;
@@ -167,7 +160,7 @@ begin
   B := Self.GetSkillBox(Skill);
   B.Y2 := B.Y1 + (B.Height div 2);
 
-  Text := OCR.Recognize(B,  TOCRColorRule.Create([65535]), RS_FONT_PLAIN_11);
+  Text := OCR.Recognize(B, TOCRColorFilter.Create([65535]), RS_FONT_PLAIN_11);
   Result := StrToIntDef(ExtractFromStr(Text, Numbers), -1);
 end;
 
@@ -185,6 +178,6 @@ var
   Stats: TRSStats;
 
 begin
-  RegisterInterface(@Stats.Setup, @Stats.Draw, @Stats.SetupAlignment);
+  Stats.Setup('Stats', [@Stats.SetupAlignment, @Stats.Draw]);
 end;
 

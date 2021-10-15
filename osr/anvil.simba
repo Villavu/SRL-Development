@@ -16,13 +16,6 @@ begin
   Result := Grid(5, 5, 77, 53, [2, 2], [Self.X1 + 10, Self.Y1 + 36]);
 end;
 
-procedure TRSAnvil.Setup; override;
-begin
-  inherited;
-
-  Self.OnGetItemBoxes := @Self.GetItemBoxes;
-end;
-
 procedure TRSAnvil.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -109,5 +102,6 @@ var
   Anvil: TRSAnvil;
 
 begin
-  RegisterInterface(@Anvil.Setup, @Anvil.Draw, @Anvil.SetupAlignment);
+  Anvil.Setup('Anvil', [@Anvil.SetupAlignment, @Anvil.Draw]);
+  Anvil.OnGetItemBoxes := @Anvil.GetItemBoxes;
 end;

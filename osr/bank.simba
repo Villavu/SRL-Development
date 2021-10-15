@@ -166,25 +166,6 @@ begin
   end;
 end;
 
-(*
-Bank.Setup
-~~~~~~~~~~
-.. pascal:: procedure Bank.Setup;
-
-Initializes Bank variables.
-
-.. note:: This is automatically called on the **Bank** variable.
-*)
-procedure TRSBank.Setup; override;
-begin
-  inherited;
-
-  Self.OnGetItemBoxes := @Self.FindItemBoundaries;
-
-  Self.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
-  Self.FINDER_OPTION := ['Use Bank', 'Bank Bank'];
-end;
-
 procedure TRSBank.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -713,6 +694,13 @@ var Bank
 var
   Bank: TRSBank;
 
+begin
+  Bank.Setup('Bank', [@Bank.SetupAlignment, @Bank.Draw]);
+  Bank.OnGetItemBoxes := @Bank.FindItemBoundaries;
+
+  Bank.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
+  Bank.FINDER_OPTION := ['Use Bank', 'Bank Bank'];
+end;
 
 (*
 GameTabs.Open
@@ -747,9 +735,5 @@ begin
   end;
 
   Result := inherited();
-end;
-
-begin
-  RegisterInterface(@Bank.Setup, @Bank.Draw, @Bank.SetupAlignment);
 end;
 

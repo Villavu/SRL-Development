@@ -39,23 +39,6 @@ const
 
 type
   TRSChat = type TRSInterface;
-  
-
-(*
-Chat.Setup
-~~~~~~~~~~
-.. pascal:: procedure TRSChat.Setup; override;
-
-Initializes **Chat** variables.
-
-.. note:: This is automatically called on the **Chat** variable.
-*)
-procedure TRSChat.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Chatbox';
-end;
 
 (*
 Chat.SetupAlignment
@@ -117,7 +100,7 @@ var
 begin
   for Color in Colors do
   begin
-    Result := OCR.RecognizeStatic(Self.GetLineBoxes()[CHAT_INPUT_LINE], TOCRColorRule.Create([Color]), RS_FONT_PLAIN_12);
+    Result := OCR.RecognizeStatic(Self.GetLineBoxes()[CHAT_INPUT_LINE], TOCRColorFilter.Create([Color]), RS_FONT_PLAIN_12);
     if Result <> '' then
       Break;
   end;
@@ -175,7 +158,7 @@ Example
 *)
 function TRSChat.GetQuery: String;
 begin
-  Result := OCR.Recognize(Self.Bounds(), TOCRColorRule.Create([$000000]), RS_FONT_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds(), TOCRColorFilter.Create([$000000]), RS_FONT_BOLD_12);
 end;
 
 (*
@@ -192,7 +175,7 @@ Example
 *)
 function TRSChat.GetQueryAnswer: String;
 begin
-  Result := OCR.Recognize(Self.Bounds(), TOCRColorRule.Create([8388608]), RS_FONT_BOLD_12);
+  Result := OCR.Recognize(Self.Bounds(), TOCRColorFilter.Create([8388608]), RS_FONT_BOLD_12);
 end;
 
 (*
@@ -260,7 +243,7 @@ var
   Boxes: TBoxArray;
   I, Key: Int32;
 begin
-  Strings := OCR.RecognizeMulti(Self.Bounds(), TOCRColorRule.Create(Colors), RS_FONT_QUILL_8, Boxes);
+  Strings := OCR.RecognizeLines(Self.Bounds(), TOCRColorFilter.Create(Colors), RS_FONT_QUILL_8, Boxes);
 
   SetLength(Result, Length(Strings));
   for I := 0 to High(Result) do
@@ -397,6 +380,7 @@ begin
   
   if (Length(Colors) > 0) then
   begin
+  {
     Matrix := GetColorsMatrix(B.X1, B.Y1, B.X2, B.Y2);
     
     // Shadow from above line draws over our line.
@@ -406,7 +390,8 @@ begin
         if (Matrix[StaticOffset][X] = CHAT_COLOR_BLACK) theN
           Matrix[StaticOffset][X] := Colors[0];
   
-    Result := OCR.RecognizeStatic(Matrix, TOCRColorRule.Create(Colors), RS_FONT_PLAIN_12);
+    Result := OCR.RecognizeStatic(Matrix, TOCRColorFilter.Create(Colors), RS_FONT_PLAIN_12);
+    }
   end;
 end;
 
@@ -505,5 +490,5 @@ var
   Chat: TRSChat;
 
 begin
-  RegisterInterface(@Chat.Setup, @Chat.Draw, @Chat.SetupAlignment);
+  Chat.Setup('Chat', [@Chat.SetupAlignment, @Chat.Draw]);
 end;

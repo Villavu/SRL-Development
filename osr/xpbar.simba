@@ -4,147 +4,85 @@
 {$ENDIF}
 
 type
-  ERSXPBarLocation = (LEFT, MIDDLE, RIGHT);
   ERSXPBarSize = (SMALL, MEDIUM, LARGE);
 
   TRSXPBar = record(TRSInterface)
-    Alignments: array[ERSXPBarLocation] of array[ERSXPBarSize] of TRSInterfaceAlignment;
+    Bitmaps: array[ERSXPBarSize] of TMufasaBitmap;
+    BitmapsLoaded: Boolean;
+
     Font: TFontSet;
+    Size: ERSXPBarSize;
   end;
 
-procedure TRSXPBar.Setup; override;
+procedure TRSXPBar.FreeBitmaps;
 begin
-  inherited;
-
-  Self.Name := 'XPBar';
-
-  // Small Text
-  with Self.Alignments[ERSXPBarLocation.LEFT][ERSXPBarSize.SMALL] do
-  begin
-    Left := [@InterfaceArea.X1, 2];
-    Right := [@InterfaceArea.X1, 120];
-    Top := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-  end;
-
-  with Self.Alignments[ERSXPBarLocation.MIDDLE][ERSXPBarSize.SMALL] do
-  begin
-    Left   := [@InterfaceArea.X1];
-    Right  := [@InterfaceArea.X2];
-    Top    := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-    Center.MaxWidth := 119;
-  end;
-
-  with Self.Alignments[ERSXPBarLocation.RIGHT][ERSXPBarSize.SMALL] do
-  begin
-    Left := [@InterfaceArea.X2, -120];
-    Right := [@InterfaceArea.X2, -2];
-    Top := [@InterfaceArea.Y1, 0];
-    Bottom := [@InterfaceArea.Y1, 28];
-  end;
-
-  // Medium Text
-  with Self.Alignments[ERSXPBarLocation.LEFT][ERSXPBarSize.MEDIUM] do
-  begin
-    Left := [@InterfaceArea.X1, 2];
-    Right := [@InterfaceArea.X1, 130];
-    Top := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-  end;
-
-  with Self.Alignments[ERSXPBarLocation.MIDDLE][ERSXPBarSize.MEDIUM] do
-  begin
-    Left   := [@InterfaceArea.X1];
-    Right  := [@InterfaceArea.X2];
-    Top    := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-    Center.MaxWidth := 129;
-  end;
-
-  with Self.Alignments[ERSXPBarLocation.RIGHT][ERSXPBarSize.MEDIUM] do
-  begin
-    Left := [@InterfaceArea.X2, -130];
-    Right := [@InterfaceArea.X2, -2];
-    Top := [@InterfaceArea.Y1, 0];
-    Bottom := [@InterfaceArea.Y1, 28];
-  end;
-
-  // Large Text
-  with Self.Alignments[ERSXPBarLocation.LEFT][ERSXPBarSize.LARGE] do
-  begin
-    Left := [@InterfaceArea.X1, 2];
-    Right := [@InterfaceArea.X1, 141];
-    Top := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-  end;
-
-  with Self.Alignments[ERSXPBarLocation.MIDDLE][ERSXPBarSize.LARGE] do
-  begin
-    Left   := [@InterfaceArea.X1];
-    Right  := [@InterfaceArea.X2];
-    Top    := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-    Center.MaxWidth := 140;
-  end;
-
-  with Self.Alignments[ERSXPBarLocation.RIGHT][ERSXPBarSize.LARGE] do
-  begin
-    Left := [@InterfaceArea.X2, -141];
-    Right := [@InterfaceArea.X2, -2];
-    Top := [@InterfaceArea.Y1, 0];
-    Bottom := [@InterfaceArea.Y1, 28];
-  end;
+  Self.Bitmaps[ERSXPBarSize.SMALL].Free();
+  Self.Bitmaps[ERSXPBarSize.MEDIUM].Free();
+  Self.Bitmaps[ERSXPBarSize.LARGE].Free();
 end;
 
-procedure TRSXPBar.SetupAlignment(Mode: ERSClientMode); override;
+procedure TRSXPBar.LoadBitmaps;
 begin
-  inherited;
+  if Self.BitmapsLoaded then
+    Exit;
 
-  // Default location & size
-  Self.Alignment := Self.Alignments[ERSXPBarLocation.RIGHT][ERSXPBarSize.SMALL];
-  Self.Font := RS_FONT_PLAIN_11;
+  Self.BitmapsLoaded := True;
+
+  Self.Bitmaps[ERSXPBarSize.SMALL]  := GetMufasaBitmap(BitmapFromString(119, 29, 'meJzt2jERgAAQA0G8YIASAxigxL8QOgYDfxTsThRcnXXbV5vfcV42tyfywgyRAyIHRA6IHBA5IHJA5IDIAZEDIgdEDogcEDkgckDkgMgBkQMiB0QOiBwQOSByQOSAyIF3ZJvb5w+xn+wG5pOp+A=='));
+  Self.Bitmaps[ERSXPBarSize.MEDIUM] := GetMufasaBitmap(BitmapFromString(129, 29, 'meJzt2jERgDAABMF4iYGUGMAAJf6FJBWDg21u5x1c+3Nds+ndz9vUvgQjQgm4EnAl4ErAlYArAVcCrgRcCbgScCXgSsCVgCsBVwKuBFwJuBJwJeBKwJWAKwFXAq4E3D9BU+Nfyna2Abq6x6g='));
+  Self.Bitmaps[ERSXPBarSize.LARGE]  := GetMufasaBitmap(BitmapFromString(140, 29, 'meJzt2qERgDAABEF6SQNIGkgDSPovJI5B4nJid76Dsz/Oa1h+834su7fRQZJGfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUd+3kWW3/cZsf7YAmM7oUA=='));
+
+  AddOnTerminate(@Self.FreeBitmaps);
+end;
+
+function TRSXPBar.Bounds: TBox; override;
+begin
+  Result := [Self.Cache.X1.Value, Self.Cache.Y1.Value, Self.Cache.X2.Value, Self.Cache.Y2.Value];
 end;
 
 function TRSXPBar.IsOpen: Boolean;
 
-  function FindBorder: Boolean;
-  const
-    COLOR_BORDER = $233038;
+  function FindBorder(Size: ERSXPBarSize; Area: TBox): Boolean;
+  var
+    X, Y: Integer;
   begin
-    Result := SRL.CountColor(COLOR_BORDER, Self.Bounds) = (Self.Width*2 + Self.Height*2) - 4;
+    if FindBitmapToleranceIn(Self.Bitmaps[Size].GetIndex(), X, Y, Area, 5) then
+    begin
+      Self.Cache.X1.Value := X;
+      Self.Cache.Y1.Value := Y;
+      Self.Cache.X2.Value := X + Self.Bitmaps[Size].GetWidth()-1;
+      Self.Cache.Y2.Value := Y + Self.Bitmaps[Size].GetHeight()-1;
+
+      Exit(True);
+    end;
   end;
 
   function UpdateLocation: Boolean;
   var
-    Location: ERSXPBarLocation;
     Size: ERSXPBarSize;
   begin
-    for Location in ERSXPBarLocation do
-      for Size in ERSXPBarSize do
+    for Size in ERSXPBarSize do
+      if FindBorder(Size, [MainScreen.X1, 0, MainScreen.X2, 100]) then // Can only currently be at top of mainscreen
       begin
-        Self.Cache := [];
-        Self.Alignment := Self.Alignments[Location][Size];
-        if FindBorder() then
-        begin
-          case Size of
-            ERSXPBarSize.SMALL:  Self.Font := RS_FONT_PLAIN_11;
-            ERSXPBarSize.MEDIUM: Self.Font := RS_FONT_PLAIN_12;
-            ERSXPBarSize.LARGE:  Self.Font := RS_FONT_BOLD_12;
-          end;
-
-          Exit(True);
+        case Size of
+          ERSXPBarSize.SMALL:  Self.Font := RS_FONT_PLAIN_11;
+          ERSXPBarSize.MEDIUM: Self.Font := RS_FONT_PLAIN_12;
+          ERSXPBarSize.LARGE:  Self.Font := RS_FONT_BOLD_12;
         end;
+
+        Self.Size := Size;
+
+        Exit(True);
       end;
   end;
 
 begin
-  Result := FindBorder() or UpdateLocation();
+  Result := FindBorder(Self.Size, Self.Bounds) or UpdateLocation();
 end;
 
 function TRSXPBar.Open: Boolean;
 begin
-  if Self.IsOpen then
+  if Self.IsOpen() then
     Exit(True);
 
   Mouse.Click(Minimap.GetXPCircle(), MOUSE_LEFT);
@@ -163,14 +101,14 @@ end;
 function TRSXPBar.Read: Int32;
 begin
   Result := -1;
-
   if Self.IsOpen() then
-    Result := OCR.RecognizeNumber(Self.Bounds, TOCRColorRule.Create([$FFFFFF]), Self.Font);
+    Result := OCR.RecognizeNumber(Self.Bounds, TOCRColorFilter.Create([Self.COLOR_TEXT_WHITE]), Self.Font);
 end;
 
 var
   XPBar: TRSXPBar;
 
 begin
-  RegisterInterface(@XPBar.Setup, @XPBar.Draw, @XPBar.SetupAlignment);
+  XPBar.Setup('XPBar', [@XPBar.SetupAlignment, @XPBar.Draw]);
+  XPBar.LoadBitmaps();
 end;

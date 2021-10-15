@@ -36,18 +36,6 @@ begin
   Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
 end;
 
-procedure TRSInventory.Setup; override;
-begin
-  inherited;
-
-  Self.OnGetItemBoxes := @Self.GetSlotBoxes;
-
-  Self.Name := 'Inventory';
-
-  Self.LOW_SLOT := 0;
-  Self.HIGH_SLOT := 27;
-end;
-
 procedure TRSInventory.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -466,9 +454,30 @@ begin
   end;
 end;
 
+{
+procedure TRSInventory.Setup; override;
+begin
+  inherited;
+
+  Self.Name := 'Inventory';
+
+  Self.InternalMethods.Setup := @Self.Setup;
+  Self.InternalMethods.SetupAlignment := @Self.SetupAlignment;
+  Self.InternalMethods.Draw := @Self.Draw;
+
+  Self.OnGetItemBoxes := @Self.GetSlotBoxes;
+
+  Self.LOW_SLOT := 0;
+  Self.HIGH_SLOT := 27;
+end;  }
+
 var
   Inventory: TRSInventory;
 
 begin
-  RegisterInterface(@Inventory.Setup, @Inventory.Draw, @Inventory.SetupAlignment);
+  Inventory.Setup('Inventory', [@Inventory.SetupAlignment, @Inventory.Draw]);
+  Inventory.OnGetItemBoxes := @Inventory.GetSlotBoxes;
+
+  Inventory.LOW_SLOT := 0;
+  Inventory.HIGH_SLOT := 27;
 end;

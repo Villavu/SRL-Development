@@ -3,42 +3,7 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
-type
-  TRSInterfaceSetupMethod = procedure of object;
-  TRSInterfaceDrawMethod = procedure(Bitmap: TMufasaBitmap) of object;
-  TRSInterfaceSetupAlignmentMethod = procedure(Mode: ERSClientMode) of object;
-
-var
-  InterfaceSetupMethods: array of TRSInterfaceSetupMethod;
-  InterfaceDrawMethods: array of TRSInterfaceDrawMethod;
-  InterfaceSetupAlignmentMethods: array of TRSInterfaceSetupAlignmentMethod;
-
-procedure RegisterInterface(
-  Setup: TRSInterfaceSetupMethod;
-  Draw: TRSInterfaceDrawMethod;
-  SetupAlignment: TRSInterfaceSetupAlignmentMethod)
-begin
-  InterfaceSetupMethods += @Setup;
-  InterfaceDrawMethods += @Draw;
-  InterfaceSetupAlignmentMethods += @SetupAlignment;
-end;
-
-procedure SetupInterfaces;
-var
-  I: Integer;
-begin
-  for I:=0 to High(InterfaceSetupMethods) do
-    InterfaceSetupMethods[I]();
-end;
-
-procedure SetupInterfaceAlignments(Mode: ERSClientMode);
-var
-  I: Integer;
-begin
-  for I:=0 to High(InterfaceSetupAlignmentMethods) do
-    InterfaceSetupAlignmentMethods[I](Mode);
-end;
-
+{
 procedure DebugInterfaces;
 var
   Bitmap: TMufasaBitmap;
@@ -58,9 +23,16 @@ begin
     Unfreeze();
   end;
 end;
+}
 
 type
   ERSInterfaceElementAnchor = (TOP, BOTTOM);
+
+  TInternalMethods =  record
+    SetupAlignment: procedure(Mode: ERSClientMode) of object;
+    Draw: procedure(Bitmap: TMufasaBitmap) of object;
+    IsOpen: function: Boolean of object;
+  end;
 
   TRSInterfaceElement = record
     Name: String;
@@ -107,8 +79,21 @@ type
     
     Alignment: TRSInterfaceAlignment;
 
+    InternalMethods: TInternalMethods;
+
     OnGetItemBoxes: function: TBoxArray of object;
   end;
+
+var
+  RSInterfaces: array of ^TRSInterface;
+
+procedure SetupInterfaceAlignments(Mode: ERSClientMode);
+var
+  I: Integer;
+begin
+  for I := 0 to High(RSInterfaces) do
+    RSInterfaces[I]^.InternalMethods.SetupAlignment(Mode);
+end;
 
 {%codetools off}
 function TRSInterface._ElementBounds(constref Element: TRSInterfaceElement): TBox;
@@ -156,8 +141,10 @@ begin
 end;
 
 function TRSInterface._ElementFindText(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+var
+  B: TBox;
 begin
-  Result := OCR.LocateText(Self._ElementBounds(Element), Text, Font, TOCRColorRule.Create(Colors), 1);
+  Result := OCR.LocateText(Self._ElementBounds(Element), Text, Font, TOCRColorFilter.Create(Colors), B) = 1;
 end;
 
 function TRSInterface._ElementToggle(constref Element: TRSInterfaceElement; Color, Tolerance: Integer; MinColorCount: Integer): Boolean;
@@ -172,12 +159,12 @@ end;
 
 function TRSInterface._ElementRecognizeNumber(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
 begin
-  Result := OCR.RecognizeNumber(Self._ElementBounds(Element), TOCRColorRule.Create(Colors), Font);
+  Result := OCR.RecognizeNumber(Self._ElementBounds(Element), TOCRColorFilter.Create(Colors), Font);
 end;
 
 function TRSInterface._ElementRecognizeText(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
 begin
-  Result := OCR.Recognize(Self._ElementBounds(Element), TOCRColorRule.Create(Colors), Font);
+  Result := OCR.Recognize(Self._ElementBounds(Element), TOCRColorFilter.Create(Colors), Font);
 end;
 {%codetools on}
 
@@ -232,10 +219,13 @@ begin
     Result := SRL.GetItemAmount(B);
 end;
 
-procedure TRSInterface.Setup; 
+procedure TRSInterface.Setup(Name: String; InternalMethods: TInternalMethods);
 begin
-  Self.Name := 'Unnamed';
   Self.Cache.Enabled := True;
+  Self.Name := Name;
+  Self.InternalMethods := InternalMethods;
+
+  RSInterfaces += @Self;
 end;
 
 procedure TRSInterface.SetupAlignment(Mode: ERSClientMode); 
@@ -527,20 +517,6 @@ begin
     ScrollBar.Draw(Bitmap); 
 end; 
 
-function TRSInterface.GetTitle: String;
-var
-  B: TBox;
-begin
-  B := Self.Bounds();
-  B.X1 += 50;
-  B.Y1 += 10;
-  B.X2 -= 50;
-  B.Y2 := B.Y1 + 15;
-  B.LimitTo(Self.Bounds);
-
-  Result := OCR.Recognize(B, TOCRThresholdRule.Create(15), RS_FONT_BOLD_12);
-end;
-
 function TRSInterface.ClickCloseButton(PressEscape: Boolean = False): Boolean;
 var
   B: TBox;
@@ -561,14 +537,18 @@ begin
   end;
 end;
 
-function TRSInterface.IsTitle(Text: String): Boolean; overload;
+function TRSInterface.IsTitle(Text: String; MinMatch: Single = 0.80): Boolean;
+var
+  B: TBox;
 begin
-  Result := Text in Self.GetTitle();
-end;
+  B := Self.Bounds();
+  B.X1 += 70;
+  B.Y1 += 10;
+  B.X2 -= 70;
+  B.Y2 := B.Y1 + 15;
+  B.LimitTo(Self.Bounds);
 
-function TRSInterface.IsTitle(Text: String; WaitTime: Int32): Boolean; overload;
-begin
-  Result := WaitUntil(Self.IsTitle(Text), 100, WaitTime);
+  Result := OCR.LocateText(B, Text, RS_FONT_BOLD_12, TOCRInvertColorFilter.Create([3358536, 0], [5, 0]), B) > MinMatch;
 end;
 
 type
@@ -612,4 +592,3 @@ begin
   RootInterface.Alignment.Right := [@RootInterface.X2];
   RootInterface.Alignment.Bottom := [@RootInterface.Y2];
 end;
-

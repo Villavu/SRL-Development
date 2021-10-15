@@ -7,11 +7,9 @@ type
     QUANTITY_5
   );
 
-procedure TRSAnvil.Setup; override;
+procedure TRSAnvil.Setup(Name: String; InternalMethods: TInternalMethods); override;
 begin
-  inherited();
-
-  Self.Name := 'Anvil';
+  inherited;
 
   SetLength(Self.Elements, Length(ERSAnvilElement));
 

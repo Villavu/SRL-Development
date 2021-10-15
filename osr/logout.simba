@@ -60,5 +60,5 @@ var
   Logout: TRSLogout;
 
 begin
-  RegisterInterface(@Logout.Setup, @Logout.Draw, @Logout.SetupAlignment);
+  Logout.Setup('Logout', [@Logout.SetupAlignment, @Logout.Draw]);
 end;

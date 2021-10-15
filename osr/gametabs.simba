@@ -129,13 +129,6 @@ begin
   Bitmap.DrawBoxes(GetTabBoxes(), $00FFFF);
 end;
 
-procedure TRSGameTabs.Setup; override;
-begin
-  inherited;
-    
-  Self.Name := 'GameTabs';
-end;
-
 procedure TRSGameTabs.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -171,6 +164,6 @@ var
   GameTabs: TRSGameTabs;
 
 begin
-  RegisterInterface(@GameTabs.Setup, @GameTabs.Draw, @GameTabs.SetupAlignment);
+  GameTabs.Setup('GameTabs', [@GameTabs.SetupAlignment, @GameTabs.Draw]);
 end;
 

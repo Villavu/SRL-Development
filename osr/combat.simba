@@ -271,6 +271,10 @@ var Combat
 var
   Combat: TRSCombat;
 
+begin
+  Combat.Setup('Combat', [@Combat.SetupAlignment, @Combat.Draw]);
+end;
+
 (*
 Minimap
 =======
@@ -396,9 +400,5 @@ begin
       Wait(0, 1000, wdLeft);
     end;
   end;
-end;
-
-begin
-  RegisterInterface(@Combat.Setup, @Combat.Draw, @Combat.SetupAlignment);
 end;
 

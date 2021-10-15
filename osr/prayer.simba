@@ -50,23 +50,6 @@ type
   TRSPrayer = type TRSInterface;
   TRSQuickPrayer = type TRSInterface;
 
-
-(*
-Prayer.Setup
-~~~~~~~~~~~~
-.. pascal:: procedure TRSPrayer.Setup; override;
-
-Initializes **Prayer** variables.
-
-.. note:: This is automatically called on the **Prayer** variable.
-*)
-procedure TRSPrayer.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Prayer';
-end;
-
 (*
 Prayer.SetupAlignment
 ~~~~~~~~~~~~~~~~~~~~~
@@ -106,7 +89,7 @@ begin
 
   if (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) then
   begin
-    Text := OCR.Recognize(Self.Bounds, TOCRColorRule.Create([$1F98FF]), RS_FONT_PLAIN_12); 
+    Text := OCR.Recognize(Self.Bounds, TOCRColorFilter.Create([$1F98FF]), RS_FONT_PLAIN_12); 
     
     Result := Text.Before('/').ExtractNumber();
   end;
@@ -385,22 +368,6 @@ var Prayer
 *)
 var
   Prayer: TRSPrayer;
-
-(*
-QuickPrayer.Setup
-~~~~~~~~~~~~~~~~~
-.. pascal:: procedure QuickPrayer.Setup;
-
-Initializes **QuickPrayer** variables.
-
-.. note:: This is automatically called on the **QuickPrayer** variable.
-*)
-procedure TRSQuickPrayer.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'QuickPrayer';
-end;
 
 (*
 QuickPrayer.SetupSetupAlignment
@@ -755,6 +722,6 @@ begin
 end;
 
 begin
-  RegisterInterface(@Prayer.Setup, @Prayer.Draw, @Prayer.SetupAlignment);
-  RegisterInterface(@QuickPrayer.Setup, @QuickPrayer.Draw, @QuickPrayer.SetupAlignment);
+  Prayer.Setup('Prayer', [@Prayer.SetupAlignment, @Prayer.Draw]);
+  QuickPrayer.Setup('QuickPrayer', [@QuickPrayer.SetupAlignment, @QuickPrayer.Draw]);
 end;

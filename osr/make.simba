@@ -100,7 +100,7 @@ function TRSMake.SelectHelper(Boxes: TBoxArray; Index: Integer; UseKeyboard: Boo
     B.Y1 := B.Y2;
     B.Y2 := B.Y2 + 15;
 
-    case OCR.Recognize(B, TOCRColorRule.Create([2109504]), RS_FONT_PLAIN_11) of
+    case OCR.Recognize(B, TOCRColorFilter.Create([2109504]), RS_FONT_PLAIN_11) of
       'Space': Result := VK_SPACE;
       '0':     Result := VK_0;
       '1':     Result := VK_1;
@@ -152,7 +152,7 @@ function TRSMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = Tr
     TPA: TPointArray;
   begin
     if WaitUntil(FindColors(TPA, $A0FFFF, Self.Bounds()), SRL.TruncatedGauss(50, 2000), 3500) then
-      Result := SameText(Text, OCR.Recognize(TPA.Bounds(), TOCRColorRule.Create([0]), RS_FONT_PLAIN_12));
+      Result := SameText(Text, OCR.Recognize(TPA.Bounds(), TOCRColorFilter.Create([0]), RS_FONT_PLAIN_12));
   end;
 
 var
@@ -191,5 +191,5 @@ var
   Make: TRSMake;
 
 begin
-  RegisterInterface(@Make.Setup, @Make.Draw, @Make.SetupAlignment);
+  Make.Setup('Make', [@Make.SetupAlignment, @Make.Draw]);
 end;

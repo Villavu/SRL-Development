@@ -267,22 +267,6 @@ type
   TRSMagic = type TRSInterface;
 
 (*
-Magic.Setup
-~~~~~~~~~~~
-.. pascal:: procedure TRSMagic.Setup; override;
-
-Initializes **Magic** variables.
-
-.. note:: This is automatically called on the **Magic** variable.
-*)
-procedure TRSMagic.Setup; override;
-begin
-  inherited;
-  
-  Self.Name := 'Magic';
-end;
-
-(*
 Magic.SetupAlignment
 ~~~~~~~~~~~~~~~~~~~~
 .. pascal:: procedure TRSMagic.SetupAlignment(Mode: ERSClientMode); override;
@@ -588,5 +572,5 @@ var
   Magic: TRSMagic;
 
 begin
-  RegisterInterface(@Magic.Setup, @Magic.Draw, @Magic.SetupAlignment);
+  Magic.Setup('Magic', [@Magic.SetupAlignment, @Magic.Draw]);
 end;

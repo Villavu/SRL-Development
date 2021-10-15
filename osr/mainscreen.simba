@@ -144,7 +144,7 @@ type
 
   TRSMainScreen = record(TRSInterface)
     UpTextArea: TBox;
-    UpTextFilter: TCompareRules;
+    UpTextFilter: TOCRFilter;
 
     YellowClicks: TIntegerArray;
     RedClicks: TIntegerArray;
@@ -156,44 +156,6 @@ var
 begin
   for Bitmap in Self.YellowClicks + Self.RedClicks do
     FreeBitmap(Bitmap);
-end;
-
-(*
-MainScreen.Setup
-~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSMainScreen.Setup(ClientMode: ERSClientMode);
-
-Setups the mainscreen.
-
-.. note:: This is automatically called on the **MainScreen** variable.
-*)
-procedure TRSMainScreen.Setup; override;
-var
-  Bitmap: Int32;
-begin
-  inherited;
-  
-  Self.Name := 'MainScreen';
-
-  Self.UpTextFilter := TOCRAnyColorRule.Create(85, 60);
-  Self.UpTextFilter.MinCharacterMatch := '-'; 
-  
-  Self.YellowClicks := [
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCWjieCxCU4xHGVbF+AOEDAOJcSQeHxEZSsSHPEmxSWQKAQAWmB8k'),
-    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQQMbgCZBE4GysXWTEyQrYLTQGmM4jUiMtSPI7E5SM8oQEA57h/pQ==')
-  ];
-
-  Self.RedClicks := [
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsEiDhWMzFdhcuduHxKXUSk7UT6iMhQIj7kSYpNIlMIABY0Azw='),
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsENHE8FqEpxqMMq2L8AUKGgcQ4Eo+PiAwl4kOepNgkMoUAALvi31U='),
-    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQgGbAIXAouAmdj5SIrRkbIdqEpwHQGkRpxWYrHkbh8hCc0AHnjV80=')
-  ];
-
-  for Bitmap in Self.YellowClicks + Self.RedClicks do
-    SetTransparentColor(Bitmap, $FF00FF);
-
-  AddOnTerminate(@Self.Free);
 end;
 
 procedure TRSMainScreen.SetupAlignment(Mode: ERSClientMode); override;
@@ -238,7 +200,7 @@ Example
 *)
 function TRSMainScreen.GetUpText: String;
 begin
-  Result := OCR.RecognizeStatic(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
+  Result := OCR.RecognizeUpText(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
 
   {$IFDEF SRL_DEBUG_UPTEXT}
   Self.DebugLn('UpText: ' + Result);
@@ -605,7 +567,7 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
     for B in TPA.Cluster(3).ToTBA() do
       if (B.Width >= 10) and (B.Height >= 10) then
       begin
-        Hit := OCR.RecognizeNumber(B.Expand(5, Area), TOCRColorRule.Create([$FFFFFF]), RS_FONT_PLAIN_11);
+        Hit := OCR.RecognizeNumber(B.Expand(5, Area), TOCRColorFilter.Create([$FFFFFF]), RS_FONT_PLAIN_11);
         
         Result += [B.Middle(), Hit, Red];
       end;
@@ -890,6 +852,29 @@ var
   MainScreen: TRSMainScreen;
 
 begin
-  RegisterInterface(@MainScreen.Setup, @MainScreen.Draw, @MainScreen.SetupAlignment);
+  MainScreen.Setup('MainScreen', [@MainScreen.SetupAlignment, @MainScreen.Draw]);
+
+  MainScreen.UpTextFilter := TOCRUpTextFilter.Create(85, 60);
+  MainScreen.UpTextFilter.MinCharacterMatch := '-';
+
+  MainScreen.YellowClicks := [
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCWjieCxCU4xHGVbF+AOEDAOJcSQeHxEZSsSHPEmxSWQKAQAWmB8k'),
+    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQQMbgCZBE4GysXWTEyQrYLTQGmM4jUiMtSPI7E5SM8oQEA57h/pQ==')
+  ];
+
+  MainScreen.RedClicks := [
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsEiDhWMzFdhcuduHxKXUSk7UT6iMhQIj7kSYpNIlMIABY0Azw='),
+    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsENHE8FqEpxqMMq2L8AUKGgcQ4Eo+PiAwl4kOepNgkMoUAALvi31U='),
+    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQgGbAIXAouAmdj5SIrRkbIdqEpwHQGkRpxWYrHkbh8hCc0AHnjV80=')
+  ];
+
+  SetTransparentColor(MainScreen.YellowClicks[0], $FF00FF);
+  SetTransparentColor(MainScreen.YellowClicks[1], $FF00FF);
+  SetTransparentColor(MainScreen.YellowClicks[2], $FF00FF);
+
+  SetTransparentColor(MainScreen.RedClicks[0], $FF00FF);
+  SetTransparentColor(MainScreen.RedClicks[1], $FF00FF);
+  SetTransparentColor(MainScreen.RedClicks[2], $FF00FF);
 end;
 

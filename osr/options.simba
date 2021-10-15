@@ -17,19 +17,9 @@ type
     BOND
   );
 
-  TRSOptions = type TRSInterface;
+  TRSOptions = type TRSGameTab;
 
 {$i elements/options.elements}
-
-procedure TRSOptions.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@GameTab.X1];
-  Self.Alignment.Right := [@GameTab.X2];
-  Self.Alignment.Top := [@GameTab.Y1];
-  Self.Alignment.Bottom := [@GameTab.Y2];
-end;
 
 function TRSOptions.IsOpen: Boolean;
 begin
@@ -162,15 +152,15 @@ end;
 var
   Options: TRSOptions;
 
+begin
+  Options.Setup('Options', [@Options.SetupAlignment, @Options.Draw]);
+end;
+
 function TRSGameTabs.GetCurrentTab: ERSGameTab; override;
 begin
   Result := inherited;
   
   if (Result = ERSGameTab.UNKNOWN) and Options.IsHouseOptionsOpen then
     Result := ERSGameTab.OPTIONS;
-end;  
-  
-begin
-  RegisterInterface(@Options.Setup, @Options.Draw, @Options.SetupAlignment);
 end;
 

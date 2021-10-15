@@ -6,13 +6,6 @@
 type
   TRSInterfaceArea = type TRSInterface;
 
-procedure TRSInterfaceArea.Setup; override;
-begin
-  inherited;
-  
-  Self.Name := 'Interface Area';
-end;
-
 procedure TRSInterfaceArea.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -48,5 +41,5 @@ var
   InterfaceArea: TRSInterfaceArea;
 
 begin
-  RegisterInterface(@InterfaceArea.Setup, @InterfaceArea.Draw, @InterfaceArea.SetupAlignment);
+  InterfaceArea.Setup('InterfaceArea', [@InterfaceArea.SetupAlignment, @InterfaceArea.Draw]);
 end;

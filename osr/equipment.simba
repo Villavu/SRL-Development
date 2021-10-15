@@ -16,13 +16,6 @@ begin
     Result += Self.ElementBounds(Element);
 end;
 
-procedure TRSEquipment.Setup; override;
-begin
-  inherited;
-
-  Self.OnGetItemBoxes := @Self.GetItemBoxes;
-end;
-
 procedure TRSEquipment.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -67,5 +60,6 @@ var
   Equipment: TRSEquipment;
 
 begin
-  RegisterInterface(@Equipment.Setup, @Equipment.Draw, @Equipment.SetupAlignment);
+  Equipment.Setup('Equipment', [@Equipment.SetupAlignment, @Equipment.Draw]);
+  Equipment.OnGetItemBoxes := @Equipment.GetItemBoxes;
 end;

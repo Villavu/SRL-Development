@@ -55,7 +55,7 @@ end;
 
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
 begin
-  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y-1, Orb.X-15, Orb.Y+9], TOCRShadowRule.Create(), RS_FONT_PLAIN_11);
+  Result := OCR.RecognizeNumber([Orb.X-35, Orb.Y-1, Orb.X-15, Orb.Y+9], TOCRShadowFilter.Create(), RS_FONT_PLAIN_11);
 end;
 
 function TRSMinimap.GetRunEnergy: Int32;
@@ -187,16 +187,6 @@ end;
 procedure TRSMinimap.Free;
 begin
   FreeBitmap(Self.FlagBitmap);
-end;
-
-procedure TRSMinimap.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Minimap';
-  Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
-
-  AddOnTerminate(@Self.Free);
 end;
 
 procedure TRSMinimap.SetupAlignment(Mode: ERSClientMode); override;
@@ -501,5 +491,6 @@ var
   Minimap: TRSMinimap;
 
 begin
-  RegisterInterface(@Minimap.Setup, @Minimap.Draw, @Minimap.SetupAlignment);
+  Minimap.Setup('Minimap', [@Minimap.SetupAlignment, @Minimap.Draw]);
+  Minimap.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
 end;

@@ -97,8 +97,6 @@ begin
 end;
 
 begin
-  SetupInterfaces();
-
   // Initial mode... for now.
   RSClient.Mode := RSClient.DetectClientMode();
   if RSClient.Mode = ERSClientMode.UNKNOWN then

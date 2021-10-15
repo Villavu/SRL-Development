@@ -18,11 +18,9 @@ type
     HOUSE_LEAVE
   );
 
-procedure TRSOptions.Setup; override;
+procedure TRSOptions.Setup(Name: String; InternalMethods: TInternalMethods); override;
 begin
-  inherited();
-
-  Self.Name := 'Options';
+  inherited;
 
   SetLength(Self.Elements, Length(ERSOptionsElement));
 
