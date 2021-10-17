@@ -93,7 +93,7 @@ var
   Button: TRSButton;
   Buttons: TRSButtonArray;
 begin
-  if Amount = MAKE_QUANTITY_ALL then
+  if Amount = -1 then
     Text := 'All'
   else
     Text := ToString(Amount);
