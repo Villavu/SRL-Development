@@ -1,0 +1,203 @@
+{$DEFINE SRL_CRAFTSCREEN_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+type
+  ERSCraftScreenButton = (
+    QUANTITY_1,
+    QUANTITY_5,
+    QUANTITY_10,
+    QUANTITY_CUSTOM,
+    QUANTITY_ALL
+  );
+
+  ERSCraftItem = (
+  { Rings }
+    GOLD_RING,
+    SAPPHIRE_RING,
+    EMERALD_RING,
+    RUBY_RING,
+    DIAMOND_RING,
+    DRAGONSTONE_RING,
+    ONYX_RING,
+    SLAYER_RING,
+    ZENYTE_RING,
+  { Necklaces }
+    GOLD_NECKLACE,
+    SAPPHIRE_NECKLACE,
+    EMERALD_NECKLACE,
+    RUBY_NECKLACE,
+    DIAMOND_NECKLACE,
+    DRAGONSTONE_NECKLACE,
+    ONYX_NECKLACE,
+    ZENYTE_NECKLACE,
+  { Bracelets }
+    GOLD_BRACELET,
+    SAPPHIRE_BRACELET,
+    EMERALD_BRACELET,
+    RUBY_BRACELET,
+    DIAMOND_BRACELET,
+    DRAGONSTONE_BRACELET,
+    ONYX_BRACELET,
+    ZENYTE_BRACELET,
+  { Amulets }
+    GOLD_AMULET,
+    SAPPHIRE_AMULET,
+    EMERALD_AMULET,
+    RUBY_AMULET,
+    DIAMOND_AMULET,
+    DRAGONSTONE_AMULET,
+    ONYX_AMULET,
+    ZENYTE_AMULET
+  );
+
+const
+  RS_CRAFT_ITEMS = [ERSCraftItem.GOLD_RING..ERSCraftItem.ZENYTE_AMULET];
+
+type
+  TRSCraftScreen = type TRSTitledInteface;
+
+procedure TRSCraftScreen.Setup; override;
+begin
+  inherited;
+
+  Self.Name := 'Crafting Screen';
+end;
+
+procedure TRSCraftScreen.SetupAlignment(Mode: ERSClientMode); override;
+begin
+  inherited;
+
+  Self.Alignment.Left := [@InterfaceArea.X1];
+  Self.Alignment.Right := [@InterfaceArea.X2];
+  Self.Alignment.Top := [@InterfaceArea.Y1];
+  Self.Alignment.Bottom := [@InterfaceArea.Y2];
+  Self.Alignment.Center.MaxWidth := 492;
+  Self.Alignment.Center.MaxHeight := 300;
+end;
+
+function TRSCraftScreen.GetButtons: TRSButtonArray;
+begin
+  Result := Self.FindButtons([[37,37]]);
+end;
+
+function TRSCraftScreen.GetButton(Button: ERSCraftScreenButton): TRSButton;
+var
+  Buttons: TRSButtonArray := Self.GetButtons();
+begin
+  if (Length(Buttons) = Length(ERSCraftScreenButton)) then
+    Result := Buttons[Button];
+end;
+
+function TRSCraftScreen.GetItemBoxes: TBoxArray;
+var Rings: TBoxArray;
+begin
+  Rings := Grid(9, 1, 31, 31, [14, 30], [Self.X1 + 36, Self.Y1 + 66]);
+  Result := Rings.Combine(Grid(8, 3, 31, 31, [19, 30], [Self.X1 + 36, Self.Y1 + 127]));
+end;
+
+function TRSCraftScreen.IsOpen: Boolean; overload;
+begin
+  Result := Self.GetButton(ERSCraftScreenButton.QUANTITY_1).Visible();
+end;
+
+function TRSCraftScreen.IsOpen(WaitTime: Int32): Boolean; overload;
+begin
+  Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(50, 1500), WaitTime);
+end;
+
+function TRSCraftScreen.Close(PressEscape: Boolean = False): Boolean;
+begin
+  if not Self.IsOpen() then
+    Exit(True);
+
+  Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
+end;
+
+function TRSCraftScreen.SetQuantity(Amount: Int32): Boolean;
+const
+  ENABLED_COLOR = $FFFFFF;
+  DISABLED_COLOR = 2070783;
+var
+  Text: String;
+  Button: TRSButton;
+  Buttons: TRSButtonArray;
+begin
+  if Amount = -1 then
+    Text := 'All'
+  else
+    Text := ToString(Amount);
+
+  Buttons := Self.GetButtons();
+
+  for Button in Buttons do
+  begin
+    // Already selected
+    if Button.FindText(Text, RS_FONT_PLAIN_11, ENABLED_COLOR) then
+      Exit(True);
+    // Select
+    if Button.FindText(Text, RS_FONT_PLAIN_11, DISABLED_COLOR) then
+      Exit(Button.Click());
+  end;
+
+  for Button in Buttons do
+    if Button.FindText('X', RS_FONT_PLAIN_11, DISABLED_COLOR) then
+      Exit(Button.Click() and Chat.AnswerQuery('Enter amount', ToString(Amount), 3000));
+end;
+
+function TRSCraftScreen.CanCraftItem(CraftItem: ERSCraftItem): Boolean;
+const
+  GOLD_COLOR = 2806763;
+var
+  Boxes: TBoxArray;
+  TPA: TPointArray;
+begin
+  if not Self.IsOpen() then Exit;
+  Boxes := Self.GetItemBoxes();
+  Result := SRL.FindColors(TPA, CTS0(GOLD_COLOR, 15), Boxes[CraftItem]) > 0;
+end;
+
+function TRSCraftScreen.ClickItem(Item: ERSCraftItem; Quantity: Int32): Boolean;
+begin
+  if not Self.CanCraftItem(Item) then Exit;
+
+  Self.SetQuantity(Quantity);
+  Mouse.Move(Self.GetItemBoxes()[Item]);
+  Mouse.Click(MOUSE_LEFT);
+  Result := True;
+end;
+
+procedure TRSCraftScreen.Draw(Bitmap: TMufasaBitmap); override;
+begin
+  if not Self.IsOpen() then
+    Exit;
+
+  inherited;
+
+  Bitmap.DrawBoxes(GetItemBoxes(), $00FFFF);
+end;
+
+var
+  CraftScreen: TRSCraftScreen;
+
+procedure TRSClient.ClientModeChanged; override;
+begin
+  inherited;
+
+  CraftScreen.SetupAlignment(Self.Mode);
+end;
+
+procedure TSRL.Setup; override;
+begin
+  inherited;
+
+  CraftScreen.Setup();
+end;
+
+procedure TSRL.Debug(Bitmap: TMufasaBitmap); override;
+begin
+  inherited;
+
+  CraftScreen.Draw(Bitmap);
+end;
