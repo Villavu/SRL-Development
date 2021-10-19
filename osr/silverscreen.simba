@@ -68,7 +68,7 @@ Example
 *)
 function TRSSilverScreen.IsOpen: Boolean; overload;
 begin
-  Result := Self.GetButton(ERSSilverScreenButton.QUANTITY_1).Visible();
+  Result := Self.GetButtons[0].Visible();
 end;
 
 (*
