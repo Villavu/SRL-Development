@@ -32,15 +32,6 @@ type
     DRAGONSTONE_NECKLACE,
     ONYX_NECKLACE,
     ZENYTE_NECKLACE,
-  { Bracelets }
-    GOLD_BRACELET,
-    SAPPHIRE_BRACELET,
-    EMERALD_BRACELET,
-    RUBY_BRACELET,
-    DIAMOND_BRACELET,
-    DRAGONSTONE_BRACELET,
-    ONYX_BRACELET,
-    ZENYTE_BRACELET,
   { Amulets }
     GOLD_AMULET,
     SAPPHIRE_AMULET,
@@ -49,7 +40,16 @@ type
     DIAMOND_AMULET,
     DRAGONSTONE_AMULET,
     ONYX_AMULET,
-    ZENYTE_AMULET
+    ZENYTE_AMULET,
+  { Bracelets }
+    GOLD_BRACELET,
+    SAPPHIRE_BRACELET,
+    EMERALD_BRACELET,
+    RUBY_BRACELET,
+    DIAMOND_BRACELET,
+    DRAGONSTONE_BRACELET,
+    ONYX_BRACELET,
+    ZENYTE_BRACELET
   );
 
 const
@@ -112,7 +112,7 @@ Example
 *)
 function TRSCraftScreen.IsOpen: Boolean; overload;
 begin
-  Result := Self.GetButton(ERSCraftScreenButton.QUANTITY_1).Visible();
+  Result := Self.GetButtons[0].Visible();
 end;
 
 (*
