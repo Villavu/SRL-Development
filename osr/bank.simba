@@ -660,7 +660,6 @@ begin
   end;
 end;
 
-
 function TRSBank.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
 var
   Boxes: TBoxArray;
@@ -726,6 +725,100 @@ begin
 end;
 
 (*
+TRSBank.ScrollToItem
+~~~~~~~~~~~~
+.. pascal:: function TRSBank.ScrollToItem(Item: TRSItem; Out ItmBox: TBox): Boolean;
+
+Sets the scroll bar in the bank to its top position then drags the scroll bar until the
+given TRSItem is found or the scroll bar is dragged to the max position.
+
+Example
+-------
+
+  if Bank.ScrollToItem('Lobster pot', ItmBox) then
+    Mouse.Move(ItmBox);
+*)
+
+function TRSBank.ScrollToItem(Item: TRSItem; Out ItmBox: TBox): Boolean;
+var
+  SBoxBottom,SBoxTop: TPoint;
+begin
+  if (not Self.IsOpen()) then Exit;
+  if Self.FindItem(Item, ItmBox) then Exit(True);
+
+  SBoxTop    := [Self.GetScrollBar.SliderRegion.Middle.X, Self.GetScrollBar.SliderRegion.Y1+SRL.NormalRange(1,10)];
+  SBoxBottom := [Self.GetScrollBar.SliderRegion.Middle.X, Self.GetScrollBar.SliderRegion.Y2];
+
+  // Bank.SetScrollPosition(0); Broken?
+  Mouse.Move(SBoxTop);
+  Mouse.Click(MOUSE_LEFT);
+
+  Mouse.Move(Self.GetScrollBar.Slider);
+  Mouse.Hold(MOUSE_LEFT);
+
+  ASyncMouse.Speed := SRL.NormalRange(3, 5);
+  ASyncMouse.Move(SBoxBottom);
+
+  while ASyncMouse.IsMoving() do
+  begin
+    if (Self.GetScrollPosition >= 100) or Self.FindItem(Item) then
+    begin
+      ASyncMouse.Stop();
+      break;
+    end;
+
+    Wait(35);
+  end;
+
+  Mouse.Release(MOUSE_LEFT);
+  wait(SRL.NormalRange(200, 350));
+  Result := Self.FindItem(Item, ItmBox);
+end;
+
+(*
+TRSBank.ScrollToItem
+~~~~~~~~~~~~
+.. pascal:: function TRSBank.ScrollToItem(Item: TRSItem; Out ItmPoint: TPoint): Boolean;
+
+Same as TRSBank.ScrollToItem however a TPoint of the middle of the found item is provided.
+
+Example
+-------
+
+  if Bank.ScrollToItem('Lobster pot', ItmPoint) then
+    Mouse.Move(ItmPoint);
+*)
+
+function TRSBank.ScrollToItem(Item: TRSItem; Out ItmPoint: TPoint): Boolean; overload;
+var
+  ItmBox: TBox;
+begin
+  Result := Self.ScrollToItem(Item, ItmBox);
+  if Result then ItmPoint := ItmBox.Middle();
+end;
+
+(*
+TRSBank.ScrollToItem
+~~~~~~~~~~~~
+.. pascal:: function TRSBank.ScrollToItem(Item: TRSItem): Boolean;
+
+Same as TRSBank.ScrollToItem however only confirmation is provided.
+
+Example
+-------
+
+  if Bank.ScrollToItem('Lobster pot') then
+    writeln('Found the lobster pot');
+*)
+
+function TRSBank.ScrollToItem(Item: TRSItem): Boolean; overload;
+var
+  ItmBox: TBox;
+begin
+  Result := Self.ScrollToItem(Item, ItmBox);
+end;
+
+(*
 Bank.WithdrawItem
 ~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean;
@@ -761,7 +854,7 @@ function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boo
 var
   B: TBox;
 begin
-  if Self.FindItem(Item.Item, B) then
+  if Self.ScrollToItem(Item.Item, B) then
     Result := Self.WithdrawHelper(B, Item.Quantity, Item.Noted, UseQuantityButtons); 
 end;
 
@@ -839,101 +932,6 @@ begin
   Result := inherited();
 end;
 
-(*
-TRSBank.ScrollToItem
-~~~~~~~~~~~~
-.. pascal:: function TRSBank.ScrollToItem(Item: TRSItem; Out ItmBox: TBox): Boolean;
-
-Sets the scroll bar in the bank to its top position then drags the scroll bar until the
-given TRSItem is found or the scroll bar is dragged to the max position.
-
-Example
--------
-
-  if Bank.ScrollToItem('Lobster pot', ItmBox) then
-    Mouse.Move(ItmBox);
-*)
-
-function TRSBank.ScrollToItem(Item: TRSItem; Out ItmBox: TBox): Boolean;
-var
-  SBoxBottom,SBoxTop: TPoint;
-begin
-  if (not Self.IsOpen()) then Exit;
-  if Self.FindItem(Item, ItmBox) then Exit(True);
-
-  SBoxTop    := [Self.GetScrollBar.SliderRegion.Middle.X, Bank.GetScrollBar.SliderRegion.Y1+SRL.NormalRange(1,10)];
-  SBoxBottom := [Self.GetScrollBar.SliderRegion.Middle.X, Bank.GetScrollBar.SliderRegion.Y2];
-
-  // Bank.SetScrollPosition(0); Broken?
-  Mouse.Move(SBoxTop);
-  Mouse.Click(MOUSE_LEFT);
-
-  Mouse.Move(Self.GetScrollBar.Slider);
-  Mouse.Hold(MOUSE_LEFT);
-
-  ASyncMouse.Speed := SRL.NormalRange(3, 5);
-  ASyncMouse.Move(SBoxBottom);
-
-  while ASyncMouse.IsMoving() do
-  begin
-    if (Bank.GetScrollPosition >= 100) or Self.FindItem(Item) then
-    begin
-      ASyncMouse.Stop();
-      break;
-    end;
-
-    Wait(35);
-  end;
-
-  Mouse.Release(MOUSE_LEFT);
-  wait(SRL.NormalRange(200, 350));
-  Result := Self.FindItem(Item, ItmBox);
-end;
-
-(*
-TRSBank.ScrollToItem
-~~~~~~~~~~~~
-.. pascal:: function TRSBank.ScrollToItem(Item: TRSItem; Out ItmPoint: TPoint): Boolean;
-
-Same as TRSBank.ScrollToItem however a TPoint of the middle of the found item is provided.
-
-Example
--------
-
-  if Bank.ScrollToItem('Lobster pot', ItmPoint) then
-    Mouse.Move(ItmPoint);
-*)
-
-function TRSBank.ScrollToItem(Item: TRSItem; Out ItmPoint: TPoint): Boolean; overload;
-var
-  ItmBox: TBox;
-begin
-  Result := Self.ScrollToItem(Item, ItmBox);
-  if Result then ItmPoint := ItmBox.Middle();
-end;
-
-(*
-TRSBank.ScrollToItem
-~~~~~~~~~~~~
-.. pascal:: function TRSBank.ScrollToItem(Item: TRSItem): Boolean;
-
-Same as TRSBank.ScrollToItem however only confirmation is provided.
-
-Example
--------
-
-  if Bank.ScrollToItem('Lobster pot') then
-    writeln('Found the lobster pot');
-*)
-
-function TRSBank.ScrollToItem(Item: TRSItem): Boolean; overload;
-var
-  ItmBox: TBox;
-begin
-  Result := Self.ScrollToItem(Item, ItmBox);
-end;
-
-
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
@@ -954,4 +952,3 @@ begin
 
   Bank.Draw(Bitmap);
 end;
-
