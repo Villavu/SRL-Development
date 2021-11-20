@@ -827,3 +827,31 @@ function TRSWalker.MSToWorld(Loc: TPoint; Height: Int32=0; Accuracy:Double=0.2):
 begin
   Result := Self.MSToWorldEx(Self.GetMyPos(), Loc, Height, Accuracy);
 end;
+
+(*
+TRSWalker.MSInMMArea(MSPt: TPoint; Area: TBox; MyPos: TPoint=[0,0])
+~~~~~~~~~~~~
+.. pascal:: function TRSWalker.MSInMMArea(MSPt: TPoint; Area: TBox; MyPos: TPoint=[0,0]): Boolean;
+
+Returns true if a mainscreen point "MSPt" is located within a specified area on the minimap.
+'Area' accepts world coordinates in TBox format, NOT local minimap coordinates.
+
+Example
+-------
+
+  if RSW.MSInMMArea(GetBankerPt(), [3100,3200,3150,3250]) then
+    Writeln('Banker on MS is within reach!');
+*)
+function TRSWalker.MSInMMArea(MSPt: TPoint; Area: TBox; MyPos: TPoint=[0,0]): Boolean;
+var
+  Rads: Double;
+  MMRect: TRectangle;
+begin
+  Rads   := Minimap.GetCompassAngle(False);
+  if (MyPos = [0,0]) then
+    MyPos := Self.GetMyPos();
+  MMRect := [Self.WorldToMM(MyPos, [Area.X1,Area.Y1], Rads), Self.WorldToMM(MyPos, [Area.X2,Area.Y1], Rads),
+             Self.WorldToMM(MyPos, [Area.X2,Area.Y2], Rads), Self.WorldToMM(MyPos, [Area.X1,Area.Y2], Rads)];
+
+  Result := MMRect.Contains(Mainscreen.PointToMM(MSPt).ToPoint());
+end;
