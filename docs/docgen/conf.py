@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = u'SRL'
-copyright = u'2020, SRL Group'
+copyright = u'2021, SRL Group'
 author = u'SRL Group'
 
 # The short X.Y version
