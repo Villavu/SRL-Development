@@ -28,6 +28,15 @@ begin
   FreeBitmap(After);
 end;
 
+function TSRL.PercentShift(Area: TBox; WaitTime: Int32): Int32;
+var
+  tLen,sLen: Int32;
+begin
+  tLen := length(TPAFromBox(Area));
+  sLen := SRL.GetPixelShift(Area, WaitTime);
+  Result := Round((sLen/tLen)*100);
+end;
+
 (*
 SRL.GetPixelShiftTPA
 ~~~~~~~~~~~~~~~~~~~~~
