@@ -1,5 +1,5 @@
 // The package name to install under. 
-name=SRL
+name=SRL-F
 // The path to install into, from the working directory.
 directory=Includes
 // flat extraction into directory
