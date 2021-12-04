@@ -254,7 +254,7 @@ end;
 
 function TRSDepositBox.DepositAll: Boolean;
 begin
-  Result := (Inventory.Count() = 0) or Self.GetButton(ERSDepositButton.DEPOSIT_INVENTORY).Click();
+  Result := (Self.CountSlots() = 0) or Self.GetButton(ERSDepositButton.DEPOSIT_INVENTORY).Click(); 
 end;
 
 procedure TRSDepositBox.Draw(Bitmap: TMufasaBitmap); override;
