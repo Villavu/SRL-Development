@@ -112,7 +112,10 @@ Example
 *)
 function TRSCraftScreen.IsOpen: Boolean; overload;
 begin
-  Result := Self.GetButtons[0].Visible();
+  try
+    Result := Self.GetButtons[0].Visible();
+  except
+  end;
 end;
 
 (*
