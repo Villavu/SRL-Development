@@ -110,11 +110,10 @@ begin
   Result := WaitUntil(not Self.IsHouseOptionsOpen, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
-
 function TRSOptions.GetZoomSliderBounds: TBox;
 begin
   Result.X1 := Self.X1 + 57;
-  Result.Y1 := Self.Y1 + 72;
+  Result.Y1 := Self.Y1 + 109;
   Result.X2 := Result.X1 + 96;
   Result.Y2 := Result.Y1 + 9;
 end;
@@ -135,7 +134,7 @@ var
 begin
   Result := -1;
   
-  if Self.Open() and Self.OpenTab(ERSOptionsTab.CONTROLS) then
+  if Self.Open() and Self.OpenTab(ERSOptionsTab.DISPLAY) then
   begin
     B := Self.GetZoomSliderBounds();
     if Self.FindZoomSlider(Slider) then
