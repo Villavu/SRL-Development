@@ -30,7 +30,9 @@ var
 {$IFNDEF SRL_KEYBOARD_INCLUDED}      {$I utils/keyboard.simba}
 {$IFNDEF SRL_COLOR_INCLUDED}         {$I utils/color.simba}
 {$IFNDEF SRL_DRAWING_INCLUDED}       {$I utils/drawing.simba}
+{$IFNDEF SRL_PROGREPORTS_INCLUDED}   {$I utils/progreports.simba} 
 
+{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
