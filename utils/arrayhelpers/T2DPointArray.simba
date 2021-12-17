@@ -1,0 +1,119 @@
+procedure T2DPointArray.Reverse; constref;
+begin
+  System.Reverse(Self);
+end;
+
+function T2DPointArray.Reversed: T2DPointArray; constref;
+begin
+  Result := System.Reversed(Self);
+end;
+
+procedure T2DPointArray.Sort(From: TPoint);
+begin
+  SortATPAFromMidPoint(Self, From);
+end;
+
+function T2DPointArray.Sorted(From: TPoint): T2DPointArray; constref;
+begin
+  Result := Copy(Self);
+  SortATPAFromMidPoint(Result, From);
+end;
+
+function T2DPointArray.Unique: T2DPointArray; constref;
+begin
+  Result := System.Unique(Self);
+end;
+
+function T2DPointArray.Pop: TPointArray;
+var
+  H: Integer;
+begin
+  H := High(Self);
+  Result := Self[H];
+  SetLength(Self, H);
+end;
+
+function T2DPointArray.Bounds: TBoxArray; constref;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(Self));
+  for I := 0 to High(Self) do
+    Result[I] := GetTPABounds(Self[I]);
+end;
+
+function T2DPointArray.Middles: TPointArray; constref;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(Self));
+  for I := 0 to High(Self) do
+    Result[I] := MiddleTPA(Self[I]);
+end;
+
+procedure T2DPointArray.FilterByDimensions(MinLength: Integer; MinShortSide, MaxShortSize, MinLongSide, MaxLongSize: Integer); overload;
+begin
+  FilterATPAByDimensions(Self, MinLength, MinShortSide, MaxShortSize, MinLongSide, MaxLongSize);
+end;
+
+procedure T2DPointArray.FilterByDimensions(MinLength: Integer; MinShortSide, MaxShortSize: Integer); overload;
+begin
+  FilterATPAByDimensions(Self, MinLength, MinShortSide, MaxShortSize, High(Integer), High(Integer));
+end;
+
+procedure T2DPointArray.FilterByLength(MinLength, MaxLength: Integer);
+begin
+  FilterATPAByLength(Self, MinLength, MaxLength);
+end;
+
+procedure T2DPointArray.FilterByArea(MinLength, MinArea, MaxArea: Integer);
+begin
+  FilterATPAByArea(Self, MinLength, MinArea, MaxArea);
+end;
+
+function T2DPointArray.Biggest: TPointArray; constref;
+var
+  I: Integer;
+begin
+  Result := Self[0];
+  for I := 1 to High(Self) do
+    if Length(Self) > Length(Result) then
+      Result := Self[I];
+end;
+
+function T2DPointArray.Smallest: TPointArray; constref;
+var
+  I: Integer;
+begin
+  Result := Self[0];
+  for I := 1 to High(Self) do
+    if Length(Self) < Length(Result) then
+      Result := Self[I];
+end;
+
+function T2DPointArray.Merge: TPointArray; constref;
+begin
+  Result := MergeATPA(Self);
+end;
+
+procedure T2DPointArray.SortBySize(HighToLow: Boolean = True);
+begin
+  SortATPASize(Self, HighToLow);
+end;
+
+procedure T2DPointArray.SortByLongSide(HighToLow: Boolean = True);
+var
+  Weights: TIntegerArray;
+  I: Integer;
+begin
+  SetLength(Weights, Length(Self));
+  for I := 0 to High(Self) do
+    Weights[I] := MinAreaRect(Self[I]).LongSideLen;
+
+  System.Sort(Self, Weights);
+end;
+
+procedure T2DPointArray.SortByDensity;
+begin
+  SortATPAFromDensity(Self);
+end;

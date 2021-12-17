@@ -1,0 +1,153 @@
+procedure TBoxArray.Insert(Value: TBox; Index: Integer);
+begin
+  System.Insert(Value, Self, Index);
+end;
+
+procedure TBoxArray.Delete(Index: Integer; Count: Integer = 1);
+begin
+  System.Delete(Self, Index, Count);
+end;
+
+function TBoxArray.IndexOf(Value: TBox): Integer; constref;
+begin
+  Result := System.IndexOf(Value, Self);
+end;
+
+function TBoxArray.IndicesOf(Value: TBox): TIntegerArray; constref;
+begin
+  Result := System.IndicesOf(Value, Self);
+end;
+
+function TBoxArray.Contains(Value: TBox): Boolean; constref;
+begin
+  Result := System.Contains(Value, Self);
+end;
+
+function TBoxArray.Remove(Value: TBox): Boolean;
+begin
+  Result := System.Remove(Value, Self);
+end;
+
+procedure TBoxArray.Reverse; constref;
+begin
+  System.Reverse(Self);
+end;
+
+function TBoxArray.Reversed: TBoxArray; constref;
+begin
+  Result := System.Reversed(Self);
+end;
+
+procedure TBoxArray.Sort(From: TPoint); constref;
+var
+  Weights: TIntegerArray;
+  I: Integer;
+begin
+  SetLength(Weights, Length(Self));
+  for I := 0 to High(Weights) do
+    Weights[I] := Distance(From, Self[I].Middle);
+
+  System.Sort(Self, Weights, True);
+end;
+
+function TBoxArray.Sorted(From: TPoint): TBoxArray; constref;
+begin
+  Result := Copy(Self);
+  Result.Sort(From);
+end;
+
+function TBoxArray.Unique: TBoxArray; constref;
+begin
+  Result := System.Unique(Self);
+end;
+
+function TBoxArray.Pop: TBox;
+var
+  H: Integer;
+begin
+  H := High(Self);
+  Result := Self[H];
+  SetLength(Self, H);
+end;
+
+procedure TBoxArray.SortByX(LowToHi: Boolean = True);
+var
+  Weights: TIntegerArray;
+  I: Integer;
+begin
+  SetLength(Weights, Length(Self));
+  for I := 0 to High(Weights) do
+    Weights[I] := Self[I].X1;
+
+  System.Sort(Self, Weights, LowToHi);
+end;
+
+procedure TBoxArray.SortByY(LowToHi: Boolean = True);
+var
+  Weights: TIntegerArray;
+  I: Integer;
+begin
+  SetLength(Weights, Length(Self));
+  for I := 0 to High(Weights) do
+    Weights[I] := Self[I].Y1;
+
+  System.Sort(Self, Weights, LowToHi);
+end;
+
+function TBoxArray.Offset(P:TPoint): TBoxArray;
+var
+  i: Int32;
+begin
+  SetLength(Result, Length(Self));
+
+  for i:=0 to High(self) do
+  begin
+    Result[i].X1 := Self[I].X1 + P.X;
+    Result[i].Y1 := Self[I].Y1 + P.Y;
+    Result[i].X2 := Self[I].X2 + P.X;
+    Result[i].Y2 := Self[I].Y2 + P.Y;
+  end;
+end;
+
+function TBoxArray.Merge: TBox; constref;
+var
+  I: Integer;
+begin
+  if Length(Self) = 0 then
+    Exit;
+
+  Result := Self[0];
+  for I := 1 to High(Self) do
+    Result := Result.Combine(Self[I]);
+end;
+
+function TBoxArray.Middles: TPointArray; constref;
+var
+  I: Int32;
+begin
+  SetLength(Result, Length(Self));
+  for I := 0 to High(Self) do
+    Result[I] := Self[I].Middle();
+end;
+
+function Grid(Columns, Rows, Width, Height: Int32; Spacing, Start: TPoint): TBoxArray;
+var
+  I: Int32;
+begin
+  Start.X += (Width div 2);
+  Start.Y += (Height div 2);
+
+  Spacing.X += Width;
+  Spacing.Y += Height;
+
+  SetLength(Result, Columns * Rows);
+
+  for I := 0 to High(Result) do
+  begin
+    Result[I].X1 := Start.X + I mod Columns * Spacing.X - Width div 2;
+    Result[I].Y1 := Start.Y + I div Columns * Spacing.Y - Height div 2;
+    Result[I].X2 := Result[I].X1 + Width;
+    Result[I].Y2 := Result[I].Y1 + Height;
+  end;
+end;
+

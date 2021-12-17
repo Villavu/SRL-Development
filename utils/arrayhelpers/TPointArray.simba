@@ -1,0 +1,461 @@
+procedure TPointArray.Insert(Value: TPoint; Index: Integer);
+begin
+  System.Insert(Value, Self, Index);
+end;
+
+procedure TPointArray.Delete(Index: Integer; Count: Integer = 1);
+begin
+  System.Delete(Self, Index, Count);
+end;
+
+function TPointArray.IndexOf(Value: TPoint): Integer; constref;
+begin
+  Result := System.IndexOf(Value, Self);
+end;
+
+function TPointArray.IndicesOf(Value: TPoint): TIntegerArray; constref;
+begin
+  Result := System.IndicesOf(Value, Self);
+end;
+
+function TPointArray.Contains(Value: TPoint): Boolean; constref;
+begin
+  Result := System.Contains(Value, Self);
+end;
+
+function TPointArray.Remove(Value: TPoint): Boolean;
+begin
+  Result := System.Remove(Value, Self);
+end;
+
+procedure TPointArray.Reverse; constref;
+begin
+  System.Reverse(Self);
+end;
+
+function TPointArray.Reversed: TPointArray; constref;
+begin
+  Result := System.Reversed(Self);
+end;
+
+procedure TPointArray.Sort(From: TPoint);
+begin
+  SortTPAFrom(Self, From);
+end;
+
+function TPointArray.Sorted(From: TPoint): TPointArray; constref;
+begin
+  Result := Copy(Self);
+  SortTPAFrom(Result, From);
+end;
+
+function TPointArray.Unique: TPointArray; constref;
+begin
+  Result := System.Unique(Self);
+end;
+
+function TPointArray.Pop: TPoint;
+var
+  H: Integer;
+begin
+  H := High(Self);
+  Result := Self[H];
+  SetLength(Self, H);
+end;
+
+(*
+TPointArray.Offset
+~~~~~~~~~~~~~~~~~~
+.. pascal::
+
+  function TPointArray.Offset(X, Y: Int32): TPointArray; overload;
+  function TPointArray.Offset(off: TPoint): TPointArray; constref; overload;
+
+Returns the array with X and Y added to each point.
+
+*)
+function TPointArray.Offset(X, Y: Int32): TPointArray; constref; overload;
+begin
+  Result := Copy(Self);
+
+  OffsetTPA(Result, [X, Y]);
+end;
+
+function TPointArray.Offset(P: TPoint): TPointArray; constref; overload;
+begin
+  Result := Self.Offset(P.X, P.Y);
+end;
+
+(*
+TPointArray.Bounds
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Bounds: TBox; constref;
+
+Wraps Simba's GetTPABounds
+*)
+function TPointArray.Bounds: TBox; constref;
+begin
+  Result := GetTPABounds(Self);
+end;
+
+(*
+TPointArray.Middle
+~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Middle: TPoint;
+
+Wraps Simba's MiddleTPA
+*)
+function TPointArray.Middle: TPoint; constref;
+begin
+  Result := MiddleTPA(Self);
+end;
+
+(*
+TPointArray.MiddleEx
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.MiddleEx: Vector2;
+
+Middle as vector - no rounding.
+*)
+function TPointArray.MiddleEx: Vector2; constref;
+var
+  I, X, Y: Int64;
+begin
+  if Length(Self) = 0 then
+    Exit;
+
+  for I := 0 to High(Self) do
+  begin
+    Inc(X, Self[I].X);
+    Inc(Y, Self[I].Y);
+  end;
+
+  Result.X := X / Length(Self);
+  Result.Y := Y / Length(Self);
+end;
+
+(*
+TPointArray.Edges
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Edges: TPointArray; constref;
+
+Filters all points out of the given TPointArray which aren't edge-points.
+Edge-points are points that are on the edge of the TPA, not completely surrounded by other points.
+Same as Simba's `FindTPAEdges`
+*)
+function TPointArray.Edges: TPointArray; constref;
+begin
+  Result := FindTPAEdges(Self);
+end;
+
+(*
+TPointArray.Split
+~~~~~~~~~~~~~~~~~
+.. pascal::
+
+  function TPointArray.Split(dist:Int32): T2DPointArray; constref; overload;
+  function TPointArray.Split(distX,distY:Int32): T2DPointArray; constref; overload;
+
+Wraps Simba's `SplitTPA` and `SplitTPAEx`
+*)
+function TPointArray.Split(dist: Int32): T2DPointArray; constref; overload;
+begin
+  Result := System.SplitTPA(Self, dist);
+end;
+
+function TPointArray.Split(distX,distY: Int32): T2DPointArray; constref; overload;
+begin
+  Result := System.SplitTPAEx(Self, distX, distY);
+end;
+
+(*
+TPointArray.Cluster
+~~~~~~~~~~~~~~~~~~~
+.. pascal::
+
+  function TPointArray.Cluster(dist:Int32): T2DPointArray; constref; overload;
+  function TPointArray.Cluster(distX,distY:Int32): T2DPointArray; constref; overload;
+
+Wraps Simba's `ClusterTPA` and `ClusterTPAEx` (fall backs to `SplitTPA` when it's better suited)
+*)
+function TPointArray.Cluster(dist: Int32): T2DPointArray; constref; overload;
+begin
+  if (Length(Self) < 700) then
+    Result := SplitTPA(Self, dist)
+  else
+    Result := ClusterTPA(Self, dist);
+end;
+
+function TPointArray.Cluster(distX,distY: Int32): T2DPointArray; constref; overload;
+begin
+  if (Length(Self) < 1200) then
+    Result := SplitTPAEx(Self, distX, distY)
+  else
+    Result := ClusterTPAEx(Self, distX, distY);
+end;
+
+(*
+TPointArray.ToATPA
+~~~~~~~~~~~~~~~~~~
+.. pascal::
+
+  function TPointArray.ToATPA(Size: Integer): T2DPointArray; constref; overload;
+  function TPointArray.ToATPA(W, H: Integer): T2DPointArray; constref; overload;
+
+Wraps Simba's `TPAToATPA` and `TPAToATPAEx`
+*)
+function TPointArray.ToATPA(Size: Integer): T2DPointArray; constref; overload;
+begin
+  Result := TPAToATPA(Self, Size);
+end;
+
+function TPointArray.ToATPA(W, H: Integer): T2DPointArray; constref; overload;
+begin
+  Result := TPAToATPAEx(Self, W, H);
+end;
+
+(*
+TPointArray.Connect
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Connect: TPointArray;
+
+Fills a line between all the points (by their order), can be used to get the edges
+around a polygon
+*)
+function TPointArray.Connect: TPointArray; constref;
+begin
+  Result := System.TPAConnect(Self);
+end;
+
+(*
+TPointArray.ConvexHull
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.ConvexHull: TPointArray; constref;
+
+Computes the convex hull around the given TPA. Imagine placing a rubber band around the
+points, the points which strech the band are the points returned by this function.
+
+TPointArray.Connect can be used to join the returned points.
+*)
+function TPointArray.ConvexHull: TPointArray; constref;
+begin
+  Result := System.ConvexHull(Self);
+end;
+
+(*
+TPointArray.Rotate
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+    function TPointArray.Rotate(AngleRad, MidX, MidY: Double): TPointArray;
+
+Returns a copy where all points are rotated around MidX, MidY.
+Same as Simba's `RotatePoints`.
+*)
+
+
+(*
+TPointArray.Rotate
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Rotate(Radians, MidX, MidY: Double): TPointArray;
+
+Returns the array with all points rotated around MidX, MidY.
+*)
+function TPointArray.Rotate(Radians, MidX, MidY: Double): TPointArray; constref;
+begin
+  Result := RotatePoints(Self, Radians, MidX, MidY);
+end;
+
+(*
+TPointArray.Grow
+~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Grow(Amount: Int32): TPointArray;
+
+Wraps Simba's TPAGrow
+*)
+function TPointArray.Grow(Amount: Int32): TPointArray; constref;
+begin
+  Result := TPAGrow(Self, Amount);
+end;
+
+(*
+TPointArray.Erode
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Erode(Amount: Int32): TPointArray;
+
+Wraps Simba's TPAErode
+*)
+function TPointArray.Erode(Amount: Int32): TPointArray; constref;
+begin
+  Result := TPAErode(Self, Amount);
+end;
+
+(*
+TPointArray.MinAreaRect
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.MinAreaRect: TRectangle;
+
+Computes the minimum bounding box (defined by area) around the given shape.
+Four points (which are in order) are always returned.
+
+See: http://en.wikipedia.org/wiki/Minimum_bounding_box for more information.
+
+Example
+-------
+
+  WriteLn('The four box corners are: ', TPA.MinAreaRect());
+*)
+function TPointArray.MinAreaRect: TRectangle; constref;
+begin
+  Result := System.MinAreaRect(Self);
+end;
+
+(*
+TPointArray.SortByX
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal procedure TPointArray.SortByX(LowToHi: Boolean = True);
+
+Wraps Simba's `SortTPAByX`
+*)
+procedure TPointArray.SortByX(LowToHi: Boolean = True);
+begin
+  SortTPAByX(Self, LowToHi);
+end;
+
+(*
+TPointArray.SortByY
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal procedure TPointArray.SortByY(LowToHi: Boolean = True);
+
+Wraps Simba's `SortTPAByY`
+*)
+procedure TPointArray.SortByY(LowToHi: Boolean = True);
+begin
+  SortTPAByY(Self, LowToHi);
+end;
+
+(*
+TPointArray.Density
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Density: Double;
+
+Wraps Simba's `TPADensity`
+*)
+function TPointArray.Density: Double; constref;
+begin
+  Result := TPADensity(Self);
+end;
+
+
+(*
+TPointArray.ExcludeBox
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.ExcludeBox(Box: TBox): TPointArray;
+
+Returns the TPA with all points removed that are not within a box.
+*)
+function TPointArray.ExcludeBox(Box: TBox): TPointArray; constref;
+begin
+  Result := ExcludePointsBox(Self, Box);
+end;
+
+(*
+TPointArray.ExcludeRect
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.ExcludeRect(Rect: TRectangle): TPointArray;
+
+Returns the TPA with all points removed that are not within a rectangle.
+*)
+function TPointArray.ExcludeRect(Rect: TRectangle): TPointArray; constref;
+begin
+  Result := ExcludePointsRect(Self, Rect);
+end;
+
+(*
+TPointArray.ExcludePolygon
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.ExcludePolygon(Poly: TPointArray): TPointArray;
+
+Returns the TPA with all points removed that are not in a polygon.
+*)
+function TPointArray.ExcludePolygon(Poly: TPointArray): TPointArray; constref;
+begin
+  Result := ExcludePointsPolygon(Self, Poly);
+end;
+
+(*
+TPointArray.ExcludeDist
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.ExcludeDist(Center: TPoint; MinDist, MaxDist: Double): TPointArray;
+
+Returns the TPA with all points removed that are not within min and max distance of `Center`.
+*)
+function TPointArray.ExcludeDist(Center: TPoint; MinDist, MaxDist: Double): TPointArray; constref;
+begin
+  Result := ExcludePointsDist(Self, Center, MinDist, MaxDist);
+end;
+
+(*
+TPointArray.ExcludeCircle
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.ExcludeCicle(Center: TPoint; Radius: Integer): TPointArray;
+
+Returns the TPA with all points removed that are not within the circle defined by `Center` and `Radius`.
+*)
+function TPointArray.ExcludeCircle(Center: TPoint; Radius: Integer): TPointArray; constref;
+begin
+  Result := ExcludePointsCircle(Self, Center, Radius);
+end;
+
+(*
+TPointArray.PointsInRangeOf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref;
+
+Returns all the points from `self` that are within range of any point in `other`.
+The parameters `mindist` and `maxdist` determine what "within range" means.
+*)
+function TPointArray.PointsInRangeOf(Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref; overload;
+begin
+  Result := System.PointsInRangeOf(Self, Other, MinDist, MinDist, MaxDist, MaxDist);
+end;
+
+(*
+TPointArray.PointsInRangeOf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDistX, MinDistY, MaxDistX, MaxDistY: Double): TPointArray; constref; overload;
+
+Same as the above but lets you specify X- and Y-wise min & max distance separately.
+*)
+function TPointArray.PointsInRangeOf(Other: TPointArray; MinDistX, MinDistY, MaxDistX, MaxDistY: Double): TPointArray; constref; overload;
+begin
+  Result := System.PointsInRangeOf(Self, Other, MinDistX, MinDistY, MaxDistX, MaxDistY);
+end;
+
+(*
+TPointArray.Invert
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Invert: TPointArray; overload;
+
+Returns every point in the TPA's bounds that isn't in the given TPA.
+*)
+function TPointArray.Invert: TPointArray; constref; overload;
+begin
+  Result := ReturnPointsNotInTPA(Self, Self.Bounds());
+end;
+
+(*
+TPointArray.Invert
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TPointArray.Invert(Bounds: TBox): TPointArray; overload;
+
+Returns every point in `Bounds` that isn't in the given TPA.
+*)
+function TPointArray.Invert(Bounds: TBox): TPointArray; constref; overload;
+begin
+  Result := ReturnPointsNotInTPA(Self, Bounds);
+end;
+
+
+
+

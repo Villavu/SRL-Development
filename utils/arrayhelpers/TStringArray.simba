@@ -1,0 +1,75 @@
+procedure TStringArray.Insert(Value: String; Index: Integer);
+begin
+  System.Insert(Value, Self, Index);
+end;
+
+procedure TStringArray.Delete(Index: Integer; Count: Integer = 1);
+begin
+  System.Delete(Self, Index, Count);
+end;
+
+function TStringArray.IndexOf(Value: String): Integer; constref;
+begin
+  Result := System.IndexOf(Value, Self);
+end;
+
+function TStringArray.IndicesOf(Value: String): TIntegerArray; constref;
+begin
+  Result := System.IndicesOf(Value, Self);
+end;
+
+function TStringArray.Contains(Value: String): Boolean; constref;
+begin
+  Result := System.Contains(Value, Self);
+end;
+
+function TStringArray.Remove(Value: String): Boolean;
+begin
+  Result := System.Remove(Value, Self);
+end;
+
+procedure TStringArray.Reverse; constref;
+begin
+  System.Reverse(Self);
+end;
+
+function TStringArray.Reversed: TStringArray; constref;
+begin
+  Result := System.Reversed(Self);
+end;
+
+procedure TStringArray.Sort; constref;
+begin
+  System.Sort(Self);
+end;
+
+function TStringArray.Sorted: TStringArray; constref;
+begin
+  Result := System.Sorted(Self);
+end;
+
+function TStringArray.Unique: TStringArray; constref;
+begin
+  Result := System.Unique(Self);
+end;
+
+function TStringArray.Pop: String;
+var
+  H: Integer;
+begin
+  H := High(Self);
+  Result := Self[H];
+  SetLength(Self, H);
+end;
+
+function TStringArray.Merge(glue: String = ''): String; constref;
+var
+  i:Int32;
+begin
+  if Length(Self) = 0 then
+    Exit;
+
+  Result := Self[0];
+  for i:=1 to High(Self) do
+    Result += glue + Self[i];
+end;
