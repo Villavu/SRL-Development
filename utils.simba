@@ -16,14 +16,8 @@ var
   SRL: TSRL;
 
 {$IFNDEF SRL_WRAPPERS_INCLUDED}      {$I utils/wrappers.simba}
-{$IFNDEF SRL_MATH_INCLUDED}          {$I utils/math.simba}
-{$IFNDEF SRL_TBOX_INCLUDED}          {$I utils/tbox.simba}
-{$IFNDEF SRL_TPOINT_INCLUDED}        {$I utils/tpoint.simba}
-{$IFNDEF SRL_TRECTANGLE_INCLUDED}    {$I utils/trectangle.simba}
 {$IFNDEF SRL_TCIRCLE_INCLUDED}       {$I utils/tcircle.simba}
-
 {$IFNDEF SRL_RANDOM_INCLUDED}        {$I utils/random.simba}
-
 {$IFNDEF SRL_TIME_INCLUDED}          {$I utils/time.simba}
 {$IFNDEF SRL_BASE_INCLUDED}          {$I utils/base.simba}
 {$IFNDEF SRL_PIXELSHIFT_INCLUDED}    {$I utils/pixelshift.simba}
@@ -31,10 +25,6 @@ var
 {$IFNDEF SRL_KEYBOARD_INCLUDED}      {$I utils/keyboard.simba}
 {$IFNDEF SRL_COLOR_INCLUDED}         {$I utils/color.simba}
 
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
