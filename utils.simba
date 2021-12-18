@@ -1,5 +1,14 @@
 {$DEFINE SRL_UTILS}
 
+{$I utils/vector.simba}
+
+{$i utils/arrayhelpers/TStringArray.simba}
+{$i utils/arrayhelpers/TExtendedArray.simba}
+{$i utils/arrayhelpers/TIntegerArray.simba}
+{$i utils/arrayhelpers/TBoxArray.simba}
+{$i utils/arrayhelpers/TPointArray.simba}
+{$i utils/arrayhelpers/T2DPointArray.simba}
+
 type
   TSRL = type Pointer;
 
@@ -11,14 +20,8 @@ var
 {$IFNDEF SRL_TBOX_INCLUDED}          {$I utils/tbox.simba}
 {$IFNDEF SRL_TPOINT_INCLUDED}        {$I utils/tpoint.simba}
 {$IFNDEF SRL_TRECTANGLE_INCLUDED}    {$I utils/trectangle.simba}
-{$IFNDEF SRL_TBOXARRAY_INCLUDED}     {$I utils/tboxarrays.simba}
 {$IFNDEF SRL_TCIRCLE_INCLUDED}       {$I utils/tcircle.simba}
-{$IFNDEF SRL_STRING_INCLUDED}        {$I utils/string.simba}
-{$IFNDEF SRL_VECTOR_INCLUDED}        {$I utils/vector.simba}
-{$IFNDEF SRL_STRINGARRAY_INCLUDED}   {$I utils/stringarrays.simba}
-{$IFNDEF SRL_EXTENDEDARRAY_INCLUDED} {$I utils/extendedarrays.simba}
-{$IFNDEF SRL_INTEGERARRAY_INCLUDED}  {$I utils/integerarrays.simba}
-{$IFNDEF SRL_TPOINTARRAY_INCLUDED}   {$I utils/tpointarrays.simba}
+
 {$IFNDEF SRL_RANDOM_INCLUDED}        {$I utils/random.simba}
 
 {$IFNDEF SRL_TIME_INCLUDED}          {$I utils/time.simba}
@@ -27,16 +30,7 @@ var
 {$IFNDEF SRL_MOUSE_INCLUDED}         {$I utils/mouse.simba}
 {$IFNDEF SRL_KEYBOARD_INCLUDED}      {$I utils/keyboard.simba}
 {$IFNDEF SRL_COLOR_INCLUDED}         {$I utils/color.simba}
-{$IFNDEF SRL_DRAWING_INCLUDED}       {$I utils/drawing.simba}
 
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
-{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
