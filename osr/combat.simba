@@ -75,7 +75,7 @@ begin
     if Self.ElementCountColor(Element, 2040203, 10) > 0 then
     begin
       for I:=0 to High(COMBAT_STYLES) do
-        if Self.ElementFindText(Element, [Self.COLOR_TEXT_ORANGE], COMBAT_STYLES[I], RS_FONT_PLAIN_11) then
+        if Self.ElementFindText(Element, [RSColors.TEXT_ORANGE], COMBAT_STYLES[I], RS_FONT_PLAIN_11) then
         begin
           Result := COMBAT_STYLES[I];
           Break;
@@ -107,7 +107,7 @@ begin
     Exit;
 
   for Element in [ERSCombatElement.STYLE_1..ERSCombatElement.STYLE_4] do
-    if Self.ElementFindText(Element, [Self.COLOR_TEXT_ORANGE], Style, RS_FONT_PLAIN_11) then
+    if Self.ElementFindText(Element, [RSColors.TEXT_ORANGE], Style, RS_FONT_PLAIN_11) then
     begin
       Self.ElementClick(Element);
 
@@ -178,7 +178,7 @@ begin
   if not Self.Open() then
     Exit;
 
-  Result := Self.ElementRecognizeText(ERSCombatElement.WEAPON, [Self.COLOR_TEXT_ORANGE], RS_FONT_QUILL_8);
+  Result := Self.ElementRecognizeText(ERSCombatElement.WEAPON, [RSColors.TEXT_ORANGE], RS_FONT_QUILL_8);
 end;
 
 (*
@@ -199,7 +199,7 @@ begin
   if not Self.Open() then
     Exit;
 
-  Result := Self.ElementRecognizeNumber(ERSCombatElement.COMBAT_LEVEL, [Self.COLOR_TEXT_ORANGE], RS_FONT_PLAIN_11);
+  Result := Self.ElementRecognizeNumber(ERSCombatElement.COMBAT_LEVEL, [RSColors.TEXT_ORANGE], RS_FONT_PLAIN_11);
 end;
 
 procedure TRSCombat.Draw(Bitmap: TMufasaBitmap); override;
@@ -219,7 +219,7 @@ var
   Combat: TRSCombat;
 
 begin
-  Combat.Setup('Combat', [@Combat.SetupAlignment, @Combat.Draw, @Combat._IsOpen]);
+  Combat.Setup('Combat');
   Combat.ID := ERSGameTab.COMBAT;
 end;
 

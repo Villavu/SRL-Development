@@ -1,14 +1,12 @@
-{$DEFINE SRL_OSR}
-
-{$IFNDEF SRL_HINTS}
-  {$IFDEF HINTS}
-    {$DEFINE SRL_HAD_HINTS}
-  {$ENDIF}
-
-  {$HINTS OFF}
+{$IFNDEF SIMBA1500}
+  {$ERROR Simba 1.5 is now required for SRL}
 {$ENDIF}
 
+{$DEFINE SRL_OSR}
+{$HINTS OFF}
+
 {$I utils.simba}
+{$i osr/rscolors.simba}
 
 {$SCOPEDENUMS ON}
 
@@ -85,21 +83,4 @@
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 
-{$IFDEF SRL_HAD_HINTS}
-  {$HINTS ON}
-{$ENDIF}
-
-procedure TRSClient.ClientModeChanged; override;
-begin
-  Self.DebugLn('Client mode changed: ' + ToString(Self.Mode));
-
-  SetupInterfaceAlignments(Self.Mode);
-end;
-
-begin
-  // Initial mode... for now.
-  RSClient.Mode := RSClient.DetectClientMode();
-  if RSClient.Mode = ERSClientMode.UNKNOWN then
-    RSClient.Mode := ERSClientMode.FIXED; // Fixed as default so we can login if needed
-  RSClient.ClientModeChanged();
-end;
+{$HINTS ON}

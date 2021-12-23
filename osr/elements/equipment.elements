@@ -17,7 +17,7 @@ type
     FOLLOWER
   );
 
-procedure TRSEquipment.Setup(Name: String; InternalMethods: TInternalMethods); override;
+procedure TRSEquipment.Setup(Name: String); override;
 begin
   inherited();
 

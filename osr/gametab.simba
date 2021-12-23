@@ -8,30 +8,7 @@ type
     ID: ERSGameTab;
   end;
 
-procedure TRSGameTab.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  case Self.Mode of
-    ERSClientMode.FIXED, ERSClientMode.RESIZABLE_CLASSIC:
-      begin
-        Self.Alignment.Left := [@GameTabs.X1, 28];
-        Self.Alignment.Right := [@GameTabs.X2, -29];
-        Self.Alignment.Top := [@GameTabs.Y1, 36];
-        Self.Alignment.Bottom := [@GameTabs.Y2, -37];
-      end;
-
-    ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@GameTabs.X1, 37];
-        Self.Alignment.Right := [@GameTabs.X2, -10];
-        Self.Alignment.Top := [@GameTabs.Y1, 6];
-        Self.Alignment.Bottom := [@GameTabs.Y2, -78];
-      end;
-  end;
-end;
-
-function TRSGameTab._IsOpen: Boolean;
+function TRSGameTab.IsOpen: Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = Self.ID);
 end;
@@ -41,10 +18,41 @@ begin
   Result := GameTabs.Open(Self.ID);
 end;
 
+procedure TRSGameTab.Setup(Name: String); override;
+begin
+  inherited;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@GameTabs.X1, 28];
+    Right  := [@GameTabs.X2, -29];
+    Top    := [@GameTabs.Y1, 36];
+    Bottom := [@GameTabs.Y2, -37];
+  end;
+
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@GameTabs.X1, 28];
+    Right  := [@GameTabs.X2, -29];
+    Top    := [@GameTabs.Y1, 36];
+    Bottom := [@GameTabs.Y2, -37];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left   := [@GameTabs.X1, 37];
+    Right  := [@GameTabs.X2, -10];
+    Top    := [@GameTabs.Y1, 6];
+    Bottom := [@GameTabs.Y2, -78];
+  end;
+end;
+
+{
 var
   GameTab: TRSGameTab;
 
 begin
-  GameTab.Setup('GameTab', [@GameTab.SetupAlignment, @GameTab.Draw, @GameTab._IsOpen]);
+  GameTab.Setup('GameTab', []);
 end;
-
+}

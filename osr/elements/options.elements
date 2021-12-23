@@ -15,10 +15,11 @@ type
     HOUSE_TITLE,
     HOUSE_EXPEL,
     HOUSE_SERVANT,
-    HOUSE_LEAVE
+    HOUSE_LEAVE,
+    BRIGHTNESS_SLIDER
   );
 
-procedure TRSOptions.Setup(Name: String; InternalMethods: TInternalMethods); override;
+procedure TRSOptions.Setup(Name: String); override;
 begin
   inherited;
 
@@ -28,7 +29,7 @@ begin
   begin
     Name   := 'zoom slider';
     Anchor := ERSInterfaceElementAnchor.TOP;
-    Offset := [57, 72];
+    Offset := [57, 110];
     Width  := 97;
     Height := 8;
   end;
@@ -166,6 +167,15 @@ begin
     Offset := [9, 208];
     Width  := 166;
     Height := 32;
+  end;
+
+  with Self.Elements[ERSOptionsElement.BRIGHTNESS_SLIDER] do
+  begin
+    Name   := 'brightness slider';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [57, 73];
+    Width  := 97;
+    Height := 8;
   end;
 end;
 

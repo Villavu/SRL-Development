@@ -20,19 +20,39 @@ begin
   Result := Self.ElementClick(Element, Option);
 end;
 
-procedure TRSChatButtons.SetupAlignment(Mode: ERSClientMode); override;
+procedure TRSChatButtons.Setup(Name: String); override;
 begin
   inherited;
 
-  Self.Alignment.Left := [@RootInterface.X1];
-  Self.Alignment.Right := [@RootInterface.X1, 518];
-  Self.Alignment.Top := [@RootInterface.Y2, -22];
-  Self.Alignment.Bottom := [@RootInterface.Y2];
+  // All are same
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@RootInterface.X1];
+    Right  := [@RootInterface.X1, 518];
+    Top    := [@RootInterface.Y2, -22];
+    Bottom := [@RootInterface.Y2];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@RootInterface.X1];
+    Right  := [@RootInterface.X1, 518];
+    Top    := [@RootInterface.Y2, -22];
+    Bottom := [@RootInterface.Y2];
+  end;
+
+   with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left   := [@RootInterface.X1];
+    Right  := [@RootInterface.X1, 518];
+    Top    := [@RootInterface.Y2, -22];
+    Bottom := [@RootInterface.Y2];
+  end;
 end;
 
 var
   ChatButtons: TRSChatButtons;
 
 begin
-  ChatButtons.Setup('ChatButtons', [@ChatButtons.SetupAlignment, @ChatButtons.Draw]);
+  ChatButtons.Setup('Chat Buttons');
 end;

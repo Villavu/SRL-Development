@@ -8,9 +8,6 @@ const
 
 type
   TRSMake = record(TRSInterface)
-  class const
-    COLOR_TEXT_BROWN  = 2109504;
-  var
     Items: array of record 
       Item: String;
       Index: Int32;
@@ -18,16 +15,6 @@ type
   end;
 
 {$i elements/make.elements}
-
-procedure TRSMake.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  Self.Alignment.Left := [@Chat.X1];
-  Self.Alignment.Right := [@Chat.X2];
-  Self.Alignment.Top := [@Chat.Y1];
-  Self.Alignment.Bottom := [@Chat.Y2];
-end;
 
 function TRSMake.GetItemBoxes: TBoxArray;
 var
@@ -37,15 +24,15 @@ begin
   if SRL.FindColors(TPA, CTS1(591880, 30), Self.Bounds) > 0 then
   begin
     ATPA := TPA.Cluster(3);
-    ATPA.FilterDimensions(20,60);
+    ATPA.FilterByDimensions(0, 20,60);
   end;
 
-  Result := ATPA.ToTBA();
+  Result := ATPA.Bounds();
 end;
 
-function TRSMake._IsOpen: Boolean;
+function TRSMake.IsOpen: Boolean;
 begin
-  Result := Self.ElementFindText(ERSMakeElement.QUANTITY_5, [Self.COLOR_TEXT_WHITE, Self.COLOR_TEXT_BROWN], 'All', RS_FONT_PLAIN_11);
+  Result := Self.ElementFindText(ERSMakeElement.QUANTITY_5, [RSColors.TEXT_WHITE, RSColors.TEXT_BROWN], 'All', RS_FONT_PLAIN_11);
 end;
 
 function TRSMake.SetQuantity(Amount: Int32): Boolean;
@@ -59,12 +46,12 @@ begin
 
   // Already enabled
   for Element in ERSMakeElement do
-    if Self.ElementFindText(Element, [Self.COLOR_TEXT_WHITE], Text, RS_FONT_PLAIN_11) then
+    if Self.ElementFindText(Element, [RSColors.TEXT_WHITE], Text, RS_FONT_PLAIN_11) then
       Exit(True);
 
   // Enable
   for Element in ERSMakeElement do
-    if Self.ElementFindText(Element, [Self.COLOR_TEXT_BROWN], Text, RS_FONT_PLAIN_11) then
+    if Self.ElementFindText(Element, [RSColors.TEXT_BROWN], Text, RS_FONT_PLAIN_11) then
     begin
       Self.ElementClick(Element);
 
@@ -73,7 +60,7 @@ begin
 
   // Custom amount
   for Element in ERSMakeElement do
-    if Self.ElementFindText(Element, [Self.COLOR_TEXT_BROWN], 'X', RS_FONT_PLAIN_11) then
+    if Self.ElementFindText(Element, [RSColors.TEXT_BROWN], 'X', RS_FONT_PLAIN_11) then
     begin
       Self.ElementClick(Element);
 
@@ -92,7 +79,7 @@ function TRSMake.SelectHelper(Boxes: TBoxArray; Index: Integer; UseKeyboard: Boo
     B.Y1 := B.Y2;
     B.Y2 := B.Y2 + 15;
 
-    case OCR.Recognize(B, TOCRColorFilter.Create([2109504]), RS_FONT_PLAIN_11) of
+    case OCR.Recognize(B, TOCRColorFilter.Create([RSColors.TEXT_BROWN]), RS_FONT_PLAIN_11) of
       'Space': Result := VK_SPACE;
       '0':     Result := VK_0;
       '1':     Result := VK_1;
@@ -176,12 +163,20 @@ begin
 
   inherited;
 
-  Bitmap.Drawboxes(Self.GetItemBoxes(), clRed);
+  Bitmap.DrawBoxes(Self.GetItemBoxes(), False, $0000FF);
+end;
+
+procedure TRSMake.Setup(Name: String); override;
+begin
+  inherited;
+
+  // No offsets needed
+  Self.BoundsFinder.Alignments := Chat.BoundsFinder.Alignments;
 end;
 
 var
   Make: TRSMake;
 
 begin
-  Make.Setup('Make', [@Make.SetupAlignment, @Make.Draw, @Make._IsOpen]);
+  Make.Setup('Make');
 end;

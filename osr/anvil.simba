@@ -16,6 +16,7 @@ begin
   Result := Grid(5, 5, 77, 53, [2, 2], [Self.X1 + 10, Self.Y1 + 36]);
 end;
 
+{
 procedure TRSAnvil.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -42,19 +43,11 @@ begin
       end;
   end;
 end;
+}
 
 function TRSAnvil.CanSmith(B: TBox): Boolean;
 begin
   Result := SRL.CountColor($00FF00, B) > 0;
-end;
-
-function TRSAnvil.SmithItem(Item: TRSItem): Boolean;
-var
-  B: TBox;
-begin
-  Result := Self.FindItem(Item, B) and Self.CanSmith(B);
-  if Result then
-    Mouse.Click(B, MOUSE_LEFT);
 end;
 
 function TRSAnvil.IsCustomQuantity(Quantity: Integer): Boolean;
@@ -62,30 +55,54 @@ begin
   Result := not (Quantity in [1,5,10,ANVIL_QUANTITY_ALL]);
 end;
 
-function TRSAnvil.GetQuantity: Int32;
-var
-  Element: ERSAnvilElement;
+function TRSAnvil.FindQuantity(Text: String; Color: Integer; out Element: ERSAnvilElement): Boolean;
 begin
   for Element in [ERSAnvilElement.QUANTITY_1..ERSAnvilElement.QUANTITY_5] do
-    if Self.ElementCountColor(Element, Self.COLOR_TEXT_WHITE, 0) > 0 then
+    if Self.ElementFindText(Element, [Color], Text, RS_FONT_PLAIN_11) then
     begin
-      if Self.ElementFindText(Element, [Self.COLOR_TEXT_WHITE], 'All', RS_FONT_PLAIN_11) then
-        Result := ANVIL_QUANTITY_ALL
-      else
-        Result := Self.ElementRecognizeNumber(Element, [Self.COLOR_TEXT_WHITE], RS_FONT_PLAIN_11);
-
+      Result := True;
       Exit;
     end;
 end;
 
 function TRSAnvil.SetQuantity(Quantity: Int32): Boolean;
+var
+  Text: String;
+  Element: ERSAnvilElement;
 begin
-  // todo
+  Text := ToString(Quantity);
+  if (Quantity = ANVIL_QUANTITY_ALL) then
+    Text := 'All';
+
+  // Already enabled
+  if Self.FindQuantity(Text, RSColors.TEXT_WHITE, Element) then
+    Exit(True);
+
+  if Self.FindQuantity(Text, RSColors.TEXT_ORANGE, Element) then
+    Result := Self.ElementToggle(Element, RSColors.TEXT_WHITE, 5, 5)
+  else
+  begin
+    if Self.FindQuantity('X', RSColors.TEXT_ORANGE, Element) then
+    begin
+      Self.ElementClick(Element);
+
+      Result := Chat.AnswerQuery('Enter amount', Text, 3000, 500);
+    end;
+  end;
 end;
 
-function TRSAnvil._IsOpen: Boolean;
+function TRSAnvil.SmithItem(Item: TRSItem; Quantity: Integer): Boolean;
+var
+  B: TBox;
 begin
-  // todo
+  //Result := Self.FindItem(Item, B) and Self.CanSmith(B) and Self.SetQuantity(Quantity);
+  //if Result then
+  //  Mouse.Click(B, MOUSE_LEFT);
+end;
+
+function TRSAnvil.IsOpen: Boolean;
+begin
+  Result := Self.IsTitle('What would you like to make?');
 end;
 
 procedure TRSAnvil.Draw(Bitmap: TMufasaBitmap); override;
@@ -95,13 +112,51 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(Self.GetItemBoxes(), $00FFFF);
+  Bitmap.DrawBoxes(Self.GetItemBoxes(), False, $00FFFF);
+end;
+
+procedure TRSAnvil.Setup(Name: String); override;
+begin
+  inherited;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 500;
+    Center.MaxHeight := 320;
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1, -1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 500;
+    Center.MaxHeight := 320;
+  end;
+
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1, -1];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth := 500;
+    Center.MaxHeight := 320;
+  end;
 end;
 
 var
   Anvil: TRSAnvil;
 
 begin
-  Anvil.Setup('Anvil', [@Anvil.SetupAlignment, @Anvil.Draw, @Anvil._IsOpen]);
-  Anvil.OnGetItemBoxes := @Anvil.GetItemBoxes;
+  Anvil.Setup('Anvil');
 end;

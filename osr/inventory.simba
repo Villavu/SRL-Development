@@ -323,7 +323,7 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSlotBoxes(), $00FFFF);
+  Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
 end;
 
 function TRSInventory.Count: Int32; 
@@ -379,13 +379,14 @@ function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): 
 var
   Item: TRSItem;
 begin
+{
   if not Self.Open() then
     Exit;
 
   for Item in Items do
     Slots += ItemFinder.Find(Item, Self.GetSlotBoxes());
   
-  Result := Length(Slots) > 0;
+  Result := Length(Slots) > 0; }
 end;
 
 function TRSInventory.Use(Item, OtherItem: TRSItem): Boolean; overload;
@@ -427,7 +428,7 @@ begin
   if Self.FindItems(Items, Slots) then
   begin
     for I := 0 to High(Pattern) do
-      if Slots.Find(Pattern[I]) > -1 then
+      if Slots.Contains(Pattern[I]) then
         Order += Pattern[I];
   
     Result := Self.ShiftDrop(Order);
@@ -451,13 +452,13 @@ begin
   Self.HIGH_SLOT := 27;
 end;  }
 
+
 var
   Inventory: TRSInventory;
 
 begin
-  Inventory.Setup('Inventory', [@Inventory.SetupAlignment, @Inventory.Draw, @Inventory._IsOpen]);
+  Inventory.Setup('Inventory');
   Inventory.ID := ERSGameTab.INVENTORY;
-  Inventory.OnGetItemBoxes := @Inventory.GetSlotBoxes;
 
   Inventory.LOW_SLOT := 0;
   Inventory.HIGH_SLOT := 27;

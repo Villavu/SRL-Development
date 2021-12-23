@@ -113,7 +113,7 @@ begin
     Write('  );');
 
     Write('');
-    Write('procedure %s.Setup(Name: String; InternalMethods: TInternalMethods); override;', [InterfaceType()]);
+    Write('procedure %s.Setup(Name: String); override;', [InterfaceType()]);
     Write('begin');
     Write('  inherited;');
     Write('');
@@ -177,7 +177,7 @@ begin
     Write('end;');
   end;
 
-  WriteFileContents({$macro CURRENT_DIRECTORY} + '/' + Self.Name.Lower() + '.elements', Include, False);
+  WriteFileContents({$macro CURRENT_DIRECTORY} + '/' + Self.Name.ToLower() + '.elements', Include, False);
 end;
 
 procedure TRSInterfaceBuilder.OnMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Int32);
@@ -245,7 +245,7 @@ begin
   if Self.Moving then
   begin
     Self.Selected.Box := ButtonToBox(Self.Buttons[SelectedButtonIndex], Self.Bounds);
-    Self.Selected.Box := Self.Selected.Box.Offset([X,Y] - Self.MovingStart);
+    Self.Selected.Box := Self.Selected.Box.Offset(TPoint([X,Y]) - Self.MovingStart);
 
     Self.ImageBox.Repaint();
   end else
@@ -549,9 +549,15 @@ begin
   InterfaceBuilder.Bounds := Equipment.Bounds;
   }
 
+  {
   InterfaceBuilder.Name := 'BankPin';
   InterfaceBuilder.Buttons := BankPin.Elements;
   InterfaceBuilder.Bounds := BankPin.Bounds;
+  }
+
+  InterfaceBuilder.Name := 'Options';
+  InterfaceBuilder.Buttons := Options.Elements;
+  InterfaceBuilder.Bounds := Options.Bounds;
 
   Sync(@InterfaceBuilder.Run);
 end;

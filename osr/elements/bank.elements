@@ -15,7 +15,7 @@ type
     DEPOSIT_WORN
   );
 
-procedure TRSBank.Setup(Name: String; InternalMethods: TInternalMethods); override;
+procedure TRSBank.Setup(Name: String); override;
 begin
   inherited;
 

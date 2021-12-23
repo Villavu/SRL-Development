@@ -56,9 +56,9 @@ begin
   FilterATPAByDimensions(Self, MinLength, MinShortSide, MaxShortSize, MinLongSide, MaxLongSize);
 end;
 
-procedure T2DPointArray.FilterByDimensions(MinLength: Integer; MinShortSide, MaxShortSize: Integer); overload;
+procedure T2DPointArray.FilterByDimensions(MinLength: Integer; MinShortSide, MinLongSize: Integer); overload;
 begin
-  FilterATPAByDimensions(Self, MinLength, MinShortSide, MaxShortSize, High(Integer), High(Integer));
+  FilterATPAByDimensions(Self, MinLength, MinShortSide, High(Integer), MinLongSize, High(Integer));
 end;
 
 procedure T2DPointArray.FilterByLength(MinLength, MaxLength: Integer);
@@ -110,7 +110,7 @@ begin
   for I := 0 to High(Self) do
     Weights[I] := MinAreaRect(Self[I]).LongSideLen;
 
-  System.Sort(Self, Weights);
+  System.Sort(Self, Weights, HighToLow);
 end;
 
 procedure T2DPointArray.SortByDensity;

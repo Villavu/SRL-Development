@@ -41,8 +41,7 @@ type
   );
 
   TRSClient = record(TSRLBaseRecord)
-    Mode: ERSClientMode;
-
+    Test: Integer;
     {$IFNDEF SRL_DISABLE_REMOTEINPUT}
     RemoteInput: TRemoteInput;
     {$ENDIF}
@@ -63,11 +62,10 @@ RSClient.DetectClientMode
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSClient.DetectClientMode(Update: Boolean): ERSClientMode;
 
-Detects the client mode. If **Update** is True ClientModeChanged will be called.
-Uses the music tab so will return RS_CLIENT_UNKNOWN when not logged in.
-Are there any other cases where music tab won't be visible?
+Detects the client mode using the music tab.
+Returns RS_CLIENT_UNKNOWN when not logged in.
 *)
-function TRSClient.DetectClientMode(Update: Boolean = False): ERSClientMode;
+function TRSClient.ClientMode: ERSClientMode;
 var
   W, H: Int32;
 begin
@@ -80,34 +78,11 @@ begin
     3555653, 922425: Result := ERSClientMode.RESIZABLE_MODERN;
     2896180, 790059: Result := ERSClientMode.RESIZABLE_CLASSIC;
   end;
-  
-  if Update then 
-    Self.Mode := Result;
-end;
-
-(*
-RSClient.ClientModeChanged
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSClient.ClientModeChanged;
-
-Anything that needs an alert when the client mode changes should override this.
-*)
-procedure TRSClient.ClientModeChanged;
-begin
-  Self.DebugLn('Client mode changed: ' + ToString(Self.Mode));
 end;
 
 function TRSClient.IsLoggedIn: Boolean;
-var
-  ClientMode: ERSClientMode := Self.DetectClientMode();
 begin
-  if (ClientMode <> ERSClientMode.UNKNOWN) and (ClientMode <> Self.Mode) then
-  begin
-    Self.Mode := ClientMode;
-    Self.ClientModeChanged();
-  end;
-
-  Result := ClientMode <> ERSClientMode.UNKNOWN;
+  Result := ClientMode() <> ERSClientMode.UNKNOWN;
 end;
 
 function TRSClient.IsLoggedIn(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;

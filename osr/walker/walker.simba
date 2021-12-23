@@ -70,7 +70,7 @@ const
 var
   Cache: String;
 begin
-  Result.Init(Client.GetMBitmaps());
+  Result.Init();
 
   if ExtractFileExt(Path) <> '.bmp' then
   begin
@@ -141,7 +141,7 @@ begin
   Self.Scaling := Scaling;
   Self.ClickRandomness := 4;
 
-  case Map.Lower() of
+  case Map.ToLower() of
     'world': Self.WebGraph := WorldWeb;
     'zeah':  Self.WebGraph := ZeahWeb;
   end;
@@ -222,7 +222,7 @@ begin
   Bitmap.ReplaceColor(284358,0);
   Bitmap.ReplaceColor(1127261,0);
   
-  Bitmap.DrawPolyFilled(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), True, 0);  
+  Bitmap.DrawPolygonInverted(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), 0);
 
   Bitmap.FindColors(TPA, 0);
   Bitmap.Blend(TPA.Sorted(Bitmap.GetCenter()), 5); 
@@ -239,8 +239,8 @@ begin
   Self.CleanMinimap(Bitmap);
 
   Result.Init();
-  
-  Bitmap.RotateBitmapEx(Minimap.GetCompassAngle(False), False, True, Result);
+
+  Bitmap.RotateBitmapBilinear(Minimap.GetCompassAngle(False), False, Result);
   Bitmap.Free();
 end;
 
@@ -255,17 +255,17 @@ begin
   Temp := Bitmap.Copy();
   
   P := Temp.GetCenter();
-  if RSClient.Mode = ERSClientMode.FIXED then
+  if RSClient.ClientMode = ERSClientMode.FIXED then
     P := P.Offset(0, -8).Rotate(-Minimap.GetCompassAngle(False), P); // fixed
  
-  Temp.DrawCircleFilled(P.X, P.Y, RADIUS, True, 0);
+  Temp.DrawCircleInverted(P, RADIUS, 0);
 
   RADIUS += 3;
   
   Temp.Crop(P.X - RADIUS, P.Y - RADIUS, P.X + RADIUS, P.Y + RADIUS);
   Temp.FindColors(TPA, 0);
   Temp.Blend(TPA.Sorted(Temp.GetCenter()), 3); 
-  Temp.DrawCircleFilled(Temp.GetCenter().X, Temp.GetCenter().Y, RADIUS, True, 0);
+  Temp.DrawCircleInverted(Temp.GetCenter(), RADIUS, 0);
 
   Result := Temp.Downsample(Scaling, False);
   
@@ -444,15 +444,17 @@ begin
 
   if Self.ScreenWalk then
   begin
-    Mouse.Move(Minimap.PointToMsRect(MinimapPoint).Mean);
+    Mouse.Move(Minimap.PointToMsRect(MinimapPoint).Middle);
 
     if not MainScreen.IsUpText('Walk here') then
       Exit(ChooseOption.Select('Walk here'));
   end else
   begin
+    {
     P := MinimapPoint.Random(-Randomness, Randomness);
     while not Minimap.IsPointOn(P) do
       P := MinimapPoint.Random(-Randomness, Randomness);
+    }
 
     Mouse.Move(P);
   end;
@@ -601,7 +603,7 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
     Previous: Int32 := Index;
     Nearest, Furthest: Int32;
   begin
-    Nearest := Self.Path.Find(Self.Path.Sorted(PlayerPoint)[0]);
+    Nearest := Self.Path.IndexOf(Self.Path.Sorted(PlayerPoint)[0]);
 
     while (Nearest < High(Self.Path)) and (not Self.IsWalkable(Self.Path[Nearest+1], PlayerPoint, Angle)) do
       Inc(Nearest);
@@ -747,9 +749,9 @@ var
 begin
   Freeze();
   
-  Time := PerformanceTimer();
+  Time := HighResolutionTime();
   Position := Self.GetMyPos();
-  Time := PerformanceTimer() - Time;
+  Time := HighResolutionTime() - Time;
 
   X1 := Max(0, Position.X - 200);
   Y1 := Max(0, Position.Y - 200);
@@ -767,10 +769,10 @@ begin
   MinimapBitmap := ScaleMinimap(GetCleanMinimap(), 1);
   
   P := MinimapBitmap.GetCenter();
-  if RSClient.Mode = ERSClientMode.FIXED then
+  if RSClient.ClientMode = ERSClientMode.FIXED then
     P := P.Offset(0, 8).Rotate(-Minimap.GetCompassAngle(False), P);
     
-  MinimapBitmap.DrawBoxFilled([P.X - 1, P.Y - 1, P.X + 1, P.Y + 1], False, $FFFFFF);
+  MinimapBitmap.DrawBoxFilled([P.X - 1, P.Y - 1, P.X + 1, P.Y + 1], $FFFFFF);
   MinimapBitmap.SetTransparentColor(0);
 
   Bitmap.Init();
@@ -796,7 +798,7 @@ begin
   MinimapBitmap.DrawTransparent(420, 10, Bitmap);
   MinimapBitmap.Free();
 
-  Bitmap.Debug();
+  Bitmap.Show();
   Bitmap.Free();
 
   UnFreeze();

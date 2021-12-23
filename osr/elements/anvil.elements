@@ -7,7 +7,7 @@ type
     QUANTITY_5
   );
 
-procedure TRSAnvil.Setup(Name: String; InternalMethods: TInternalMethods); override;
+procedure TRSAnvil.Setup(Name: String); override;
 begin
   inherited;
 

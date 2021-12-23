@@ -87,7 +87,7 @@ type
 var
   ItemID: Int32;
 begin
-  if Item.IsDigit() then
+  if Item.ExtractNumber(-1) <> -1 {Item.IsDigit()} then
     Result := Result + Item.ExtractNumber()
   else
   begin
@@ -132,7 +132,7 @@ begin
 
     if FileExists(FileName) or UnZipOneFile(ITEM_FINDER_IMAGES_ZIP, ExtractFileName(FileName), ITEM_FINDER_IMAGES_PATH) then
     begin
-      Image.Init(Client.GetMBitmaps());
+      Image.Init();
       Image.LoadFromFile(FileName);
       Image.SetName(Item);
       Image.ReplaceColor(RS_ITEM_SHADOW, 0);
@@ -206,13 +206,14 @@ begin
       begin
         if (P.Y <= 8) then // Possible stack number... Don't compare.
           Continue;
-        if (not PointInTPA(P, ImageBorder)) then // Borders don't match. No point going further.
+        if not Contains(P, ImageBorder) then
+        //if (not PointInTPA(P, ImageBorder)) then // Borders don't match. No point going further.
           Exit;
       end;
     
     AlignedImage := Image.Copy();
   
-    AlignedTemplate.Init(Client.GetMBitmaps());
+    AlignedTemplate.Init();
     AlignedTemplate.SetSize(Image.GetWidth(), Image.GetHeight());
     
     Template.DrawTransparent(Align.X, Align.Y, AlignedTemplate);  
@@ -228,10 +229,10 @@ begin
     // Clear image background on template
     if AlignedImage.FindColors(TPA, 0) then 
       ClearTPA += TPA;  
-   
+
     AlignedTemplate.DrawTPA(ClearTPA, 0);
     AlignedImage.DrawTPA(ClearTPA, 0);
-  
+
     Result := AlignedImage.MatchTemplate(AlignedTemplate, TM_CCORR_NORMED)[0][0]; // IDK why I used CCORR. But it works!
   
     AlignedImage.Free();
@@ -246,6 +247,8 @@ var
   Images: array of TMufasaBitmap;
   CustomFilter: TRSItemFinderCustomFilter;
 begin
+  Templ.Init();
+
   Images := Self.GetItemImages(Item);
 
   for I := 0 to High(Self.ClearSparkleItems) do
@@ -255,14 +258,15 @@ begin
   for I := 0 to High(Slots) do
     for J := 0 to High(Images) do
     begin
-      Templ.FromClient(Slots[I]);
+      Templ.LoadFromClient(Slots[I]);
       if Self.CompareItems(Images[J], Templ, @CustomFilter) >= Self.Similarity then
         Result := Result + I;
-      Templ.Free();
 
       if (MaxToFind > 0) and (Length(Result) = MaxToFind) then
-        Exit;
+        Break;
     end;
+
+  Templ.Free();
 end;
 
 function TRSItemFinder.Find2(constref Item: TRSItem; constref Slots: TBoxArray; constref MaxToFind: Int32 = -1): TBoxArray;
@@ -275,6 +279,8 @@ begin
   if Length(Slots) = 0 then
     Exit;
 
+  Templ.init();
+
   Images := Self.GetItemImages(Item);
 
   for I := 0 to High(Self.ClearSparkleItems) do
@@ -284,14 +290,15 @@ begin
   for I := 0 to High(Slots) do
     for J := 0 to High(Images) do
     begin
-      Templ.FromClient(Slots[I]);
+      Templ.CopyClientToBitmap(Client.GetIOManager, True, Slots[I].X1, Slots[I].Y1, Slots[I].X2, Slots[I].Y2);
       if Self.CompareItems(Images[J], Templ, @CustomFilter) >= Self.Similarity then
         Result += Slots[I];
-      Templ.Free();
 
       if (MaxToFind > 0) and (Length(Result) = MaxToFind) then
-        Exit;
+        Break;
     end;
+
+  Templ.Free();
 end;
 
 var

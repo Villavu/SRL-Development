@@ -10,30 +10,47 @@ type
 
 {$i elements/bankpin.elements}
 
-procedure TRSBankPin.SetupAlignment(Mode: ERSClientMode); override;
+function TRSBankPin.IsOpen: Boolean;
+begin
+  Result := Self.ElementFindText(ERSBankPinElement.EXIT, [$0000FF, $FFFFFF], 'Exit', RS_FONT_QUILL_8);
+end;
+
+procedure TRSBankPin.Setup(Name: String); override;
 begin
   inherited;
 
-  case Self.Mode of
-    ERSClientMode.FIXED:
-      begin
-        Self.Alignment.Left := [@InterfaceArea.X1];
-        Self.Alignment.Right := [@InterfaceArea.X2];
-        Self.Alignment.Top := [@InterfaceArea.Y1, 11];
-        Self.Alignment.Bottom := [@InterfaceArea.Y2];
-        Self.Alignment.Center.MaxWidth := 488;
-        Self.Alignment.Center.MaxHeight := 305;
-      end;
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, 11];
+    Bottom := [@InterfaceArea.Y2];
 
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@InterfaceArea.X1];
-        Self.Alignment.Right := [@InterfaceArea.X2];
-        Self.Alignment.Top := [@InterfaceArea.Y1, 10];
-        Self.Alignment.Bottom := [@InterfaceArea.Y2];
-        Self.Alignment.Center.MaxWidth := 488;
-        Self.Alignment.Center.MaxHeight := 305;
-      end;
+    Center.MaxWidth  := 488;
+    Center.MaxHeight := 305;
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, 10];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth  := 488;
+    Center.MaxHeight := 305;
+  end;
+
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, 10];
+    Bottom := [@InterfaceArea.Y2];
+
+    Center.MaxWidth  := 488;
+    Center.MaxHeight := 305;
   end;
 end;
 
@@ -84,8 +101,8 @@ begin
       begin
         if (Digit = 4) then
         begin
-          if Bank.IsOpen(4000) then
-            Exit(True);
+         // if Bank.IsOpen(4000) then
+        //    Exit(True);
         end else
           WaitUntil(GetDigitToEnter() > Digit, 100, 2000 + Random(1000));
       end;
@@ -97,19 +114,6 @@ begin
   finally
     Self.Entering := False;
   end;
-end;
-
-function TRSBankPin._IsOpen: Boolean;
-begin
-  Result := Self.ElementFindText(ERSBankPinElement.EXIT, [$0000FF, $FFFFFF], 'Exit', RS_FONT_QUILL_8);
-end;
-
-function TRSBankPin.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
-begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
-
-  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;
 
 procedure TRSBankPin.Draw(Bitmap: TMufasaBitmap); override;
@@ -124,7 +128,7 @@ var
   BankPin: TRSBankPin;
 
 begin
-  BankPin.Setup('BankPin', [@BankPin.SetupAlignment, @BankPin.Draw, @BankPin._IsOpen]);
+  BankPin.Setup('Bank Pin');
 end;
 
 {

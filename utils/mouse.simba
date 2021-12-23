@@ -453,7 +453,7 @@ Example
 *)
 procedure TMouse.Move(Center: TPoint; Radius: Int32; ForcedMove: Boolean = False); overload;
 begin
-  if SRL.PointInCircle(Self.Position(), Center, Radius) and (not ForcedMove) then
+  if PointInCircle(Self.Position(), Center, Radius) and (not ForcedMove) then
     Exit;
 
   Self.Move(SRL.RandomPoint(Center, Radius));

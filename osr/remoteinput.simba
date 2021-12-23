@@ -94,7 +94,7 @@ var
 begin
   inherited();
 
-  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000) and (Pids.Find(Pid) > -1)) then
+  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000) and Pids.Contains(Pid)) then
     raise 'Failed to inject into pid ' + ToString(pid);  
 end;
 

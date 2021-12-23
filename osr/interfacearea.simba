@@ -4,36 +4,35 @@
 {$ENDIF}
 
 type
+  // TODO: MainInterfaceArea?
   TRSInterfaceArea = type TRSInterface;
 
-procedure TRSInterfaceArea.SetupAlignment(Mode: ERSClientMode); override;
+procedure TRSInterfaceArea.Setup(Name: String); override;
 begin
   inherited;
 
-  case Self.Mode of
-    ERSClientMode.FIXED:
-      begin
-        Self.Alignment.Left := [@MainScreen.X1];
-        Self.Alignment.Right := [@MainScreen.X2];
-        Self.Alignment.Top := [@MainScreen.Y1];
-        Self.Alignment.Bottom := [@MainScreen.Y2];
-      end;
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left := [@RootInterface.X1];
+    Right := [@RootInterface.X1, 518];
+    Top := [@RootInterface.Y2, -22];
+    Bottom := [@RootInterface.Y2];
+  end;
 
-    ERSClientMode.RESIZABLE_CLASSIC:
-      begin
-        Self.Alignment.Left := [@MainScreen.X1];
-        Self.Alignment.Right := [@GameTabs.X1, -10];
-        Self.Alignment.Top := [@MainScreen.Y1];
-        Self.Alignment.Bottom := [@Chat.Y1];
-      end;
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left := [@MainScreen.X1];
+    Right := [@GameTabs.X1, -10];
+    Top := [@MainScreen.Y1];
+    Bottom := [@Chat.Y1];
+  end;
 
-    ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@MainScreen.X1];
-        Self.Alignment.Right := [@GameTabs.X1, 15];
-        Self.Alignment.Top := [@MainScreen.Y1];
-        Self.Alignment.Bottom := [@Chat.Y1];
-      end;
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left := [@MainScreen.X1];
+    Right := [@GameTabs.X1, 15];
+    Top := [@MainScreen.Y1];
+    Bottom := [@Chat.Y1];
   end;
 end;
 
@@ -41,5 +40,5 @@ var
   InterfaceArea: TRSInterfaceArea;
 
 begin
-  InterfaceArea.Setup('InterfaceArea', [@InterfaceArea.SetupAlignment, @InterfaceArea.Draw]);
+  InterfaceArea.Setup('Interface Area');
 end;

@@ -151,14 +151,14 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSkillBoxes(), $00FFFF);
+  Bitmap.DrawBoxes(Self.GetSkillBoxes(), False, $00FFFF);
 end;
 
 var
   Stats: TRSStats;
 
 begin
-  Stats.Setup('Stats', [@Stats.SetupAlignment, @Stats.Draw, @Stats._IsOpen]);
+  Stats.Setup('Stats');
   Stats.ID := ERSGameTab.STATS;
 end;
 

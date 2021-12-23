@@ -413,7 +413,7 @@ function TRSMagic.CanActivate(Spell: ERSSpell): Boolean;
 var
   Box: TBox;
 begin
-  Result := Self.GetSpellBox(Spell, Box) and Self.Open() and (SRL.PeakBrightness(Box) > 35);
+  Result := Self.GetSpellBox(Spell, Box) and Self.Open() and (PeakBrightness(Box) > 35);
 end;
 
 (*
@@ -507,7 +507,7 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSpellBoxes(Spellbook), $00FFFF);
+  Bitmap.DrawBoxes(Self.GetSpellBoxes(Spellbook), False, $00FFFF);
 end;
 
 (*
@@ -519,6 +519,6 @@ var
   Magic: TRSMagic;
 
 begin
-  Magic.Setup('Magic', [@Magic.SetupAlignment, @Magic.Draw, @Magic._IsOpen]);
+  Magic.Setup('Magic');
   Magic.ID := ERSGameTab.MAGIC;
 end;

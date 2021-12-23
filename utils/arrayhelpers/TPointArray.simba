@@ -396,18 +396,6 @@ begin
 end;
 
 (*
-TPointArray.ExcludeCircle
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TPointArray.ExcludeCicle(Center: TPoint; Radius: Integer): TPointArray;
-
-Returns the TPA with all points removed that are not within the circle defined by `Center` and `Radius`.
-*)
-function TPointArray.ExcludeCircle(Center: TPoint; Radius: Integer): TPointArray; constref;
-begin
-  Result := ExcludePointsCircle(Self, Center, Radius);
-end;
-
-(*
 TPointArray.PointsInRangeOf
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref;

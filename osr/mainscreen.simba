@@ -150,14 +150,37 @@ type
     RedClicks: TIntegerArray;
   end;
 
-procedure TRSMainScreen.Free;
-var
-  Bitmap: Int32;
+procedure TRSMainScreen.Setup(Name: String); override;
 begin
-  for Bitmap in Self.YellowClicks + Self.RedClicks do
-    FreeBitmap(Bitmap);
+  inherited;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@RootInterface.X1, 4];
+    Right  := [@RootInterface.X1, 515];
+    Top    := [@RootInterface.Y1, 4];
+    Bottom := [@RootInterface.Y1, 337];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@RootInterface.X1];
+    Right  := [@RootInterface.X2];
+    Top    := [@RootInterface.Y1];
+    Bottom := [@RootInterface.Y2];
+  end;
+
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left   := [@RootInterface.X1];
+    Right  := [@RootInterface.X2];
+    Top    := [@RootInterface.Y1];
+    Bottom := [@RootInterface.Y2];
+  end;
 end;
 
+{
 procedure TRSMainScreen.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -170,7 +193,7 @@ begin
         Self.Alignment.Top := [@RootInterface.Y1];
         Self.Alignment.Bottom := [@RootInterface.Y2];
 
-        Self.UpTextArea := [3, 3, 500, 21];
+        //Self.UpTextArea := [3, 3, 500, 21];
       end;
 
     ERSClientMode.FIXED:
@@ -180,10 +203,11 @@ begin
         Self.Alignment.Top := [@RootInterface.Y1, 4];
         Self.Alignment.Bottom := [@RootInterface.Y1, 337];
 
-        Self.UpTextArea := [7, 7, 500, 25];
+        //Self.UpTextArea := [7, 7, 500, 25];
       end;
   end;
 end;
+}
 
 (*
 MainScreen.GetUpText
@@ -389,11 +413,12 @@ var
   ATPA: T2DPointArray;
   I: Int32;
   L, S: Int32;
+  R: TRectangle;
 begin
   if Finder = [] then
     Self.Fatal('Empty TRSObjectFinder passed');
 
-  Area.LimitTo(Self.Bounds());
+  Area.Clip(Self.Bounds());
 
   // Translate distances
   Finder.ClusterDistance := Self.ConvertDistance(Finder.ClusterDistance);
@@ -448,11 +473,11 @@ begin
       begin
         for I := 0 to High(ATPA) do
         begin
-          ATPA[I].Edges().MinAreaRectEx(L, S);
+          R := ATPA[I].Edges().MinAreaRect();
 
-          if ((Finder.MinShortSide > 0) or (Finder.MaxShortSide > 0)) and (not InRange(S, Finder.MinShortSide, Finder.MaxShortSide)) then
+          if ((Finder.MinShortSide > 0) or (Finder.MaxShortSide > 0)) and (not InRange(R.ShortSideLen, Finder.MinShortSide, Finder.MaxShortSide)) then
             Continue;
-          if ((Finder.MinLongSide > 0) or (Finder.MaxLongSide > 0)) and (not InRange(L, Finder.MinLongSide, Finder.MaxLongSide)) then
+          if ((Finder.MinLongSide > 0) or (Finder.MaxLongSide > 0)) and (not InRange(R.LongSideLen, Finder.MinLongSide, Finder.MaxLongSide)) then
             Continue;
 
           Result += ATPA[I];
@@ -564,7 +589,7 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
     if SRL.FindColors(TPA, CTS0(Color), Area) = 0 then
       Exit;
 
-    for B in TPA.Cluster(3).ToTBA() do
+    for B in TPA.Cluster(3).Bounds() do
       if (B.Width >= 10) and (B.Height >= 10) then
       begin
         Hit := OCR.RecognizeNumber(B.Expand(5, Area), TOCRColorFilter.Create([$FFFFFF]), RS_FONT_PLAIN_11);
@@ -687,7 +712,7 @@ begin
   if not Frozen then
     Freeze();
 
-  Area.LimitTo(Self.Bounds);
+  Area.Clip(Self.Bounds);
 
   try
     for Color in COLOR_BARS do
@@ -778,7 +803,7 @@ var
   Bitmap: Int32;
   Attempt: Int32;
 begin
-  Area.LimitTo(Self.Bounds);
+  Area.Clip(Self.Bounds);
 
   for Attempt := 1 to 2 do
   begin
@@ -852,7 +877,7 @@ var
   MainScreen: TRSMainScreen;
 
 begin
-  MainScreen.Setup('MainScreen', [@MainScreen.SetupAlignment, @MainScreen.Draw]);
+  MainScreen.Setup('MainScreen');
 
   MainScreen.UpTextFilter := TOCRUpTextFilter.Create(85, 60);
   MainScreen.UpTextFilter.MinCharacterMatch := '-';

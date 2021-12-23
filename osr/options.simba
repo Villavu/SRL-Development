@@ -23,7 +23,7 @@ type
 
 function TRSOptions.IsHouseOptionsOpen: Boolean;
 begin
-  Result := Self.ElementFindText(ERSOptionsElement.HOUSE_TITLE, [Self.COLOR_TEXT_ORANGE], 'House Options', RS_FONT_BOLD_12);
+  Result := Self.ElementFindText(ERSOptionsElement.HOUSE_TITLE, [RSColors.TEXT_ORANGE], 'House Options', RS_FONT_BOLD_12);
 end;
 
 function TRSOptions.OpenHouseOptions: Boolean;
@@ -55,7 +55,7 @@ var
 begin
   Result := SRL.FindColors(TPA, CTS0(2106152), Self.ElementBounds(ERSOptionsElement.ZOOM_SLIDER).Expand(10)) > 0;
   if Result then
-    P := TPA.Mean();
+    P := TPA.Middle();
 end;
 
 function TRSOptions.GetZoomLevel: Int32;
@@ -65,10 +65,35 @@ var
 begin
   Result := -1;
   
-  if Self.Open() and Self.OpenTab(ERSOptionsTab.CONTROLS) then
+  if Self.Open() and Self.OpenTab(ERSOptionsTab.DISPLAY) then
   begin
     B := Self.ElementBounds(ERSOptionsElement.ZOOM_SLIDER);
     if Self.FindZoomSlider(Slider) then
+      Result := Round((Slider.X - B.X1) * 100 / (B.Width - 1))
+  end;
+end;
+
+function TRSOptions.FindBrightnessSlider(var P: TPoint): Boolean;
+var
+  TPA: TPointArray;
+begin
+  Result := SRL.FindColors(TPA, CTS1(2106152, 3), Self.ElementBounds(ERSOptionsElement.BRIGHTNESS_SLIDER).Expand(10)) > 0;
+  if Result then
+    P := TPA.Middle();
+end;
+
+function TRSOptions.GetBrightnessLevel: Int32;
+var
+  Slider: TPoint;
+  B: TBox;
+begin
+  Result := -1;
+
+  if Self.Open() and Self.OpenTab(ERSOptionsTab.DISPLAY) then
+  begin
+    B := Self.ElementBounds(ERSOptionsElement.BRIGHTNESS_SLIDER);
+
+    if Self.FindBrightnessSlider(Slider) then
       Result := Round((Slider.X - B.X1) * 100 / (B.Width - 1))
   end;
 end;
@@ -108,7 +133,7 @@ end;
 
 function TRSOptions.GetCurrentTab: ERSOptionsTab;
 begin
-  case Self.ElementRecognizeText(ERSOptionsElement.TITLE, [Self.COLOR_TEXT_ORANGE], RS_FONT_BOLD_12) of
+  case Self.ElementRecognizeText(ERSOptionsElement.TITLE, [RSColors.TEXT_ORANGE], RS_FONT_BOLD_12) of
     'Controls Settings': Result := ERSOptionsTab.CONTROLS;
     'Audio Settings':    Result := ERSOptionsTab.AUDIO;
     'Display Settings':  Result := ERSOptionsTab.DISPLAY;
@@ -143,7 +168,7 @@ var
   Options: TRSOptions;
 
 begin
-  Options.Setup('Options', [@Options.SetupAlignment, @Options.Draw, @Options._IsOpen]);
+  Options.Setup('Options');
   Options.ID := ERSGameTab.OPTIONS;
 end;
 

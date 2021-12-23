@@ -10,10 +10,36 @@
 {$i utils/arrayhelpers/T2DPointArray.simba}
 
 type
-  TSRL = type Pointer;
+  TSRL = record
+    ManagedBitmaps: array of TMufasaBitmap;
+  end;
+
+function TSRL.AddManagedBitmap(Index: Integer): TMufasaBitmap;
+begin
+  Result := GetMufasaBitmap(Index);
+
+  Self.ManagedBitmaps := Self.ManagedBitmaps + Result;
+end;
+
+procedure TSRL.FreeManagedBitmaps;
+var
+  I: Integer;
+begin
+  for I := 0 to High(Self.ManagedBitmaps) do
+    Self.ManagedBitmaps[I].Free();
+end;
+
+procedure TSRL.Setup;
+begin
+  AddOnTerminate(@Self.FreeManagedBitmaps);
+end;
 
 var
   SRL: TSRL;
+
+begin
+  SRL.Setup();
+end;
 
 {$IFNDEF SRL_WRAPPERS_INCLUDED}      {$I utils/wrappers.simba}
 {$IFNDEF SRL_TCIRCLE_INCLUDED}       {$I utils/tcircle.simba}

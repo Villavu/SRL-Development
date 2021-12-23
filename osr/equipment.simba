@@ -40,7 +40,6 @@ var
   Equipment: TRSEquipment;
 
 begin
-  Equipment.Setup('Equipment', [@Equipment.SetupAlignment, @Equipment.Draw, @Equipment._IsOpen]);
+  Equipment.Setup('Equipment');
   Equipment.ID := ERSGameTab.EQUIPMENT;
-  Equipment.OnGetItemBoxes := @Equipment.GetItemBoxes;
 end;

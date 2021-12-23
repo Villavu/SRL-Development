@@ -38,7 +38,7 @@ begin
   Result := System.Reversed(Self);
 end;
 
-procedure TIntegerArray.Sort; constref;
+procedure TIntegerArray.Sort;
 begin
   System.Sort(Self);
 end;

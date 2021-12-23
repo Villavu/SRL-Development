@@ -11,6 +11,13 @@ TCircle related methods
 type definition is found in shared/globals.simba
 *)
 
+type
+  TCircle = record
+    X,Y:Int32;
+    Radius: Int32;
+  end;
+  TCircleArray = array of TCircle;
+
 (*
 TCircle.ToTPA
 ~~~~~~~~~~~~~~

@@ -41,22 +41,20 @@ type
   TRSChat = type TRSInterface;
 
 (*
-Chat.SetupAlignment
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSChat.SetupAlignment(Mode: ERSClientMode); override;
+Chat.IsOpen
+~~~~~~~~~~~
+.. pascal:: function TRSChat.IsOpen: Boolean;
 
-Setups up the interface aligment for the current client mode.
+Returns true if the chat box is open.
 
-.. note:: This is automatically called on the **TRSClient.ClientModeChanged** function.
+Example
+-------
+
+  WriteLn Chat.IsOpen;
 *)
-procedure TRSChat.SetupAlignment(Mode: ERSClientMode); override;
+function TRSChat.IsOpen: Boolean;
 begin
-  inherited;
-
-  Self.Alignment.Left := [@ChatButtons.X1];
-  Self.Alignment.Right := [@ChatButtons.X2];
-  Self.Alignment.Top := [@ChatButtons.Y1, -142];
-  Self.Alignment.Bottom := [@ChatButtons.Y1, -1];
+  Result := (SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000) or Self.IsTransparent();
 end;
 
 procedure TRSChat.Draw(Bitmap: TMufasaBitmap); override;
@@ -66,7 +64,37 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(Self.GetLineBoxes(), $00FFFF);
+  Bitmap.DrawBoxes(Self.GetLineBoxes(), False, $00FFFF);
+end;
+
+procedure TRSChat.Setup(Name: String); override;
+begin
+  inherited;
+
+  // All are same
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@ChatButtons.X1];
+    Right  := [@ChatButtons.X2];
+    Top    := [@ChatButtons.Y1, -142];
+    Bottom := [@ChatButtons.Y1, -1];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@ChatButtons.X1];
+    Right  := [@ChatButtons.X2];
+    Top    := [@ChatButtons.Y1, -142];
+    Bottom := [@ChatButtons.Y1, -1];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left   := [@ChatButtons.X1];
+    Right  := [@ChatButtons.X2];
+    Top    := [@ChatButtons.Y1, -142];
+    Bottom := [@ChatButtons.Y1, -1];
+  end;
 end;
 
 (*
@@ -124,23 +152,6 @@ Example
 function TRSChat.IsTransparent: Boolean;
 begin
   Result := Self.GetDisplayName([$FFFFFF]) <> '';
-end;
-
-(*
-Chat.IsOpen
-~~~~~~~~~~~
-.. pascal:: function TRSChat.IsOpen: Boolean;
-
-Returns true if the chat box is open.
-
-Example
--------
-
-  WriteLn Chat.IsOpen;
-*)
-function TRSChat._IsOpen: Boolean;
-begin
-  Result := (SRL.CountColor(CTS0(9744834, 20), Self.Bounds) > 45000) or Self.IsTransparent();
 end;
 
 
@@ -375,8 +386,8 @@ begin
   B.Y1 -= StaticOffset; 
   
   Transparent := Self.IsTransparent();
-  if Transparent then
-    Colors.Remove(CHAT_COLOR_BLACK, True);
+  //if Transparent then
+  //  Colors.Remove(CHAT_COLOR_BLACK, True);
   
   if (Length(Colors) > 0) then
   begin
@@ -490,5 +501,5 @@ var
   Chat: TRSChat;
 
 begin
-  Chat.Setup('Chat', [@Chat.SetupAlignment, @Chat.Draw, @Chat._IsOpen]);
+  Chat.Setup('Chat');
 end;

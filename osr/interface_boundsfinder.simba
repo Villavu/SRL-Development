@@ -1,0 +1,140 @@
+type
+  TRSInterfaceAlignment = record
+    Left, Right, Top, Bottom: record
+      Method: function: Integer of object;
+      Offset: Integer;
+    end;
+
+    Center: record
+      MaxWidth: Integer;
+      MaxHeight: Integer;
+    end;
+  end;
+
+  TRSInterfaceBoundsFinder = record
+    Cache: record
+      Bounds: TBox;
+      ClientMode: ERSClientMode;
+      ClientWidth, ClientHeight: Integer;
+    end;
+
+    Alignments: array[ERSClientMode] of TRSInterfaceAlignment;
+
+    CustomFunction: function(ClientMode: ERSClientMode): TBox of object;
+  end;
+
+function TRSInterfaceBoundsFinder.Find(ClientMode: ERSClientMode): TBox;
+var
+  Alignment: TRSInterfaceAlignment;
+
+  function GetX1: Integer;
+  var
+    Left, Right, Width, Center: Single;
+  begin
+    if (@Alignment.Left.Method = nil) then
+      raise 'No left anchor';
+
+    if (Alignment.Center.MaxWidth > 0) then
+    begin
+      Left := Alignment.Left.Method() + Alignment.Left.Offset;
+      Right := Alignment.Right.Method() + Alignment.Right.Offset;
+
+      Width := (Right - Left);
+      Center := Left + (Width / 2);
+
+      Result := Max(
+        Floor(Center - (Width / 2)),
+        Floor(Center - ((Alignment.Center.MaxWidth - 1) / 2))
+      );
+    end else
+      Result := Round(Alignment.Left.Method() + Alignment.Left.Offset);
+  end;
+
+  function GetX2: Integer;
+  var
+    Left, Right, Width, Center: Single;
+  begin
+    if (@Alignment.Right.Method = nil) then
+      raise 'No right anchor';
+
+    if (Alignment.Center.MaxWidth > 0) then
+    begin
+      Left := Alignment.Left.Method() + Alignment.Left.Offset;
+      Right := Alignment.Right.Method() + Alignment.Right.Offset;
+
+      Width := (Right - Left);
+      Center := Left + (Width / 2);
+
+      Result := Min(
+        Floor(Center + (Width / 2)),
+        Floor(Center + ((Alignment.Center.MaxWidth - 1) / 2))
+      );
+    end else
+      Result := Round(Alignment.Right.Method() + Alignment.Right.Offset);
+  end;
+
+  function GetY1: Integer;
+  var
+    Top, Bottom, Height, Center: Single;
+  begin
+    if (@Alignment.Top.Method = nil) then
+      raise 'No top anchor';
+
+    if (Alignment.Center.MaxHeight > 0) then
+    begin
+      Top := Alignment.Top.Method() + Alignment.Top.Offset;
+      Bottom := Alignment.Bottom.Method() + Alignment.Bottom.Offset;
+
+      Height := (Bottom - Top);
+      Center := Top + (Height / 2);
+
+      Result := Max(
+        Floor(Center - (Height / 2)),
+        Floor(Center - ((Alignment.Center.MaxHeight - 1) / 2))
+      );
+    end else
+      Result := Round(Alignment.Top.Method() + Alignment.Top.Offset);
+  end;
+
+  function GetY2: Integer;
+  var
+    Top, Bottom, Height, Center: Single;
+  begin
+    if (@Alignment.Bottom.Method = nil) then
+      raise 'No bottom anchor';
+
+    if (Alignment.Center.MaxHeight > 0) then
+    begin
+      Top := Alignment.Top.Method() + Alignment.Top.Offset;
+      Bottom := Alignment.Bottom.Method() + Alignment.Bottom.Offset;
+
+      Height := (Bottom - Top);
+      Center := Top + (Height / 2);
+
+      Result := Min(
+        Floor(Center + (Height / 2)),
+        Floor(Center + ((Alignment.Center.MaxHeight - 1) / 2))
+      );
+    end else
+      Result := Round(Alignment.Bottom.Method() + Alignment.Bottom.Offset);
+  end;
+
+var
+  ClientWidth, ClientHeight: Integer;
+begin
+  if (@Self.CustomFunction <> nil) then
+    Exit(Self.CustomFunction(ClientMode));
+
+  GetClientDimensions(ClientWidth, ClientHeight);
+  if (Self.Cache.ClientMode = ClientMode) and (Self.Cache.ClientWidth = ClientWidth) and (Self.Cache.ClientHeight = ClientHeight) then
+    Exit(Self.Cache.Bounds);
+
+  Alignment := Self.Alignments[ClientMode];
+
+  Result.X1 := GetX1();
+  Result.Y1 := GetY1();
+  Result.X2 := GetX2();
+  Result.Y2 := GetY2();
+
+  Self.Cache := [Result, ClientMode, ClientWidth, ClientHeight];
+end;

@@ -173,7 +173,7 @@ begin
   if not Self.IsOpen then
     Exit;
 
-  Result := SRL.PeakBrightness(Self.GetPrayerBox(Prayer)) > 55;
+  Result := PeakBrightness(Self.GetPrayerBox(Prayer)) > 55;
 end;
 
 (*
@@ -308,9 +308,9 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetPrayerBoxes, $00FFFF);
-  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetAvailablePrayers), $00FF22);
-  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetActivePrayers), $FFFFFF);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes, False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetAvailablePrayers), False, $00FF22);
+  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetActivePrayers), False, $FFFFFF);
 end;
 
 (*
@@ -329,7 +329,7 @@ QuickPrayer.IsOpen
 
 Returns true if the quick prayers are open.
 *)
-function TRSQuickPrayer._IsOpen: Boolean; override;
+function TRSQuickPrayer.IsOpen: Boolean; override;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.PRAYER) and (Prayer.GetPrayerLevel = -1);
 end;
@@ -353,8 +353,8 @@ begin
 
   Mouse.Move(Minimap.GetPrayerCircle);
   ChooseOption.Open;
-  if ChooseOption.Select('Setup') then
-    Result := Self.IsOpen(2000);
+  // ChooseOption.Select('Setup') then
+  //  Result := Self.IsOpen(2000);
 end;
 
 (*
@@ -482,9 +482,9 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(), $00FFFF);
-  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers), $00ff22);
-  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Self.GetSelectedPrayers), $FFFFFF);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers), False, $00ff22);
+  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Self.GetSelectedPrayers), False, $FFFFFF);
   Bitmap.DrawBox(Self.GetButton, $00FFFF);
 end;
 
@@ -609,7 +609,7 @@ Overrides **Prayer.Open** to handle quick prayers if they are open.
 *)
 function TRSPrayer.Open: Boolean; override;
 begin
-  Result := Self.IsOpen or (GameTabs.Open(ERSGameTab.PRAYER) and QuickPrayer.Close);
+  //Result := Self.IsOpen or (GameTabs.Open(ERSGameTab.PRAYER) and QuickPrayer.Close);
 end;
 
 (*
@@ -624,7 +624,7 @@ begin
   if not Self.IsOpen and not QuickPrayer.IsOpen then
     Exit;
 
-  Result := SRL.PeakBrightness(Self.GetPrayerBox(Prayer)) > 55;
+  Result := PeakBrightness(Self.GetPrayerBox(Prayer)) > 55;
 end;
 
 (*
@@ -648,8 +648,8 @@ begin
 end;
 
 begin
-  Prayer.Setup('Prayer', [@Prayer.SetupAlignment, @Prayer.Draw, @Prayer._IsOpen]);
+  Prayer.Setup('Prayer');
   Prayer.ID := ERSGameTab.PRAYER;
-  QuickPrayer.Setup('QuickPrayer', [@QuickPrayer.SetupAlignment, @QuickPrayer.Draw, @QuickPrayer._IsOpen]);
+  QuickPrayer.Setup('QuickPrayer');
   QuickPrayer.ID := ERSGameTab.PRAYER;
 end;

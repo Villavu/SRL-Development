@@ -244,10 +244,10 @@ var
     best,dist: Double;
     x: TPoint;
   begin
-    best := SRL.DistToLineEx(p, Rect.Top,  Rect.Left, Result);
-    if (dist := SRL.DistToLineEx(p, Rect.Left, Rect.Btm,  x)) < best then begin Result := x; Best := dist; end;
-    if (dist := SRL.DistToLineEx(p, Rect.Btm,  Rect.Right,x)) < best then begin Result := x; Best := dist; end;
-    if (dist := SRL.DistToLineEx(p, Rect.Right,Rect.Top,  x)) < best then begin Result := x; Best := dist; end;
+    best := DistToLine(p, Rect.Top,  Rect.Left, Result);
+    if (dist := DistToLine(p, Rect.Left, Rect.Btm,  x)) < best then begin Result := x; Best := dist; end;
+    if (dist := DistToLine(p, Rect.Btm,  Rect.Right,x)) < best then begin Result := x; Best := dist; end;
+    if (dist := DistToLine(p, Rect.Right,Rect.Top,  x)) < best then begin Result := x; Best := dist; end;
   end;
 
 begin

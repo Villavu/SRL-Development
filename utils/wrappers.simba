@@ -12,11 +12,11 @@ The wrappers include contains wrapper functions used throughout SRL, some of the
 The source for this file can be found `here <https://github.com/Olly-/SRL/blob/master/lib/utilities/wrappers.simba>`_.
 
 *)
-
+    {
 function TPAFromLine(Start, Stop: TPoint): TPointArray; overload;
 begin
   Result := TPAFromLine(Start.X, Start.Y, Stop.X, Stop.Y);
-end;
+end; }
 
 (*
 GetClientBounds
@@ -88,7 +88,7 @@ begin
   Result := GetColors(TPA);
 
   if (ClearSame) then
-    ClearSameIntegers(Result);
+    Result := Unique(Result);
 end;
 
 (*
@@ -451,28 +451,6 @@ var
   W, H: Integer;
 begin
   Result := TPAFromText(Text, Font, W, H);
-end;
-
-(*
-Distance; overload
-~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal
-
-    function Distance(const p1, p2: TPoint): Integer; overload;
-
-Accepts two TPoints instead of x1, y1, x2 and y2 variables.
-
-.. note:: by Olly
-
-Example:
-
-.. code-block:: pascal
-
-    WriteLn(Distance(Point(100, 100), Point(200, 200)));
-*)
-function Distance(const p1, p2: TPoint): Integer; overload;
-begin
-  Result := Distance(p1.x, p1.y, p2.x, p2.y);
 end;
 
 procedure TerminateScript(Reason: String); overload;

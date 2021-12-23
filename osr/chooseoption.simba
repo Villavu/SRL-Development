@@ -35,7 +35,7 @@ begin
     if FindColors(TPA, 0, P.X, P.Y, B.X2, B.Y2) then
     begin
       ATPA := TPA.Cluster(1, 1);
-      ATPA.SortByIndex(P, 0);
+      ATPA.Sort(P);
 
       Self.Bounds := ATPA[0].Bounds().Expand(-1);
 
@@ -116,7 +116,8 @@ begin
     Exit(True);
 
   Space := Self.Bounds.Expand(100);
-  Space.LimitTo(GetClientBounds());
+  //Space.LimitTo(GetClientBounds());
+  Space.Clip(GetClientBounds);
 
   Boxes := Self.Bounds.Expand(50).Invert(Space);
   if Length(Boxes) = 0 then

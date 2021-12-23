@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-function TRSLogin._IsOpen: Boolean;
+function TRSLogin.IsOpen: Boolean;
 begin
   Result := Self.FindText('Click to switch');
 end;
@@ -150,7 +150,7 @@ end;
 
 function TRSLogin.CloseWorldSwitcher: Boolean;
 begin
-  Result := Self.IsOpen() or (Self.ClickText('Cancel') and WaitUntil(Self.IsOpen(), 100, 1000));
+ // Result := Self.IsOpen() or (Self.ClickText('Cancel') and WaitUntil(Self.IsOpen(), 100, 1000));
 end;
 
 function TRSLogin.GetCurrentWorld: Int32;
@@ -334,7 +334,7 @@ begin
   begin
     Self.DebugLn('Attempt ' + ToString(Attempts + 1));
     
-    if (Player.Worlds <> []) and (not (Self.GetCurrentWorld() in Player.Worlds)) then
+    if (Player.Worlds <> []) and (not Player.Worlds.Contains(Self.GetCurrentWorld())) then // (not (Self.GetCurrentWorld() in Player.Worlds)) then
     begin
       World := Player.Worlds[Random(Length(Player.Worlds))];
       if (not Self.SwitchToWorld(World)) then
@@ -398,8 +398,8 @@ end;
 function TRSLogin.GetPlayerPin: String;
 begin
   Result := Self.GetPlayer.Pin;
-  if (Length(Result) <> 4) or (not Result.IsDigit()) then
-    Self.Fatal('Invalid bank pin'); 
+  //if (Length(Result) <> 4) or (not Result.IsDigit()) then
+  //  Self.Fatal('Invalid bank pin'); 
 end;
 
 procedure TRSLogin.Draw(Bitmap: TMufasaBitmap); override;
@@ -410,20 +410,42 @@ begin
   inherited;
 end;
 
-procedure TRSLogin.SetupAlignment(Mode: ERSClientMode); override;
+procedure TRSLogin.Setup(Name: String); override;
 begin
   inherited;
 
-  Self.Alignment.Left := [@RootInterface.X1];
-  Self.Alignment.Right := [@RootInterface.X2];
-  Self.Alignment.Top := [@RootInterface.Y1];
-  Self.Alignment.Bottom := [@RootInterface.Y1, 502];
-  Self.Alignment.Center := [764, 0];
+  // All the same
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left := [@RootInterface.X1];
+    Right := [@RootInterface.X2];
+    Top := [@RootInterface.Y1];
+    Bottom := [@RootInterface.Y1, 502];
+    Center := [764, 0];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left := [@RootInterface.X1];
+    Right := [@RootInterface.X2];
+    Top := [@RootInterface.Y1];
+    Bottom := [@RootInterface.Y1, 502];
+    Center := [764, 0];
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left := [@RootInterface.X1];
+    Right := [@RootInterface.X2];
+    Top := [@RootInterface.Y1];
+    Bottom := [@RootInterface.Y1, 502];
+    Center := [764, 0];
+  end;
 end;
 
 var
   Login: TRSLogin;
 
 begin
-  Login.Setup('Login', [@Login.SetupAlignment, @Login.Draw, @Login._IsOpen]);
+  Login.Setup('Login');
 end;

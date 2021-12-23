@@ -10,7 +10,7 @@ type
 
 function TRSLogout.IsWorldSwitcherOpen: Boolean;
 begin
-  Result := Self.IsOpen() and Self.ElementFindText(ERSLogoutElement.CURRENT_WORLD, [Self.COLOR_TEXT_ORANGE], 'Current world', RS_FONT_BOLD_12);
+  Result := Self.IsOpen() and Self.ElementFindText(ERSLogoutElement.CURRENT_WORLD, [RSColors.TEXT_ORANGE], 'Current world', RS_FONT_BOLD_12);
 end;
 
 function TRSLogout.CloseWorldSwitcher: Boolean;
@@ -40,6 +40,6 @@ var
   Logout: TRSLogout;
 
 begin
-  Logout.Setup('Logout', [@Logout.SetupAlignment, @Logout.Draw, @Logout._IsOpen]);
+  Logout.Setup('Logout');
   Logout.ID := ERSGameTab.LOGOUT;
 end;

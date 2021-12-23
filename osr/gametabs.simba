@@ -4,85 +4,87 @@
 {$ENDIF}
 
 type
-  TRSGameTabs = type TRSInterface;
+  TRSGameTabs = record(TRSInterface)
+    Cache: record
+      ClientWidth, ClientHeight: Integer;
+      ClientMode: ERSClientMode;
+
+      Bounds: TBox;
+      TabBoxes: TBoxArray;
+    end;
+  end;
 
   ERSGameTab = (
-    COMBAT,
-    STATS,
-    QUESTS,
-    INVENTORY,
-    EQUIPMENT,
-    PRAYER,
-    MAGIC,
-    CLAN,
-    FRIENDS,
-    ACCOUNT,
-    LOGOUT,
-    OPTIONS,
-    EMOTES,
-    MUSIC,
+    COMBAT, STATS, QUESTS, INVENTORY, EQUIPMENT,  PRAYER, MAGIC,
+    CLAN, FRIENDS, ACCOUNT, LOGOUT, OPTIONS, EMOTES, MUSIC,
     UNKNOWN
   );
 
-{
-function TRSGameTabs.X1: Int32; constref; override;
-begin
-  Result := inherited
-end;
-}
-
-// Needed because depending on the client width the tabs stack into row(s)
-function TRSGameTabs.Y1: Int32; override;
-begin
-  Result := inherited;
-
-  if (Self.Mode = ERSClientMode.RESIZABLE_MODERN) and (RootInterface.Width >= 948) then
-    Result += 36;
-end;
-
-{
-function TRSGameTabs.X2: Int32; override;
-begin
-  Result := inherited;
-end;
-}
-
-// Needed because depending on the client width the tabs stack into row(s)
-function TRSGameTabs.Y2: Int32; override;
-begin
-  Result := inherited;
-
-  if (Self.Mode = ERSClientMode.RESIZABLE_MODERN) and (RootInterface.Width >= 948) then
-    Result += 36;
-end;
-
-function TRSGameTabs.GetTabBoxes: TBoxArray;
+function TRSGameTabs.CustomBoundsFinder(ClientMode: ERSClientMode): TBox;
 var
-  I: Int32;
+  ClientWidth, ClientHeight, I: Integer;
+  Boxes: TBoxArray;
 begin
-  case Self.Mode of
-    ERSClientMode.FIXED, ERSClientMode.RESIZABLE_CLASSIC:
+  GetClientDimensions(ClientWidth, ClientHeight);
+  if (Self.Cache.ClientWidth = ClientWidth) and (Self.Cache.ClientHeight = ClientHeight) and (Self.Cache.ClientMode = ClientMode) then
+    Exit(Self.Cache.Bounds);
+
+  case ClientMode of
+    ERSClientMode.FIXED:
       begin
-        Result := Grid(7, 2, 30, 33, [3, 265], [Self.X1 + 6, Self.Y1 + 1]);
+        Result.X1 := RootInterface.X2 - 242;
+        Result.X2 := RootInterface.X2 - 2;
+        Result.Y1 := RootInterface.Y2 - 334;
+        Result.Y2 := RootInterface.Y2;
+
+        Boxes := Grid(7, 2, 30, 33, [3, 265], [Result.X1 + 6, Result.Y1 + 1]);
+      end;
+
+    ERSClientMode.RESIZABLE_CLASSIC:
+      begin
+        Result.X1 := RootInterface.X2 - 240;
+        Result.X2 := RootInterface.X2;
+        Result.Y1 := RootInterface.Y2 - 334;
+        Result.Y2 := RootInterface.Y2;
+
+        Boxes := Grid(7, 2, 30, 33, [3, 265], [Result.X1 + 6, Result.Y1 + 1]);
       end;
 
     ERSClientMode.RESIZABLE_MODERN:
       begin
-        // One row
+        Result.X1 := RootInterface.X2 - 230;
+        Result.X2 := RootInterface.X2;
+        Result.Y1 := RootInterface.Y2 - 346;
+        Result.Y2 := RootInterface.Y2;
+
+        // Single row, else two rows
         if (RootInterface.Width >= 948) then
         begin
-          Result := Grid(14, 1, 30, 33, [3, 0], [Self.X1 - 197, Self.Y2 - 70]);
-          for I := Ord(ERSGameTab.MUSIC) downto Ord(ERSGameTab.FRIENDS) - 1 do
-            Result[I] := Result[I-1];
-        end else
-        // Two rows
-          Result := Grid(7, 2, 30, 33, [3, 3], [Self.X1, Self.Y2 - 70]);
+          Result.X1 -= 198;
+          Result.Y1 += 36;
 
-        // Logout button is moved to top right corner
-        Result[7] := Result[10];
-        Result[10] := [RootInterface.X2 - 19, RootInterface.Y1 + 9, RootInterface.X2 - 10, RootInterface.Y1 + 18];
+          Boxes := Grid(14, 1, 30, 33, [3, 0], [Result.X1, Result.Y2 - 35]);
+          for I := Ord(ERSGameTab.MUSIC) downto Ord(ERSGameTab.CLAN) do
+            Boxes[I] := Boxes[I - 1];
+        end else
+          Boxes := Grid(7, 2, 30, 33, [3, 3], [Result.X1, Result.Y2 - 70]);
+
+        // rearrange to match ERSGameTab layout
+        Sort(Boxes, [0,1,2,3,4,5,6,10,8,9,7,11,12,13], True);
+
+        // Set logout as top right corner
+        Boxes[ERSGameTab.LOGOUT] := [RootInterface.X2 - 19, RootInterface.Y1 + 9, RootInterface.X2 - 10, RootInterface.Y1 + 18];
       end;
   end;
+
+  Self.Cache := [ClientWidth, ClientHeight, ClientMode, Result, Boxes];
+end;
+
+function TRSGameTabs.GetTabBoxes: TBoxArray;
+begin
+  Self.Bounds(); // above
+
+  Result := Self.Cache.TabBoxes;
 end;
 
 function TRSGameTabs.GetTabBox(Tab: ERSGameTab): TBox;
@@ -96,10 +98,10 @@ var
   I: Int32;
 begin
   Tabs := Self.GetTabBoxes();
-  
-  if (Self.Mode = ERSClientMode.RESIZABLE_MODERN) and (SRL.CountColor(8639715, Tabs[ERSGameTab.LOGOUT]) > 0) then
+
+  if (RSClient.ClientMode = ERSClientMode.RESIZABLE_MODERN) and (SRL.CountColor(8639715, Tabs[ERSGameTab.LOGOUT]) > 0) then
     Exit(ERSGameTab.LOGOUT);
-  
+
   for I := 0 to High(Tabs) do
     if (SRL.CountColor(CTS1(1778534, 22), Tabs[I]) > 50) then
       Exit(ERSGameTab(I));
@@ -126,44 +128,20 @@ procedure TRSGameTabs.Draw(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Bitmap.DrawBoxes(GetTabBoxes(), $00FFFF);
+  Bitmap.DrawBoxes(GetTabBoxes(), False, $00FFFF);
 end;
 
-procedure TRSGameTabs.SetupAlignment(Mode: ERSClientMode); override;
+procedure TRSGameTabs.Setup(Name: String); override;
 begin
   inherited;
 
-  case Self.Mode of
-    ERSClientMode.FIXED:
-      begin
-        Self.Alignment.Left := [@RootInterface.X2, -242];
-        Self.Alignment.Right := [@RootInterface.X2, -2];
-        Self.Alignment.Top := [@RootInterface.Y2, -334];
-        Self.Alignment.Bottom := [@RootInterface.Y2];
-      end;
-
-    ERSClientMode.RESIZABLE_CLASSIC:
-      begin
-        Self.Alignment.Left := [@RootInterface.X2, -240];
-        Self.Alignment.Right := [@RootInterface.X2];
-        Self.Alignment.Top := [@RootInterface.Y2, -334];
-        Self.Alignment.Bottom := [@RootInterface.Y2];
-      end;
-
-    ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@RootInterface.X2, -230];
-        Self.Alignment.Right := [@RootInterface.X2];
-        Self.Alignment.Top := [@RootInterface.Y2, -346];
-        Self.Alignment.Bottom := [@RootInterface.Y2];
-      end;
-  end;
+  Self.BoundsFinder.CustomFunction  := @Self.CustomBoundsFinder;
 end;
 
 var
   GameTabs: TRSGameTabs;
 
 begin
-  GameTabs.Setup('GameTabs', [@GameTabs.SetupAlignment, @GameTabs.Draw]);
+  GameTabs.Setup('GameTabs');
 end;
 

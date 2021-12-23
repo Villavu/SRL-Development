@@ -7,7 +7,7 @@ type
     QUANTITY_5
   );
 
-procedure TRSMake.Setup(Name: String; InternalMethods: TInternalMethods); override;
+procedure TRSMake.Setup(Name: String); override;
 begin
   inherited();
 

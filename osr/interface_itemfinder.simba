@@ -1,0 +1,28 @@
+type
+  TRSInterfaceItemFinder = record
+    GetSearchBoxesFunction: function: TBoxArray of object;
+  end;
+
+function TRSInterfaceItemFinder.Contains(Item: TRSItem): Boolean;
+begin
+end;
+
+function TRSInterfaceItemFinder.ContainsAny(Item: TRSItemArray): Boolean;
+begin
+end;
+
+function TRSInterfaceItemFinder.Find(Item: TRSItem): TBox;
+begin
+end;
+
+function TRSInterfaceItemFinder.FindAll(Item: TRSItem): TBoxArray;
+begin
+end;
+
+function TRSInterfaceItemFinder.Count(Item: TRSItem): Integer;
+begin
+end;
+
+function TRSInterfaceItemFinder.CountStack(Item: TRSItem): Integer;
+begin
+end;

@@ -10,7 +10,7 @@ type
     REPORT_CHAT
   );
 
-procedure TRSChatButtons.Setup(Name: String; InternalMethods: TInternalMethods); override;
+procedure TRSChatButtons.Setup(Name: String); override;
 begin
   inherited;
 

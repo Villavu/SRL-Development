@@ -7,77 +7,20 @@ type
   ERSXPBarSize = (SMALL, MEDIUM, LARGE);
 
   TRSXPBar = record(TRSInterface)
-    Bitmaps: array[ERSXPBarSize] of TMufasaBitmap;
-    BitmapsLoaded: Boolean;
+    Cache: record
+      ClientWidth, ClientHeight: Integer;
+      ClientMode: ERSClientMode;
 
-    Font: TFontSet;
-    Size: ERSXPBarSize;
-  end;
-
-procedure TRSXPBar.FreeBitmaps;
-begin
-  Self.Bitmaps[ERSXPBarSize.SMALL].Free();
-  Self.Bitmaps[ERSXPBarSize.MEDIUM].Free();
-  Self.Bitmaps[ERSXPBarSize.LARGE].Free();
-end;
-
-procedure TRSXPBar.LoadBitmaps;
-begin
-  if Self.BitmapsLoaded then
-    Exit;
-
-  Self.BitmapsLoaded := True;
-
-  Self.Bitmaps[ERSXPBarSize.SMALL]  := GetMufasaBitmap(BitmapFromString(119, 29, 'meJzt2jERgAAQA0G8YIASAxigxL8QOgYDfxTsThRcnXXbV5vfcV42tyfywgyRAyIHRA6IHBA5IHJA5IDIAZEDIgdEDogcEDkgckDkgMgBkQMiB0QOiBwQOSByQOSAyIF3ZJvb5w+xn+wG5pOp+A=='));
-  Self.Bitmaps[ERSXPBarSize.MEDIUM] := GetMufasaBitmap(BitmapFromString(129, 29, 'meJzt2jERgDAABMF4iYGUGMAAJf6FJBWDg21u5x1c+3Nds+ndz9vUvgQjQgm4EnAl4ErAlYArAVcCrgRcCbgScCXgSsCVgCsBVwKuBFwJuBJwJeBKwJWAKwFXAq4E3D9BU+Nfyna2Abq6x6g='));
-  Self.Bitmaps[ERSXPBarSize.LARGE]  := GetMufasaBitmap(BitmapFromString(140, 29, 'meJzt2qERgDAABEF6SQNIGkgDSPovJI5B4nJid76Dsz/Oa1h+834su7fRQZJGfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUd+3kWW3/cZsf7YAmM7oUA=='));
-
-  AddOnTerminate(@Self.FreeBitmaps);
-end;
-
-function TRSXPBar.Bounds: TBox; override;
-begin
-  Result := [Self.Cache.X1.Value, Self.Cache.Y1.Value, Self.Cache.X2.Value, Self.Cache.Y2.Value];
-end;
-
-function TRSXPBar._IsOpen: Boolean;
-
-  function FindBorder(Size: ERSXPBarSize; Area: TBox): Boolean;
-  var
-    X, Y: Integer;
-  begin
-    if FindBitmapToleranceIn(Self.Bitmaps[Size].GetIndex(), X, Y, Area, 5) then
-    begin
-      Self.Cache.X1.Value := X;
-      Self.Cache.Y1.Value := Y;
-      Self.Cache.X2.Value := X + Self.Bitmaps[Size].GetWidth()-1;
-      Self.Cache.Y2.Value := Y + Self.Bitmaps[Size].GetHeight()-1;
-
-      Exit(True);
+      Bounds: TBox;
     end;
-  end;
 
-  function UpdateLocation: Boolean;
-  var
     Size: ERSXPBarSize;
-  begin
-    for Size in ERSXPBarSize do
-      if FindBorder(Size, [MainScreen.X1, 0, MainScreen.X2, 100]) then // Can only currently be at top of mainscreen
-      begin
-        case Size of
-          ERSXPBarSize.SMALL:  Self.Font := RS_FONT_PLAIN_11;
-          ERSXPBarSize.MEDIUM: Self.Font := RS_FONT_PLAIN_12;
-          ERSXPBarSize.LARGE:  Self.Font := RS_FONT_BOLD_12;
-        end;
-
-        Self.Size := Size;
-
-        Exit(True);
-      end;
+    Bitmaps: array[ERSXPBarSize] of TMufasaBitmap;
   end;
 
+function TRSXPBar.IsOpen: Boolean;
 begin
-  Result := FindBorder(Self.Size, Self.Bounds) or UpdateLocation();
+  Result := Self.Read() > 0;
 end;
 
 function TRSXPBar.Open: Boolean;
@@ -98,17 +41,70 @@ begin
   inherited;
 end;
 
-function TRSXPBar.Read: Int32;
+function TRSXPBar.CustomBoundsFinder(ClientMode: ERSClientMode): TBox;
+
+  function Find(Size: ERSXPBarSize; Area: TBox; out Bounds: TBox): Boolean;
+  var
+    X, Y: Integer;
+  begin
+    Result := FindBitmapToleranceIn(Self.Bitmaps[Size].GetIndex(), X, Y, Area, 5);
+
+    if Result then
+    begin
+      Bounds.X1 := X;
+      Bounds.Y1 := Y;
+      Bounds.X2 := X + Self.Bitmaps[Size].GetWidth()  - 1;
+      Bounds.Y2 := Y + Self.Bitmaps[Size].GetHeight() - 1;
+    end;
+  end;
+
+var
+  ClientWidth, ClientHeight: Integer;
+  Area: TBox;
+  Size: ERSXPBarSize;
 begin
-  Result := -1;
-  if Self.IsOpen() then
-    Result := OCR.RecognizeNumber(Self.Bounds, TOCRColorFilter.Create([Self.COLOR_TEXT_WHITE]), Self.Font);
+  GetClientDimensions(ClientWidth, ClientHeight);
+  if (Self.Cache.ClientWidth = ClientWidth) and (Self.Cache.ClientHeight = ClientHeight) and (Self.Cache.ClientMode = ClientMode) then
+    Exit(Self.Cache.Bounds);
+
+  // Can only currently be at top of mainscreen in vanilla client
+  Area := MainScreen.Bounds;
+  Area.Y2 := Area.Y1 + 100;
+
+  for Self.Size in ERSXPBarSize do
+    if Find(Self.Size, Area, Result) then
+      Break;
+
+  Self.Cache := [ClientWidth, ClientHeight, ClientMode, Result];
+end;
+
+procedure TRSXPBar.Setup(Name: String); override;
+begin
+  inherited;
+
+  Self.Bitmaps[ERSXPBarSize.SMALL]  := SRL.AddManagedBitmap(BitmapFromString(119, 29, 'meJzt2jERgAAQA0G8YIASAxigxL8QOgYDfxTsThRcnXXbV5vfcV42tyfywgyRAyIHRA6IHBA5IHJA5IDIAZEDIgdEDogcEDkgckDkgMgBkQMiB0QOiBwQOSByQOSAyIF3ZJvb5w+xn+wG5pOp+A=='));
+  Self.Bitmaps[ERSXPBarSize.MEDIUM] := SRL.AddManagedBitmap(BitmapFromString(129, 29, 'meJzt2jERgDAABMF4iYGUGMAAJf6FJBWDg21u5x1c+3Nds+ndz9vUvgQjQgm4EnAl4ErAlYArAVcCrgRcCbgScCXgSsCVgCsBVwKuBFwJuBJwJeBKwJWAKwFXAq4E3D9BU+Nfyna2Abq6x6g='));
+  Self.Bitmaps[ERSXPBarSize.LARGE]  := SRL.AddManagedBitmap(BitmapFromString(140, 29, 'meJzt2qERgDAABEF6SQNIGkgDSPovJI5B4nJid76Dsz/Oa1h+834su7fRQZJGfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUd+3kWW3/cZsf7YAmM7oUA=='));
+
+  Self.BoundsFinder.CustomFunction := @Self.CustomBoundsFinder;
+end;
+
+function TRSXPBar.Read: Int32;
+var
+  B: TBox;
+begin
+  B := Self.Bounds();
+
+  case Self.Size of
+    ERSXPBarSize.SMALL:  Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([RSColors.TEXT_WHITE]), RS_FONT_PLAIN_11);
+    ERSXPBarSize.MEDIUM: Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([RSColors.TEXT_WHITE]), RS_FONT_PLAIN_12);
+    ERSXPBarSize.LARGE:  Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([RSColors.TEXT_WHITE]), RS_FONT_BOLD_12);
+  end;
 end;
 
 var
   XPBar: TRSXPBar;
 
 begin
-  XPBar.Setup('XPBar', [@XPBar.SetupAlignment, @XPBar.Draw, @XPBar._IsOpen]);
-  XPBar.LoadBitmaps();
+  XPBar.Setup('XPBar');
 end;

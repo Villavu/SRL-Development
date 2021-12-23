@@ -105,7 +105,7 @@ begin
   for i:=0 to High(Self.Paths) do
     for j in Self.Paths[i] do
     begin
-      d := SRL.DistToLine(P, Self.Nodes[i], Self.Nodes[j]);
+      d := DistToLine(P, Self.Nodes[i], Self.Nodes[j]);
       if d < best then
       begin
         best := d;
@@ -212,7 +212,7 @@ end;
 
 function TWebGraph.ConnectNodes(a,b: Int32): Boolean;
 begin
-  if InIntArray(Self.Paths[a], b) then
+  if Contains(b, Self.Paths[a]) then
   begin
     Self.Paths[a].Remove(b);
     Self.Paths[b].Remove(a);
@@ -239,7 +239,8 @@ begin
 
     for n in Self.Paths[curr] do
     begin
-      Self.Paths[n].Remove(curr, True);
+      while Self.Paths[n].Remove(curr) do
+        ;
       if Length(Self.Paths[n]) = 0 then
         marked += n;
     end;

@@ -71,40 +71,6 @@ begin
     Result := OCR.RecognizeNumber(Area, TOCRColorFilter.Create([RS_ITEM_GREEN_STACK]), RS_FONT_PLAIN_11) * 1000000;
 end;
 
-(*
-SRL.AvgBrightness
-~~~~~~~~~~~~~~~~~
-.. pascal:: function TSRL.AvgBrightness(B: TBox): Int32;
-
-Returns the average brightness of a area on the screen. 
-Returns a value between ``0`` and ``100``, ``0`` being black.
-*)
-function TSRL.AvgBrightness(B: TBox): Int32; constref;
-var
-  BMP: TMufasaBitmap;
-begin
-  BMP.FromClient(B);
-  Result := BMP.AvgBrightness();
-  BMP.Free();
-end;
-
-(*
-SRL.PeakBrightness
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TSRL.PeakBrightness(B: TBox): Int32;
-
-Returns the peak brightness of a area on the screen. 
-Returns a value between ``0`` and ``100``, ``0`` being black.
-*)
-function TSRL.PeakBrightness(B: TBox): Int32; constref;
-var
-  BMP: TMufasaBitmap;
-begin
-  BMP.FromClient(B);
-  Result := BMP.PeakBrightness();
-  BMP.Free();
-end;
-
 function TSRL.FormatNumber(n:Extended; dec:Byte = 3): String; constref;
 var
   i: Int32;
