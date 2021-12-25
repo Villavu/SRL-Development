@@ -15,7 +15,7 @@ Methods to interact with the mouse.
   {$UNDEF SRL_DEBUG_MOUSE}
 {$ENDIF}
 
-{$loadlib ../plugins/libasyncmouse}
+{$loadlib ../resources/libasyncmouse}
 
 const
   MOUSE_MOVE = -1;

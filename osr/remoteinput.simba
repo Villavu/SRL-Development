@@ -1,21 +1,24 @@
-{$loadlib ../plugins/libremoteinput}
+{$loadlib ../resources/libremoteinput}
 
 type
   TRemoteInput = record(TSRLBaseRecord)
+  class const
+    LIB_PATH = {$libpath ../resources/libremoteinput};
+  var
     Image: TMufasaBitmap;
     EIOS: Pointer;
     PID: Int32;
   end;
 
 procedure TRemoteInput.Setup;
-const
-  RS_EXECUTABLE = {$IFDEF WINDOWS}'JagexLauncher.exe'{$ELSE}'java'{$ENDIF};
 begin
   Self.Name := 'Remote Input';
 
   {$IFNDEF SIMBAHEADLESS}
   if (Self.PID = 0) then
     Self.PID := GetSimbaTargetPID();
+  if (not IsProcessRunning(Self.PID)) then
+    Self.PID := 0;
   {$ENDIF}
   
   try
@@ -24,13 +27,23 @@ begin
       if (MessageDlg('SRL', 'Automatically try to find a RS client?', mtConfirmation, [mbYes, mbNo]) = mrNo) then
         raise 'No RS clients found';
       
-      RIInject(RS_EXECUTABLE, Self.PID); 
+      Self.PID := RIInject(['JagexLauncher.exe', 'java']);
     end else
       RIInject(Self.PID);
+
+    {$IFDEF CPU64}
+    if not IsProcess64Bit(Self.PID) then
+      raise 'Simba and OSRS must be the same bitness. Currently Simba is 64 bit and OSRS is 32 bit.';
+    {$ENDIF}
+
+    {$IFDEF CPU32}
+    if IsProcess64Bit(Self.PID) then
+      raise 'Simba and OSRS must be the same bitness. Currently Simba is 32 bit and OSRS is 64 bit.';
+    {$ENDIF}
   
     Self.EIOS := EIOS_PairClient(Self.PID);
     if (Self.EIOS <> nil) then
-      SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
+      SetEIOSTarget(LIB_PATH, ToString(Self.PID));
   except
     Self.Fatal(GetExceptionMessage());
   end;
@@ -89,23 +102,22 @@ begin
 end;
 
 procedure RIInject(PID: Int32); override;
-var
-  PIDs: TIntegerArray;
 begin
   inherited();
 
-  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000) and Pids.Contains(Pid)) then
-    raise 'Failed to inject into pid ' + ToString(pid);  
+  if (not WaitUntil(Contains(PID, EIOS_GetClientPIDs()), 100, 1000)) then
+    raise 'Failed to inject into PID ' + ToString(PID);
 end;
 
-procedure RIInject(ProcessName: String; out PID: Int32); overload;
+function RIInject(ProcessNames: TStringArray): Integer; overload;
 var
-  PIDs: TIntegerArray;
+  I: Integer;
 begin
-  RIInject(ProcessName);
+  for I := 0 to High(ProcessNames) do
+    RIInject(ProcessNames[I]);
   
-  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000)) then
-    raise 'Failed to inject into "' + ProcessName + '"'; 
+  if (not WaitUntil(Length(EIOS_GetClientPIDs()) > 0, 100, 1000)) then
+    raise 'Failed to inject into "' + ToString(ProcessNames) + '"'; 
     
-  PID := PIDs[0];
+  Result := EIOS_GetClientPIDs()[0];
 end;

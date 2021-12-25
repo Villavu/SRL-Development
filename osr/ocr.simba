@@ -3,10 +3,10 @@
   {$I SRL/osr.simba}
 {$ENDIF}
 
-{$loadlib ../plugins/libsimpleocr}
+{$loadlib ../resources/libsimpleocr}
 
 const
-  RS_FONT_PATH = {$macro CURRENT_DIRECTORY} + '/../fonts/';
+  RS_FONT_PATH = {$macro CURRENT_DIRECTORY} + '/../resources/';
 
 var
   RS_FONT_PLAIN_11: TFontSet;
