@@ -4,104 +4,22 @@
 {$ENDIF}
 
 {$i interface_boundsfinder.simba}
+{$i interface_elementfinder.simba}
 {$i interface_itemfinder.simba}
 
 type
-  ERSInterfaceElementAnchor = (TOP, BOTTOM);
-
-  TRSInterfaceElement = record
-    Name: String;
-    Anchor: ERSInterfaceElementAnchor;
-    Offset: TPoint;
-    Width, Height: Int32;
-  end;
-  TRSInterfaceElementArray = array of TRSInterfaceElement;
-  
   TRSInterface = record(TSRLBaseRecord)
-    Elements: TRSInterfaceElementArray;
-
     BoundsFinder: TRSInterfaceBoundsFinder;
+    ElementFinder: TRSInterfaceElementFinder;
     ItemFinder: TRSInterfaceItemFinder;
+
+    Elements: TRSInterfaceElementArray;
   end;
-
-{%codetools off}
-// todo: macro?
-
-function TRSInterface._ElementBounds(constref Element: TRSInterfaceElement): TBox;
-var
-  B: TBox;
-begin
-  B := Self.Bounds();
-
-  case Element.Anchor of
-    ERSInterfaceElementAnchor.TOP:
-      begin
-        Result.X1 := B.X1 + Element.Offset.X;
-        Result.Y1 := B.Y1 + Element.Offset.Y;
-
-        Result.X2 := Result.X1 + Element.Width-1; // fixme
-        Result.Y2 := Result.Y1 + Element.Height-1;
-      end;
-
-    ERSInterfaceElementAnchor.BOTTOM:
-      begin
-        Result.X1 := B.X1 + Element.Offset.X;
-        Result.Y2 := B.Y1 + Element.Offset.Y + B.Height;
-
-        Result.X2 := Result.X1 + Element.Width-1;
-        Result.Y1 := Result.Y2 - Element.Height-1;
-      end;
-  end;
-end;
-
-procedure TRSInterface._ElementClick(constref Element: TRSInterfaceElement; Button: Integer = MOUSE_LEFT); overload;
-begin
-  Mouse.Click(Self._ElementBounds(Element), Button);
-end;
-
-function TRSInterface._ElementClick(constref Element: TRSInterfaceElement; Option: String): Boolean; overload;
-begin
-  Mouse.Move(Self._ElementBounds(Element));
-
-  Result := ChooseOption.Select(Option);
-end;
-
-function TRSInterface._ElementCountColor(constref Element: TRSInterfaceElement; Color, Tolerance: Integer): Integer;
-begin
-  Result := CountColorTolerance(Color, Self._ElementBounds(Element), Tolerance);
-end;
-
-function TRSInterface._ElementFindText(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
-var
-  B: TBox;
-begin
-  Result := OCR.LocateText(Self._ElementBounds(Element), Text, Font, TOCRColorFilter.Create(Colors), B) = 1;
-end;
-
-function TRSInterface._ElementToggle(constref Element: TRSInterfaceElement; Color, Tolerance: Integer; MinColorCount: Integer): Boolean;
-begin
-  if Self._ElementCountColor(Element, Color, Tolerance) > MinColorCount then
-    Exit(True);
-
-  Self._ElementClick(Element);
-
-  Result := WaitUntil(Self._ElementCountColor(Element, Color, Tolerance) > MinColorCount, 50, SRL.TruncatedGauss(1000, 1500));
-end;
-
-function TRSInterface._ElementRecognizeNumber(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
-begin
-  Result := OCR.RecognizeNumber(Self._ElementBounds(Element), TOCRColorFilter.Create(Colors), Font);
-end;
-
-function TRSInterface._ElementRecognizeText(constref Element: TRSInterfaceElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
-begin
-  Result := OCR.Recognize(Self._ElementBounds(Element), TOCRColorFilter.Create(Colors), Font);
-end;
-{%codetools on}
 
 procedure TRSInterface.Setup(Name: String);
 begin
   Self.Name := Name;
+  Self.ElementFinder.GetBoundsFunction := @BoundsFinder.Find;
 end;
 
 function TRSInterface.Bounds: TBox;
@@ -227,10 +145,7 @@ procedure TRSInterface.SetScrollPosition(Value: Int32);
 var
   ScrollBar: TRSScrollBar;
 begin
-  if (Value < 0) then
-    Value := 0;
-  if (Value > 100) then
-    Value := 100;
+  Value := EnsureRange(Value, 0, 100);
 
   ScrollBar := Self.GetScrollBar();
   
@@ -265,53 +180,31 @@ begin
   Bitmap.DrawBox(Self.Bounds(), $00FFFF);
 
   for I:=0 to High(Self.Elements) do
-    Bitmap.DrawBox(Self._ElementBounds(Self.Elements[I]), $00FF00);
+    Bitmap.DrawBox(Self.ElementFinder.Bounds(Self.Elements[I]), $00FF00);
 
   ScrollBar := Self.GetScrollBar();
   if ScrollBar.IsVisible() then
-    ScrollBar.Draw(Bitmap); 
+    ScrollBar.Draw(Bitmap);
 end;
 
-{
-function TRSInterface.IsOpen: Boolean; overload;
-begin
-  //if (not Assigned(@Self.InternalMethods.IsOpen)) then
-  //  raise 'no is open';
-
-  if @Self.Methods.IsOpen <> nil then
-    Result := Self.Methods.IsOpen()
-  else
-    Result := True;
-end;
-
-function TRSInterface.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
-begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
-
-  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
-end;
-
-function TRSInterface.Close(PressEscape: Boolean = False): Boolean;
-const
-  bmp := BitmapFromString(21, 21, 'meJxjZGBgpAyRDaio3dwzmHhEI+0QEUz1aOL4taOZgCmIqd3SNxKC4IqxciEIj3ZkLVj1YtVuExSPjJD1okkBEUHtcBMwxYnRTqrtDuEpcITpd2RZIMKjHU0LVhMwtTvH5gARXDGEi0sQv3ZkvVjFcWknElFdOxmAKtopQQAaR5/Q');
+function TRSInterface.ClickCloseButton: Boolean;
 var
-  X, Y, W, H: Integer;
+  B: TBox;
+  X, Y: Integer;
 begin
-  if PressEscape then
-    Keyboard.PressKey(VK_ESCAPE)
-  else
+  // Top right corner
+  B := Self.Bounds;
+  B.X1 := B.X2 - 50;
+  B.Y2 := B.Y1 + 50;
+
+  if FindBitmapToleranceIn(RSBitmaps.CloseInterfaceButton.GetIndex(), X, Y, B, 45) then
   begin
-    if not FindBitmapToleranceIn(bmp, X, Y, Box(Bounds.X2 - 50, Bounds.Y1, Bounds.X2, Bounds.Y1 + 50), 45) then
-      Exit;
+    Mouse.Click(TBox.Create(X, Y, X + RSBitmaps.CloseInterfaceButton.GetWidth(), Y + RSBitmaps.CloseInterfaceButton.GetHeight()), MOUSE_LEFT);
 
-    GetBitmapSize(bmp, W, H);
-    Mouse.Click([X,Y,X+W-1,Y+H-1], MOUSE_LEFT);
+    Result := True;
+    Exit;
   end;
-
-  Result := WaitUntil(not Self.IsOpen(), 100, 2000);
 end;
-}
 
 function TRSInterface.IsTitle(Text: String; MinMatch: Single = 0.80): Boolean;
 var

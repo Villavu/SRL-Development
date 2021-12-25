@@ -91,40 +91,40 @@ end;
 
 function TRSChatButtons.ElementBounds(constref Element: ERSChatButtonsElement): TBox;
 begin
-  Result := Self._ElementBounds(Self.Elements[Element]);
+  Result := Self.ElementFinder.Bounds(Self.Elements[Element]);
 end;
 
 procedure TRSChatButtons.ElementClick(constref Element: ERSChatButtonsElement; Button: Integer = MOUSE_LEFT); overload;
 begin
-  Self._ElementClick(Self.Elements[Element], Button);
+  Self.ElementFinder.Click(Self.Elements[Element], Button);
 end;
 
 function TRSChatButtons.ElementClick(constref Element: ERSChatButtonsElement; Option: String): Boolean; overload;
 begin
-  Result := Self._ElementClick(Self.Elements[Element], Option);
+  Result := Self.ElementFinder.Click(Self.Elements[Element], Option);
 end;
 
 function TRSChatButtons.ElementCountColor(constref Element: ERSChatButtonsElement; Color, Tolerance: Integer): Integer;
 begin
-  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+  Result := Self.ElementFinder.CountColor(Self.Elements[Element], Color, Tolerance);
 end;
 
 function TRSChatButtons.ElementFindText(constref Element: ERSChatButtonsElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
 begin
-  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+  Result := Self.ElementFinder.FindText(Self.Elements[Element], Colors, Text, Font);
 end;
 
 function TRSChatButtons.ElementRecognizeText(constref Element: ERSChatButtonsElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
 begin
-  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
+  Result := Self.ElementFinder.RecognizeText(Self.Elements[Element], Colors, Font);
 end;
 
 function TRSChatButtons.ElementRecognizeNumber(constref Element: ERSChatButtonsElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
 begin
-  Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+  Result := Self.ElementFinder.RecognizeNumber(Self.Elements[Element], Colors, Font);
 end;
 
 function TRSChatButtons.ElementToggle(constref Element: ERSChatButtonsElement; Color: Integer; Tolerance, MinColorCount: Integer): Boolean;
 begin
-  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
+  Result := Self.ElementFinder.Toggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
 end;

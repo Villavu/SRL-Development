@@ -3,24 +3,55 @@ type
     GetSearchBoxesFunction: function: TBoxArray of object;
   end;
 
+function TRSInterfaceItemFinder.Find(Item: TRSItem; out Box: TBox): Boolean;
+var
+  Boxes: TBoxArray;
+begin
+  if (@Self.GetSearchBoxesFunction = nil) then
+    raise 'todo';
+
+  Boxes := ItemFinder.Find(Item, Self.GetSearchBoxesFunction(), 1);
+
+  Result := Length(Boxes) = 1;
+  if Result then
+    Box := Boxes[0];
+end;
+
+function TRSInterfaceItemFinder.FindAll(Item: TRSItem; out Boxes: TBoxArray): Boolean;
+begin
+  if (@Self.GetSearchBoxesFunction = nil) then
+    raise 'todo';
+
+  Boxes := ItemFinder.Find(Item, Self.GetSearchBoxesFunction());
+  if Length(Boxes) > 0 then
+    Result := True;
+end;
+
 function TRSInterfaceItemFinder.Contains(Item: TRSItem): Boolean;
+var
+  B: TBox;
 begin
+  Result := Self.Find(Item, B);
 end;
 
-function TRSInterfaceItemFinder.ContainsAny(Item: TRSItemArray): Boolean;
+function TRSInterfaceItemFinder.ContainsAny(Items: TRSItemArray): Boolean;
+var
+  I: Integer;
 begin
-end;
-
-function TRSInterfaceItemFinder.Find(Item: TRSItem): TBox;
-begin
-end;
-
-function TRSInterfaceItemFinder.FindAll(Item: TRSItem): TBoxArray;
-begin
+  for I := 0 to High(Items) do
+    if Self.Contains(Items[I]) then
+    begin
+      Result := True;
+      Exit;
+    end;
 end;
 
 function TRSInterfaceItemFinder.Count(Item: TRSItem): Integer;
+var
+  Boxes: TBoxArray;
 begin
+  if Self.FindAll(Item, Boxes) then
+    Result := Length(Boxes);
 end;
 
 function TRSInterfaceItemFinder.CountStack(Item: TRSItem): Integer;

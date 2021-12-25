@@ -143,7 +143,7 @@ type
   end;
 
   TRSMainScreen = record(TRSInterface)
-    UpTextArea: TBox;
+    UpTextArea: array[ERSClientMode] of TBox;
     UpTextFilter: TOCRFilter;
 
     YellowClicks: TIntegerArray;
@@ -178,6 +178,10 @@ begin
     Top    := [@RootInterface.Y1];
     Bottom := [@RootInterface.Y2];
   end;
+
+  Self.UpTextArea[ERSClientMode.RESIZABLE_CLASSIC] := [3, 3, 500, 21];
+  Self.UpTextArea[ERSClientMode.RESIZABLE_MODERN]  := [3, 3, 500, 21];
+  Self.UpTextArea[ERSClientMode.FIXED] := [7, 7, 500, 25];
 end;
 
 {
@@ -224,7 +228,7 @@ Example
 *)
 function TRSMainScreen.GetUpText: String;
 begin
-  Result := OCR.RecognizeUpText(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
+  Result := OCR.RecognizeUpText(Self.UpTextArea[RSClient.ClientMode], Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
 
   {$IFDEF SRL_DEBUG_UPTEXT}
   Self.DebugLn('UpText: ' + Result);

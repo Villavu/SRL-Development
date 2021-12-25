@@ -25,6 +25,12 @@ type
     Item: TRSItem;
     Quantity: Int32;
     Noted: Boolean;
+
+    SetScrollPosition: Boolean;
+    ScrollPosition: Integer;
+
+    SetTabIndex: Boolean;
+    TabIndex: Integer;
   end;
   
   TRSBankWithdrawSlot = record
@@ -53,10 +59,7 @@ type
     Quantity: Int32;
   end;
   
-  TRSBank = record(TRSInterface)
-    FINDER_UPTEXT: TStringArray;
-    FINDER_OPTION: TStringArray;
-  end;
+  TRSBank = type TRSInterface;
 
 {$i elements/bank.elements}
 
@@ -75,22 +78,20 @@ begin
     Result := Grid(8, Height() div 35, 31, 31, [17, 5], [X1, Y1]);
 end;
 
-function TRSBank.GetTabBoxes: TBoxArray;
-begin
-  Result := Grid(10, 1, 36, 30, [4, 0], [Self.X1 + 46, Self.Y1 + 42]);
-end;
-
-function TRSBank.GetTabBox(Tab: Int32): TBox;
+function TRSBank.GetTabBox(TabIndex: Int32): TBox;
 var
-  Tabs: TBoxArray := Self.GetTabBoxes();
+  Element: ERSBankElement;
 begin
-  if (Tab >= 0) and (Tab <= Length(Tabs)) then
-    Result := Tabs[Tab];
+  Element := ERSBankElement(ERSBankElement.TAB_ALL + TabIndex);
+  if not (Element in [ERSBankElement.TAB_ALL..ERSBankElement.TAB_9]) then
+    Self.Fatal('Invalid tab index');
+
+  Result := Self.ElementBounds(Element);
 end;
 
 function TRSBank.HasItems: Boolean;
 begin
-  Result := SRL.CountColor(RS_ITEM_BORDER, Self.GetItemArea()) > 0;
+  Result := SRL.CountColor(RSColors.ITEM_BORDER, Self.GetItemArea()) > 0;
 end;
 
 (*
@@ -100,9 +101,19 @@ Bank.IsOpen
 
 Returns true if the Bank is visible.
 *)
-function TRSBank.IsOpen: Boolean;
+function TRSBank.IsOpen: Boolean; overload;
 begin
-  Result := Self.IsTitle('The Bank');
+  Result := Self.IsTitle('Bank') or Self.IsTitle('Tab') or Self.IsTitle('Equip');
+end;
+
+function TRSBank.IsOpen(WaitTime: Integer): Boolean; overload;
+begin
+  Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(50, 1500), WaitTime);
+end;
+
+function TRSBank.Close: Boolean;
+begin
+  Result := Self.ClickCloseButton() and WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
 procedure TRSBank.Draw(Bitmap: TMufasaBitmap); override;
@@ -112,7 +123,6 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(Self.GetTabBoxes(), False, $00FFFF);
   Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
 end;
 
@@ -124,7 +134,7 @@ var
 begin
   Area := Self.GetItemArea();
 
-  if SRL.FindColors(TPA, RS_ITEM_BORDER, Area) > 0 then
+  if SRL.FindColors(TPA, RSColors.ITEM_BORDER, Area) > 0 then
   begin
     ATPA := TPA.Cluster(50, 3);
 
@@ -175,6 +185,8 @@ begin
     Center.MaxWidth := 488;
     Center.MaxHeight := 800;
   end;
+
+  Self.ItemFinder.GetSearchBoxesFunction := @Self.FindItemBoundaries;
 end;
 
 function TRSBank.IsSearching: Boolean;
@@ -235,6 +247,7 @@ end;
 
 function TRSBank.Open(P: TPoint): Boolean;
 begin
+{
   Mouse.Move(P);
 
   Result := ChooseOption.IsOpen() and ChooseOption.Select(Self.FINDER_OPTION);
@@ -259,149 +272,9 @@ begin
     if Minimap.HasFlag(Random(200, 400)) then
       Minimap.WaitFlag();
 
-    //Result := Self.IsOpen(Random(3000, 4000));
+    Result := Self.IsOpen(3500);
   end;
-end;
-
-function TRSBank._FindFaladorEast: T2DPointArray;
-var
-  Finder: TRSObjectFinder;
-begin
-  Finder.Colors += CTS2(4086642, 5, 0.08, 0.55);
-  Finder.ClusterDistance := 15;
-  Finder.Erode := 2;
-  Finder.Grow := 3;
-
-  Result := MainScreen.FindObject(Finder);
-  if Length(Result) = 0 then
-    Exit;
-
-  Result.SortByLongSide();
-  Result := Result[0].Cluster(5);
-  Result.Sort(Result.Merge.Middle());
-end;
-
-function TRSBank._FindCastleWars: T2DPointArray;
-var
-  TPA, ChestTPA: TPointArray;
-  ATPA: T2DPointArray;
-  I: Int32;
-begin
-  if SRL.FindColors(TPA, CTS2(5526875, 35, 0.19, 0.06), MainScreen.Bounds) > 0 then
-  begin
-    ATPA := TPA.Cluster(1);
-
-    for I := 0 to High(ATPA) do
-      if SRL.FindColors(TPA, CTS2(2503237, 40, 0.10, 0.14), ATPA[I].Bounds) > 5 then
-      begin
-        //TPA := ATPA[I].MinAreaRect.Filter(TPA);
-        TPA := TPA.Erode(MainScreen.ConvertDistance(3));
-        if Length(TPA) > 0 then
-          ChestTPA += TPA;
-      end;
-
-    Result := ChestTPA.Cluster(2);
-  end;
-end;
-
-function TRSBank._FindFerox: T2DPointArray;
-var
-  Finder: TRSObjectFinder;
-begin
-  Finder.Colors += CTS2(931652, 12, 0.07, 0.89);
-  Finder.ClusterDistance := 1;
-  Finder.Erode := 1;
-
-  Result := MainScreen.FindObject(Finder);
-end;
-
-function TRSBank._FindWintertodt: T2DPointArray;
-var
-  Finder: TRSObjectFinder;
-begin
-  Finder.ColorClusters += [
-    CTS2(3289384, 4, 0.51, 0.37),  //Dark hole
-    CTS2(13025214, 17, 0.13, 0.11), //Snow color
-    10
-  ];
-
-  Finder.ClusterDistance := 2;
-  Finder.Grow := 3;
-  Finder.Erode := 2;
-
-  Result := MainScreen.FindObject(Finder);
-  if Length(Result) = 0 then
-    Exit;
-  Result.SortByLongSide();
-  Result := Result[0].Cluster(3);
-  Result.Sort(Result.Merge.Middle());
-end;
-
-
-function TRSBank.Open(Location: ERSBankLocation): Boolean; overload;
-var
-  ATPA: T2DPointArray;
-  TPA: TPointArray;
-  P: TPoint;
-begin
-  if Self.IsOpen() or Self.Open(Mouse.Position()) then
-    Exit(True);
-    
-  case Location of
-    ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
-    ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
-    ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
-  end;
-
-  ATPA.SortBySize();
-  if Length(ATPA) > 3 then
-    SetLength(ATPA, 3);
-
-  for TPA in ATPA do
-  begin
-    P := TPA[Random(Length(TPA))];
-    P.X += Random(-2, 2);
-    P.Y += Random(-2, 2);
-
-    if Self.Open(P) then
-      Exit(True);
-  end;
-end;
-
-function TRSBank.Hover(Location: ERSBankLocation; HoverOption: Boolean): Boolean;
-var
-  ATPA: T2DPointArray;
-  TPA: TPointArray;
-  P: TPoint;
-begin
-  if ChooseOption.IsOpen() or MainScreen.IsUpText(Self.FINDER_UPTEXT) then
-    Exit(True);
-
-  case Location of
-    ERSBankLocation.FALADOR_EAST:   ATPA := Self._FindFaladorEast();
-    ERSBankLocation.CASTLE_WARS:    ATPA := Self._FindCastleWars();
-    ERSBankLocation.FEROX:          ATPA := Self._FindFerox();
-  end;
-
-  ATPA.SortBySize();
-  if Length(ATPA) > 3 then
-    SetLength(ATPA, 3);
-
-  for TPA in ATPA do
-  begin
-    P := TPA[Random(Length(TPA))];
-    P.X += Random(-2, 2);
-    P.Y += Random(-2, 2);
-
-    Mouse.Move(P);
-    if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
-    begin
-      if HoverOption then
-        ChooseOption.Hover(['Use Bank', 'Bank Bank']);
-
-      Exit(True);
-    end;
-  end;
+}
 end;
 
 function TRSBank.DepositHelper(B: TBox; Amount: Int32; UseQuantityButtons: Boolean): Boolean;
@@ -559,19 +432,27 @@ Example
 
   WriteLn Bank.GetCurrentTab;
 *)
-function TRSBank.GetCurrentTab: Int32;
+function TRSBank.GetTabIndex: Int32;
 var
-  Tabs: TBoxArray := Self.GetTabBoxes;
-  Tab: TBox;
-  i: Int32;
+  Element: ERSBankElement;
+  Box: TBox;
 begin
-  for i := 0 to High(Tabs) do // todo: use title
+  for Element in [ERSBankElement.TAB_ALL..ERSBankElement.TAB_9] do
   begin
-    Tab := Tabs[i];
-    Tab.Y2 +=1;
-    if SRL.CountColor(CTS1(5334129, 0), Tab) = 0 then
-      Exit(i);
+    Box := Self.ElementBounds(Element);
+    Box.Y1 := Box.Y2;
+    if CountColor($232B2E, Box) = 0 then
+      Exit;
+
+    Inc(Result);
   end;
+
+  Result := -1;
+end;
+
+function TRSBank.IsTabIndex(Index: Integer): Boolean;
+begin
+  Result := (Self.GetTabIndex() = Index);
 end;
 
 (*
@@ -586,22 +467,43 @@ Example
 
   Bank.OpenTab(0);
 *)
-function TRSBank.OpenTab(Tab: Int32): Boolean;
+function TRSBank.SetTabIndex(TabIndex: Int32): Boolean;
 var
-  TabBox: TBox;
+  Element: ERSBankElement;
 begin
-  if not Self.IsOpen then
+  if not Self.IsOpen() then
     Exit;
 
-  if Tab = Self.GetCurrentTab then
+  if Self.IsTabIndex(TabIndex) then
     Exit(True);
 
-  TabBox := Self.GetTabBox(Tab);
-  if TabBox <> [] then
-  begin
-    Mouse.Click(TabBox, MOUSE_LEFT);
-    Result := WaitUntil((Tab = Self.GetCurrentTab), 100, 2000);
-  end;
+  Element := ERSBankElement(ERSBankElement.TAB_ALL + TabIndex);
+  if not (Element in [ERSBankElement.TAB_ALL..ERSBankElement.TAB_9]) then
+    Self.Fatal('Invalid tab index');
+
+  Self.ElementClick(Element);
+
+  Result := WaitUntil(Self.IsTabIndex(TabIndex), SRL.TruncatedGauss(50, 1500), 3000);
+end;
+
+function TRSBank.FindItem(Item: TRSItem; out Box: TBox): Boolean;
+begin
+  Result := Self.ItemFinder.Find(Item, Box);
+end;
+
+function TRSBank.Contains(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Contains(Item);
+end;
+
+function TRSBank.ContainsAny(Items: TRSItemArray): Boolean;
+begin
+  Result := Self.ItemFinder.ContainsAny(Items);
+end;
+
+function TRSBank.CountStack(Item: TRSItem): Integer;
+begin
+  Result := Self.ItemFinder.CountStack(Item);
 end;
 
 (*
@@ -638,10 +540,24 @@ Example
 *)
 function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean; 
 var
-  B: TBox;
+  Box: TBox;
 begin
-  //if Self.FindItem(Item.Item, B) then
-  //  Result := Self.WithdrawHelper(B, Item.Quantity, Item.Noted, UseQuantityButtons); 
+  if Self.FindItem(Item.Item, Box) then
+  begin
+    Result := Self.WithdrawHelper(Box, Item.Quantity, Item.Noted, UseQuantityButtons);
+    Exit;
+  end;
+
+  if Item.SetTabIndex then
+    Self.SetTabIndex(Item.TabIndex);
+  if Item.SetScrollPosition then
+    Self.SetScrollPosition(Item.ScrollPosition);
+
+  if (Item.SetTabIndex or Item.SetScrollPosition) then
+  begin
+    if Self.FindItem(Item.Item, Box) then
+      Result := Self.WithdrawHelper(Box, Item.Quantity, Item.Noted, UseQuantityButtons);
+  end;
 end;
 
 function TRSBank.WithdrawSlot(Item: TRSBankWithdrawSlot; UseQuantityButtons: Boolean): Boolean;
@@ -689,9 +605,6 @@ var
 
 begin
   Bank.Setup('Bank');
-
-  Bank.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
-  Bank.FINDER_OPTION := ['Use Bank', 'Bank Bank'];
 end;
 
 (*
@@ -714,13 +627,13 @@ GameTabs.Open
 ~~~~~~~~~~~~~
 .. pascal:: function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
 
-Overrides **GameTabs.Open** to close the bank if the bank open.
+Overrides **GameTabs.Open** to close the bank if the bank is open.
 *)
 
 function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
 begin
-  //if (Tab = ERSGameTab.INVENTORY) and Bank.IsOpen() then
-  //  Bank.Close();
+  if (Tab = ERSGameTab.INVENTORY) and Bank.IsOpen() then
+    Bank.Close();
 
   Result := inherited();
 end;

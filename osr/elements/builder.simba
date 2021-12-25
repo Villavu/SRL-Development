@@ -138,42 +138,42 @@ begin
 
     Write('function %s.ElementBounds(constref Element: %s): TBox;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write('  Result := Self._ElementBounds(Self.Elements[Element]);');
+    Write('  Result := Self.ElementFinder.Bounds(Self.Elements[Element]);');
     Write('end;');
     Write('');
     Write('procedure %s.ElementClick(constref Element: %s; Button: Integer = MOUSE_LEFT); overload;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write('  Self._ElementClick(Self.Elements[Element], Button);');
+    Write('  Self.ElementFinder.Click(Self.Elements[Element], Button);');
     Write('end;');
     Write('');
     Write('function %s.ElementClick(constref Element: %s; Option: String): Boolean; overload;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write('  Result := Self._ElementClick(Self.Elements[Element], Option);');
+    Write('  Result := Self.ElementFinder.Click(Self.Elements[Element], Option);');
     Write('end;');
     Write('');
     Write('function %s.ElementCountColor(constref Element: %s; Color, Tolerance: Integer): Integer;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write('  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);');
+    Write('  Result := Self.ElementFinder.CountColor(Self.Elements[Element], Color, Tolerance);');
     Write('end;');
     Write('');
     Write('function %s.ElementFindText(constref Element: %s; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write('  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);');
+    Write('  Result := Self.ElementFinder.FindText(Self.Elements[Element], Colors, Text, Font);');
     Write('end;');
     Write('');
     Write('function %s.ElementRecognizeText(constref Element: %s; constref Colors: TIntegerArray; constref Font: TFontSet): String;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write('  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);');
+    Write('  Result := Self.ElementFinder.RecognizeText(Self.Elements[Element], Colors, Font);');
     Write('end;');
     Write('');
     Write('function %s.ElementRecognizeNumber(constref Element: %s; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write(' Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);');
+    Write(' Result := Self.ElementFinder.RecognizeNumber(Self.Elements[Element], Colors, Font);');
     Write('end;');
     Write('');
     Write('function %s.ElementToggle(constref Element: %s; Color, Tolerance, MinColorCount: Integer): Boolean;', [InterfaceType(), EnumType()]);
     Write('begin');
-    Write('  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);');
+    Write('  Result := Self.ElementFinder.Toggle(Self.Elements[Element], Color, Tolerance, MinColorCount);');
     Write('end;');
   end;
 
@@ -281,7 +281,7 @@ procedure TRSInterfaceBuilder.OnPaintArea(Sender: TObject; Canvas: TCanvas; R: T
 var
   I: Int32;
 begin
-  Canvas.GetPen.SetColor(clRed);
+  Canvas.GetPen.SetColor($0000FF);
 
   for I := 0 to High(Self.Buttons) do
     if (Self.SelectedButtonIndex <> I) then
@@ -290,7 +290,7 @@ begin
 
   if (Self.SelectedButtonIndex > -1) then
   begin
-    Canvas.GetPen.SetColor(clYellow);
+    Canvas.GetPen.SetColor($00FFFF);
     Canvas.GetPen.SetStyle(psDot);
     Canvas.GetBrush.SetStyle(bsClear);
 
@@ -303,7 +303,7 @@ begin
     end;
 
     Canvas.GetPen.SetStyle(psSolid);
-    Canvas.GetPen.SetColor(clLime);
+    Canvas.GetPen.SetColor($00FF00);
     Canvas.Frame(Self.Selected.Box.X1, Self.Selected.Box.Y1, Self.Selected.Box.X2, Self.Selected.Box.Y2);
   end;
 end;
@@ -325,7 +325,8 @@ procedure TRSInterfaceBuilder.OnUpdateImageButtonClick(Sender: TObject);
 var
   Bitmap: TMufasaBitmap;
 begin
-  Bitmap.FromClient(Self.Bounds);
+  Bitmap.Init();
+  Bitmap.LoadFromClient(Self.Bounds);
 
   Self.ImageBox.GetBackground().LoadFromMufasaBitmap(Bitmap);
   Self.ImageBox.BackgroundChanged();
@@ -503,11 +504,11 @@ end;
 
 begin
 
-  {
+
   InterfaceBuilder.Name := 'Bank';
   InterfaceBuilder.Buttons := Bank.Elements;
   InterfaceBuilder.Bounds := Bank.Bounds;
-  }
+
   {
   InterfaceBuilder.Name := 'Make';
   InterfaceBuilder.Buttons := Make.Elements;
@@ -555,9 +556,11 @@ begin
   InterfaceBuilder.Bounds := BankPin.Bounds;
   }
 
+  {
   InterfaceBuilder.Name := 'Options';
   InterfaceBuilder.Buttons := Options.Elements;
   InterfaceBuilder.Bounds := Options.Bounds;
+  }
 
   Sync(@InterfaceBuilder.Run);
 end;

@@ -5,6 +5,13 @@ type
     TEXT_ORANGE = $1F98FF; // Interface titles
     TEXT_BROWN  = $203040; // Make interface
 
-    BUTTON_RED  = $2326A0; // Button enabled background. Use tolerance
-    BUTTON_GREY = $516370; // Button disabled background. Use tolerance
+    BUTTON_RED  = $2326A0; // Button enabled background. Use ~5 tolerance
+    BUTTON_GREY = $516370; // Button disabled background. Use ~5 tolerance
+
+    ITEM_SHADOW = $202030;
+    ITEM_BORDER = $010000;
+
+    ITEM_TEXT_YELLOW = $00FFFF;
+    ITEM_TEXT_WHITE  = $FFFFFF;
+    ITEM_TEXT_GREEN  = $80FF00;
   end;

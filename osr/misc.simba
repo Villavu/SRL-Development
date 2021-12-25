@@ -8,14 +8,6 @@ Misc
   {$I SRL/osr.simba}
 {$ENDIF}
 
-const
-  RS_ITEM_SHADOW       = $202030;
-  RS_ITEM_BORDER       = $010000;
-
-  RS_ITEM_YELLOW_STACK = $00FFFF;
-  RS_ITEM_WHITE_STACK  = $FFFFFF;
-  RS_ITEM_GREEN_STACK  = $80FF00;
-
 (*
 SRL.GetXPAtLevel
 ~~~~~~~~~~~~~~~~
@@ -59,16 +51,19 @@ SRL.GetItemAmount
 For use with items in like bankscreen, inventory, shops and so on to
 get the number of stacked items there are.
 *)
-function TSRL.GetItemAmount(constref Area: TBox): Int32; constref;
+function TSRL.GetItemAmount(Area: TBox): Int32; constref;
+const
+  Colors: TIntegerArray = [RSColors.ITEM_TEXT_YELLOW, RSColors.ITEM_TEXT_WHITE, RSColors.ITEM_TEXT_GREEN];
+  Multiplers: TIntegerArray = [1, 1000, 1000000];
+var
+  I: Integer;
 begin
-  if SRL.CountColor(RS_ITEM_YELLOW_STACK, Area) > 0 then
-    Result := OCR.RecognizeNumber(Area, TOCRColorFilter.Create([RS_ITEM_YELLOW_STACK]), RS_FONT_PLAIN_11)
-  else
-  if SRL.CountColor(RS_ITEM_WHITE_STACK, Area) > 0 then
-    Result := OCR.RecognizeNumber(Area, TOCRColorFilter.Create([RS_ITEM_WHITE_STACK]), RS_FONT_PLAIN_11) * 1000
-  else
-  if SRL.CountColor(RS_ITEM_GREEN_STACK, Area) > 0 then
-    Result := OCR.RecognizeNumber(Area, TOCRColorFilter.Create([RS_ITEM_GREEN_STACK]), RS_FONT_PLAIN_11) * 1000000;
+  for I := 0 to High(Colors) do
+    if SRL.CountColor(Colors[I], Area) > 0 then
+    begin
+      Result := OCR.RecognizeNumber(Area, TOCRColorFilter.Create([Colors[I]]), RS_FONT_PLAIN_11) * Multiplers[I];
+      Exit;
+    end;
 end;
 
 function TSRL.FormatNumber(n:Extended; dec:Byte = 3): String; constref;

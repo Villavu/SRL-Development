@@ -494,6 +494,7 @@ BankScreen.Open
 
 Overrides **BankScreen.Open** to support opening the grand exchange.
 *)
+{
 function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
 begin
   if (Location = ERSBankLocation.GRAND_EXCHANGE) then
@@ -501,3 +502,4 @@ begin
   else
     Result := inherited();
 end;
+}

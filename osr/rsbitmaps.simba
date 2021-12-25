@@ -1,0 +1,9 @@
+type
+  RSBitmaps = record
+  class var
+    CloseInterfaceButton: TMufasaBitmap;
+  end;
+
+begin
+  RSBitmaps.CloseInterfaceButton := GetMufasaBitmap(BitmapFromString(21, 21, 'meJxjZGBgpAyRDaio3dwzmHhEI+0QEUz1aOL4taOZgCmIqd3SNxKC4IqxciEIj3ZkLVj1YtVuExSPjJD1okkBEUHtcBMwxYnRTqrtDuEpcITpd2RZIMKjHU0LVhMwtTvH5gARXDGEi0sQv3ZkvVjFcWknElFdOxmAKtopQQAaR5/Q'));
+end;

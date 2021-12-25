@@ -12,7 +12,17 @@ type
     PLACEHOLDERS,
     SEARCH,
     DEPOSIT_INVENTORY,
-    DEPOSIT_WORN
+    DEPOSIT_WORN,
+    TAB_ALL,
+    TAB_1,
+    TAB_2,
+    TAB_3,
+    TAB_4,
+    TAB_5,
+    TAB_6,
+    TAB_7,
+    TAB_8,
+    TAB_9
   );
 
 procedure TRSBank.Setup(Name: String); override;
@@ -137,44 +147,134 @@ begin
     Width  := 36;
     Height := 36;
   end;
+
+  with Self.Elements[ERSBankElement.TAB_ALL] do
+  begin
+    Name   := 'tab_all';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [45, 36];
+    Width  := 39;
+    Height := 39;
+  end;
+
+  with Self.Elements[ERSBankElement.TAB_1] do
+  begin
+    Name   := 'tab_1';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [85, 36];
+    Width  := 39;
+    Height := 39;
+  end;
+
+  with Self.Elements[ERSBankElement.TAB_2] do
+  begin
+    Name   := 'tab_2';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [125, 36];
+    Width  := 39;
+    Height := 39;
+  end;
+
+  with Self.Elements[ERSBankElement.TAB_3] do
+  begin
+    Name   := 'tab_3';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [165, 36];
+    Width  := 39;
+    Height := 39;
+  end;
+
+  with Self.Elements[ERSBankElement.TAB_4] do
+  begin
+    Name   := 'tab_4';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [205, 36];
+    Width  := 39;
+    Height := 39;
+  end;
+
+  with Self.Elements[ERSBankElement.TAB_5] do
+  begin
+    Name   := 'tab_5';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [245, 36];
+    Width  := 39;
+    Height := 39;
+  end;
+
+  with Self.Elements[ERSBankElement.TAB_6] do
+  begin
+    Name   := 'tab_6';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [285, 36];
+    Width  := 39;
+    Height := 39;
+  end;
+
+  with Self.Elements[ERSBankElement.TAB_7] do
+  begin
+    Name   := 'tab_7';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [325, 36];
+    Width  := 39;
+    Height := 39;
+  end;
+
+  with Self.Elements[ERSBankElement.TAB_8] do
+  begin
+    Name   := 'tab_8';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [365, 36];
+    Width  := 39;
+    Height := 39;
+  end;
+
+  with Self.Elements[ERSBankElement.TAB_9] do
+  begin
+    Name   := 'tab_9';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [405, 36];
+    Width  := 39;
+    Height := 39;
+  end;
 end;
 
 function TRSBank.ElementBounds(constref Element: ERSBankElement): TBox;
 begin
-  Result := Self._ElementBounds(Self.Elements[Element]);
+  Result := Self.ElementFinder.Bounds(Self.Elements[Element]);
 end;
 
 procedure TRSBank.ElementClick(constref Element: ERSBankElement; Button: Integer = MOUSE_LEFT); overload;
 begin
-  Self._ElementClick(Self.Elements[Element], Button);
+  Self.ElementFinder.Click(Self.Elements[Element], Button);
 end;
 
 function TRSBank.ElementClick(constref Element: ERSBankElement; Option: String): Boolean; overload;
 begin
-  Result := Self._ElementClick(Self.Elements[Element], Option);
+  Result := Self.ElementFinder.Click(Self.Elements[Element], Option);
 end;
 
 function TRSBank.ElementCountColor(constref Element: ERSBankElement; Color, Tolerance: Integer): Integer;
 begin
-  Result := Self._ElementCountColor(Self.Elements[Element], Color, Tolerance);
+  Result := Self.ElementFinder.CountColor(Self.Elements[Element], Color, Tolerance);
 end;
 
 function TRSBank.ElementFindText(constref Element: ERSBankElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
 begin
-  Result := Self._ElementFindText(Self.Elements[Element], Colors, Text, Font);
+  Result := Self.ElementFinder.FindText(Self.Elements[Element], Colors, Text, Font);
 end;
 
 function TRSBank.ElementRecognizeText(constref Element: ERSBankElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
 begin
-  Result := Self._ElementRecognizeText(Self.Elements[Element], Colors, Font);
+  Result := Self.ElementFinder.RecognizeText(Self.Elements[Element], Colors, Font);
 end;
 
 function TRSBank.ElementRecognizeNumber(constref Element: ERSBankElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
 begin
-  Result := Self._ElementRecognizeNumber(Self.Elements[Element], Colors, Font);
+ Result := Self.ElementFinder.RecognizeNumber(Self.Elements[Element], Colors, Font);
 end;
 
 function TRSBank.ElementToggle(constref Element: ERSBankElement; Color, Tolerance, MinColorCount: Integer): Boolean;
 begin
-  Result := Self._ElementToggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
+  Result := Self.ElementFinder.Toggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
 end;

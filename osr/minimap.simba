@@ -450,7 +450,10 @@ var
 begin
   try
     BMP.FindColors(Blacks, 65536);
-    Blacks := Blacks.ExcludeBox(Box(2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1));
+
+
+    FilterPointsBox(Blacks, 2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1);
+    //Blacks := Blacks.ExcludeBox(Box(2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1));//FIX!
 
     if ERSMinimapDot.PLAYER in Dots then
     begin
