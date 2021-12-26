@@ -65,7 +65,7 @@ RSClient.DetectClientMode
 Detects the client mode using the music tab.
 Returns RS_CLIENT_UNKNOWN when not logged in.
 *)
-function TRSClient.ClientMode: ERSClientMode;
+function TRSClient.ClientMode(Default: ERSClientMode = ERSClientMode.FIXED): ERSClientMode;
 var
   W, H: Int32;
 begin
@@ -77,12 +77,14 @@ begin
     2435372, 658467: Result := ERSClientMode.FIXED;
     3555653, 922425: Result := ERSClientMode.RESIZABLE_MODERN;
     2896180, 790059: Result := ERSClientMode.RESIZABLE_CLASSIC;
+    else
+      Result := Default;
   end;
 end;
 
 function TRSClient.IsLoggedIn: Boolean;
 begin
-  Result := ClientMode() <> ERSClientMode.UNKNOWN;
+  Result := ClientMode(ERSClientMode.UNKNOWN) <> ERSClientMode.UNKNOWN;
 end;
 
 function TRSClient.IsLoggedIn(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;

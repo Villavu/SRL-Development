@@ -2,8 +2,18 @@ type
   RSBitmaps = record
   class var
     CloseInterfaceButton: TMufasaBitmap;
+    FlagBitmap: TMufasaBitmap;
   end;
 
+procedure FreeRSBitmaps;
 begin
+  RSBitmaps.CloseInterfaceButton.Free();
+  RSBitmaps.FlagBitmap.Free();
+end;
+
+begin
+  AddOnTerminate(@FreeRSBitmaps);
+
   RSBitmaps.CloseInterfaceButton := GetMufasaBitmap(BitmapFromString(21, 21, 'meJxjZGBgpAyRDaio3dwzmHhEI+0QEUz1aOL4taOZgCmIqd3SNxKC4IqxciEIj3ZkLVj1YtVuExSPjJD1okkBEUHtcBMwxYnRTqrtDuEpcITpd2RZIMKjHU0LVhMwtTvH5gARXDGEi0sQv3ZkvVjFcWknElFdOxmAKtopQQAaR5/Q'));
+  RSBitmaps.FlagBitmap := GetMufasaBitmap(BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg=='));
 end;

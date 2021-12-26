@@ -13,44 +13,49 @@ type
 
 type
   TRSMinimap = record(TRSInterface)
-    CompassCircleOffset: TPoint;
-    XPCircleOffset: TPoint;
-    HitpointsCircleOffset: TPoint;
-    PrayerCircleOffset: TPoint;
-    RunCircleOffset: TPoint;
-    SpecAttackCircleOffset: TPoint;
-    PolygonOffset: TPointArray;
-    FlagBitmap: Int32;
+    CompassCircleOffset:    array[ERSClientMode] of TPoint;
+    XPCircleOffset:         array[ERSClientMode] of TPoint;
+    HitpointsCircleOffset:  array[ERSClientMode] of TPoint;
+    PrayerCircleOffset:     array[ERSClientMode] of TPoint;
+    RunCircleOffset:        array[ERSClientMode] of TPoint;
+    SpecAttackCircleOffset: array[ERSClientMode] of TPoint;
+    PolygonOffset:          array[ERSClientMode] of TPointArray;
   end;
 
 function TRSMinimap.GetCompassCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.CompassCircleOffset.X, Self.Y1 + Self.CompassCircleOffset.Y, 17];
+  with Self.CompassCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 17];
 end;
 
 function TRSMinimap.GetXPCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.XPCircleOffset.X + 10, Self.Y1 + Self.XPCircleOffset.Y, 11];
+  with Self.XPCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X + 10, Self.Y1 + Y, 11];
 end;
 
 function TRSMinimap.GetHPCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.HitpointsCircleOffset.X, Self.Y1 + Self.HitpointsCircleOffset.Y, 12];
+  with Self.HitpointsCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 12];
 end;
 
 function TRSMinimap.GetPrayerCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.PrayerCircleOffset.X, Self.Y1 + Self.PrayerCircleOffset.Y, 12];
+  with Self.PrayerCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 12];
 end;
 
 function TRSMinimap.GetRunCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.RunCircleOffset.X, Self.Y1 + Self.RunCircleOffset.Y, 12];
+  with Self.RunCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 12];
 end;
 
 function TRSMinimap.GetSpecAttackCircle: TCircle;
 begin
-  Result := [Self.X1 + Self.SpecAttackCircleOffset.X, Self.Y1 + Self.SpecAttackCircleOffset.Y, 12];
+  with Self.SpecAttackCircleOffset[RSClient.ClientMode] do
+    Result := [Self.X1 + X, Self.Y1 + Y, 12];
 end;
 
 function TRSMinimap.GetOrbLevel(Orb: TCircle): Int32;
@@ -65,7 +70,7 @@ end;
 
 function TRSMinimap.GetPolygon: TPointArray;
 begin
-  Result := Self.PolygonOffset.Offset(Self.Center);
+  Result := Self.PolygonOffset[RSClient.ClientMode].Offset(Self.Center);
 end;
 
 function TRSMinimap.GetCompassAngle(AsDegrees: Boolean = True): Double;
@@ -166,7 +171,6 @@ procedure TRSMinimap.Draw(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  {
   with Self.GetCompassCircle() do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
   with Self.GetXPCircle() do
@@ -180,10 +184,9 @@ begin
   with Self.GetSpecAttackCircle() do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
 
-  Bitmap.DrawPoly(Self.GetPolygon(), $0000FF);
+  Bitmap.DrawPolygon(Self.GetPolygon(), $0000FF);
   Bitmap.DrawTPA(Self.GetPolygon(), $00FF00);
   Bitmap.SetPixel(Self.Center.X, Self.Center.Y, $0000FF);
-  }
 end;
 
 procedure TRSMinimap.Setup(Name: String); override;
@@ -192,10 +195,10 @@ begin
 
   with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
   begin
-    Left   := [@RootInterface.X1];
-    Right  := [@RootInterface.X1, 518];
-    Top    := [@RootInterface.Y2, -22];
-    Bottom := [@RootInterface.Y2];
+    Left   := [@RootInterface.X2, -195];
+    Right  := [@RootInterface.X2,-50];
+    Top    := [@RootInterface.Y1, 8];
+    Bottom := [@RootInterface.Y1, 159];
   end;
 
   with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
@@ -214,60 +217,31 @@ begin
     Bottom := [@RootInterface.Y1, 159];
   end;
 
-  // todo
+  Self.CompassCircleOffset[ERSClientMode.FIXED]    := [-8, 12];
+  Self.XPCircleOffset[ERSClientMode.FIXED]         := [-50, 26];
+  Self.HitpointsCircleOffset[ERSClientMode.FIXED]  := [-13, 49];
+  Self.PrayerCircleOffset[ERSClientMode.FIXED]     := [-13, 84];
+  Self.RunCircleOffset[ERSClientMode.FIXED]        := [-3, 116];
+  Self.SpecAttackCircleOffset[ERSClientMode.FIXED] := [19, 142];
+  Self.PolygonOffset[ERSClientMode.FIXED]          := [[21, -71], [39, -62], [55, -49], [67, -32], [70, 0], [66, 19], [57, 32], [41, 43], [20, 58], [12, 71], [0, 74], [-11, 72], [-24, 55], [-47, 39], [-60, 31], [-66, 22], [-71, 0], [-72, -14], [-67, -32], [-55, -49], [-39, -62], [-21, -71], [0, -74]];
 
-  Self.CompassCircleOffset := [-2, 14];
-  Self.XPCircleOffset := [-50, 32];
-  Self.HitpointsCircleOffset := [-13, 55];
-  Self.PrayerCircleOffset := [-13, 90];
-  Self.RunCircleOffset := [-3, 121];
-  Self.SpecAttackCircleOffset := [19, 148];
-  Self.PolygonOffset := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
+  Self.CompassCircleOffset[ERSClientMode.RESIZABLE_MODERN]    := [-2, 14];
+  Self.XPCircleOffset[ERSClientMode.RESIZABLE_MODERN]         := [-50, 32];
+  Self.HitpointsCircleOffset[ERSClientMode.RESIZABLE_MODERN]  := [-13, 55];
+  Self.PrayerCircleOffset[ERSClientMode.RESIZABLE_MODERN]     := [-13, 90];
+  Self.RunCircleOffset[ERSClientMode.RESIZABLE_MODERN]        := [-3, 121];
+  Self.SpecAttackCircleOffset[ERSClientMode.RESIZABLE_MODERN] := [19, 148];
+  Self.PolygonOffset[ERSClientMode.RESIZABLE_MODERN]          := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
+
+  // Same as above
+  Self.CompassCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]    := [-2, 14];
+  Self.XPCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]         := [-50, 32];
+  Self.HitpointsCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]  := [-13, 55];
+  Self.PrayerCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]     := [-13, 90];
+  Self.RunCircleOffset[ERSClientMode.RESIZABLE_CLASSIC]        := [-3, 121];
+  Self.SpecAttackCircleOffset[ERSClientMode.RESIZABLE_CLASSIC] := [19, 148];
+  Self.PolygonOffset[ERSClientMode.RESIZABLE_CLASSIC]          := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
 end;
-
-
-
-{
-procedure TRSMinimap.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
-
-  case Self.Mode of
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@RootInterface.X2, -157];
-        Self.Alignment.Right := [@RootInterface.X2, -6];
-        Self.Alignment.Top := [@RootInterface.Y1, 8];
-        Self.Alignment.Bottom := [@RootInterface.Y1, 159];
-
-        Self.CompassCircleOffset := [-2, 14];
-        Self.XPCircleOffset := [-50, 32];
-        Self.HitpointsCircleOffset := [-13, 55];
-        Self.PrayerCircleOffset := [-13, 90];
-        Self.RunCircleOffset := [-3, 121];
-        Self.SpecAttackCircleOffset := [19, 148];
-        Self.PolygonOffset := [[0, -76], [21, -73], [40, -64], [56, -51], [68, -33], [75, -1], [68, 31], [50, 43], [40, 62], [21, 71], [0, 74], [-21, 71], [-40, 62], [-56, 49], [-68, 31], [-75, -1], [-68, -33], [-56, -51], [-40, -64], [-21, -73]];
-
-      end;
-
-    ERSClientMode.FIXED:
-      begin
-        Self.Alignment.Left := [@RootInterface.X2, -195];
-        Self.Alignment.Right := [@RootInterface.X2,-50];
-        Self.Alignment.Top := [@RootInterface.Y1, 8];
-        Self.Alignment.Bottom := [@RootInterface.Y1, 159];
-
-        Self.CompassCircleOffset := [-8, 12];
-        Self.XPCircleOffset := [-50, 26];
-        Self.HitpointsCircleOffset := [-13, 49];
-        Self.PrayerCircleOffset := [-13, 84];
-        Self.RunCircleOffset := [-3, 116];
-        Self.SpecAttackCircleOffset := [19, 142];
-        Self.PolygonOffset := [[21, -71], [39, -62], [55, -49], [67, -32], [70, 0], [66, 19], [57, 32], [41, 43], [20, 58], [12, 71], [0, 74], [-11, 72], [-24, 55], [-47, 39], [-60, 31], [-66, 22], [-71, 0], [-72, -14], [-67, -32], [-55, -49], [-39, -62], [-21, -71], [0, -74]];
-      end;
-  end;
-end;
-}
 
 function TRSMinimap.IsPointOn(P: TPoint): Boolean; overload;
 begin
@@ -350,7 +324,7 @@ end;
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
-  Result := FindBitmapToleranceIn(Self.FlagBitmap, P.X, P.Y, Self.Bounds, 5);
+  Result := FindBitmapToleranceIn(RSBitmaps.FlagBitmap.GetIndex(), P.X, P.Y, Self.Bounds, 5);
 end;
 
 function TRSMinimap.HasFlag: Boolean; overload;
@@ -404,12 +378,24 @@ function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPo
 var
   Blacks: TPointArray;
 
-  function FindDots(Blacks: TPointArray; Color, T: Int32): TPointArray;
+  // Lots if indexing here! It's safe so we can disable rangechecks.
+  {$rangechecks off}
+  function FindDots(Color, Tolerance: Int32; Hue, Sat: Extended): TPointArray;
   var
     i: Int32;
     p: TPoint;
     left, right: Boolean;
+    mat: TIntegerMatrix;
+    TPA: TPointArray;
+    sum: Integer;
   begin
+    bmp.FindColorsTolerance(TPA, Color, Tolerance, Hue, Sat);
+    if Length(TPA) < 8 then
+      Exit;
+
+    mat.SetSize(BMP.GetWidth(), BMP.GetHeight());
+    mat.SetValues(TPA, 1);
+
     for i:=0 to High(Blacks)-1 do
     begin
       left := ((BMP.GetPixel(Blacks[i].x+3,Blacks[i].y+0) = 65536) and (BMP.GetPixel(Blacks[i].x+1,Blacks[i].y-1) <> 65536)) or
@@ -425,59 +411,42 @@ var
         if right then p.x -= 3;
         p.y -= 3;
 
-        if Result.Contains(p) then
-          Continue;
+        sum := 0;
+        sum += mat[p.y+0, p.x+1];
+        sum += mat[p.y+0, p.x+2];
+        sum += mat[p.y+1, p.x+0];
+        sum += mat[p.y+1, p.x+1];
+        sum += mat[p.y+1, p.x+2];
+        sum += mat[p.y+1, p.x+3];
+        sum += mat[p.y+2, p.x+0];
+        sum += mat[p.y+2, p.x+1];
+        sum += mat[p.y+2, p.x+2];
+        sum += mat[p.y+2, p.x+3];
+        sum += mat[p.y+3, p.x+1];
+        sum += mat[p.y+3, p.x+2];
 
-        if Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+0), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+0), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+1), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+1), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+1), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+3,p.y+1), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+2), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+2), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+2), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+3,p.y+2), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+3), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+3), t)) >= 8 then
-        begin
+        if (Sum >= 8) then
           Result += p;
-        end;
       end;
     end;
   end;
+  {$rangechecks on}
 
 begin
-  try
-    BMP.FindColors(Blacks, 65536);
+  BMP.FindColors(Blacks, 65536);
 
+  if Length(Blacks) > 0 then
+  begin
+    Blacks := Blacks.ExcludeBox(TBox.Create(4, 4, BMP.GetWidth() - 4, BMP.GetHeight() - 4));
 
-    FilterPointsBox(Blacks, 2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1);
-    //Blacks := Blacks.ExcludeBox(Box(2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1));//FIX!
+    if (ERSMinimapDot.PLAYER in Dots) then
+      Result += FindDots($FFFFFF, 30, 0.001, 0.001);
+    if (ERSMinimapDot.NPC in Dots) then
+      Result += FindDots($00FFFF, 30, 0.05, 1);
+    if (ERSMinimapDot.ITEM in Dots) then
+      Result += FindDots($0000FF, 30, 0.05, 1);
 
-    if ERSMinimapDot.PLAYER in Dots then
-    begin
-      SetColorToleranceSpeed(2);
-      SetToleranceSpeed2Modifiers(0.001, 0.001);
-      Result += FindDots(Blacks, $FFFFFF, 30);
-    end;
-
-    if ERSMinimapDot.NPC in Dots then
-    begin
-      SetColorToleranceSpeed(2);
-      SetToleranceSpeed2Modifiers(0.05, 1);
-      Result += FindDots(Blacks, $00FFFF, 30);
-    end;
-
-    if ERSMinimapDot.ITEM in Dots then
-    begin
-      SetColorToleranceSpeed(2);
-      SetToleranceSpeed2Modifiers(0.05, 1);
-      Result += FindDots(Blacks, $0000FF, 30);
-    end;
-  finally
-    SetColorToleranceSpeed(1);
-    SetToleranceSpeed2Modifiers(0.2, 0.2);
+    Result := Result.Unique();
   end;
 end;
 
@@ -486,9 +455,7 @@ var
   BMP: TMufasaBitmap;
 begin
   BMP.Init();
-  with Self.Bounds() do
-    BMP.CopyClientToBitmap(Client.GetIOManager, True, X1, Y1, X2, Y2);
-  //BMP.FromClient(Self.Bounds());
+  BMP.LoadFromClient(Self.Bounds());
 
   Result := GetDotsBitmap(BMP, Dots);
   Result := Result.Offset([Self.X1, Self.Y1]);
@@ -539,5 +506,4 @@ var
 
 begin
   Minimap.Setup('Minimap');
-  Minimap.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
 end;
