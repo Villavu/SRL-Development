@@ -234,21 +234,21 @@ begin
 end;
 
 type
-  TRSChatboxOption = record
+  TRSChatOption = record
     Text: String;
     Bounds: TBox;
     Number: Int32;
   end;
-  TRSChatboxOptionArray = array of TRSChatboxOption;
+  TRSChatOptionArray = array of TRSChatOption;
 
 (*
 Chat.GetOptions
 ~~~~~~~~~~~~~~~
-.. pascal:: function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatboxOptionArray;
+.. pascal:: function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatOptionArray;
 
 Internal function to retrieve the currently available chat options.
 *)
-function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatboxOptionArray; 
+function TRSChat.GetOptions(Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): TRSChatOptionArray;
 var
   Strings: TStringArray;
   Boxes: TBoxArray;
@@ -282,7 +282,7 @@ Example
 *)
 function TRSChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WHITE, CHAT_COLOR_BLUE]): Boolean;
 var
-  Option: TRSChatboxOption;
+  Option: TRSChatOption;
 begin
   for Option in GetOptions(Colors) do
     if Text in Option.Text then
@@ -303,7 +303,7 @@ Example
 *)
 function TRSChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: TIntegerArray = [CHAT_COLOR_BLACK, CHAT_COLOR_WHITE]): Boolean;
 var
-  Option: TRSChatboxOption;
+  Option: TRSChatOption;
 begin
   for Option in GetOptions(Colors) do
     if Text in Option.Text then
@@ -378,31 +378,34 @@ const
   StaticOffset = 2; // Make static text placement so RecognizeStatic can be used
 var
   B: TBox;
-  X: Int32;
+  X, Y: Int32;
   Transparent: Boolean;
-  Matrix: T2DIntegerArray;
+  Matrix: TIntegerMatrix;
 begin
   B := GetLineBoxes()[Line];
-  B.Y1 -= StaticOffset; 
-  
+  B.Y1 -= 2;
+
   Transparent := Self.IsTransparent();
-  //if Transparent then
-  //  Colors.Remove(CHAT_COLOR_BLACK, True);
+  if Transparent then
+    Colors.Remove(CHAT_COLOR_BLACK);
   
   if (Length(Colors) > 0) then
   begin
-  {
     Matrix := GetColorsMatrix(B.X1, B.Y1, B.X2, B.Y2);
     
     // Shadow from above line draws over our line.
     // Mark the shadow as a match since OCR requires 100% character match.
     if Transparent then
-      for X := 0 to High(Matrix[StaticOffset]) do
-        if (Matrix[StaticOffset][X] = CHAT_COLOR_BLACK) theN
-          Matrix[StaticOffset][X] := Colors[0];
-  
-    Result := OCR.RecognizeStatic(Matrix, TOCRColorFilter.Create(Colors), RS_FONT_PLAIN_12);
-    }
+    begin
+      Y := StaticOffset;
+      for X := 0 to Matrix.Width - 1 do
+        if (Matrix[Y, X] = CHAT_COLOR_BLACK) theN
+          OCR.Client[Y, X] := Colors[0];
+    end;
+
+    OCR.Client := Matrix;
+
+    Result := OCR._RecognizeStatic(TOCRColorFilter.Create(Colors), RS_FONT_PLAIN_12);
   end;
 end;
 
@@ -441,7 +444,7 @@ Example
 *)
 function TRSChat.GetChat: String;
 var
-  Option: TRSChatboxOption;
+  Option: TRSChatOption;
 begin
   for Option in Self.GetOptions() do
   begin
@@ -467,7 +470,7 @@ Example
 *)
 function TRSChat.GetChatTitle: String;
 var
-  Options: TRSChatboxOptionArray;
+  Options: TRSChatOptionArray;
 begin
   Options := Self.GetOptions([$000080]);
   if Length(Options) > 0 then
