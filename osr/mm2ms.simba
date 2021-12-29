@@ -54,7 +54,7 @@ var
   Dot: TPoint;
 begin
   if Angle = -1 then
-    Angle := MInimap.GetCompassAngle(False);
+    Angle := Minimap.GetCompassAngle(False);
 
   BMP.Init();
   BMP.LoadFromClient(Client.GetIOManager());
@@ -95,22 +95,11 @@ begin
     Self.DebugLn('Current zoom level: ' + ToString(Self.ZoomLevel));
   end;
 
-  case RSClient.ClientMode of
-    ERSClientMode.FIXED:
-      Projector := MM2MS_PROJECTOR_FIXED;
-
-    ERSClientMode.RESIZABLE_MODERN,
-    ERSClientMode.RESIZABLE_CLASSIC:
-      Projector := MM2MS_PROJECTOR_RESIZABLE;
-  end;
-
-  Projector.MainScreen := MainScreen.Bounds;
-  Projector.Minimap := Minimap.Bounds;
-  Projector.ZoomLevel := Self.ZoomLevel;
-
   P := Minimap.Center;
   for i := 0 to High(Arr) do
     Arr[i] := [Arr[i].X - P.X, P.Y - Arr[i].Y, Arr[i].Z];
+
+  Projector.ZoomLevel := Self.ZoomLevel;
 
   Result := Projector.Run(Arr, Vec3(0, 0, PI*2 - Roll));
 end;
@@ -441,7 +430,7 @@ begin
   if (Dist = 0) then
     Exit;
 
-  Projector := MM2MS_PROJECTOR_FIXED;
+  //Projector := MM2MS_PROJECTOR_FIXED;
   Base := Projector.Run([0, 0, 0], [0, 0, 0]);
 
   hi := SearchUp(0.1, Dist, 1.50);
