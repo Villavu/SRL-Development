@@ -1,0 +1,250 @@
+type
+  ERSGrandExchangeElement = (
+    OFFER_1,
+    OFFER_2,
+    OFFER_3,
+    OFFER_4,
+    OFFER_5,
+    OFFER_6,
+    OFFER_7,
+    OFFER_8,
+    QUANTITY,
+    PRICE_PER_ITEM,
+    TOTAL_PRICE,
+    ITEM_NAME,
+    OFFER_TYPE,
+    BACK,
+    PROGRESS,
+    COLLECT_SLOT_1,
+    COLLECT_SLOT_2,
+    GUIDE_PRICE,
+    ABORT,
+    HISTORY
+  );
+
+procedure TRSGrandExchange.Setup(Name: String); override;
+begin
+  inherited;
+
+  SetLength(Self.Elements, Length(ERSGrandExchangeElement));
+
+  with Self.Elements[ERSGrandExchangeElement.OFFER_1] do
+  begin
+    Name   := 'offer_1';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [12, 67];
+    Width  := 109;
+    Height := 104;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.OFFER_2] do
+  begin
+    Name   := 'offer_2';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [129, 67];
+    Width  := 109;
+    Height := 104;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.OFFER_3] do
+  begin
+    Name   := 'offer_3';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [246, 67];
+    Width  := 109;
+    Height := 104;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.OFFER_4] do
+  begin
+    Name   := 'offer_4';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [363, 67];
+    Width  := 109;
+    Height := 104;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.OFFER_5] do
+  begin
+    Name   := 'offer_5';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [12, 187];
+    Width  := 109;
+    Height := 104;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.OFFER_6] do
+  begin
+    Name   := 'offer_6';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [129, 187];
+    Width  := 109;
+    Height := 104;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.OFFER_7] do
+  begin
+    Name   := 'offer_7';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [246, 187];
+    Width  := 109;
+    Height := 104;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.OFFER_8] do
+  begin
+    Name   := 'offer_8';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [363, 187];
+    Width  := 109;
+    Height := 104;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.QUANTITY] do
+  begin
+    Name   := 'quantity';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [54, 160];
+    Width  := 156;
+    Height := 16;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.PRICE_PER_ITEM] do
+  begin
+    Name   := 'price_per_item';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [274, 160];
+    Width  := 156;
+    Height := 16;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.TOTAL_PRICE] do
+  begin
+    Name   := 'total_price';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [40, 213];
+    Width  := 404;
+    Height := 18;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.ITEM_NAME] do
+  begin
+    Name   := 'item_name';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [174, 43];
+    Width  := 287;
+    Height := 21;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.OFFER_TYPE] do
+  begin
+    Name   := 'offer_type';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [25, 44];
+    Width  := 125;
+    Height := 19;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.BACK] do
+  begin
+    Name   := 'back';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [16, 255];
+    Width  := 32;
+    Height := 26;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.PROGRESS] do
+  begin
+    Name   := 'progress';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [57, 277];
+    Width  := 296;
+    Height := 19;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.COLLECT_SLOT_1] do
+  begin
+    Name   := 'collect_slot_1';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [376, 250];
+    Width  := 40;
+    Height := 36;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.COLLECT_SLOT_2] do
+  begin
+    Name   := 'collect_slot_2';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [427, 250];
+    Width  := 40;
+    Height := 36;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.GUIDE_PRICE] do
+  begin
+    Name   := 'guide_price';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [87, 110];
+    Width  := 82;
+    Height := 16;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.ABORT] do
+  begin
+    Name   := 'abort';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [334, 250];
+    Width  := 14;
+    Height := 14;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.HISTORY] do
+  begin
+    Name   := 'history';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [9, 9];
+    Width  := 42;
+    Height := 16;
+  end;
+end;
+
+function TRSGrandExchange.ElementBounds(constref Element: ERSGrandExchangeElement): TBox;
+begin
+  Result := Self.ElementFinder.Bounds(Self.Elements[Element]);
+end;
+
+procedure TRSGrandExchange.ElementClick(constref Element: ERSGrandExchangeElement; Button: Integer = MOUSE_LEFT); overload;
+begin
+  Self.ElementFinder.Click(Self.Elements[Element], Button);
+end;
+
+function TRSGrandExchange.ElementClick(constref Element: ERSGrandExchangeElement; Option: String): Boolean; overload;
+begin
+  Result := Self.ElementFinder.Click(Self.Elements[Element], Option);
+end;
+
+function TRSGrandExchange.ElementCountColor(constref Element: ERSGrandExchangeElement; Color, Tolerance: Integer): Integer;
+begin
+  Result := Self.ElementFinder.CountColor(Self.Elements[Element], Color, Tolerance);
+end;
+
+function TRSGrandExchange.ElementFindText(constref Element: ERSGrandExchangeElement; constref Colors: TIntegerArray; constref Text: String; constref Font: TFontSet): Boolean;
+begin
+  Result := Self.ElementFinder.FindText(Self.Elements[Element], Colors, Text, Font);
+end;
+
+function TRSGrandExchange.ElementRecognizeText(constref Element: ERSGrandExchangeElement; constref Colors: TIntegerArray; constref Font: TFontSet): String;
+begin
+  Result := Self.ElementFinder.RecognizeText(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSGrandExchange.ElementRecognizeNumber(constref Element: ERSGrandExchangeElement; constref Colors: TIntegerArray; constref Font: TFontSet): Int64;
+begin
+ Result := Self.ElementFinder.RecognizeNumber(Self.Elements[Element], Colors, Font);
+end;
+
+function TRSGrandExchange.ElementToggle(constref Element: ERSGrandExchangeElement; Color, Tolerance, MinColorCount: Integer): Boolean;
+begin
+  Result := Self.ElementFinder.Toggle(Self.Elements[Element], Color, Tolerance, MinColorCount);
+end;

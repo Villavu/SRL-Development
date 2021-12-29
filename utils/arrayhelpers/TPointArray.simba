@@ -444,6 +444,12 @@ begin
   Result := ReturnPointsNotInTPA(Self, Bounds);
 end;
 
+function TPointArray.IsBox: Boolean;
+begin
+  with Self.Bounds do
+    Result := Length(Self) = (Width-1 + Height-1) * 2;
+end;
+
 
 
 

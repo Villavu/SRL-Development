@@ -503,12 +503,15 @@ begin
 end;
 
 begin
+  InterfaceBuilder.Name := 'GrandExchange';
+  InterfaceBuilder.Buttons := GrandExchange.Elements;
+  InterfaceBuilder.Bounds := GrandExchange.Bounds;
 
-
+  {
   InterfaceBuilder.Name := 'Bank';
   InterfaceBuilder.Buttons := Bank.Elements;
   InterfaceBuilder.Bounds := Bank.Bounds;
-
+  }
   {
   InterfaceBuilder.Name := 'Make';
   InterfaceBuilder.Buttons := Make.Elements;

@@ -4,323 +4,121 @@
 {$ENDIF}
 
 type
-  ERSGEOverviewButton = (
-    HISTORY,
-    COLLECT
-  );
-  
-  ERSGESetupOfferButton = (
-    HISTORY,
-    ITEM,
-    QUANTITY,
-    PRICE,
-    QUANTITY_1,
-    QUANTITY_10,
-    QUANTITY_100,
-    QUANTITY_ALL,
-    QUANTITY_ENTER,
-    PRICE_DECREASE,
-    PRICE_GUIDE,
-    PRICE_ENTER,
-    PRICE_INCREASE,
-    TOTAL,
-    CONFIRM
-  );
-  
-  ERSGEOfferStatusButton = (
-    HISTORY,
-    ITEM,
-    QUANTITY, 
-    PRICE,
-    TOTAL,
-    PROGRESS
-  );
-  
   ERSGEInterface = (
     UNKNOWN,
     OVERVIEW,
     OFFER_STATUS,
-    OFFER_SETUP
+    OFFER_SETUP,
+    HISTORY
   );
 
-  TRSGrandExchange = record(TRSInterface)
-    FINDER_BANKER: TRSObjectFinder;
-  end;
-  {
-function TRSGrandExchange.GetSetupOfferButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[45,18], [35,25], [152,40],[160,18], [159,18], [210,18], [40,36]]);
-end;
+  TRSGrandExchange = type TRSInterface;
 
-function TRSGrandExchange.GetSetupOfferButton(Button: ERSGESetupOfferButton): TRSButton;
-var
-  Buttons: TRSButtonArray := Self.GetSetupOfferButtons();
-begin
-  if Length(Buttons) = Length(ERSGESetupOfferButton) then
-    Result := Buttons[Button];
-end;
-
-function TRSGrandExchange.GetOverviewButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[45,18], [81,18]]);
-end;
-
-function TRSGrandExchange.GetOverviewButton(Button: ERSGEOverviewButton): TRSButton;
-var
-  I: Int32;
-  Buttons: TRSButtonArray := Self.GetOverviewButtons();
-begin
-  case Button of
-    ERSGEOverviewButton.COLLECT: // Can be hidden
-      begin
-        for I := 0 to High(Buttons) do
-          if Buttons[I].FindText('Collect', RS_FONT_PLAIN_11, $FFFFFF) then
-            Exit(Buttons[I]);
-      end;
-    else
-      if Length(Buttons) >= Length(ERSGEOverviewButton) - 1 then 
-        Result := Buttons[Button];
-  end;
-end;
-
-function TRSGrandExchange.GetOfferStatusButtons: TRSButtonArray;
-begin
-  Result := Self.FindButtons([[45,18], [36,32], [40,36],[292,15], [160,18], [159,18], [210,18]]);
-end;
-
-function TRSGrandExchange.GetOfferStatusButton(Button: ERSGEOfferStatusButton): TRSButton;
-var
-  Buttons: TRSButtonArray := Self.GetOfferStatusButtons();
-begin
-  if Length(Buttons) = Length(ERSGEOfferStatusButton) then
-    Result := Buttons[Button];
-end;
-}
-
-function TRSGrandExchange.FindNPC(Finder: TRSObjectFinder): T2DPointArray;
-var
-  TPA: TPointArray;
-  P: TPoint;
-  B: TBox;
-  I: Int32;
-  Weights: TIntegerArray;
-  Size: Int32;
-begin
-  // Find center G.E using yellow dots
-  TPA := Minimap.GetDots(ERSMinimapDot.NPC);
-  TPA.Offset([2, 2]);
-  TPA := TPA.Cluster(15).Biggest();
-  //with TPA.MeanEx() do
-  //  P := Minimap.VecToMS([X, Y]);
-
-  // Size of GE center at fixed client & default(50) zoom.
-  Size := MainScreen.ConvertDistance(110);
-  
-  // Center G.E on the mainscreen
-  B := [P.X, P.Y, P.X, P.Y];
-  B := B.Expand(Size);
-
-  Result := MainScreen.FindObject(Finder, B);
-
-  if (Length(Result) > 0) then
-  begin
-    // Weigh from center AND towards the player
-    SetLength(Weights, Length(Result));
-    for I := 0 to High(Result) do
-      if Length(Result[I]) > 0 then
-        Weights[I] := Distance(Result[I].Middle, P) + Min(Distance(Result[I].Middle, MainScreen.Center), Size);
-
-    Sort(Result, Weights, True);
-  end;
-end;
-
-function TRSGrandExchange.OpenBank: Boolean;
-var
-  ATPA: T2DPointArray;
-  TPA: TPointArray;
-  P: TPoint;
-begin
-  if Bank.IsOpen() or Bank.Open(Mouse.Position()) then
-    Exit(True);
-
-  ATPA := Self.FindNPC(Self.FINDER_BANKER);
-  if Length(ATPA) > 3 then
-    SetLength(ATPA, 3);
-  
-  for TPA in ATPA do
-  begin
-    P := TPA[Random(Length(TPA))];
-    P.X += Random(-2, 2);
-    P.Y += Random(-2, 2);
-    
-    if Bank.Open(P) then
-      Exit(True);
-  end;
-end;
+{$i elements/grandexchange.elements}
 
 function TRSGrandExchange.GetCurrentInterface: ERSGEInterface;
 begin
-{
-  if Self.GetSetupOfferButton(ERSGESetupOfferButton.HISTORY).Visible() then
-    Result := ERSGEInterface.OFFER_SETUP
-  else 
-  if Self.GetOfferStatusButton(ERSGEOfferStatusButton.HISTORY).Visible() then
-    Result := ERSGEInterface.OFFER_STATUS
-  else
-  if Self.GetOverviewButton(ERSGEOverviewButton.HISTORY).Visible() then
-    Result := ERSGEInterface.OVERVIEW;  }
+  if Self.IsTitle('Set up offer')   then Exit(ERSGEInterface.OFFER_SETUP);
+  if Self.IsTitle('Offer status')   then Exit(ERSGEInterface.OFFER_STATUS);
+  if Self.IsTitle('Grand Exchange') then Exit(ERSGEInterface.OVERVIEW);
+  if Self.IsTitle('Trade History')  then Exit(ERSGEInterface.HISTORY);
 end;
 
-function TRSGrandExchange._IsOpen: Boolean;
-begin
-  Result := Self.GetCurrentInterface() <> ERSGEInterface.UNKNOWN;
-end;
-
-{
-function TRSGrandExchange.Close(PressEscape: Boolean = False): Boolean; 
-begin
-  if not Self.IsOpen() then
-    Exit(True);
-
-  Result := Self.ClickCloseButton(PressEscape) and WaitUntil(not Self.IsOpen(), SRL.TruncatedGauss(50, 1500), Random(1500, 2000));
-end;    }
-
- {
-function TRSGrandExchange.GetItemName: String;
+function TRSGrandExchange.IsSearching: Boolean;
 var
-  Button: TRSButton;
   B: TBox;
 begin
-  B.X1 := Self.X1 + 175;
-  B.Y1 := Self.Y1 + 45;
-  B.X2 := Self.X2 - 25;
-  B.Y2 := Self.Y1 + 65;
-
-  case Self.GetCurrentInterface() of
-    ERSGEInterface.OFFER_SETUP:  Result := OCR.Recognize(B, TOCRColorRule.Create([2070783]), RS_FONT_BOLD_12);
-    ERSGEInterface.OFFER_STATUS: Result := OCR.Recognize(B, TOCRColorRule.Create([2070783]), RS_FONT_BOLD_12);
-  end;
+  Result := OCR.LocateText(Chat.Bounds, 'What would you like to buy', RS_FONT_BOLD_12, TOCRColorFilter.Create([0]), B) = 1;
 end;
 
-function TRSGrandExchange.GetItemQuantity: Int32;
-var
-  Button: TRSButton;
+function TRSGrandExchange.CurrentSearch: String;
 begin
-  case Self.GetCurrentInterface() of
-    ERSGEInterface.OFFER_SETUP:  Button := Self.GetSetupOfferButton(ERSGESetupOfferButton.QUANTITY);  
-    ERSGEInterface.OFFER_STATUS: Button := Self.GetOfferStatusButton(ERSGEOfferStatusButton.QUANTITY);
-  end;
-  
-  if Button.Visible() then
-    Result := OCR.RecognizeNumber(Button.Bounds, TOCRColorRule.Create([4176127]), RS_FONT_PLAIN_11);
+  Result := OCR.Recognize(Chat.Bounds, TOCRColorFilter.Create([8388608]), RS_FONT_BOLD_12).TrimRight(['*']);
 end;
 
-function TRSGrandExchange.GetItemPrice: Int32;
-var
-  Button: TRSButton;
+function TRSGrandExchange.FindSearchItem(Item: String; out B: TBox): Boolean;
 begin
-  case Self.GetCurrentInterface() of
-    ERSGEInterface.OFFER_SETUP:  Button := Self.GetSetupOfferButton(ERSGESetupOfferButton.PRICE);  
-    ERSGEInterface.OFFER_STATUS: Button := Self.GetOfferStatusButton(ERSGEOfferStatusButton.PRICE);
-  end;
-  
-  if Button.Visible() then
-    Result := OCR.RecognizeNumber(Button.Bounds,  TOCRColorRule.Create([4176127]), RS_FONT_PLAIN_11);
+  if (Item = '') then
+    Exit;
+
+  Result := OCR.LocateText(Chat.Bounds, Item, RS_FONT_PLAIN_12, TOCRColorFilter.Create([0]), B) = 1;
 end;
 
-function TRSGrandExchange.GetItemTotalPrice: Int32;
-var
-  Button: TRSButton;
-begin
-  case Self.GetCurrentInterface() of
-    ERSGEInterface.OFFER_SETUP:  Button := Self.GetSetupOfferButton(ERSGESetupOfferButton.TOTAL);  
-    ERSGEInterface.OFFER_STATUS: Button := Self.GetOfferStatusButton(ERSGEOfferStatusButton.TOTAL);
+type
+  TRSGEHistoryItem = record
+    Name: String;
+    Quantity: Int32;
+    PricePerItem: Int32;
+    TotalPrice: Int32;
+    Bounds: TBox;
   end;
-  
-  if Button.Visible() then
-    Result := OCR.RecognizeNumber(Button.Bounds,  TOCRColorRule.Create([$FFFFFF]), RS_FONT_PLAIN_11);
-end;
+  TRSGEHistory = array of TRSGEHistoryItem;
 
-function TRSGrandExchange.GetItemGuidePrice: Int32;
+function TRSGrandExchange.GetHistory: TRSGEHistory;
 var
-  Button: TRSButton;
-  B: TBox;
+  TPA: TPointArray;
+  ATPA: T2DPointArray;
+  I: Integer;
+  Rows, Columns: TBoxArray;
+  Item: TRSGEHistoryItem;
 begin
-  case Self.GetCurrentInterface() of
-    ERSGEInterface.OFFER_SETUP:  Button := Self.GetSetupOfferButton(ERSGESetupOfferButton.ITEM);  
-    ERSGEInterface.OFFER_STATUS: Button := Self.GetOfferStatusButton(ERSGEOfferStatusButton.ITEM);
-  end;
-  
-  if Button.Visible() then
+  SRL.FindColors(TPA, [2070783, 4176127], Self.Bounds.Expand(-30));
+
+  ATPA := TPA.Cluster(200, 5);
+  SetLength(Rows, Length(ATPA));
+  for I := 0 to High(Rows) do
   begin
-    B := Button.Bounds;
-    B.Y1 += 40;
-    B.Y2 += 20;
-    B.X2 += 40;
-    
-    Result := OCR.RecognizeNumber(B,  TOCRColorRule.Create([4176127]), RS_FONT_PLAIN_11); 
-  end;  
-end;
-
-function TRSGrandExchange.IsSearchOpen: Boolean;
-begin
-  Result := OCR.LocateText(Chat.Bounds, 'What would you like to buy', RS_FONT_BOLD_12, TOCRColorRule.Create([$000000]), 1);
-end;
-
-function TRSGrandExchange.OpenSearch: Boolean;
-begin
-  if Self.IsSearchOpen() then
-    Exit(True);
-    
-  if Self.GetSetupOfferButton(ERSGESetupOfferButton.item).Click() then
-    Result := WaitUntil(Self.IsSearchOpen(), 500, 2500);
-end;
-
-function TRSGrandExchange.GetCurrentSearch: String;
-begin
-  Result := OCR.Recognize(Chat.Bounds,  TOCRColorRule.Create([8388608]), RS_FONT_BOLD_12).StripR('*');
-end;
-
-function TRSGrandExchange.ClearSearch: Boolean;
-begin
-  while (Self.GetCurrentSearch() <> '') do
-    Keyboard.PressKey(VK_BACK);
-    
-  Result := Self.IsOpen() and (Self.GetCurrentSearch() = '');
-end;
-
-function TRSGrandExchange.FindSearch(Item: String; out B: TBox): Boolean;
-begin
-  if (Item <> '') then
-    Item[1] := UpCase(Item[1]);
-    
-  Result := OCR.LocateText(Chat.Bounds, Item, RS_FONT_PLAIN_12,  TOCRColorRule.Create([$000000]), B) = 1;
-end;
-
-function TRSGrandExchange.ClickSearch(Item: String): Boolean;
-var
-  B: TBox;
-begin
-  Result := Self.IsSearchOpen() and (OCR.LocateText(Chat.Bounds, Item, RS_FONT_PLAIN_12,  TOCRColorRule.Create([$000000]), B) = 1);
-  if Result then
-    Mouse.Click(B, MOUSE_LEFT);
-end;
-
-function TRSGrandExchange.Search(Item: String; Click: Boolean): Boolean;
-var
-  B: TBox;
-begin
-  if OCR.LocateText(Chat.Bounds, Item, RS_FONT_BOLD_12, TOCRColorRule.Create([8388608]), 1) then
-    Exit(True);
-  
-  if Self.OpenSearch() and Self.ClearSearch() then
-  begin
-    Keyboard.Send(Item);
-    
-    Result := WaitUntil(Self.FindSearch(Item, B), 500, 2500);
-    if Result and Click then
-      Mouse.Click(B, MOUSE_LEFT);
+    Rows[I] := ATPA[I].Bounds.Expand(30, 15);
+    Rows[I].X1 := Self.Bounds.X1 + 45;
+    Rows[I].X2 := Self.Bounds.X2 - 30;
   end;
+
+  Rows.SortByY();
+
+  for I := 0 to High(Rows) do
+  begin
+    Columns := Rows[I].Partition(1, 2);
+
+    Item.Bounds := Rows[I];
+    Item.Name := OCR.Recognize(Columns[0], TOCRColorFilter.Create([4176127, $FFFFFF]), RS_FONT_PLAIN_12);
+    if (Item.Name = '') Then
+      Continue;
+
+    Item.Quantity := SRL.GetItemAmount(Columns[1]);
+    if (Item.Quantity = 0) Then
+      Item.Quantity := 1;
+
+    Item.TotalPrice := OCR.RecognizeNumber(Columns[1], TOCRColorFilter.Create([4176127]), RS_FONT_PLAIN_11);
+    Item.PricePerItem := Item.TotalPrice div Item.Quantity;
+
+    Result := Result + Item;
+  end;
+end;
+
+function TRSGrandExchange.GetProgress(B: TBox): Int32;
+
+  function Calc(B: TBox): Integer;
+  var
+    TPA: TPointArray;
+  begin
+    if SRL.CountColor(110, B) > 0 then
+      Result := -1
+    else
+    if SRL.FindColors(TPA, [18688, 1598375], B) then
+      Result := Round(TPA.Bounds.Width() / (B.Width - 2) * 100);
+  end;
+
+var
+  TPA: TPointArray;
+begin
+  SRL.FindColors(TPA, 0, B);
+
+  for TPA in TPA.Cluster(1) do
+    if (TPA.Bounds.Width() > 50) and TPA.IsBox() then
+    begin
+      Result := Calc(TPA.Bounds);
+      Exit;
+    end;
 end;
 
 type
@@ -333,152 +131,97 @@ type
     PricePerItem: Int32;
     TotalPrice: Int32;
     Progress: Int32;
+    GuidePrice: Int32;
   end;
-  
-function TRSGrandExchange.GetOfferSlots: TBoxArray;
-begin
-  Result := Grid(4, 2, 114, 109, [3, 11], [Self.X1 + 9, Self.Y1 + 64]);
-end;
-  
-function TRSGrandExchange.GetProgress(B: TBox; BarSize: Int32): Int32;
-var
-  TPA: TPointArray;
-begin
-  if SRL.FindColors(TPA, [1664168, 18944], B) then
-    Result := Round(TPA.Bounds.Width() / BarSize * 100)
-  else
-  if SRL.CountColor(111, B) > BarSize then
-    Result := -1;
-end;
 
-function TRSGrandExchange.GetOfferStatus(Slot: Int32): TRSGEOfferStatus;
+function TRSGrandExchange.GetOfferStatus(Slot: Integer): TRSGEOfferStatus;
 var
-  Slots: TBoxArray;
+  B: TBox;
+  Element: ERSGrandExchangeElement;
 begin
-  Slots := Self.GetOfferSlots();
-  
-  case OCR.Recognize(Slots[Slot], TOCRColorRule.Create([2070783]), RS_FONT_BOLD_12) of
+  Element := ERSGrandExchangeElement.OFFER_1 + Slot;
+  if not (Element in [ERSGrandExchangeElement.OFFER_1..ERSGrandExchangeElement.OFFER_8]) then
+    Self.Fatal('Invalid element');
+
+  B := Self.ElementBounds(Element);
+
+  case OCR.Recognize(B, TOCRColorFilter.Create([2004990]), RS_FONT_BOLD_12) of
     'Empty': Result.OfferType := ERSGEOfferType.EMPTY;
-    'Buy':   Result.OfferType := ERSGEOfferType.BUY; 
+    'Buy':   Result.OfferType := ERSGEOfferType.BUY;
     'Sell':  Result.OfferType := ERSGEOfferType.SELL;
   end;
-  
-  if (Result.OfferType <> ERSGEOfferType.EMPTY) then
-  begin
-    Result.Item := OCR.RecognizeMulti(Slots[Slot], TOCRColorRule.Create([4176127]), RS_FONT_PLAIN_11).Merge(' ');
-    Result.PricePerItem := OCR.RecognizeNumber(Slots[Slot], TOCRColorRule.Create([2070783]), RS_FONT_PLAIN_11);
-    Result.Quantity := SRL.GetItemAmount(Slots[Slot]);
-    Result.TotalPrice := Result.Quantity * Result.PricePerItem;
-    Result.Progress := Self.GetProgress(Slots[Slot], 105);
-  end;
+
+  if (Result.OfferType = ERSGEOfferType.EMPTY) then
+    Exit;
+
+  Result.Item := OCR.RecognizeLines(B, TOCRColorFilter.Create([4110334]), RS_FONT_PLAIN_11).Merge(' ');
+  Result.PricePerItem := OCR.RecognizeNumber(B, TOCRColorFilter.Create([2004990]), RS_FONT_PLAIN_11);
+  Result.Quantity := SRL.GetItemAmount(B);
+  Result.TotalPrice := Result.Quantity * Result.PricePerItem;
+  Result.Progress := Self.GetProgress(B);
+  Result.GuidePrice := Self.ElementRecognizeNumber(ERSGrandExchangeElement.GUIDE_PRICE, [4176127], RS_FONT_PLAIN_11);
 end;
 
-type
-  TRSGEHistoryItem = record
-    Item: String;
-    Quantity: Int32;
-    PricePerItem: Int32;
-    TotalPrice: Int32;
-    Bounds: TBox;
-  end;
-  TRSGEHistory = array of TRSGEHistoryItem;
-
-function TRSGrandExchange.GetHistory: TRSGEHistory;
-const
-  BG_DARK := CTS1(3621708, 5);
-  BG_LIGHT := CTS1(4016466, 5); 
-var
-  RowDark, RowLight: TPointArray;
-  Row: TBox;
-  Rows, Columns: TBoxArray;
-  Item: TRSGEHistoryItem;
+function TRSGrandExchange.GetCurrentOfferStatus: TRSGEOfferStatus;
 begin
-  SRL.FindColors(RowDark, BG_DARK, Self.Bounds);
-  SRL.FindColors(RowLight, BG_LIGHT, Self.Bounds);
-  
-  Rows := RowDark.Cluster(1).ToTBA() + RowLight.Cluster(1).ToTBA();
-  Rows.SortByY();
-
-  for Row in Rows do
-  begin
-    if (Row.Width < 10) or (Row.Height < 10) then
-      Continue;
- 
-    Columns := Row.Partition(1, 4);
- 
-    Item := [];
-    Item.Bounds := Row;
-    Item.Item := OCR.Recognize(Columns[1].Expand(25, 0), TOCRColorRule.Create([4176127, $FFFFFF]), RS_FONT_PLAIN_12);
-    if (Item.Item = '') then
-      Continue;
-
-    Item.Quantity := SRL.GetItemAmount(Columns[2]);
-    if (Item.Quantity = 0) Then
-      Item.Quantity := 1;
-      
-    Item.TotalPrice := OCR.RecognizeNumber(Columns[3], TOCRColorRule.Create([2070783]), RS_FONT_PLAIN_11);
-    Item.PricePerItem := Item.TotalPrice div Item.Quantity;
-
-    Result := Result + Item;
+  case Self.ElementRecognizeText(ERSGrandExchangeElement.OFFER_TYPE, [2070783], RS_FONT_BOLD_12) of
+    'Buy offer':   Result.OfferType := ERSGEOfferType.BUY;
+    'Sell offer':  Result.OfferType := ERSGEOfferType.SELL;
   end;
+
+  Result.Item := Self.ElementRecognizeText(ERSGrandExchangeElement.ITEM_NAME, [2070783], RS_FONT_BOLD_12);
+  Result.Quantity := Self.ElementRecognizeNumber(ERSGrandExchangeElement.QUANTITY, [4176127], RS_FONT_PLAIN_11);
+  Result.Progress := Self.GetProgress(Self.ElementBounds(ERSGrandExchangeElement.PROGRESS));
+  Result.PricePerItem := Self.ElementRecognizeNumber(ERSGrandExchangeElement.PRICE_PER_ITEM, [4176127], RS_FONT_PLAIN_11);
+  Result.TotalPrice := Result.Quantity * Result.PricePerItem;
+  Result.GuidePrice := Self.ElementRecognizeNumber(ERSGrandExchangeElement.GUIDE_PRICE, [4176127], RS_FONT_PLAIN_11);
 end;
-}
+
+function TRSGrandExchange.IsOpen: Boolean;
+begin
+  Result := Self.GetCurrentInterface() <> ERSGEInterface.UNKNOWN;
+end;
 
 procedure TRSGrandExchange.Draw(Bitmap: TMufasaBitmap); override;
 begin
-  //if not Self.IsOpen() then
-  //  Exit;
+  if not Self.IsOpen() then
+    Exit;
 
   inherited;
 end;
 
-{
-procedure TRSGrandExchange.SetupAlignment(Mode: ERSClientMode); override;
+procedure TRSGrandExchange.Setup(Name: String); override;
 begin
   inherited;
 
-  case Self.Mode of
-    ERSClientMode.FIXED:
-      begin
-        Self.Alignment.Left := [@InterfaceArea.X1];
-        Self.Alignment.Right := [@InterfaceArea.X2];
-        Self.Alignment.Top := [@InterfaceArea.Y1];
-        Self.Alignment.Bottom := [@InterfaceArea.Y2];
-        Self.Alignment.Center.MaxWidth := 484;
-        Self.Alignment.Center.MaxHeight := 304;
-      end;
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1];
+    Bottom := [@InterfaceArea.Y2];
+    Center := [484, 304];
+  end;
 
-    ERSClientMode.RESIZABLE_CLASSIC, ERSClientMode.RESIZABLE_MODERN:
-      begin
-        Self.Alignment.Left := [@InterfaceArea.X1];
-        Self.Alignment.Right := [@InterfaceArea.X2];
-        Self.Alignment.Top := [@InterfaceArea.Y1, -1];
-        Self.Alignment.Bottom := [@InterfaceArea.Y2];
-        Self.Alignment.Center.MaxWidth := 484;
-        Self.Alignment.Center.MaxHeight := 304;
-      end;
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1, -1];
+    Bottom := [@InterfaceArea.Y2];
+    Center := [484, 304];
+  end;
+
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left := [@InterfaceArea.X1];
+    Right := [@InterfaceArea.X2];
+    Top := [@InterfaceArea.Y1, -1];
+    Bottom := [@InterfaceArea.Y2];
+    Center := [484, 304];
   end;
 end;
-}
-
-{
-procedure TRSGrandExchange.Setup; override;
-begin
-  inherited;
-
-  Self.Name := 'Grand Exchange';
-
-  Self.InternalMethods.Setup := @Self.Setup;
-  Self.InternalMethods.SetupAlignment := @Self.SetupAlignment;
-  Self.InternalMethods.Draw := @Self.Draw;
-
-  Self.FINDER_BANKER.ColorClusters += [CTS2(6710894, 12, 0.19, 0.07), CTS2(2110788, 11, 0.29, 0.84), 10]; // grey, brown
-  Self.FINDER_BANKER.ClusterDistance := 3;
-  Self.FINDER_BANKER.Grow := 3;
-  Self.FINDER_BANKER.Erode := 3;
-  Self.FINDER_BANKER.MinLongSide := 10;
-end;
-}
 
 var
   GrandExchange: TRSGrandExchange;

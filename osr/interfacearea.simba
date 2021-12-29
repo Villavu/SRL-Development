@@ -13,10 +13,10 @@ begin
 
   with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
   begin
-    Left := [@RootInterface.X1];
-    Right := [@RootInterface.X1, 518];
-    Top := [@RootInterface.Y2, -22];
-    Bottom := [@RootInterface.Y2];
+    Left := [@MainScreen.X1];
+    Right := [@MainScreen.X2];
+    Top := [@MainScreen.Y1];
+    Bottom := [@MainScreen.Y2];
   end;
 
   with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do

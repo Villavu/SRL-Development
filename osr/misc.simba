@@ -59,9 +59,9 @@ var
   I: Integer;
 begin
   for I := 0 to High(Colors) do
-    if SRL.CountColor(Colors[I], Area) > 0 then
+    if SRL.CountColor([Colors[I], 5], Area) > 0 then
     begin
-      Result := OCR.RecognizeNumber(Area, TOCRColorFilter.Create([Colors[I]]), RS_FONT_PLAIN_11) * Multiplers[I];
+      Result := OCR.RecognizeNumber(Area, TOCRColorFilter.Create([Colors[I]], [5]), RS_FONT_PLAIN_11) * Multiplers[I];
       Exit;
     end;
 end;

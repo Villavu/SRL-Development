@@ -117,3 +117,15 @@ procedure T2DPointArray.SortByDensity;
 begin
   SortATPAFromDensity(Self);
 end;
+
+procedure T2DPointArray.SortByY(LowToHigh: Boolean = True);
+var
+  Weights: TIntegerArray;
+  I: Integer;
+begin
+  SetLength(Weights, Length(Self));
+  for I := 0 to High(Self) do
+    Weights[I] := MiddleTPA(Self[I]).Y;
+
+  System.Sort(Self, Weights, LowToHigh);
+end;
