@@ -175,6 +175,7 @@ Example
 function TRSSilverScreen.CanCraftItem(Item: TRSItem; out ItemBox: TBox): Boolean;
 const
   ORANGE_COLOR = 2070783;
+  SELECTED_COLOR = $FFFFFF;
 var
   Boxes: TBoxArray;
   TPA: TPointArray;
@@ -187,7 +188,8 @@ begin
   if Indices.Len < 1 then Exit;
 
   ItemBox := Boxes[Indices[0]];
-  Result := SRL.FindColors(TPA, ORANGE_COLOR, ItemBox) > 0;
+  Result := (SRL.FindColors(TPA, ORANGE_COLOR, ItemBox) > 0) or
+            (SRL.FindColors(TPA, SELECTED_COLOR, ItemBox) > 0);
 end;
 
 (*
