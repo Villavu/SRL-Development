@@ -424,6 +424,9 @@ Built in Antiban Tasks
 .. pascal:: procedure TAntiban.RandomTab;
 .. pascal:: procedure TAntiban.RandomRightClick;
 .. pascal:: procedure TAntiban.AdjustZoom;
+.. pascal:: procedure TAntiban.HoverMSItems;
+.. pascal:: procedure TAntiban.HoverMSNPCs;
+.. pascal:: procedure TAntiban.HoverMSPlayers;
 
 SRL built in Antiban Tasks that can be added with **TAntiban.AddTask**.
 
@@ -588,6 +591,54 @@ begin
   Self.DebugLn('Adjust zoom: ' + ToString(NewZoom));
 
   Options.SetZoomLevel(NewZoom);
+end;
+
+procedure TAntiBan.HoverMSTile(DotType: ERSMinimapDot; RightClick: Boolean = False);
+var
+  Tries: Int32;
+  a: Double;
+  rDot: TPoint;
+  msRect: TRectangle;
+  tpa,cTPA: TPointArray;
+  cArr: TIntegerArray;
+begin
+  tpa := Minimap.GetDots(DotType);
+  if tpa.Len() < 1 then Exit;
+  a := Minimap.GetCompassAngle(False);
+  repeat
+    inc(Tries);
+    rDot := tpa[random(low(tpa),high(tpa))];
+    msRect := Minimap.VecToMSRect(Vec3(rDot.X + 2, rDot.Y + 2, 0), a);
+    if MainScreen.Bounds.Contains(msRect) then
+    begin
+      Self.DebugLn('Hovering random ' + toStr(DotType));
+      cArr := getColors(tpaFromBox(msRect.Bounds));
+      SRL.FindColors(cTPA, CTS1(cArr.GetRarest(), 30), msRect.Bounds);
+      Mouse.Move(cTPA.Mean());
+      if RightClick then
+        Mouse.Click(MOUSE_RIGHT);
+
+      wait(1500, 2700);
+      if RightClick then
+        ChooseOption.Close();
+      Exit;
+    end;
+  until(Tries > 10);
+end;
+
+procedure TAntiban.HoverMSItems();
+begin
+  Self.HoverMSTile(ERSMinimapDot.ITEM);
+end;
+
+procedure TAntiban.HoverMSNPCs();
+begin
+  Self.HoverMSTile(ERSMinimapDot.NPC);
+end;
+
+procedure TAntiban.HoverMSPlayers();
+begin
+  Self.HoverMSTile(ERSMinimapDot.PLAYER);
 end;
 
 function TAntiban.DismissRandom: Boolean;
