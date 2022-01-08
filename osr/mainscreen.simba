@@ -725,7 +725,7 @@ begin
     Exit;
 
   Bitmap.Init();
-  Bitmap.LoadFromClient(Self.Bounds);
+  Bitmap.LoadFromClient(Area);
 
   TPA := FindColors(Bitmap, COLOR_BARS);
 
@@ -750,7 +750,7 @@ begin
     begin
       Bar := Bar.Offset(B.X1 - 1, B.Y1 - 1);
 
-      Sub := Bitmap.Copy(Bar.X1, Bar.Y1, Bar.X2, Bar.Y2);
+      Sub := Bitmap.Copy(Bar.X1, Bar.Y1, Min(Bar.X2, Bitmap.GetWidth()-1), Min(Bar.Y2, Bitmap.GetHeight()-1));
       if Sub.FindColors(TPA, $00FF00) then
         Percent := (TPA.Bounds.Width()) / 30 * 100
       else

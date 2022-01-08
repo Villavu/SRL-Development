@@ -19,6 +19,7 @@ type
 procedure TRSInterface.Setup(Name: String);
 begin
   Self.Name := Name;
+  Self.ItemFinder.Name := Name;
   Self.ElementFinder.GetBoundsFunction := @BoundsFinder.Find;
 end;
 

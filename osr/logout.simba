@@ -40,6 +40,5 @@ var
   Logout: TRSLogout;
 
 begin
-  Logout.Setup('Logout');
-  Logout.ID := ERSGameTab.LOGOUT;
+  Logout.Setup('Logout', ERSGameTab.LOGOUT);
 end;

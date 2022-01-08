@@ -27,8 +27,9 @@ const
 
 type
   TRSInventory = record(TRSGameTab)
-    LOW_SLOT: Int32;
-    HIGH_SLOT: Int32;
+  class const
+    LOW_SLOT  = 0;
+    HIGH_SLOT = 27;
   end;
 
 function TRSInventory.GetSlotBoxes: TBoxArray;
@@ -253,6 +254,15 @@ begin
   end;
 end;
 
+function TRSInventory.MakePattern(Slots: TIntegerArray; Pattern: TIntegerArray): TIntegerArray;
+var
+  I: Integer;
+begin
+  for I := 0 to High(Pattern) do
+    if Slots.Contains(Pattern[I]) then
+       Result += Pattern[I];
+end;
+
 function TRSInventory.ShiftDrop(Slots: TIntegerArray): Boolean;
 var
   Boxes: TBoxArray;
@@ -375,42 +385,32 @@ begin
   Result := Slots[SRL.RandomBoxNearby(Self.GetSlotBox(Slot).Middle, Boxes)];
 end;
 
-function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): Boolean;
+function TRSInventory.UseItem(ItemA, ItemB: TRSItem): Boolean; overload;
 var
-  Item: TRSItem;
+  SlotsA, SlotsB: TIntegerArray;
+  SlotA, SlotB: Integer;
 begin
-{
-  if not Self.Open() then
+  // The actual item sprites change a little when selected.
+  Self.SetSelectedSlot(-1);
+
+  SlotsA := Self.FindItems(ItemA);
+  if (Length(SlotsA) = 0) then
     Exit;
 
-  for Item in Items do
-    Slots += ItemFinder.Find(Item, Self.GetSlotBoxes());
-  
-  Result := Length(Slots) > 0; }
-end;
+  SlotsB := Self.FindItems(ItemB);
+  if (Length(SlotsB) = 0) then
+    Exit;
 
-function TRSInventory.Use(Item, OtherItem: TRSItem): Boolean; overload;
-var
-  Slots, OtherSlots: TIntegerArray;
-  Slot, OtherSlot: Int32;
-begin
-{
-  Self.SetSelectedSlot(-1); // Item images change when selected...
+  SlotA := SlotsA[Random(Length(SlotsA))];
+  SlotB := Self.RandomSlotNearby(SlotA, SlotsB);
 
-  Result := Self.FindItem(Item, Slots) and Self.FindItem(OtherItem, OtherSlots);
-  if Result then
-  begin
-    Slot := Slots[Random(Length(Slots))];
-    OtherSlot := Self.RandomSlotNearby(Slot, OtherSlots);
-  
-    Result := Self.Use(Slot, OtherSlot);
-  end;  }
+  Result := Self.Use(SlotA, SlotB);
 end;
 
 (*
-Inventory.ShiftDrop
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.ShiftDrop(Items: TStringArray; Pattern: TIntegerArray): Boolean;
+Inventory.ShiftDropItems
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.ShiftDropItems(Items: TStringArray; Pattern: TIntegerArray): Boolean;
 
 Shift drops items following the desired pattern.
 
@@ -420,46 +420,51 @@ Example
   // Shift drop maple & willow logs in the snake pattern
   Inventory.ShiftDrop(['Maple logs', 'Willow logs'], DROP_PATTERN_SNAKE);
 *)
-function TRSInventory.ShiftDrop(Items: TRSItemArray; Pattern: TIntegerArray): Boolean; overload;
-var
-  Slots, Order: TIntegerArray;
-  I: Int32;
+function TRSInventory.ShiftDropItems(Items: TRSItemArray; Pattern: TIntegerArray): Boolean; overload;
 begin
-  if Self.FindItems(Items, Slots) then
-  begin
-    for I := 0 to High(Pattern) do
-      if Slots.Contains(Pattern[I]) then
-        Order += Pattern[I];
-  
-    Result := Self.ShiftDrop(Order);
-  end;
+  Result := Self.ShiftDrop(Self.MakePattern(Self.FindItems(Items), Pattern));
 end;
 
-{
-procedure TRSInventory.Setup; override;
+function TRSInventory.ContainsItem(Item: TRSItem): Boolean; overload;
+begin
+  Result := Self.ItemFinder.Contains(Item);
+end;
+
+function TRSInventory.ContainsItem(Items: TRSItemArray): Boolean; overload;
+begin
+  Result := Self.ItemFinder.ContainsAny(Items);
+end;
+
+function TRSInventory.ContainsItems(Items: TRSItemArray): Boolean;
+begin
+  Result := Self.ItemFinder.Contains(Items);
+end;
+
+function TRSInventory.FindItems(Item: TRSItem): TIntegerArray; overload;
+begin
+  Result := Self.ItemFinder.IndicesOf(Item);
+end;
+
+function TRSInventory.FindItems(Items: TRSItemArray): TIntegerArray; overload;
+begin
+  Result := Self.ItemFinder.IndicesOf(Items);
+end;
+
+function TRSInventory.FindItem(Item: TRSItem): Integer;
+begin
+  Result := Self.ItemFinder.IndexOf(Item);
+end;
+
+procedure TRSInventory.Setup(Name: String; GameTab: ERSGameTab); override;
 begin
   inherited;
 
-  Self.Name := 'Inventory';
-
-  Self.InternalMethods.Setup := @Self.Setup;
-  Self.InternalMethods.SetupAlignment := @Self.SetupAlignment;
-  Self.InternalMethods.Draw := @Self.Draw;
-
-  Self.OnGetItemBoxes := @Self.GetSlotBoxes;
-
-  Self.LOW_SLOT := 0;
-  Self.HIGH_SLOT := 27;
-end;  }
-
+  Self.ItemFinder.GetSearchBoxesFunction := @Self.GetSlotBoxes;
+end;
 
 var
   Inventory: TRSInventory;
 
 begin
-  Inventory.Setup('Inventory');
-  Inventory.ID := ERSGameTab.INVENTORY;
-
-  Inventory.LOW_SLOT := 0;
-  Inventory.HIGH_SLOT := 27;
+  Inventory.Setup('Inventory', ERSGameTab.INVENTORY);
 end;

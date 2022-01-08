@@ -152,7 +152,8 @@ begin
 
     for n in Graph.Paths[curr] do
     begin
-      Graph.Paths[n].Remove(curr, True);
+      while Graph.Paths[n].Remove(curr) do
+        ;
       if Length(Graph.Paths[n]) = 0 then
         marked += n;
     end;
@@ -249,7 +250,7 @@ begin
   q := Nodes[Path[High(Path)]];
 
   Canvas := Self.ImageBox.GetOverlay.GetCanvas();
-  Canvas.GetPen().SetColor(clNavy);
+  Canvas.GetPen().SetColor($FF0000);
   Canvas.GetPen().setWidth(3);
 
   for i := 0 to High(Path) do

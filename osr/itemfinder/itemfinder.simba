@@ -31,7 +31,7 @@ type
     Similarity: Single;
   end;
 
-  TRSItemFinderCustomFilter = procedure(constref Image, Templ: TMufasaBitmap) of object;
+  TRSItemFinderCustomFilter = procedure(Image, Templ: TMufasaBitmap) of object;
 
 procedure TRSItemFinder.Free;
 var
@@ -63,7 +63,7 @@ begin
   AddOnTerminate(@Self.Free);
 end;
 
-procedure TRSItemFinder.AddItemName(constref Item, ID: String);
+procedure TRSItemFinder.AddItemName(Item, ID: String);
 begin
   Self.ItemNames.Add(Item + '=' + ID);
 end;
@@ -158,7 +158,7 @@ begin
   Self.ItemImages += [Item, Result];
 end;
 
-procedure TRSItemFinder.ClearSparkles(constref Image, Templ: TMufasaBitmap);
+procedure TRSItemFinder.ClearSparkles(Image, Templ: TMufasaBitmap);
 var
   I: Int32;
   ImagePtr, TemplPtr: PRGB32;
@@ -240,7 +240,7 @@ begin
   end;
 end;
 
-function TRSItemFinder.Find(Item: TRSItem; Slots: TBoxArray; MaxToFind: Int32 = 0): TBoxArray;
+function TRSItemFinder.Find(Item: TRSItem; Slots: TBoxArray; MaxToFind: Integer; out Indices: TIntegerArray): Boolean; overload;
 var
   Templ: TMufasaBitmap;
   I, J: Int32;
@@ -250,28 +250,46 @@ begin
   if Length(Slots) = 0 then
     Exit;
 
-  Templ.init();
+  Templ.Init();
+  try
+    Images := Self.GetItemImages(Item);
 
-  Images := Self.GetItemImages(Item);
+    for I := 0 to High(Self.ClearSparkleItems) do
+      if (SameText(Self.ClearSparkleItems[I], Item)) then
+        CustomFilter := @Self.ClearSparkles;
 
-  for I := 0 to High(Self.ClearSparkleItems) do
-    if (SameText(Self.ClearSparkleItems[I], Item)) then
-      CustomFilter := @Self.ClearSparkles;
-
-  for I := 0 to High(Slots) do
-    for J := 0 to High(Images) do
-    begin
-      Templ.LoadFromClient(Slots[I]);
-
-      if Self.CompareItems(Images[J], Templ, @CustomFilter) >= Self.Similarity then
+    for I := 0 to High(Slots) do
+      for J := 0 to High(Images) do
       begin
-        Result += Slots[I];
-        if (Length(Result) = MaxToFind) then
-          Break;
-      end;
-    end;
+        Templ.LoadFromClient(Slots[I]);
 
-  Templ.Free();
+        if Self.CompareItems(Images[J], Templ, @CustomFilter) >= Self.Similarity then
+        begin
+          Indices += I;
+
+          Result := True;
+          if (Length(Indices) = MaxToFind) then
+            Exit;
+        end;
+      end;
+  finally
+    Templ.Free();
+  end;
+end;
+
+function TRSItemFinder.Find(Item: TRSItem; Slots: TBoxArray; MaxToFind: Integer; out Boxes: TBoxArray): Boolean; overload;
+var
+  Indices: TIntegerArray;
+  I: Integer;
+begin
+  Result := Self.Find(Item, Slots, MaxToFind, Indices);
+
+  if Result then
+  begin
+    SetLength(Boxes, Length(Indices));
+    for I := 0 to High(Indices) do
+      Boxes[I] := Slots[Indices[I]];
+  end;
 end;
 
 var

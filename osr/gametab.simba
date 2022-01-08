@@ -18,9 +18,9 @@ begin
   Result := GameTabs.Open(Self.ID);
 end;
 
-procedure TRSGameTab.Setup(Name: String); override;
+procedure TRSGameTab.Setup(Name: String; GameTab: ERSGameTab); overload;
 begin
-  inherited;
+  Self.Setup(Name);
 
   with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
   begin
@@ -46,13 +46,6 @@ begin
     Top    := [@GameTabs.Y1, 6];
     Bottom := [@GameTabs.Y2, -78];
   end;
-end;
 
-{
-var
-  GameTab: TRSGameTab;
-
-begin
-  GameTab.Setup('GameTab', []);
+  Self.ID := GameTab;
 end;
-}

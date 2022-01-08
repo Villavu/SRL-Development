@@ -168,8 +168,7 @@ var
   Options: TRSOptions;
 
 begin
-  Options.Setup('Options');
-  Options.ID := ERSGameTab.OPTIONS;
+  Options.Setup('Options', ERSGameTab.OPTIONS);
 end;
 
 function TRSGameTabs.GetCurrentTab: ERSGameTab; override;

@@ -219,8 +219,7 @@ var
   Combat: TRSCombat;
 
 begin
-  Combat.Setup('Combat');
-  Combat.ID := ERSGameTab.COMBAT;
+  Combat.Setup('Combat', ERSGameTab.COMBAT);
 end;
 
 (*

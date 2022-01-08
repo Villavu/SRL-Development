@@ -519,6 +519,5 @@ var
   Magic: TRSMagic;
 
 begin
-  Magic.Setup('Magic');
-  Magic.ID := ERSGameTab.MAGIC;
+  Magic.Setup('Magic', ERSGameTab.MAGIC);
 end;

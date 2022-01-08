@@ -648,8 +648,6 @@ begin
 end;
 
 begin
-  Prayer.Setup('Prayer');
-  Prayer.ID := ERSGameTab.PRAYER;
-  QuickPrayer.Setup('QuickPrayer');
-  QuickPrayer.ID := ERSGameTab.PRAYER;
+  Prayer.Setup('Prayer', ERSGameTab.PRAYER);
+  QuickPrayer.Setup('QuickPrayer', ERSGameTab.PRAYER);
 end;

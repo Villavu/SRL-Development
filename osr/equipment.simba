@@ -40,6 +40,5 @@ var
   Equipment: TRSEquipment;
 
 begin
-  Equipment.Setup('Equipment');
-  Equipment.ID := ERSGameTab.EQUIPMENT;
+  Equipment.Setup('Equipment', ERSGameTab.EQUIPMENT);
 end;
