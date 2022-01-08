@@ -1,0 +1,12 @@
+// pyinstaller .\docgen.py -F
+
+var
+  DOC_GEN_DIR = {$MACRO CURRENT_DIRECTORY};
+var
+  Output: String;
+begin
+  if RunCommandInDir(DOC_GEN_DIR, DOC_GEN_DIR + 'docgen.exe', [DOC_GEN_DIR + '../../'], Output) = 0 then
+    OpenWebPage(DOC_GEN_DIR + 'build/index.html');
+
+  WriteLn Output;
+end.

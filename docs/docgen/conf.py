@@ -15,19 +15,18 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-
+from datetime import datetime
 
 # -- Project information -----------------------------------------------------
 
 project = u'SRL'
-copyright = u'2020, SRL Group'
-author = u'SRL Group'
+author = u'SRL'
+copyright = str(datetime.now().year) + ', SRL'
 
 # The short X.Y version
-version = u''
+#version = u''
 # The full version, including alpha/beta/rc tags
-release = u''
-
+#release = u''
 
 # -- General configuration ---------------------------------------------------
 
@@ -137,7 +136,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'SRL.tex', u'SRL Documentation',
-     u'SRL Group', 'manual'),
+     u'SRL', 'manual'),
 ]
 
 

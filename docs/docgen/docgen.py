@@ -119,7 +119,7 @@ def generate(root):
     # finally build the index file
     generate_index_rst(TOC)
     
-    os.system('sphinx-build source build -c .')
+    os.system('sphinx-build source build -c -q .')
 	
 if __name__ == '__main__':
     generate(sys.argv[1])
