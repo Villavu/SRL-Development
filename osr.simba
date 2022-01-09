@@ -85,9 +85,11 @@ end;
 {$IFNDEF SRL_COMBAT_INCLUDED}          {$I osr/combat.simba}
 {$IFNDEF SRL_MAGIC_INCLUDED}           {$I osr/magic.simba}
 {$IFNDEF SRL_PRAYER_INCLUDED}          {$I osr/prayer.simba}
+{$IFNDEF SRL_SCRIPTCONFIG_INCLUDED}    {$I osr/scriptconfig.simba}
 
 {$SCOPEDENUMS OFF}
 
+{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}

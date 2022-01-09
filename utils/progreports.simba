@@ -88,7 +88,7 @@ function ProgressReport(
                           ): Variant;
 var
   TSA        : TStringArray;
-  s          : string;
+  s,s2       : string;
   i, i2, L   : integer;
 begin
   if (ResultType = RESULT_STRING) then
@@ -100,10 +100,11 @@ begin
     exit;
   end;
   SetLength(TSA, 3 + Length(VarNames) + 4);
-
+  s2 := 'by '+ScriptAuthor;
+  
   TSA[0] := '=';
   TSA[1] := Capitalize(ScriptName)+' '+ScriptVersion;
-  TSA[2] := 'by '+ScriptAuthor;
+  TSA[2] := s2;
   TSA[3] := '=';
 
   i2 := 3 + Length(VarNames);

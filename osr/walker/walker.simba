@@ -444,7 +444,9 @@ begin
 
   if Self.ScreenWalk then
   begin
-    Mouse.Move(Minimap.PointToMsRect(MinimapPoint).Mean);
+    P := Minimap.PointToMsRect(MinimapPoint).Mean;
+    if (not MainScreen.IsVisible(P)) then Exit(False);
+    Mouse.Move(P);
 
     if not MainScreen.IsUpText('Walk here') then
       Exit(ChooseOption.Select('Walk here'));

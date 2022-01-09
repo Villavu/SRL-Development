@@ -52,6 +52,7 @@ type TMouse
   TMouse = record(TSRLBaseRecord)
     Speed: Double;                     // Overall mouse speed (Default: 12)
     Gravity, Wind: Double;             // Gravity & Wind for generating mouse path (Default: 9 & 5)
+    Brake: Boolean;                    // Adds brake mouse movement
     Distribution: EMouseDistribution;  // Default distribution to use (Default: MOUSE_DISTRIBUTION_ROWP)
     MissChance: Double;                // Percentage chance to "Miss" the mouse (Default: 10)
     IdleInterval: Double;              // Distance to travel before calling Mouse.Idle() (Default: 0)
@@ -70,6 +71,7 @@ type
   TMouse = record(TSRLBaseRecord)
     Speed: Int32;
     Gravity, Wind: Double;
+    Brake: Boolean; 
     Distribution: EMouseDistribution;
     MissChance: Double;
     
@@ -127,6 +129,7 @@ begin
   Self.Speed := 12;
   Self.Gravity := 9;
   Self.Wind := 5;
+  Self.Brake := False; 
   Self.MissChance := 15;
   Self.Distribution := MOUSE_DISTRIBUTION_ROWP;
   Self.CanIdle := True;
@@ -261,7 +264,7 @@ const
 var
   x, y: Double;
   veloX, veloY, windX, windY, veloMag, randomDist, step, idle: Double;
-  traveledDistance, remainingDistance: Double;
+  traveledDistance, remainingDistance, totalDist, randPerc: Double;
   Countdown: TCountDown;
   Finished: Boolean;
 begin
@@ -269,6 +272,8 @@ begin
 
   x := xs;
   y := ys;
+  totalDist := Hypot(x - xe, y - ye);
+  randPerc := SRL.NormalRange(0.85, 0.97);
 
   while True do
   begin
@@ -306,6 +311,11 @@ begin
     step := Min(step, maxStep);
     if (step < 3) then
       step := 3 + (Random() * 3);
+
+(* Within 85% - 97% of total target, decrease mouse step *)
+    if Self.Brake then
+      if (traveledDistance/totalDist) > randPerc then
+        step := max(2, (step/3));
 
     veloX := veloX + windX;
     veloY := veloY + windY;

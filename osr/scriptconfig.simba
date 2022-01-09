@@ -1,0 +1,125 @@
+{$DEFINE SRL_SCRIPTCONFIG_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL-F/osr.simba}
+{$ENDIF}
+
+Const
+  SETTINGS_PATH = AppPath+'ScriptConfig\';
+
+Type
+  TScriptConfig = record(TSRLBaseRecord)
+    ScriptName    : String;
+    Player        : TRSLoginPlayer;
+    Breaks        : Array of TBreakTask;
+    VariableNames : TStringArray;
+    Variables     : TVariantArray;
+  end;
+
+Var
+  ScriptConfig: TScriptConfig;
+
+
+// This function will encrypt as well as decrypt
+function Cryptify(const Data: String): String;
+var
+  Index: Int32;
+begin
+  Result := Data;
+  for Index := 1 to Length(Data) do
+    Result[Index] := chr(not(ord(Data[Index])));
+end;
+
+function TScriptConfig.SaveSettings(): Boolean;
+var
+  i,temp: Int32;
+  Plyr: TRSLoginPlayer;
+  SSPath: String:= SETTINGS_PATH + Self.ScriptName + '.ini';
+begin
+(* Check for directory *)
+  if (not DirectoryExists(SETTINGS_PATH)) then
+    CreateDirectory(SETTINGS_PATH);
+
+(* Check for existing script config *)
+  if (not FileExists(SSPath)) then
+  begin
+    temp := CreateFile(SSPath);
+    CloseFile(temp);
+  end;
+
+(* Save player settings *)
+
+  //Blowfish crypto created an issue with writing to INI files, so we use a simple algo instead
+  WriteINI('Player', 'Username', Cryptify(Self.Player.User), SSPath);
+  WriteINI('Player', 'Password', Cryptify(Self.Player.Password), SSPath);
+  WriteINI('Player', 'Pin', Cryptify(Self.Player.Pin), SSPath);
+
+(* Save script settings *)
+  if length(Self.Variables) > 0 then
+  begin
+    if length(Self.Variables) <> length(Self.VariableNames) then
+    begin
+      Writeln('Error saving ScriptConfig: '+ LineEnding +
+              'VariableNames and Variables must be the same length.');
+      Exit;
+    end;
+
+    for i:=0 to high(Self.Variables) do
+      WriteINI('Settings', Self.VariableNames[i], Self.Variables[i], SSPath);
+  end;
+
+  Writeln('[',Self.ScriptName,']: settings saved.');
+  ShowBalloonHint(Self.ScriptName, 'Settings saved', 3000, bfNone);
+  Result := True;
+end;
+
+function TScriptConfig.LoadSettings(): Boolean;
+var
+  i: Int32;
+  SC_U,SC_P,SC_PN,temp: String;
+  SSPath: String:= SETTINGS_PATH + Self.ScriptName + '.ini';
+begin
+(* Check for directory *)
+  if (not DirectoryExists(SETTINGS_PATH)) then
+  begin
+    Writeln('Error loading ScriptConfig: Directory not found.');
+    Exit;
+  end;
+
+(* Check for existing script config *)
+  if (not FileExists(SSPath)) then
+  begin
+    Writeln('Error loading ScriptConfig: INI file not found.');
+    Exit;
+  end;
+
+  try
+    //Blowfish crypto created an issue with writing to INI files, so we use a simple algo instead
+    Self.Player.User     := Cryptify(ReadINI('Player', 'Username', SSPath));
+    Self.Player.Password := Cryptify(ReadINI('Player', 'Password', SSPath));
+    Self.Player.Pin      := Cryptify(ReadINI('Player', 'Pin', SSPath));
+  except
+    Writeln('Error loading ScriptConfig: No username/pass/pin provided.');
+  end;
+
+  if length(Self.VariableNames) > 0 then
+    try
+      SetLength(Self.Variables, Self.VariableNames.Len());
+
+      for i:=0 to high(Self.Variables) do
+      begin
+        temp := ReadINI('Settings', Self.VariableNames[i], SSPath);
+        if (VarType(Self.Variables[i]) = varBoolean) then
+          Self.Variables[i] := StrToBool(temp)
+        else if VarIsNumeric(Self.Variables[i]) then
+          Self.Variables[i] := StrToInt(temp)
+        else
+          Self.Variables[i] := temp;
+      end;
+    except
+      Writeln('Error loading ScriptConfig: Error loading script variables.');
+    end;
+
+  Writeln('[',Self.ScriptName,']: settings loaded.');
+  ShowBalloonHint(Self.ScriptName, 'Settings loaded', 3000, bfNone);
+  Result := True;
+end;
