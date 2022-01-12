@@ -285,6 +285,15 @@ begin
   Result := System.Random() < ChancePercent / 100;
 end;
 
+function TSRL.RandomBoxNearby(P: TPoint; Boxes: TBoxArray; CUTOFF: Single=0): TBox;
+begin
+  if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
+
+  Boxes := Boxes.Sorted(P);
+  Result := Boxes[SRL.TruncatedGauss(0, High(Boxes), CUTOFF)];
+end;
+
+{
 function TSRL.RandomBoxNearby(P: TPoint; Boxes: TBoxArray; CUTOFF: Single=0): Int32; static;
 var
   Points: TPointArray;
@@ -301,6 +310,7 @@ begin
     if P.InBox(Boxes[I]) then
       Exit(I);
 end;
+}
 
 (*
 Wait

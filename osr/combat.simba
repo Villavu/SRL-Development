@@ -210,6 +210,13 @@ begin
   inherited();
 end;
 
+procedure TRSCombat.Setup(Name: String); override;
+begin
+  inherited;
+
+  Self.ID := ERSGameTab.COMBAT;
+end;
+
 (*
 var Combat
 ~~~~~~~~~~
@@ -219,7 +226,7 @@ var
   Combat: TRSCombat;
 
 begin
-  Combat.Setup('Combat', ERSGameTab.COMBAT);
+  Combat.Setup('Combat');
 end;
 
 (*

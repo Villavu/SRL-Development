@@ -2,6 +2,10 @@
 Inventory
 =========
 Methods to interact with the inventory.
+
+.. note::
+
+  Most methods will open the inventory.
 *)
 
 {$DEFINE SRL_INVENTORY_INCLUDED}
@@ -30,190 +34,340 @@ type
   class const
     LOW_SLOT  = 0;
     HIGH_SLOT = 27;
+  var
+    ItemBoxCache: record
+      ClientWidth, ClientHeight: Integer;
+      ClientMode: ERSClientMode;
+      Boxes: TBoxArray;
+    end;
   end;
 
-function TRSInventory.GetSlotBoxes: TBoxArray;
-begin
-  Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
-end;
-
-function TRSInventory.GetSlotBox(Slot: Int32): TBox;
-begin
-  Result := Self.GetSlotBoxes()[Slot];
-end;
-
-
 (*
-Inventory.PointToSlot
-~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.PointToSlot(P: TPoint): Int32;
+TRSInventory.CheckIndex
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSInventory.CheckIndex(Index: Integer);
 
-Returns the inventory slot index which contains the TPoint `P`.
-Returns -1 if the point does not fall in any slots.
+note: Raises a fatal error if the **Index** is not within 0..27
 
 Example
 -------
 
-  var P: TPoint;
-  var Slot: Int32;
-
-  P := Inventory.GetSlotBox(15).Middle; // Example point
-
-  Slot := Inventory.PointToSlot(P);
-  WriteLn(Slot); // 15
+  Inventory.CheckIndex(5)
 *)
-function TRSInventory.PointToSlot(P: TPoint): Int32;
-var
-  I: Int32;
-  Slots: TBoxArray;
+procedure TRSInventory.CheckIndex(Index: Integer);
 begin
-  Slots := Self.GetSlotBoxes();
-  for I := 0 to High(Slots) do
-    if Slots[I].Contains(P) then
+  if not InRange(Index, Self.LOW_SLOT, Self.HIGH_SLOT) then
+    Self.Fatal('Invalid inventory index: ' + ToString(Index));
+end;
+
+function TRSInventory.GetItemBoxes: TBoxArray; overload;
+var
+  W, H: Integer;
+begin
+  GetClientDimensions(W, H);
+  if (ItemBoxCache.ClientMode = RSClient.ClientMode()) and (ItemBoxCache.ClientWidth = W) and (ItemBoxCache.ClientHeight = H) then
+  begin
+    Result := ItemBoxCache.Boxes;
+    Exit;
+  end;
+
+  Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
+
+  ItemBoxCache := [W, H, RSClient.ClientMode, Result];
+end;
+
+function TRSInventory.GetItemBoxes(Indices: TIntegerArray): TBoxArray; overload;
+var
+  I: Integer;
+begin
+  SetLength(Result, Length(Indices));
+  for I := 0 to High(Indices) do
+    Result[I] := Self.GetItemBox(Indices[I]);
+end;
+
+function TRSInventory.GetItemBox(Index: Integer): TBox;
+begin
+  CheckIndex(Index);
+
+  Result := Self.GetItemBoxes()[Index];
+end;
+
+(*
+TRSInventory.GetItemBoxNearby
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.GetItemBoxNearby(Slot: Integer; Slots: TIntegerArray): TBox;
+
+Example
+-------
+
+*)
+function TRSInventory.GetItemBoxNearby(Slot: Integer; Slots: TIntegerArray): TBox;
+begin
+  Slots.Remove(Slot);
+  if (Length(Slots) = 0) then
+    Self.Fatal('RandomSlotNearby: No slots to choose from');
+
+  Result := SRL.RandomBoxNearby(Self.GetItemBox(Slot).Middle, Self.GetItemBoxes(Slots));
+end;
+
+(*
+TRSInventory.PointToBox
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.PointToBox(P: TPoint): Integer;
+
+Returns the inventory box index that contains the point **P**.
+Returns -1 if the point is not in any box.
+
+Example
+-------
+
+  P := Inventory.GetItemBox(5).Middle; // Example point
+  WriteLn(Inventory.PointToSlot(P)); // 5
+*)
+function TRSInventory.PointToBox(P: TPoint): Integer;
+var
+  I: Integer;
+  Boxes: TBoxArray;
+begin
+  Boxes := Self.GetItemBoxes();
+  for I := 0 to High(Boxes) do
+    if Boxes[I].Contains(P) then
       Exit(I);
 
   Result := -1;
 end;
 
-function TRSInventory.IsSlotUsed(B: TBox): Boolean; overload;
-begin
-  // black with tolerance for when item is transparent
-  Result := SRL.CountColor(CTS1(1118740, 35), B) > 0;
-end;
-
-function TRSInventory.IsSlotUsed(Slot: Int32): Boolean; overload;
-begin
-  Result := Self.Open() and Self.IsSlotUsed(Self.GetSlotBox(Slot));
-end;
-
 (*
-Inventory.IsSlotSelected
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.IsSlotSelected(Slot: Int32): Boolean;
+TRSInventory.IsSelected
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.IsSelected(Index: Integer): Boolean;
 
-Returns True if the slot is selected (white outline).
+Returns True if the index is selected (white outline).
 
 Example
 -------
 
-  if Inventory.IsSlotSelected(1) then
-    WriteLn('Slot 1 is selected!');
+  if Inventory.IsSelected(1) then
+    WriteLn('Inventory index 1 is selected');
 *)
-function TRSInventory.IsSlotSelected(Slot: Int32): Boolean;
+function TRSInventory.IsSelected(Index: Integer): Boolean;
 var
   B: TBox;
 begin
-  if not Self.Open() then
-    Exit(False);
+  if Self.LockGameTab() then
+  try
+    B := Self.GetItemBox(Index);
+    B.Y1 += 8; // skip quantity
 
-  B := Self.GetSlotBox(Slot);
-  B.Y1 += 8; // Skip item text
-
-  Result := SRL.CountColor($FFFFFF, B) > 0;
+    Result := SRL.CountColor(RSColors.ITEM_BORDER_SELECTED, B) > 0;
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
+(*
+TRSInventory.IsUsed
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.IsUsed(Index: Integer): Boolean;
+
+Returns true if the *index* (0..27) contains an item.
+
+Example
+-------
+
+  WriteLn(Inventory.IsUsed(25));
+*)
+function TRSInventory.IsUsed(Index: Integer): Boolean;
+begin
+  if Self.LockGameTab() then
+  try
+    Result := Self.IsSelected(Index) or (SRL.CountColor(CTS1(1118740, 35), Self.GetItemBox(Index)) > 0);
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+(*
+TRSInventory.IsFull
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.IsFull: Boolean;
+
+Returns true if the inventory is full. (Count = 28)
+
+Example
+-------
+
+  WriteLn(Inventory.IsFull());
+*)
 function TRSInventory.IsFull: Boolean;
 var
-  B: TBox;
+  I: Integer;
 begin
-  if not Self.Open() then
-    Exit(False);
+  if Self.LockGameTab() then
+  try
+    for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+      if not Self.IsUsed(I) then
+        Exit(False);
 
-  for B in Self.GetSlotBoxes() do
-    if not Self.IsSlotUsed(B) then
+    Result := True;
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+(*
+TRSInventory.IsEmpty
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.IsEmpty: Boolean;
+
+Returns true if the inventory is empty. (Count = 0)
+
+Example
+-------
+
+  WriteLn(Inventory.IsEmpty());
+*)
+function TRSInventory.IsEmpty: Boolean;
+var
+  I: Integer;
+begin
+  if Self.LockGameTab() then
+  try
+    for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+      if Self.IsUsed(I) then
+        Exit(False);
+
+    Result := True;
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+(*
+TRSInventory.GetSelected
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.GetSelected: Integer;
+
+Returns the index of the selected item (white outline).
+**-1** is returned if no item is selected.
+
+Example
+-------
+
+  WriteLn(Inventory.GetSelected());
+*)
+function TRSInventory.GetSelected: Integer;
+var
+  I: Integer;
+begin
+  if Self.LockGametab() then
+  try
+    for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+      if Self.IsSelected(I) then
+        Exit(I);
+
+    Result := -1;
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+(*
+TRSInventory.ClearSelected
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.ClearSelected: Boolean;
+
+Unselects the currently selected item (white outline).
+
+Example
+-------
+
+  if Inventory.ClearSelected() then
+    WriteLn('No item is selected now.);
+*)
+function TRSInventory.ClearSelected: Boolean;
+var
+  Index: Integer;
+begin
+  if Self.LockGameTab() then
+  try
+    Index := Self.GetSelected();
+    if (Index = -1) then
+      Exit(True);
+
+    Mouse.Click(Self.GetItemBox(Index), MOUSE_LEFT);
+
+    Result := WaitUntil(Self.GetSelected() = -1, 100, SRL.TruncatedGauss(1000, 2000));
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+(*
+TRSInventory.SetSelected
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.SetSelected(Index: Integer): Boolean;
+
+Clicks the item index to "select" it (white outline).
+
+Example
+-------
+
+  WriteLn(Inventory.SetSelected(2));
+*)
+function TRSInventory.SetSelected(Index: Integer): Boolean;
+var
+  Selected: Integer;
+begin
+  Self.CheckIndex(Index);
+
+  if Self.LockGameTab() then
+  try
+    Selected := Self.GetSelected();
+    if (Selected = Index) then
+      Exit(True);
+    if (Selected > -1) and (not Self.ClearSelected()) then
       Exit(False);
-  
-  Result := True;
+
+    Mouse.Click(Self.GetItemBox(Index), MOUSE_LEFT);
+
+    Result := WaitUntil(Self.GetSelected() = Index, 100, SRL.TruncatedGauss(1000, 2000));
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
 (*
-Inventory.GetSelectedSlot
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.GetSelectedSlot: Int32;
+TRSInventory.Use
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.Use(Slot, OtherSlot: Integer): Boolean; overload;
 
-Returns the index of the selected slot (white outline).
-**-1** is returned if no slot is selected.
+Uses an item on another.
 
 Example
 -------
 
-  WriteLn(Inventory.GetSelectedSlot());
+  Inventory.Use(1, 2);
 *)
-function TRSInventory.GetSelectedSlot: Int32;
-var
-  I: Int32;
+function TRSInventory.Use(Slot, OtherSlot: Integer): Boolean; overload;
 begin
-  if not Self.Open() then
-    Exit(-1);
+  Self.CheckIndex(Slot);
+  Self.CheckIndex(OtherSlot);
 
-  for I := Self.LOW_SLOT to Self.HIGH_SLOT do
-    if Self.IsSlotSelected(I) then
-      Exit(I);
-
-  Result := -1;
+  if Self.LockGameTab() then
+  try
+    Result := Self.SetSelected(Slot);
+    if Result then
+      Mouse.Click(Self.GetItemBox(OtherSlot), MOUSE_LEFT);
+  finally
+    Self.UnlockGametab();
+  end;
 end;
-
-(*
-Inventory.SetSelectedSlot
-~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.SetSelectedSlot(Slot: Int32): Boolean;
-
-Set the slot as selected (white outline).
-Slot can be **-1** to unselect the currently selected slot.
-
-Example
--------
-
-  WriteLn(Inventory.GetSelectedSlot());
-*)
-function TRSInventory.SetSelectedSlot(Slot: Int32): Boolean;
-var
-  Selected: Int32;
-begin
-  Selected := Self.GetSelectedSlot();
-  if (Selected = Slot) then
-    Exit(True);
-
-  if (Selected > -1) then
-    Mouse.Click(Self.GetSlotBox(Selected), MOUSE_LEFT);
-  if (Slot > -1) then
-    Mouse.Click(Self.GetSlotBox(Slot), MOUSE_LEFT);
-
-  Result := WaitUntil(Self.GetSelectedSlot() = Slot, 50, SRL.TruncatedGauss(1000, 2000));
-end;
-
-(*
-Inventory.Use
-~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.Use(Slot, OtherSlot: Int32): Boolean;
-
-Selects **Slot** and uses with **OtherSlot**.
-
-Example
--------
-
-  Inventory.Use(1, 5); // Use item in slot 1 on Item in slot 5
-*)
-function TRSInventory.Use(Slot, OtherSlot: Int32): Boolean;
-var
-  B: TBox := Self.GetSlotBox(OtherSlot);
-begin
-  if B = [] then
-    Exit;
-
-  Result := Self.SetSelectedSlot(Slot);
-
-  Wait(0, 1000, wdLeft);
-
-  Mouse.Click(B, MOUSE_LEFT);
-end;
-
 
 function TRSInventory.RandomPattern: TIntegerArray;
 var
   Patterns: T2DIntegerArray;
 begin
-
   Patterns := [
     DROP_PATTERN_SNAKE, DROP_PATTERN_SPIRAL,
     DROP_PATTERN_REGULAR, DROP_PATTERN_TOPDOWN,
@@ -223,8 +377,8 @@ begin
   Result := Patterns[Random(0, High(Patterns))];
 end;
 
-function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
-var i,j,h,k,tmp: Int32;
+function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Integer=5): TIntegerArray;
+var i,j,h,k,tmp: Integer;
 begin
   Result := Copy(Pattern);
   h := High(Pattern);
@@ -260,70 +414,186 @@ var
 begin
   for I := 0 to High(Pattern) do
     if Slots.Contains(Pattern[I]) then
-       Result += Pattern[I];
+      Result += Pattern[I];
 end;
 
 function TRSInventory.ShiftDrop(Slots: TIntegerArray): Boolean;
+
+  procedure Click(Index: Integer);
+  var
+    Circle: TCircle;
+  begin
+    if not IsKeyDown(VK_SHIFT) then
+      KeyDown(VK_SHIFT);
+
+    Mouse.Click(Self.GetItemBox(Index), MOUSE_LEFT);
+
+    // Chance of a little spam click
+    for 2 to SRL.TruncatedGauss(0, 5) do
+    begin
+      Wait(30, 160, wdLeft);
+
+      Circle.X := Mouse.Position().X;
+      Circle.Y := Mouse.Position().Y;
+      Circle.Radius := 5;
+
+      Mouse.Click(Circle, MOUSE_LEFT, True);
+    end;
+
+    if SRL.Dice(50) then
+      Wait(0, 350, wdLeft);
+  end;
+
+  function Empty: Boolean;
+  var
+    I: Integer;
+  begin
+    for I := 0 to High(Slots) do
+      if Self.IsUsed(Slots[I]) then
+        Exit;
+
+    Result := True;
+  end;
+
+  function Drop: Boolean;
+  var
+    I: Integer;
+  begin
+    for I := 0 to High(Slots) do
+    begin
+      if not Self.ClearSelected() then
+        Break;
+
+      if Self.IsUsed(Slots[I]) then
+        Click(Slots[I]);
+    end;
+
+    Result := WaitUntil(Empty(), 100, SRL.TruncatedGauss(1000, 1500));
+  end;
+
 var
-  Boxes: TBoxArray;
-  I, Attempts: Int32;
-  Selected: Int32;
-  Circle: TCircle;
+  Attempts: Integer;
 begin
   if (Length(Slots) = 0) then
     Exit(True);
 
+  ActivateClient();    // Without focus shift wont register
   IsKeyDown(VK_SHIFT); // Clear cache
 
-  Boxes := Self.GetSlotBoxes();
-
+  if Self.LockGameTab() then
   try
-    for Attempts := 1 to 5 do
+    for Attempts := 1 to 3 do
     begin
-      I := 0;
+      if Drop() then
+        Exit(True);
 
-      while (I < Length(Slots)) do
-      begin
-        Selected := Self.GetSelectedSlot();
-        if (Selected > -1) then
-        begin
-          Self.SetSelectedSlot(-1);
-
-          Break;
-        end;
-
-        if Self.IsSlotUsed(Slots[I]) then
-        begin
-          if not IsKeyDown(VK_SHIFT) then
-            KeyDown(VK_SHIFT);
-
-          Mouse.Click(Self.GetSlotBox(Slots[I]), MOUSE_LEFT);
-
-          // Spam click a little
-          for 1 to SRL.TruncatedGauss(0, 3) do
-          begin
-            Circle.X := Mouse.Position().X;
-            Circle.Y := Mouse.Position().Y;
-            Circle.Radius := 5;
-
-            Mouse.Click(Circle, MOUSE_LEFT, True);
-          end;
-
-          Wait(0, 250, wdLeft);
-        end;
-
-        Inc(I);
-      end;
-
-      if (I = Length(Slots)) then
-        Exit;
+      Wait(500, 2000, wdLeft);
     end;
   finally
     if IsKeyDown(VK_SHIFT) then
       KeyUp(VK_SHIFT);
-  end;
 
-  Result := Attempts <= 5;
+    Self.ClearSelected();
+    Self.UnlockGametab();
+  end;
+end;
+
+(*
+TRSInventory.Count
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.Count: Integer;
+
+Returns the number of items in the inventory.
+
+Example
+-------
+
+  WriteLn('Currently ', Inventory.Count(), ' items in inventory);
+*)
+function TRSInventory.Count: Integer;
+var
+  I: Integer;
+begin
+  if Self.LockGameTab() then
+  try
+    for I := Self.LOW_SLOT to Self.HIGH_SLOT do
+      if Self.IsUsed(I) then
+        Result += 1;
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+function TRSInventory.WaitCount(Count: Integer; WaitTime: Integer; Interval: Integer = -1): Boolean;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.Count() = Count, Interval, WaitTime);
+end;
+
+function TRSInventory.Use(Item, OtherItem: TRSItem): Boolean; overload;
+var
+  Slots, OtherSlots: TIntegerArray;
+  Slot: Integer;
+begin
+  if Self.LockGameTab() then
+  try
+    Self.ClearSelected();
+
+    Slots := Self.FindAll(Item);
+    OtherSlots := Self.FindAll(OtherItem);
+    if (Length(Slots) = 0) or (Length(OtherSlots) = 0) then
+      Exit;
+
+    Slot := Slots[Random(Length(Slots))];
+
+    Result := Self.SetSelected(Slot);
+    if Result then
+      Mouse.Click(Self.GetItemBoxNearby(Slot, OtherSlots), MOUSE_LEFT);
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+function TRSInventory.ShiftDrop(Items: TRSItemArray; Pattern: TIntegerArray): Boolean; overload;
+begin
+  Result := Self.ShiftDrop(Self.MakePattern(Self.FindAll(Items), Pattern));
+end;
+
+function TRSInventory.Contains(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Contains(Item);
+end;
+
+function TRSInventory.ContainsAny(Items: TRSItemArray): Boolean;
+begin
+  Result := Self.ItemFinder.ContainsAny(Items);
+end;
+
+function TRSInventory.ContainsAll(Items: TRSItemArray): Boolean;
+begin
+  Result := Self.ItemFinder.ContainsAll(Items);
+end;
+
+function TRSInventory.FindAll(Item: TRSItem): TIntegerArray; overload;
+begin
+  Result := Self.ItemFinder.IndicesOf([Item]);
+end;
+
+function TRSInventory.FindAll(Items: TRSItemArray): TIntegerArray; overload;
+begin
+  Result := Self.ItemFinder.IndicesOf(Items);
+end;
+
+function TRSInventory.Find(Item: TRSItem): Integer;
+begin
+  Result := Self.ItemFinder.IndexOf([Item]);
+end;
+
+function TRSInventory.CountStack(Item: TRSItem): Integer;
+begin
+  Result := Self.ItemFinder.CountStack(Item);
 end;
 
 procedure TRSInventory.Draw(Bitmap: TMufasaBitmap); override;
@@ -333,138 +603,20 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxes(Self.GetItemBoxes(), False, $00FFFF);
 end;
 
-function TRSInventory.Count: Int32; 
-var
-  I: Int32;
-begin
-  for I := Self.LOW_SLOT to Self.HIGH_SLOT do
-    if Self.IsSlotUsed(I) then
-      Inc(Result);
-end;
-
-function TRSInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
-begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
-
-  Result := WaitUntil(Self.Count() = Count, Interval, WaitTime);
-end;
-
-(*
-Inventory.RandomSlotNearby
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.RandomSlotNearby(Slot: Int32; Slots: TIntegerArray): Int32;
-
-Randomly returns one of the **Slots** weighted towards **Slot** by distance.
-
-Example
--------
-
-  var Slot: Int32;
-
-  Slot := Inventory.RandomSlotNearby(0, [0..27]);
-  WriteLn('This slot is likely nearby slot 0');
-  WriteLn(Slot);
-*)
-function TRSInventory.RandomSlotNearby(Slot: Int32; Slots: TIntegerArray): Int32;
-var
-  I: Int32;
-  Boxes: TBoxArray;
-begin
-  Slots.Remove(Slot);
-  if (Length(Slots) = 0) then
-    Self.Fatal('RandomSlotNearby: No slots to choose from');
-  
-  SetLength(Boxes, Length(Slots));
-  for I := 0 to High(Slots) do
-    Boxes[I] := Self.GetSlotBox(Slots[I]);
-  
-  Result := Slots[SRL.RandomBoxNearby(Self.GetSlotBox(Slot).Middle, Boxes)];
-end;
-
-function TRSInventory.UseItem(ItemA, ItemB: TRSItem): Boolean; overload;
-var
-  SlotsA, SlotsB: TIntegerArray;
-  SlotA, SlotB: Integer;
-begin
-  // The actual item sprites change a little when selected.
-  Self.SetSelectedSlot(-1);
-
-  SlotsA := Self.FindItems(ItemA);
-  if (Length(SlotsA) = 0) then
-    Exit;
-
-  SlotsB := Self.FindItems(ItemB);
-  if (Length(SlotsB) = 0) then
-    Exit;
-
-  SlotA := SlotsA[Random(Length(SlotsA))];
-  SlotB := Self.RandomSlotNearby(SlotA, SlotsB);
-
-  Result := Self.Use(SlotA, SlotB);
-end;
-
-(*
-Inventory.ShiftDropItems
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.ShiftDropItems(Items: TStringArray; Pattern: TIntegerArray): Boolean;
-
-Shift drops items following the desired pattern.
-
-Example
--------
-
-  // Shift drop maple & willow logs in the snake pattern
-  Inventory.ShiftDrop(['Maple logs', 'Willow logs'], DROP_PATTERN_SNAKE);
-*)
-function TRSInventory.ShiftDropItems(Items: TRSItemArray; Pattern: TIntegerArray): Boolean; overload;
-begin
-  Result := Self.ShiftDrop(Self.MakePattern(Self.FindItems(Items), Pattern));
-end;
-
-function TRSInventory.ContainsItem(Item: TRSItem): Boolean; overload;
-begin
-  Result := Self.ItemFinder.Contains(Item);
-end;
-
-function TRSInventory.ContainsItem(Items: TRSItemArray): Boolean; overload;
-begin
-  Result := Self.ItemFinder.ContainsAny(Items);
-end;
-
-function TRSInventory.ContainsItems(Items: TRSItemArray): Boolean;
-begin
-  Result := Self.ItemFinder.Contains(Items);
-end;
-
-function TRSInventory.FindItems(Item: TRSItem): TIntegerArray; overload;
-begin
-  Result := Self.ItemFinder.IndicesOf(Item);
-end;
-
-function TRSInventory.FindItems(Items: TRSItemArray): TIntegerArray; overload;
-begin
-  Result := Self.ItemFinder.IndicesOf(Items);
-end;
-
-function TRSInventory.FindItem(Item: TRSItem): Integer;
-begin
-  Result := Self.ItemFinder.IndexOf(Item);
-end;
-
-procedure TRSInventory.Setup(Name: String; GameTab: ERSGameTab); override;
+procedure TRSInventory.Setup(Name: String); override;
 begin
   inherited;
 
-  Self.ItemFinder.GetSearchBoxesFunction := @Self.GetSlotBoxes;
+  Self.ID := ERSGameTab.INVENTORY;
+  Self.ItemFinder.GetSearchBoxesFunction := @Self.GetItemBoxes;
 end;
 
 var
   Inventory: TRSInventory;
 
 begin
-  Inventory.Setup('Inventory', ERSGameTab.INVENTORY);
+  Inventory.Setup('Inventory');
 end;

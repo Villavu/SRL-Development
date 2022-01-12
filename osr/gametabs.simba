@@ -122,6 +122,8 @@ begin
     if Result then
       Exit;
   end;
+
+  Self.DebugLn('Unbale to open ' + ToString(Tab));
 end;
 
 procedure TRSGameTabs.Draw(Bitmap: TMufasaBitmap); override;

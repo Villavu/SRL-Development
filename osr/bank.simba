@@ -488,7 +488,7 @@ end;
 
 function TRSBank.FindItem(Item: TRSItem; out Box: TBox): Boolean;
 begin
-  Result := Self.ItemFinder.Find(Item, Box);
+  Result := Self.ItemFinder.Find([Item], Box);
 end;
 
 function TRSBank.Contains(Item: TRSItem): Boolean;
@@ -575,7 +575,7 @@ end;
 
 function TRSBank.DepositSlot(Item: TRSBankDepositSlot; UseQuantityButtons: Boolean): Boolean; 
 begin
-  Result := Self.DepositHelper(Inventory.GetSlotBox(Item.Slot), Item.Quantity, UseQuantityButtons);
+  Result := Self.DepositHelper(Inventory.GetItemBox(Item.Slot), Item.Quantity, UseQuantityButtons);
 end;
 
 (*

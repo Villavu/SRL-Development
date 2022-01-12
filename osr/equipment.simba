@@ -36,9 +36,16 @@ begin
       Result += 1;
 end;
 
+procedure TRSEquipment.Setup(Name: String); override;
+begin
+  inherited;
+
+  Self.ID := ERSGameTab.EQUIPMENT;
+end;
+
 var
   Equipment: TRSEquipment;
 
 begin
-  Equipment.Setup('Equipment', ERSGameTab.EQUIPMENT);
+  Equipment.Setup('Equipment');
 end;

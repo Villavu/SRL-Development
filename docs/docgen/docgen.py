@@ -9,7 +9,7 @@ import re
 import os, sys
 
 DOCNAME         = 'SRL'
-IGNORE_FOLDERS  = ['.git', 'docgen']
+IGNORE_FOLDERS  = ['.git', '.github', 'docs', 'examples', 'resources', 'tests']
 FILE_EXTENSIONS = ['.simba'] 
 SHORT_RST       = [('.. code-block:: pascal\n\n', '.. pascal::'), 
                    ('Example\n-------\n.. code-block:: pascal  ', 'Example\n-------')]
@@ -88,11 +88,9 @@ def generate(root):
         name = name + '('+dir.replace(os.sep,'_')+')'
       added.add(name)
       
-      
-      # extract all comments
+      # extract all comments, continue if there are none.
       res = commentregex.findall(contents)
       if len(res) == 0:
-        print('WARNING: ', name, ' is not documented')
         continue
       
       # generate a output file
@@ -119,7 +117,7 @@ def generate(root):
     # finally build the index file
     generate_index_rst(TOC)
     
-    os.system('sphinx-build source build -c -q .')
+    os.system('sphinx-build source build -q -c .')
 	
 if __name__ == '__main__':
     generate(sys.argv[1])

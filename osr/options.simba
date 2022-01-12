@@ -144,7 +144,7 @@ function TRSOptions.OpenTab(Tab: ERSOptionsTab): Boolean;
 begin
   if not Self.Open or not Self.CloseHouseOptions then
     Exit(False);
-  if Self.GetCurrentTab = Tab then
+  if Self.GetCurrentTab() = Tab then
     Exit(True);
 
   case Tab of
@@ -153,7 +153,7 @@ begin
     ERSOptionsTab.DISPLAY:  Self.ElementClick(ERSOptionsElement.DISPLAY_TAB);
   end;
 
-  Result := WaitUntil(Self.GetCurrentTab = Tab, SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
 procedure TRSOptions.Draw(Bitmap: TMufasaBitmap); override;
@@ -164,11 +164,18 @@ begin
   inherited();
 end;
 
+procedure TRSOptions.Setup(Name: String); override;
+begin
+  inherited;
+
+  Self.ID := ERSGameTab.OPTIONS;
+end;
+
 var
   Options: TRSOptions;
 
 begin
-  Options.Setup('Options', ERSGameTab.OPTIONS);
+  Options.Setup('Options');
 end;
 
 function TRSGameTabs.GetCurrentTab: ERSGameTab; override;

@@ -36,9 +36,16 @@ begin
   end;
 end;
 
+procedure TRSLogout.Setup(Name: String); override;
+begin
+  inherited;
+
+  Self.ID := ERSGameTab.LOGOUT;
+end;
+
 var
   Logout: TRSLogout;
 
 begin
-  Logout.Setup('Logout', ERSGameTab.LOGOUT);
+  Logout.Setup('Logout');
 end;

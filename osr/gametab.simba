@@ -5,8 +5,31 @@
 
 type
   TRSGameTab = record(TRSInterface)
+    Lock: Integer;
     ID: ERSGameTab;
   end;
+
+function TRSGameTab.IsLocked: Boolean;
+begin
+  Result := Lock > 1;
+end;
+
+function TRSGameTab.LockGameTab: Boolean;
+begin
+  if Self.IsLocked() then
+    Exit(True);
+
+  Result := Self.Open();
+  if Result then
+    Inc(Lock);
+end;
+
+procedure TRSGameTab.UnlockGametab;
+begin
+  Dec(Lock);
+  if (Lock < 0) then
+    Lock := 0;
+end;
 
 function TRSGameTab.IsOpen: Boolean;
 begin
@@ -18,9 +41,11 @@ begin
   Result := GameTabs.Open(Self.ID);
 end;
 
-procedure TRSGameTab.Setup(Name: String; GameTab: ERSGameTab); overload;
+//procedure TRSGameTab.Lock
+
+procedure TRSGameTab.Setup(Name: String); override;
 begin
-  Self.Setup(Name);
+  inherited;
 
   with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
   begin
@@ -46,6 +71,4 @@ begin
     Top    := [@GameTabs.Y1, 6];
     Bottom := [@GameTabs.Y2, -78];
   end;
-
-  Self.ID := GameTab;
 end;

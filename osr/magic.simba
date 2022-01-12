@@ -510,6 +510,13 @@ begin
   Bitmap.DrawBoxes(Self.GetSpellBoxes(Spellbook), False, $00FFFF);
 end;
 
+procedure TRSMagic.Setup(Name: String); override;
+begin
+  inherited;
+
+  Self.ID := ERSGameTab.MAGIC;
+end;
+
 (*
 var Magic
 ~~~~~~~~~~
@@ -519,5 +526,5 @@ var
   Magic: TRSMagic;
 
 begin
-  Magic.Setup('Magic', ERSGameTab.MAGIC);
+  Magic.Setup('Magic');
 end;

@@ -19,19 +19,22 @@ type
   TRSItem = Variant;
   TRSItemArray = array of TRSItem;
 
+  TRSItemFinderCustomFilter = procedure(Image, Templ: TMufasaBitmap) of object;
+
   TRSItemFinder = record(TSRLBaseRecord)
     ItemNames: TStringList;
+    ItemFilters: array of record
+      Name: String;
+      Filter: TRSItemFinderCustomFilter;
+    end;
+
     ItemImages: array of record
       Name: String;
       Images: array of TMufasaBitmap;
     end;
 
-    ClearSparkleItems: TRSItemArray;
-    
     Similarity: Single;
   end;
-
-  TRSItemFinderCustomFilter = procedure(Image, Templ: TMufasaBitmap) of object;
 
 procedure TRSItemFinder.Free;
 var
@@ -45,6 +48,8 @@ begin
 end;
 
 procedure TRSItemFinder.Setup;
+var
+  Filter: TRSItemFinderCustomFilter;
 begin
   ForceDirectories(ITEM_FINDER_IMAGES_PATH);
 
@@ -55,11 +60,6 @@ begin
   Self.ItemNames.LoadFromFile(ITEM_FINDER_ITEM_NAMES_FILE);
   Self.ItemNames.SetSorted(True);
 
-  Self.ClearSparkleItems := [
-    'magic logs', 1513,
-    'noted magic logs', 1514
-  ];
-
   AddOnTerminate(@Self.Free);
 end;
 
@@ -68,33 +68,23 @@ begin
   Self.ItemNames.Add(Item + '=' + ID);
 end;
 
+procedure TRSItemFinder.AddItemFilter(Item: String; Filter: TRSItemFinderCustomFilter);
+begin
+  Self.ItemFilters += [Item, @Filter];
+end;
+
 function TRSItemFinder.GetItemIDs(Item: String): TIntegerArray;
-type
-  TStringList = TStringList;
-
-  function TStringList.NameFromIndex(Index: Int32): String;
-  begin
-    if (Index >= 0) and (Index < Self.GetCount()) then
-      Result := Self.GetStrings(Index).Before('=');
-  end;
-
-  function TStringList.ValueFromIndex(Index: Int32): String;
-  begin
-    if (Index >= 0) and (Index < Self.GetCount()) then
-      Result := Self.GetStrings(Index).After('=');
-  end;
-
 var
   ItemID: Int32;
 begin
-  if Item.ExtractNumber(-1) <> -1 {Item.IsDigit()} then
+  if Item.IsNumber() then
     Result := Result + Item.ExtractNumber()
   else
   begin
     ItemID := Self.ItemNames.IndexOfName(Item);
-    while SameText(Item, Self.ItemNames.NameFromIndex(ItemID)) do
+    while SameText(Item, Self.ItemNames.GetNames(ItemID)) do
     begin
-      Result := Result + StrToInt(Self.ItemNames.ValueFromIndex(ItemID));
+      Result := Result + StrToInt(Self.ItemNames.GetValueFromIndex(ItemID));
 
       Inc(ItemID);
     end;
@@ -102,16 +92,6 @@ begin
 end;
 
 function TRSItemFinder.GetItemImages(Item: String): array of TMufasaBitmap;
-type
-  TMufasaBitmap = TMufasaBitmap;
-
-  function TMufasaBitmap.Equals(Other: TMufasaBitmap): Boolean;
-  begin
-    Result := (Self.GetWidth()  = Other.GetWidth()) and
-              (Self.GetHeight() = Other.GetHeight()) and
-              (CompareMem(Self.GetData()^, Other.GetData()^, Self.GetWidth() * Self.GetHeight() * SizeOf(TRGB32)));
-  end;
-
 var
   FileName: String;
   Image: TMufasaBitmap;
@@ -178,7 +158,7 @@ begin
   end;
 end;
 
-function TRSItemFinder.CompareItems(constref Image, Template: TMufasaBitmap; constref CustomFilter: TRSItemFinderCustomFilter): Single;
+function TRSItemFinder.CompareItems(Image, Template: TMufasaBitmap; CustomFilter: TRSItemFinderCustomFilter=nil): Single;
 var
   ImageBorder, TemplateBorder: TPointArray;
   TPA, ClearTPA: TPointArray;
@@ -206,8 +186,7 @@ begin
       begin
         if (P.Y <= 8) then // Possible stack number... Don't compare.
           Continue;
-        if not Contains(P, ImageBorder) then
-        //if (not PointInTPA(P, ImageBorder)) then // Borders don't match. No point going further.
+        if not Contains(P, ImageBorder) then // Borders don't match. No point going further.
           Exit;
       end;
     
@@ -240,56 +219,78 @@ begin
   end;
 end;
 
-function TRSItemFinder.Find(Item: TRSItem; Slots: TBoxArray; MaxToFind: Integer; out Indices: TIntegerArray): Boolean; overload;
+type
+  TRSItemFinderMatch = record
+    Item: TRSItem;
+    Box: TBox;
+    Index: Integer;
+  end;
+  TRSItemFinderMatchArray = array of TRSItemFinderMatch;
+
+function TRSItemFinder.FindAll(Items: TRSItemArray; Boxes: TBoxArray; MaxToFind: Integer = 0): TRSItemFinderMatchArray;
 var
-  Templ: TMufasaBitmap;
-  I, J: Int32;
-  Images: array of TMufasaBitmap;
-  CustomFilter: TRSItemFinderCustomFilter;
+  I, J: Integer;
+  Images: TMufasaBitmapArray;
+  Template: TMufasaBitmap;
+  Filter: TRSItemFinderCustomFilter;
+  ItemsToSearchFor: array of record
+    Image: TMufasaBitmap;
+    Name: TRSItem;
+    Filter: TRSItemFinderCustomFilter;
+  end;
 begin
-  if Length(Slots) = 0 then
-    Exit;
+  for I := 0 to High(Items) do
+  begin
+    Filter := nil;
+    for J := 0 to High(ItemFilters) do
+      if SameText(ItemFilters[J].Name, Items[I]) then
+        Filter := @ItemFilters[J].Filter;
 
-  Templ.Init();
+    Images := Self.GetItemImages(Items[I]);
+    for J := 0 to High(Images) do
+      ItemsToSearchFor += [Images[J], Items[I], @Filter];
+  end;
+
+  SetLength(Images, Length(Boxes));
+  for I := 0 to High(Images) do
+  begin
+    Images[I].Init();
+    Images[I].LoadFromClient(Boxes[I]);
+  end;
+
   try
-    Images := Self.GetItemImages(Item);
-
-    for I := 0 to High(Self.ClearSparkleItems) do
-      if (SameText(Self.ClearSparkleItems[I], Item)) then
-        CustomFilter := @Self.ClearSparkles;
-
-    for I := 0 to High(Slots) do
-      for J := 0 to High(Images) do
+    for I := 0 to High(Images) do
+      for J := 0 to High(ItemsToSearchFor) do
       begin
-        Templ.LoadFromClient(Slots[I]);
+        Template := Images[I].Copy();
 
-        if Self.CompareItems(Images[J], Templ, @CustomFilter) >= Self.Similarity then
-        begin
-          Indices += I;
-
-          Result := True;
-          if (Length(Indices) = MaxToFind) then
-            Exit;
+        try
+          // Search for item image *ON* the screen image since screen image is never larger than 36x36 item image.
+          if Self.CompareItems(ItemsToSearchFor[J].Image, Template, @ItemsToSearchFor[J].Filter) >= Self.Similarity then
+          begin
+            Result += [ItemsToSearchFor[J].Name, Boxes[I], I];
+            if Length(Result) = MaxToFind then
+              Exit;
+          end;
+        finally
+          Template.Free();
         end;
       end;
   finally
-    Templ.Free();
+    for I := 0 to High(Images) do
+      Images[I].Free();
   end;
 end;
 
-function TRSItemFinder.Find(Item: TRSItem; Slots: TBoxArray; MaxToFind: Integer; out Boxes: TBoxArray): Boolean; overload;
+function TRSItemFinder.Find(Items: TRSItemArray; Boxes: TBoxArray; out Match: TRSItemFinderMatch): Boolean;
 var
-  Indices: TIntegerArray;
-  I: Integer;
+  Matches: TRSItemFinderMatchArray;
 begin
-  Result := Self.Find(Item, Slots, MaxToFind, Indices);
+  Matches := Self.FindAll(Items, Boxes, 1);
 
+  Result := Length(Matches) = 1;
   if Result then
-  begin
-    SetLength(Boxes, Length(Indices));
-    for I := 0 to High(Indices) do
-      Boxes[I] := Slots[Indices[I]];
-  end;
+    Match := Matches[0];
 end;
 
 var
@@ -297,6 +298,12 @@ var
 
 begin
   ItemFinder.Setup();
+
+  // Special filters
+  ItemFinder.AddItemFilter('magic logs', @ItemFinder.ClearSparkles);
+  ItemFinder.AddItemFilter('noted magic logs', @ItemFinder.ClearSparkles);
+  ItemFinder.AddItemFilter('1513', @ItemFinder.ClearSparkles);
+  ItemFinder.AddItemFilter('1514', @ItemFinder.ClearSparkles);
 
   // We can map some useful things here
   //ItemFinder.AddItemName('Arrow shaft', '300');

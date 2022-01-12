@@ -3,95 +3,127 @@ type
     GetSearchBoxesFunction: function: TBoxArray of object;
   end;
 
-function TRSInterfaceItemFinder.Find(Item: TRSItem; out Box: TBox): Boolean;
+function TRSInterfaceItemFinder.IndexOf(Items: TRSItemArray): Integer;
 var
-  Boxes: TBoxArray;
+  Match: TRSItemFinderMatch;
 begin
   if (@Self.GetSearchBoxesFunction = nil) then
     Self.Fatal('ItemFinder.GetSearchBoxesFunction = nil');
 
-  Result := ItemFinder.Find(Item, Self.GetSearchBoxesFunction(), 1, Boxes);
+  if ItemFinder.Find(Items, Self.GetSearchBoxesFunction(), Match) then
+    Result := Match.Index
+  else
+    Result := -1;
+end;
+
+function TRSInterfaceItemFinder.IndicesOf(Items: TRSItemArray): TIntegerArray;
+var
+  Matches: TRSItemFinderMatchArray;
+  I: Integer;
+begin
+  if (@Self.GetSearchBoxesFunction = nil) then
+    Self.Fatal('ItemFinder.GetSearchBoxesFunction = nil');
+
+  Matches := ItemFinder.FindAll(Items, Self.GetSearchBoxesFunction());
+
+  SetLength(Result, Length(Matches));
+  for I := 0 to High(Matches) do
+    Result[I] := Matches[I].Index;
+end;
+
+function TRSInterfaceItemFinder.Find(Items: TRSItemArray; out Box: TBox): Boolean;
+var
+  Match: TRSItemFinderMatch;
+begin
+  if (@Self.GetSearchBoxesFunction = nil) then
+    Self.Fatal('ItemFinder.GetSearchBoxesFunction = nil');
+
+  Result := ItemFinder.Find(Items, Self.GetSearchBoxesFunction(), Match);
   if Result then
-    Box := Boxes[0];
+    Box := Match.Box;
 end;
 
-function TRSInterfaceItemFinder.FindAll(Item: TRSItem; out Boxes: TBoxArray): Boolean;
+function TRSInterfaceItemFinder.FindAll(Items: TRSItemArray): TBoxArray;
+var
+  Matches: TRSItemFinderMatchArray;
+  I: Integer;
 begin
   if (@Self.GetSearchBoxesFunction = nil) then
     Self.Fatal('ItemFinder.GetSearchBoxesFunction = nil');
 
-  Result := ItemFinder.Find(Item, Self.GetSearchBoxesFunction(), 0, Boxes);
+  Matches := ItemFinder.FindAll(Items, Self.GetSearchBoxesFunction());
+
+  SetLength(Result, Length(Matches));
+  for I := 0 to High(Matches) do
+    Result[I] := Matches[I].Box;
 end;
 
-function TRSInterfaceItemFinder.IndexOf(Item: TRSItem): Integer;
-var
-  Indices: TIntegerArray;
+function TRSInterfaceItemFinder.Contains(Item: TRSItem): Boolean;
 begin
-  if (@Self.GetSearchBoxesFunction = nil) then
-    Self.Fatal('ItemFinder.GetSearchBoxesFunction = nil');
-
-  Result := -1;
-  if ItemFinder.Find(Item, Self.GetSearchBoxesFunction(), 1, Indices) then
-    Result := Indices[0];
-end;
-
-function TRSInterfaceItemFinder.IndicesOf(Item: TRSItem): TIntegerArray; overload;
-var
-  Indices: TIntegerArray;
-begin
-  if (@Self.GetSearchBoxesFunction = nil) then
-    Self.Fatal('ItemFinder.GetSearchBoxesFunction = nil');
-
-  if ItemFinder.Find(Item, Self.GetSearchBoxesFunction(), 0, Indices) then
-    Result := Indices;
-end;
-
-function TRSInterfaceItemFinder.IndicesOf(Items: TRSItemArray): TIntegerArray; overload;
-var
-  Item: TRSItem;
-  Indices: TIntegerArray;
-begin
-  if (@Self.GetSearchBoxesFunction = nil) then
-    Self.Fatal('ItemFinder.GetSearchBoxesFunction = nil');
-
-  for Item in Items do
-    if ItemFinder.Find(Item, Self.GetSearchBoxesFunction(), 0, Indices) then
-      Result += Indices;
-end;
-
-function TRSInterfaceItemFinder.Contains(Item: TRSItem): Boolean; overload;
-begin
-  Result := Self.IndexOf(Item) > -1;
-end;
-
-function TRSInterfaceItemFinder.Contains(Items: TRSItemArray): Boolean; overload;
-var
-  Item: TRSItem;
-begin
-  for Item in Items do
-    if not Self.Contains(Item) then
-      Exit;
-
-  Result := True;
+  Result := Self.IndexOf([Item]) > -1;
 end;
 
 function TRSInterfaceItemFinder.ContainsAny(Items: TRSItemArray): Boolean;
-var
-  Item: TRSItem;
 begin
-  for Item in Items do
-    if Self.Contains(Item) then
-    begin
-      Result := True;
-      Exit;
-    end;
+  Result := Self.IndexOf(Items) > -1;
+end;
+
+function TRSInterfaceItemFinder.ContainsAll(Items: TRSItemArray): Boolean;
+var
+  Matches: TRSItemFinderMatchArray;
+  FoundItems: TRSItemArray;
+  I: Integer;
+begin
+  Matches := ItemFinder.FindAll(Items, Self.GetSearchBoxesFunction());
+  for I := 0 to High(Matches) do
+    FoundItems += Matches[I].Item;
+
+  Result := Length(Unique(FoundItems)) = Length(Items);
 end;
 
 function TRSInterfaceItemFinder.Count(Item: TRSItem): Integer;
 begin
-  Result := Length(Self.IndicesOf(Item));
+  Result := Length(Self.IndicesOf([Item]));
 end;
 
 function TRSInterfaceItemFinder.CountStack(Item: TRSItem): Integer;
+var
+  Box: TBox;
 begin
+  Result := -1;
+
+  if Self.Find([Item], Box) then
+    Result := SRL.GetItemAmount(Box);
 end;
+
+{
+function TRSInventory.Contains(Item: TRSItem): Boolean;
+begin
+  Result := Self.ItemFinder.Contains(Item);
+end;
+
+function TRSInventory.ContainsAny(Items: TRSItemArray): Boolean;
+begin
+  Result := Self.ItemFinder.ContainsAny(Items);
+end;
+
+function TRSInventory.ContainsAll(Items: TRSItemArray): Boolean;
+begin
+  Result := Self.ItemFinder.Contains(Items);
+end;
+
+function TRSInventory.FindAll(Item: TRSItem): TIntegerArray; overload;
+begin
+  Result := Self.ItemFinder.IndicesOf(Item);
+end;
+
+function TRSInventory.FindAll(Items: TRSItemArray): TIntegerArray; overload;
+begin
+  Result := Self.ItemFinder.IndicesOf(Items);
+end;
+
+function TRSInventory.Find(Item: TRSItem): Integer;
+begin
+  Result := Self.ItemFinder.IndexOf(Item);
+end;
+}

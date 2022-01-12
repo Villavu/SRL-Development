@@ -313,6 +313,13 @@ begin
   Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetActivePrayers), False, $FFFFFF);
 end;
 
+procedure TRSPrayer.Setup(Name: String); override;
+begin
+  inherited;
+
+  Self.ID := ERSGameTab.PRAYER;
+end;
+
 (*
 var Prayer
 ~~~~~~~~~~
@@ -648,6 +655,6 @@ begin
 end;
 
 begin
-  Prayer.Setup('Prayer', ERSGameTab.PRAYER);
-  QuickPrayer.Setup('QuickPrayer', ERSGameTab.PRAYER);
+  Prayer.Setup('Prayer');
+  //QuickPrayer.Setup('QuickPrayer', ERSGameTab.PRAYER);
 end;
