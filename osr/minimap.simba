@@ -84,7 +84,7 @@ var
   South: Vector2;
 begin
   with GetCompassCircle() do
-    if SRL.FindColors(TPA, CTS1(2565532, 50), Bounds()) then // red
+    if SRL.FindColors(TPA, CTS2(2236577, 11, 0.02, 1.88), Bounds()) then // red
     begin
       ATPA := TPA.Split(5);
       ATPA.SortByMiddle(ATPA.Biggest().Mean());
