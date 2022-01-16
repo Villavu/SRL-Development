@@ -77,7 +77,7 @@ var
 begin
   Result := Self[0];
   for I := 1 to High(Self) do
-    if Length(Self) > Length(Result) then
+    if Length(Self[I]) > Length(Result) then
       Result := Self[I];
 end;
 
@@ -87,7 +87,7 @@ var
 begin
   Result := Self[0];
   for I := 1 to High(Self) do
-    if Length(Self) < Length(Result) then
+    if Length(Self[I]) < Length(Result) then
       Result := Self[I];
 end;
 
