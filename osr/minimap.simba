@@ -73,28 +73,116 @@ begin
   Result := Self.PolygonOffset[RSClient.ClientMode].Offset(Self.Center);
 end;
 
+type
+  TRSCompassDials = record
+    N, S, E, W: TPoint;
+  end;
+
+function TRSMinimap.FindCompassDials: TRSCompassDials;
+
+  function FindDialColor(Center: TPoint; Radius: Integer; Color: TCTS1Color): TPointArray;
+  var
+    B: TBox;
+  begin
+    B.X1 := Center.X - Radius;
+    B.Y1 := Center.Y - Radius;
+    B.X2 := Center.X + Radius;
+    B.Y2 := Center.Y + Radius;
+
+    if SRL.FindColors(Result, Color, B) > 0 then
+      Result := Result.ExcludeDist(Center, 0, Radius);
+  end;
+
+var
+  ATPA: T2DPointArray;
+  TPA: TPointArray;
+  North: TPointArray;
+begin
+  with GetCompassCircle() do
+  begin
+    // find red on compass
+    TPA := FindDialColor(Mean(), Radius, CTS1(2565532, 50));
+    ATPA := TPA.Split(5);
+
+    if (Length(ATPA) <> 4) then
+    begin
+      Self.DebugLn('GetCompassAngle: Red dials not found');
+      Exit;
+    end;
+
+    // remove center red arrow (always the biggest)
+    ATPA.SortBySize(False);
+    ATPA.Pop();
+
+    // find north (brown) dial
+    North := FindDialColor(Mean(), Radius, CTS1(1911089, 25));
+
+    if (Length(North) = 0) then
+    begin
+      Self.DebugLn('GetCompassAngle: North dial not found');
+      Exit;
+    end;
+
+    // South dial is always furthest from north dial
+    TPA := ATPA.Middles();
+    TPA.Sort(North.Middle);
+
+    Result.N := North.Middle();
+    Result.S := TPA.Pop();
+
+    // figure out what is east/west dials
+    Result.E := TPA[0];
+    Result.W := TPA[1];
+
+    if (AngleBetween(Result.N, Result.S) >= 180) then
+    begin
+      if (Result.E.Y > Result.W.Y) then Swap(Result.E, Result.W);
+    end else
+    begin
+      if (Result.W.Y > Result.E.Y) then Swap(Result.E, Result.W);
+    end;
+  end;
+end;
+
 function TRSMinimap.GetCompassAngle(AsDegrees: Boolean = True): Double;
 var
   TPA: TPointArray;
-  ATPA: T2DPointArray;
-  South: Vector2;
+  I: Integer;
+  Dials: TRSCompassDials;
+  Angles: TExtendedArray;
 begin
+  // Find center dial
   with GetCompassCircle() do
-    if SRL.FindColors(TPA, CTS1(2565532, 50), Bounds()) then // red
-    begin
-      ATPA := TPA.Split(5);
-      ATPA.Sort(ATPA.Biggest().Middle());
-    
-      South := ATPA[High(ATPA)].MiddleEx;
-    
-      Result := FixRad(ArcTan2(South.Y - Y, South.X - X) - (PI / 2));
-      if (Result <> 0) then
-      begin
-	      Result += 0.0333; // compass dial is floored.. this makes us more accurate.
-        if AsDegrees then
-          Result := Degrees(Result);
-      end;
-    end;
+    SRL.FindColors(TPA,  CTS1(15857142, 25), TBox.Create(X-3, Y-3, X+3, Y+3));
+
+  if (Length(TPA) = 0) then
+  begin
+    Self.DebugLn('GetCompassAngle: Center not found');
+    Exit;
+  end;
+
+  Dials := Self.FindCompassDials();
+
+  for I := 0 to High(TPA) do
+  begin
+    Angles += [
+      ArcTan2(Dials.E.Y - TPA[I].Y, Dials.E.X - TPA[I].X),
+      ArcTan2(Dials.S.Y - TPA[I].Y, Dials.S.X - TPA[I].X) - (PI / 2),
+      ArcTan2(Dials.W.Y - TPA[I].Y, Dials.W.X - TPA[I].X) - (PI)
+    ];
+  end;
+
+  for I := 0 to High(Angles) do
+  begin
+    if (Angles[I] <> 0) then
+      Angles[I] := Angles[I] + 0.0333; //compass dial is floored.. this makes us more accurate.
+
+    Angles[I] := FixD(Degrees(Angles[I]));
+  end;
+
+  Result := Average(Angles);
+  if not AsDegrees then
+    Result := Radians(Result);
 end;
 
 procedure TRSMinimap.SetCompassAngle(Degrees: Double; Accuracy: Double = 5);
@@ -324,7 +412,7 @@ end;
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
-  Result := FindBitmapToleranceIn(RSBitmaps.FlagBitmap.GetIndex(), P.X, P.Y, Self.Bounds, 5);
+  Result := FindBitmapToleranceIn(RSBitmaps.MinimapFlag.GetIndex(), P.X, P.Y, Self.Bounds, 5);
 end;
 
 function TRSMinimap.HasFlag: Boolean; overload;
