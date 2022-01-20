@@ -116,35 +116,9 @@ end;
 // ----------------------------------------
 // Returns the sample mode of the array, which is the most frequently occurring value in the array.
 // When there are multiple values occurring equally frequently, mode returns the smallest of those values.
-function TIntegerArray.Mode(): Int32;
-var
-  arr: TIntegerArray;
-  i,hits,best: Int32;
-  cur: Int32;
+function TIntegerArray.Mode: Int32;
 begin
-  if Length(Self) > 0 then
-  begin
-    arr := self.Sorted();
-    cur := self[0];
-    hits := 1;
-    best := 0;
-    for i:=1 to High(self) do
-    begin
-      if (self[i] <> cur) then
-      begin
-        if (hits > best) then
-        begin
-          best := hits;
-          Result := cur;
-        end;
-        hits := 0;
-        cur := self[I];
-      end;
-      Inc(hits);
-    end;
-    if (hits > best) then
-      Result := cur;
-  end;
+  Result := System.Mode(Self);
 end;
 
 function TIntegerArray.UniqueCount: Integer; constref;

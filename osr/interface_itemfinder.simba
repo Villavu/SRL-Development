@@ -96,34 +96,23 @@ begin
     Result := SRL.GetItemAmount(Box);
 end;
 
-{
-function TRSInventory.Contains(Item: TRSItem): Boolean;
+function TRSInterfaceItemFinder.Hover(Item: TRSItem): Boolean;
+var
+  Box: TBox;
 begin
-  Result := Self.ItemFinder.Contains(Item);
+  Result := Self.Find([Item], Box);
+  if Result then
+    Mouse.Move(Box);
 end;
 
-function TRSInventory.ContainsAny(Items: TRSItemArray): Boolean;
+function TRSInterfaceItemFinder.Click(Item: TRSItem): Boolean;
 begin
-  Result := Self.ItemFinder.ContainsAny(Items);
+  Result := Self.Hover(Item);
+  if Result then
+    Mouse.Click(MOUSE_LEFT);
 end;
 
-function TRSInventory.ContainsAll(Items: TRSItemArray): Boolean;
+function TRSInterfaceItemFinder.ClickOption(Item: TRSItem; Option: String): Boolean;
 begin
-  Result := Self.ItemFinder.Contains(Items);
+  Result := Self.Hover(Item) and ChooseOption.Select(Option);
 end;
-
-function TRSInventory.FindAll(Item: TRSItem): TIntegerArray; overload;
-begin
-  Result := Self.ItemFinder.IndicesOf(Item);
-end;
-
-function TRSInventory.FindAll(Items: TRSItemArray): TIntegerArray; overload;
-begin
-  Result := Self.ItemFinder.IndicesOf(Items);
-end;
-
-function TRSInventory.Find(Item: TRSItem): Integer;
-begin
-  Result := Self.ItemFinder.IndexOf(Item);
-end;
-}

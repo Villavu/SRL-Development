@@ -558,42 +558,112 @@ end;
 
 function TRSInventory.ShiftDrop(Items: TRSItemArray; Pattern: TIntegerArray): Boolean; overload;
 begin
-  Result := Self.ShiftDrop(Self.MakePattern(Self.FindAll(Items), Pattern));
+  if Self.LockGameTab() then
+  try
+    Result := Self.ShiftDrop(Self.MakePattern(Self.FindAll(Items), Pattern));
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
 function TRSInventory.Contains(Item: TRSItem): Boolean;
 begin
-  Result := Self.ItemFinder.Contains(Item);
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.Contains(Item);
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
 function TRSInventory.ContainsAny(Items: TRSItemArray): Boolean;
 begin
-  Result := Self.ItemFinder.ContainsAny(Items);
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.ContainsAny(Items);
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
 function TRSInventory.ContainsAll(Items: TRSItemArray): Boolean;
 begin
-  Result := Self.ItemFinder.ContainsAll(Items);
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.ContainsAll(Items);
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
 function TRSInventory.FindAll(Item: TRSItem): TIntegerArray; overload;
 begin
-  Result := Self.ItemFinder.IndicesOf([Item]);
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.IndicesOf([Item]);
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
 function TRSInventory.FindAll(Items: TRSItemArray): TIntegerArray; overload;
 begin
-  Result := Self.ItemFinder.IndicesOf(Items);
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.IndicesOf(Items);
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
 function TRSInventory.Find(Item: TRSItem): Integer;
 begin
-  Result := Self.ItemFinder.IndexOf([Item]);
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.IndexOf([Item]);
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
 function TRSInventory.CountStack(Item: TRSItem): Integer;
 begin
-  Result := Self.ItemFinder.CountStack(Item);
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.CountStack(Item);
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+function TRSInventory.Hover(Item: TRSItem): Boolean;
+begin
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.Hover(Item);
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+function TRSInventory.Click(Item: TRSItem): Boolean;
+begin
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.Click(Item);
+  finally
+    Self.UnlockGametab();
+  end;
+end;
+
+function TRSInventory.ClickOption(Item: TRSItem; Option: String): Boolean;
+begin
+  if Self.LockGameTab() then
+  try
+    Result := Self.ItemFinder.ClickOption(Item, Option);
+  finally
+    Self.UnlockGametab();
+  end;
 end;
 
 procedure TRSInventory.Draw(Bitmap: TMufasaBitmap); override;

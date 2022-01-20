@@ -12,10 +12,6 @@ type
   TRSChooseOption_OptionArray = array of TRSChooseOption_Option;
 
   TRSChooseOption = record
-    Bitmap: Int32;
-    BitmapWidth: Int32;
-    BitmapHeight: Int32;
-
     Bounds: TBox;
   end;
 
@@ -28,9 +24,9 @@ var
 begin
   B := GetClientBounds();
 
-  if FindBitmap(Self.Bitmap, P.X, P.Y) then
+  if FindBitmap(RSBitmaps.ChooseOption.GetIndex(), P.X, P.Y) then
   begin
-    P.Y += Self.BitmapHeight;
+    P.Y += RSBitmaps.ChooseOption.GetHeight();
 
     if FindColors(TPA, 0, P.X, P.Y, B.X2, B.Y2) then
     begin
@@ -67,20 +63,6 @@ begin
 
     Result := Self.IsOpen(3000);
   end;
-end;
-
-procedure TRSChooseOption.Free;
-begin
-  FreeBitmap(Self.Bitmap);
-end;
-
-procedure TRSChooseOption.Setup;
-begin
-  Self.Bitmap := BitmapFromString(20, 18, 'meJxzD4l1pwAxkAsGj15Mv+DyGpogXBmyemL04lEzgHqxhgPxehkwwoEkN9NCLwMRcYRHL5rvSNVLPBhAvWQjAO6IcGE=');
-
-  GetBitmapSize(Self.Bitmap, Self.BitmapWidth, Self.BitmapHeight);
-
-  AddOnTerminate(@Self.Free);
 end;
 
 function TRSChooseOption.GetOptions: TRSChooseOption_OptionArray;
@@ -202,7 +184,3 @@ end;
 
 var
   ChooseOption: TRSChooseOption;
-
-begin
-  ChooseOption.Setup();
-end;
