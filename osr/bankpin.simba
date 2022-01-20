@@ -12,7 +12,7 @@ type
 
 function TRSBankPin.IsOpen: Boolean;
 begin
-  Result := Self.ElementFindText(ERSBankPinElement.EXIT, [$0000FF, $FFFFFF], 'Exit', RS_FONT_QUILL_8);
+  Result := Self.ElementFindText(ERSBankPinElement.EXIT, [RSColors.TEXT_RED, RSColors.TEXT_WHITE], 'Exit', RS_FONT_QUILL_8);
 end;
 
 procedure TRSBankPin.Setup(Name: String); override;
@@ -58,31 +58,36 @@ function TRSBankPin.Enter(Pin: String): Boolean;
 
   function GetDigitToEnter: Integer;
   begin
-    if Self.ElementFindText(ERSBankPinElement.STATE, [$FFFFFF], 'FIRST', RS_FONT_BOLD_12)  then Exit(1);
-    if Self.ElementFindText(ERSBankPinElement.STATE, [$FFFFFF], 'SECOND', RS_FONT_BOLD_12) then Exit(2);
-    if Self.ElementFindText(ERSBankPinElement.STATE, [$FFFFFF], 'THIRD', RS_FONT_BOLD_12)  then Exit(3);
-    if Self.ElementFindText(ERSBankPinElement.STATE, [$FFFFFF], 'FOURTH', RS_FONT_BOLD_12) then Exit(4);
+    if Self.ElementFindText(ERSBankPinElement.STATE, [RSColors.TEXT_WHITE], 'FIRST', RS_FONT_BOLD_12)  then Exit(1);
+    if Self.ElementFindText(ERSBankPinElement.STATE, [RSColors.TEXT_WHITE], 'SECOND', RS_FONT_BOLD_12) then Exit(2);
+    if Self.ElementFindText(ERSBankPinElement.STATE, [RSColors.TEXT_WHITE], 'THIRD', RS_FONT_BOLD_12)  then Exit(3);
+    if Self.ElementFindText(ERSBankPinElement.STATE, [RSColors.TEXT_WHITE], 'FOURTH', RS_FONT_BOLD_12) then Exit(4);
+  end;
+
+  function Progressed(Digit: Integer): Boolean;
+  begin
+    if (Digit = 4) then
+      Result := WaitUntil(Bank.IsOpen(), 500, 2500 + Random(1000))
+    else
+      Result := WaitUntil(GetDigitToEnter() > Digit, 500, 2500 + Random(1000));
   end;
 
   function ClickDigit(Digit: Char): Boolean;
   var
     Element: ERSBankPinElement;
   begin
-    for 1 to 2 do // Check twice to make sure
-      for Element in [ERSBankPinElement.DIGIT_1..ERSBankPinElement.DIGIT_10] do
-        if Self.ElementFindText(Element, [$007FFF], Digit, RS_FONT_BOLD_12) then
-        begin
-          Self.ElementClick(Element);
-
-          Exit(True);
-        end;
+    for Element in ERSBankPinElement do
+      if Self.ElementFindText(Element, [$007FFF], Digit, RS_FONT_BOLD_12) then
+      begin
+        Self.ElementClick(Element);
+        Exit(True);
+      end;
 
     // Already hovering?
-    for Element in [ERSBankPinElement.DIGIT_1..ERSBankPinElement.DIGIT_10] do
+    for Element in ERSBankPinElement do
       if Mouse.Position() in Self.ElementBounds(Element) then
       begin
         Self.ElementClick(Element);
-
         Exit(True);
       end;
   end;
@@ -97,14 +102,13 @@ begin
     begin
       Digit := GetDigitToEnter();
 
-      if (Digit > 0) and ClickDigit(Pin[Digit]) then
+      if (Digit > 0) then
       begin
-        if (Digit = 4) then
-        begin
-         // if Bank.IsOpen(4000) then
-        //    Exit(True);
-        end else
-          WaitUntil(GetDigitToEnter() > Digit, 100, 2000 + Random(1000));
+        if not ClickDigit(Pin[Digit]) then
+          Self.DebugLn('Failed to enter digit ' + Pin[Digit])
+        else
+        if not Progressed(Digit) then
+          Self.DebugLn('Failed to progress to next digit');
       end;
 
       Wait(1000, 2000, wdLeft);
@@ -131,12 +135,10 @@ begin
   BankPin.Setup('Bank Pin');
 end;
 
-{
-function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean; override;
+function TRSBank.IsOpen: Boolean; override;
 begin
   if (not BankPin.Entering) and BankPin.IsOpen() and (not BankPin.Enter(Login.GetPlayerPin())) then
     Self.Fatal('Failed to enter bank pin');
 
   Result := inherited;
 end;
-}

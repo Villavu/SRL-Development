@@ -4,6 +4,7 @@ type
     TEXT_WHITE  = $FFFFFF;
     TEXT_ORANGE = $1F98FF; // Interface titles
     TEXT_BROWN  = $203040; // Make interface
+    TEXT_RED    = $0000FF;
 
     BUTTON_RED  = $2326A0; // Button enabled background. Use ~5 tolerance
     BUTTON_GREY = $516370; // Button disabled background. Use ~5 tolerance

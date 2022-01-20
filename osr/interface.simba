@@ -180,7 +180,7 @@ var
 begin
   Bitmap.DrawBox(Self.Bounds(), $00FFFF);
 
-  for I:=0 to High(Self.Elements) do
+  for I := 0 to High(Self.Elements) do
     Bitmap.DrawBox(Self.ElementFinder.Bounds(Self.Elements[I]), $00FF00);
 
   ScrollBar := Self.GetScrollBar();

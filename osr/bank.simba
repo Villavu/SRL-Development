@@ -26,10 +26,10 @@ type
     Quantity: Int32;
     Noted: Boolean;
 
-    SetScrollPosition: Boolean;
+    UseScrollPosition: Boolean;
     ScrollPosition: Integer;
 
-    SetTabIndex: Boolean;
+    UseTabIndex: Boolean;
     TabIndex: Integer;
   end;
   
@@ -146,47 +146,6 @@ begin
       Result += Grid(8, 1, 32, B.Height(), [16], [Area.X1, B.Y1 - 1]);
     end;
   end;
-end;
-
-procedure TRSBank.Setup(Name: String); override;
-begin
-  inherited;
-
-  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
-  begin
-    Left   := [@InterfaceArea.X1];
-    Right  := [@InterfaceArea.X2];
-    Top    := [@InterfaceArea.Y1, 2];
-    Bottom := [@InterfaceArea.Y2, -1];
-
-    Center.MaxWidth := 488;
-    Center.MaxHeight := 800;
-  end;
-
-  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
-  begin
-    Left   := [@InterfaceArea.X1];
-    Right  := [@InterfaceArea.X2];
-    Top    := [@InterfaceArea.Y1, 2];
-    Bottom := [@InterfaceArea.Y2, -2];
-
-    Center.MaxWidth := 488;
-    Center.MaxHeight := 800;
-  end;
-
-  // Same as above
-  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
-  begin
-    Left   := [@InterfaceArea.X1];
-    Right  := [@InterfaceArea.X2];
-    Top    := [@InterfaceArea.Y1, 2];
-    Bottom := [@InterfaceArea.Y2, -2];
-
-    Center.MaxWidth := 488;
-    Center.MaxHeight := 800;
-  end;
-
-  Self.ItemFinder.GetSearchBoxesFunction := @Self.FindItemBoundaries;
 end;
 
 function TRSBank.IsSearching: Boolean;
@@ -395,95 +354,94 @@ begin
   end;
 end;
 
-
 (*
-Bank.CountTabs
-~~~~~~~~~~~
+TRSBank.CountTabs
+~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSBank.CountTabs: Int32;
 
-Counts the existing bank tabs.
+Counts how many tabs in the bank.
+
+Will return 0 if no tabs exists. Otherwise `1..9`.
 
 Example
 -------
 
-  WriteLn Bank.CountTabs;
+  WriteLn(Bank.CountTabs());
 *)
 function TRSBank.CountTabs: Int32;
 var
-  i: Integer;
-  TPA: TPointArray;
+  Element: ERSBankElement;
 begin
-  Result := 0;
-
-  for i := 9 downto 1 do
-    if SRL.FindColors(TPA, CTS0(65536), Self.GetTabBox(i)) > 0 then
-      Exit(i);
+  for Element in [ERSBankElement.TAB_ALL..ERSBankElement.TAB_9] do
+    if Self.ElementCountColor(Element, RSColors.ITEM_BORDER, 0) then
+      Inc(Result);
 end;
 
 (*
-Bank.GetCurrentTab
-~~~~~~~~~~~
+TRSBank.GetCurrentTab
+~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSBank.GetCurrentTab: Int32;
 
-Get the current active bank tab.
+Returns the index of the current bank tab.
+Will return `0..9` with 0 being "View all items".
 
 Example
 -------
 
-  WriteLn Bank.GetCurrentTab;
+  WriteLn(Bank.GetCurrentTab());
 *)
-function TRSBank.GetTabIndex: Int32;
+function TRSBank.GetCurrentTab: Int32;
 var
   Element: ERSBankElement;
   Box: TBox;
 begin
-  for Element in [ERSBankElement.TAB_ALL..ERSBankElement.TAB_9] do
+  for Element in [ERSBankElement.TAB_1..ERSBankElement.TAB_9] do
   begin
     Box := Self.ElementBounds(Element);
     Box.Y1 := Box.Y2;
     if CountColor($232B2E, Box) = 0 then
-      Exit;
-
-    Inc(Result);
+      Exit(1 + (Ord(Element) - Ord(ERSBankElement.TAB_1)));
   end;
-
-  Result := -1;
-end;
-
-function TRSBank.IsTabIndex(Index: Integer): Boolean;
-begin
-  Result := (Self.GetTabIndex() = Index);
 end;
 
 (*
-Bank.OpenTab
-~~~~~~~~~~~
-.. pascal:: function TRSBank.OpenTab(Tab: Int32): Boolean;
+TRSBank.IsCurrentTab
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBank.IsCurrentTab(Index: Integer): Boolean;
 
-Open the specified bank tab.
+Returns true if the current tab index is `Index`.
 
 Example
 -------
 
-  Bank.OpenTab(0);
+  if Bank.IsCurrentTab(3) then
+    WriteLn('Tab 3 is open!')
+  else
+  if Bank.IsCurrentTab(0) then
+    WriteLn('Viewing all items');
 *)
-function TRSBank.SetTabIndex(TabIndex: Int32): Boolean;
+function TRSBank.IsCurrentTab(Index: Integer): Boolean;
+begin
+  Result := (Self.GetCurrentTab() = Index);
+end;
+
+function TRSBank.SetCurrentTab(Index: Integer): Boolean;
 var
   Element: ERSBankElement;
 begin
   if not Self.IsOpen() then
     Exit;
 
-  if Self.IsTabIndex(TabIndex) then
+  if Self.IsCurrentTab(Index) then
     Exit(True);
 
-  Element := ERSBankElement(ERSBankElement.TAB_ALL + TabIndex);
+  Element := ERSBankElement(ERSBankElement.TAB_ALL + Index);
   if not (Element in [ERSBankElement.TAB_ALL..ERSBankElement.TAB_9]) then
-    Self.Fatal('Invalid tab index');
+    Self.Fatal('Invalid tab index: ' + ToString(Index));
 
   Self.ElementClick(Element);
 
-  Result := WaitUntil(Self.IsTabIndex(TabIndex), SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(Self.IsCurrentTab(Index), SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
 function TRSBank.FindItem(Item: TRSItem; out Box: TBox): Boolean;
@@ -548,13 +506,13 @@ begin
     Exit;
   end;
 
-  if Item.SetTabIndex then
-    Self.SetTabIndex(Item.TabIndex);
-  if Item.SetScrollPosition then
-    Self.SetScrollPosition(Item.ScrollPosition);
-
-  if (Item.SetTabIndex or Item.SetScrollPosition) then
+  if (Item.UseTabIndex or Item.UseScrollPosition) then
   begin
+    if Item.UseTabIndex then
+      Self.SetCurrentTab(Item.TabIndex);
+    if Item.UseScrollPosition then
+      Self.SetScrollPosition(Item.ScrollPosition);
+
     if Self.FindItem(Item.Item, Box) then
       Result := Self.WithdrawHelper(Box, Item.Quantity, Item.Noted, UseQuantityButtons);
   end;
@@ -593,6 +551,47 @@ begin
   Result := Self.IsOpen();
   if Result then
     Self.ElementClick(ERSBankElement.DEPOSIT_INVENTORY);
+end;
+
+procedure TRSBank.Setup(Name: String); override;
+begin
+  inherited;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.FIXED] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, 2];
+    Bottom := [@InterfaceArea.Y2, -1];
+
+    Center.MaxWidth := 488;
+    Center.MaxHeight := 800;
+  end;
+
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_CLASSIC] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, 2];
+    Bottom := [@InterfaceArea.Y2, -2];
+
+    Center.MaxWidth := 488;
+    Center.MaxHeight := 800;
+  end;
+
+  // Same as above
+  with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
+  begin
+    Left   := [@InterfaceArea.X1];
+    Right  := [@InterfaceArea.X2];
+    Top    := [@InterfaceArea.Y1, 2];
+    Bottom := [@InterfaceArea.Y2, -2];
+
+    Center.MaxWidth := 488;
+    Center.MaxHeight := 800;
+  end;
+
+  Self.ItemFinder.GetSearchBoxesFunction := @Self.FindItemBoundaries;
 end;
 
 (*
