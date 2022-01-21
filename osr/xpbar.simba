@@ -15,7 +15,6 @@ type
     end;
 
     Size: ERSXPBarSize;
-    Bitmaps: array[ERSXPBarSize] of TMufasaBitmap;
   end;
 
 function TRSXPBar.IsOpen: Boolean;
@@ -43,18 +42,18 @@ end;
 
 function TRSXPBar.CustomBoundsFinder(ClientMode: ERSClientMode): TBox;
 
-  function Find(Size: ERSXPBarSize; Area: TBox; out Bounds: TBox): Boolean;
+  function Find(Bitmap: TMufasaBitmap; Area: TBox; out Bounds: TBox): Boolean;
   var
     X, Y: Integer;
   begin
-    Result := FindBitmapToleranceIn(Self.Bitmaps[Size].GetIndex(), X, Y, Area, 5);
+    Result := FindBitmapToleranceIn(Bitmap.GetIndex(), X, Y, Area, 5);
 
     if Result then
     begin
       Bounds.X1 := X;
       Bounds.Y1 := Y;
-      Bounds.X2 := X + Self.Bitmaps[Size].GetWidth()  - 1;
-      Bounds.Y2 := Y + Self.Bitmaps[Size].GetHeight() - 1;
+      Bounds.X2 := X + Bitmap.GetWidth()  - 1;
+      Bounds.Y2 := Y + Bitmap.GetHeight() - 1;
     end;
   end;
 
@@ -71,9 +70,10 @@ begin
   Area := MainScreen.Bounds;
   Area.Y2 := Area.Y1 + 100;
 
-  for Self.Size in ERSXPBarSize do
-    if Find(Self.Size, Area, Result) then
-      Break;
+  if not Find(RSBitmaps.XPBarSmall, Area, Result) and
+     not Find(RSBitmaps.XPBarMedium, Area, Result) and
+     not Find(RSBitmaps.XPBarLarge, Area, Result) then
+    Exit;
 
   Self.Cache := [ClientWidth, ClientHeight, ClientMode, Result];
 end;
@@ -81,10 +81,6 @@ end;
 procedure TRSXPBar.Setup(Name: String); override;
 begin
   inherited;
-
-  Self.Bitmaps[ERSXPBarSize.SMALL]  := SRL.AddManagedBitmap(BitmapFromString(119, 29, 'meJzt2jERgAAQA0G8YIASAxigxL8QOgYDfxTsThRcnXXbV5vfcV42tyfywgyRAyIHRA6IHBA5IHJA5IDIAZEDIgdEDogcEDkgckDkgMgBkQMiB0QOiBwQOSByQOSAyIF3ZJvb5w+xn+wG5pOp+A=='));
-  Self.Bitmaps[ERSXPBarSize.MEDIUM] := SRL.AddManagedBitmap(BitmapFromString(129, 29, 'meJzt2jERgDAABMF4iYGUGMAAJf6FJBWDg21u5x1c+3Nds+ndz9vUvgQjQgm4EnAl4ErAlYArAVcCrgRcCbgScCXgSsCVgCsBVwKuBFwJuBJwJeBKwJWAKwFXAq4E3D9BU+Nfyna2Abq6x6g='));
-  Self.Bitmaps[ERSXPBarSize.LARGE]  := SRL.AddManagedBitmap(BitmapFromString(140, 29, 'meJzt2qERgDAABEF6SQNIGkgDSPovJI5B4nJid76Dsz/Oa1h+834su7fRQZJGfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUZ9GfRr1adSnUd+3kWW3/cZsf7YAmM7oUA=='));
 
   Self.BoundsFinder.CustomFunction := @Self.CustomBoundsFinder;
 end;
