@@ -19,7 +19,10 @@ type
     COLLECT_SLOT_2,
     GUIDE_PRICE,
     ABORT,
-    HISTORY
+    HISTORY,
+    ENTER_QUANTITY,
+    ENTER_PRICE,
+    CONFIRM
   );
 
 procedure TRSGrandExchange.Setup(Name: String); override;
@@ -206,6 +209,33 @@ begin
     Offset := [9, 9];
     Width  := 42;
     Height := 16;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.ENTER_QUANTITY] do
+  begin
+    Name   := 'enter_quantity';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [201, 183];
+    Width  := 31;
+    Height := 21;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.ENTER_PRICE] do
+  begin
+    Name   := 'enter_price';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [358, 183];
+    Width  := 31;
+    Height := 21;
+  end;
+
+  with Self.Elements[ERSGrandExchangeElement.CONFIRM] do
+  begin
+    Name   := 'confirm';
+    Anchor := ERSInterfaceElementAnchor.TOP;
+    Offset := [168, 251];
+    Width  := 148;
+    Height := 36;
   end;
 end;
 

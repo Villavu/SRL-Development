@@ -2,5 +2,5 @@ name=SRL
 directory=Includes
 flat=false
 ignore=.git,.gitignore,.simbapackage,.gitattributes
-Scripts=docs/docgen/docgen.simba,osr/walker/webber.simba
+Scripts=docs/docgen/docgen.simba,osr/walker/webber.simba,osr/elements/builder.simba
 Examples=examples

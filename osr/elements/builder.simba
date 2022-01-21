@@ -45,8 +45,6 @@ type
     Form: TForm;
     ImageBox: TSimbaImageBox;
     ListBox: TListBox;
-    // add listbox onselectionchange
-    // wait for cleardebug?
 
     Selected: record
       Name: String;
@@ -502,68 +500,40 @@ begin
   end;
 end;
 
+const
+  RSInterfaces: array of record Name: String; Elements: TRSInterfaceElementArray; Bounds: TBox; end :=
+  [
+    ['GrandExchange', GrandExchange.Elements, GrandExchange.Bounds],
+    ['Bank',          Bank.Elements,          Bank.Bounds         ],
+    ['Make',          Make.Elements,          Make.Bounds         ],
+    ['DepositBox',    DepositBox.Elements,    DepositBox.Bounds   ],
+    ['Anvil',         Anvil.Elements,         Anvil.Bounds        ],
+    ['ChatButtons',   ChatButtons.Elements,   ChatButtons.Bounds  ],
+    ['Combat',        Combat.Elements,        Combat.Bounds       ],
+    ['Options',       Options.Elements,       Options.Bounds      ],
+    ['Logout',        Logout.Elements,        Logout.Bounds       ],
+    ['Equipment',     Equipment.Elements,     Equipment.Bounds    ],
+    ['BankPin',       BankPin.Elements,       BankPin.Bounds      ],
+    ['Inventory',     Inventory.Elements,     Inventory.Bounds    ]
+  ];
+
+var I: Integer;
+var Names: TStringArray;
+var Name: String;
 begin
-  InterfaceBuilder.Name := 'GrandExchange';
-  InterfaceBuilder.Buttons := GrandExchange.Elements;
-  InterfaceBuilder.Bounds := GrandExchange.Bounds;
+  for I := 0 to High(RSInterfaces) do
+    Names += RSInterfaces[I].Name;
 
-  {
-  InterfaceBuilder.Name := 'Bank';
-  InterfaceBuilder.Buttons := Bank.Elements;
-  InterfaceBuilder.Bounds := Bank.Bounds;
-  }
-  {
-  InterfaceBuilder.Name := 'Make';
-  InterfaceBuilder.Buttons := Make.Elements;
-  InterfaceBuilder.Bounds := Make.Bounds;
-  }
-  {
-  InterfaceBuilder.Name := 'DepositBox';
-  InterfaceBuilder.Buttons := DepositBox.Elements;
-  InterfaceBuilder.Bounds := DepositBox.Bounds;
-  }
-  {
-  InterfaceBuilder.Name := 'Anvil';
-  InterfaceBuilder.Buttons := Anvil.Elements;
-  InterfaceBuilder.Bounds := Anvil.Bounds;
-  }
-  {
-  InterfaceBuilder.Name := 'ChatButtons';
-  InterfaceBuilder.Buttons := ChatButtons.Elements;
-  InterfaceBuilder.Bounds := ChatButtons.Bounds;
-  }
-  {
-  InterfaceBuilder.Name := 'Combat';
-  InterfaceBuilder.Buttons := Combat.Elements;
-  InterfaceBuilder.Bounds := Combat.Bounds;
-  }
-  {
-  InterfaceBuilder.Name := 'Options';
-  InterfaceBuilder.Buttons := Options.Elements;
-  InterfaceBuilder.Bounds := Options.Bounds;
-  }
-  {
-  InterfaceBuilder.Name := 'Logout';
-  InterfaceBuilder.Buttons := Logout.Elements;
-  InterfaceBuilder.Bounds := Logout.Bounds;
-  }
-  {
-  InterfaceBuilder.Name := 'Equipment';
-  InterfaceBuilder.Buttons := Equipment.Elements;
-  InterfaceBuilder.Bounds := Equipment.Bounds;
-  }
+  Name := Names[InputCombo('Interface Builder', 'What interface?', Names)];
+  for I := 0 to High(RSInterfaces) do
+    if (RSInterfaces[I].Name = Name) then
+    begin
+      InterfaceBuilder.Name := RSInterfaces[I].Name;
+      InterfaceBuilder.Buttons := RSInterfaces[I].Elements;
+      InterfaceBuilder.Bounds := RSInterfaces[I].Bounds;
 
-  {
-  InterfaceBuilder.Name := 'BankPin';
-  InterfaceBuilder.Buttons := BankPin.Elements;
-  InterfaceBuilder.Bounds := BankPin.Bounds;
-  }
+      Sync(@InterfaceBuilder.Run);
 
-  {
-  InterfaceBuilder.Name := 'Options';
-  InterfaceBuilder.Buttons := Options.Elements;
-  InterfaceBuilder.Bounds := Options.Bounds;
-  }
-
-  Sync(@InterfaceBuilder.Run);
+      Exit;
+    end;
 end;
