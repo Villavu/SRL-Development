@@ -1,3 +1,9 @@
+(*
+Bank Pin
+========
+Methods to handle entering the bank pin.
+*)
+
 {$DEFINE SRL_BANKPIN_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -54,7 +60,7 @@ begin
   end;
 end;
 
-function TRSBankPin.Enter(Pin: String): Boolean;
+function TRSBankPin.Enter(Pin: String; IsNextInterfaceOpen: function: Boolean of object): Boolean;
 
   function GetDigitToEnter: Integer;
   begin
@@ -62,14 +68,6 @@ function TRSBankPin.Enter(Pin: String): Boolean;
     if Self.ElementFindText(ERSBankPinElement.STATE, [RSColors.TEXT_WHITE], 'SECOND', RS_FONT_BOLD_12) then Exit(2);
     if Self.ElementFindText(ERSBankPinElement.STATE, [RSColors.TEXT_WHITE], 'THIRD', RS_FONT_BOLD_12)  then Exit(3);
     if Self.ElementFindText(ERSBankPinElement.STATE, [RSColors.TEXT_WHITE], 'FOURTH', RS_FONT_BOLD_12) then Exit(4);
-  end;
-
-  function Progressed(Digit: Integer): Boolean;
-  begin
-    if (Digit = 4) then
-      Result := WaitUntil(Bank.IsOpen(), 500, 2500 + Random(1000))
-    else
-      Result := WaitUntil(GetDigitToEnter() > Digit, 500, 2500 + Random(1000));
   end;
 
   function ClickDigit(Digit: Char): Boolean;
@@ -104,17 +102,31 @@ begin
 
       if (Digit > 0) then
       begin
-        if not ClickDigit(Pin[Digit]) then
-          Self.DebugLn('Failed to enter digit ' + Pin[Digit])
-        else
-        if not Progressed(Digit) then
-          Self.DebugLn('Failed to progress to next digit');
+        if ClickDigit(Pin[Digit]) then
+        begin
+          case Digit of
+            1,2,3:
+              begin
+                if not WaitUntil(GetDigitToEnter() > Digit, 500, 2500 + Random(1000)) then
+                  Self.DebugLn('Failed to progress to next digit');
+              end;
+            4:
+              begin
+                if WaitUntil(IsNextInterfaceOpen(), 500, 2500 + Random(1000)) then
+                  Exit(True);
+
+                Self.DebugLn('Failed to progress to interface');
+              end;
+          end;
+        end;
       end;
 
       Wait(1000, 2000, wdLeft);
     end;
 
-    Result := Bank.IsOpen();
+    Result := IsNextInterfaceOpen();
+    if Result then
+      Self.DebugLn('Progressed to interface somehow!');
   finally
     Self.Entering := False;
   end;
@@ -135,10 +147,42 @@ begin
   BankPin.Setup('Bank Pin');
 end;
 
+(*
+TRSBank.IsOpen
+~~~~~~~~~~~~~~
+.. pascal:: function TRSBank.IsOpen: Boolean; override;
+
+Overrides **Bank.IsOpen** to handle pin.
+*)
 function TRSBank.IsOpen: Boolean; override;
 begin
-  if (not BankPin.Entering) and BankPin.IsOpen() and (not BankPin.Enter(Login.GetPlayerPin())) then
-    Self.Fatal('Failed to enter bank pin');
+  if Result := inherited() then
+    Exit(True);
 
-  Result := inherited;
+  if (not BankPin.Entering) and BankPin.IsOpen()then
+  begin
+    Result := BankPin.Enter(Login.GetPlayerPin(), @Bank.IsOpen);
+    if not Result then
+      Self.Fatal('Failed to enter bank pin');
+  end;
+end;
+
+(*
+TRSGrandExchange.IsOpen
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSGrandExchange.IsOpen: Boolean; override;
+
+Overrides **GrandExchange.IsOpen** to handle pin.
+*)
+function TRSGrandExchange.IsOpen: Boolean; override;
+begin
+  if Result := inherited() then
+    Exit(True);
+
+  if (not BankPin.Entering) and BankPin.IsOpen()then
+  begin
+    Result := BankPin.Enter(Login.GetPlayerPin(), @GrandExchange.IsOpen);
+    if not Result then
+      Self.Fatal('Failed to enter bank pin');
+  end;
 end;

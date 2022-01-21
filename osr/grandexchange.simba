@@ -1,3 +1,9 @@
+(*
+Grand Exchange
+==============
+Methods to interacting with the grand exchange.
+*)
+
 {$DEFINE SRL_GRANDEXCHANGE_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -177,6 +183,48 @@ begin
   Result.GuidePrice := Self.ElementRecognizeNumber(ERSGrandExchangeElement.GUIDE_PRICE, [4176127], RS_FONT_PLAIN_11);
 end;
 
+(*
+TRSGrandExchange.SetQuantity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSGrandExchange.SetQuantity(Value: Integer): Boolean;
+
+Sets the item quantity on the "Set up offer" page.
+
+Example
+-------
+
+  if GrandExchange.SetQuantity(10) then
+    WriteLn('Quantity is now 10');
+*)
+function TRSGrandExchange.SetQuantity(Value: Integer): Boolean;
+begin
+  Self.ElementClick(ERSGrandExchangeElement.ENTER_QUANTITY);
+
+  Result := Chat.AnswerQuery('How many do you wish to buy', IntToStr(Value), 3000, 500) and
+            WaitUntil(Self.GetCurrentOfferStatus.Quantity = Value, 3000, 500);
+end;
+
+(*
+TRSGrandExchange.SetPricePerItem
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSGrandExchange.SetPricePerItem(Value: Integer): Boolean;
+
+Sets the price per item on the "Set up offer" page.
+
+Example
+-------
+
+  if GrandExchange.SetPricePerItem(10) then
+    WriteLn('Price per item is now 1000');
+*)
+function TRSGrandExchange.SetPricePerItem(Value: Integer): Boolean;
+begin
+  Self.ElementClick(ERSGrandExchangeElement.ENTER_PRICE);
+
+  Result := Chat.AnswerQuery('Set a price for each item', IntToStr(Value), 3000, 500) and
+            WaitUntil(Self.GetCurrentOfferStatus.PricePerItem = Value, 3000, 500);
+end;
+
 function TRSGrandExchange.IsOpen: Boolean;
 begin
   Result := Self.GetCurrentInterface() <> ERSGEInterface.UNKNOWN;
@@ -229,20 +277,3 @@ var
 begin
   GrandExchange.Setup('Grand Exchange');
 end;
-
-(*
-BankScreen.Open
-~~~~~~~~~~~~~~~
-.. pascal:: function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; override;
-
-Overrides **BankScreen.Open** to support opening the grand exchange.
-*)
-{
-function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
-begin
-  if (Location = ERSBankLocation.GRAND_EXCHANGE) then
-    Result := GrandExchange.OpenBank()
-  else
-    Result := inherited();
-end;
-}
