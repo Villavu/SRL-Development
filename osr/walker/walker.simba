@@ -240,7 +240,7 @@ begin
 
   Result.Init();
   
-  Bitmap.RotateBitmapEx(Minimap.GetCompassAngle(False), False, True, Result);
+  Bitmap.RotateBitmapEx(-Minimap.GetCompassAngle(False), False, True, Result);
   Bitmap.Free();
 end;
 
@@ -381,7 +381,7 @@ end;
 function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint; overload;
 begin
   Result := WorldPoint - PlayerPoint + Minimap.Center;
-  Result := Result.Rotate(Radians, Minimap.Center);
+  Result := Result.Rotate(-Radians, Minimap.Center);
 end;
 
 function TRSWalker.WorldToMM(WorldPoint: TPoint): TPoint; overload;
