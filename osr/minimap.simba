@@ -91,10 +91,13 @@ begin
     
       South := ATPA[High(ATPA)].MeanEx;
     
-      Result := FixRad(ArcTan2(South.Y - Y, South.X - X) - (PI / 2));
+      Result := FixRad(ArcTan2((South.Y - Y), -(South.X - X)) - (PI / 2));
       if (Result <> 0) then
       begin
-	      Result += 0.0333; // compass dial is floored.. this makes us more accurate.
+        if Result < 0.07 then
+          Result := 0
+        else
+          Result -= 0.0333;
         if AsDegrees then
           Result := Degrees(Result);
       end;
