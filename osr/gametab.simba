@@ -66,9 +66,9 @@ begin
 
   with Self.BoundsFinder.Alignments[ERSClientMode.RESIZABLE_MODERN] do
   begin
-    Left   := [@GameTabs.X1, 37];
-    Right  := [@GameTabs.X2, -10];
+    Left   := [@GameTabs.X2, -193];
+    Right  := [@GameTabs.X2, -12];
     Top    := [@GameTabs.Y1, 6];
-    Bottom := [@GameTabs.Y2, -78];
+    Bottom := [@GameTabs.Y2, -42];
   end;
 end;

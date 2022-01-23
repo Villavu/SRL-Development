@@ -51,11 +51,11 @@ type
     Quantity: Int32;
   end;
   
-  TRSBankDepositSlot = record
+  TRSBankDepositIndex = record
   class const
     QUANTITY_ALL         = -1;
   var
-    Slot: Int32;
+    Index: Int32;
     Quantity: Int32;
   end;
   
@@ -95,9 +95,9 @@ begin
 end;
 
 (*
-Bank.IsOpen
-~~~~~~~~~~~
-.. pascal:: function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean;
+TRSBank.IsOpen
+~~~~~~~~~~~~~~
+function TRSBank.IsOpen: Boolean;
 
 Returns true if the Bank is visible.
 *)
@@ -106,6 +106,13 @@ begin
   Result := Self.IsTitle('Bank') or Self.IsTitle('Tab') or Self.IsTitle('Equip');
 end;
 
+(*
+TRSBank.IsOpen
+~~~~~~~~~~~~~~
+function TRSBank.IsOpen(WaitTime: Integer): Boolean;
+
+Waits up to `WaitTime` for the bank to be visible.
+*)
 function TRSBank.IsOpen(WaitTime: Integer): Boolean; overload;
 begin
   Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(50, 1500), WaitTime);
@@ -124,6 +131,8 @@ begin
   inherited;
 
   Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBox(Self.GetItemArea, $0000FF);
+  //Bitmap.DrawBoxes(Self.FindItemBoundaries(), False, $0000FF);
 end;
 
 function TRSBank.FindItemBoundaries: TBoxArray;
@@ -184,9 +193,9 @@ begin
 end;
 
 (*
-Bank.Search
-~~~~~~~~~~~
-.. pascal:: function TRSBank.Search(Item: String): Boolean;
+TRSBank.Search
+~~~~~~~~~~~~~~
+function TRSBank.Search(Item: String): Boolean;
 
 Searches for an item.
 
@@ -357,7 +366,7 @@ end;
 (*
 TRSBank.CountTabs
 ~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBank.CountTabs: Int32;
+function TRSBank.CountTabs: Int32;
 
 Counts how many tabs in the bank.
 
@@ -380,7 +389,7 @@ end;
 (*
 TRSBank.GetCurrentTab
 ~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBank.GetCurrentTab: Int32;
+function TRSBank.GetCurrentTab: Int32;
 
 Returns the index of the current bank tab.
 Will return `0..9` with 0 being "View all items".
@@ -407,7 +416,7 @@ end;
 (*
 TRSBank.IsCurrentTab
 ~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBank.IsCurrentTab(Index: Integer): Boolean;
+function TRSBank.IsCurrentTab(Index: Integer): Boolean;
 
 Returns true if the current tab index is `Index`.
 
@@ -465,9 +474,9 @@ begin
 end;
 
 (*
-Bank.WithdrawItem
-~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean;
+TRSBank.WithdrawItem
+~~~~~~~~~~~~~~~~~~~~
+function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean;
 
 Finds and withdraws an item.
 
@@ -523,25 +532,92 @@ begin
   Result := Self.WithdrawHelper(Self.GetSlotBoxes()[Item.Slot], Item.Quantity, Item.Noted, UseQuantityButtons);
 end;
 
+(*
+TRSBank.DepositItem
+~~~~~~~~~~~~~~~~~~~
+function TRSBank.DepositItem(Item: TRSBankDepositItem; UseQuantityButtons: Boolean): Boolean;
+
+Deposits an item found using the ItemFinder.
+
+Parameters
+----------
+
+Item
+ | TRSBankDepositItem variable. This is a record that contains the item and and quantity to deposit.
+ | You can use `TRSBankDepositItem.QUANTITY_ALL` as the quantity to deposit all of the item.
+
+UseQuantityButtons
+ | Determines if to use the `1,5,10,X,ALL` quantity buttons.
+
+Example
+-------
+
+  var
+    ItemToDeposit: TRSBankDepositItem;
+
+  ItemToDeposit.Item := 'Iron full helm';
+  ItemToDeposit.Quantity := 5;
+
+  Bank.DepositItem(ItemToDeposit, True);
+
+  // OR you can shorthand by passing an open array.
+
+  Bank.DepositItem(['Iron full helm', 5], True);
+  Bank.DepositItem(['bronze bolts', TRSBankDepositItem.QUANTITY_ALL], True);
+*)
 function TRSBank.DepositItem(Item: TRSBankDepositItem; UseQuantityButtons: Boolean): Boolean;
 var
-  B: TBox;
+  Index: Integer;
 begin
-  //if Inventory.FindItem(Item.Item, B) then
-  //  Result := Self.DepositHelper(B, Item.Quantity, UseQuantityButtons);
-end;
-
-function TRSBank.DepositSlot(Item: TRSBankDepositSlot; UseQuantityButtons: Boolean): Boolean; 
-begin
-  Result := Self.DepositHelper(Inventory.GetItemBox(Item.Slot), Item.Quantity, UseQuantityButtons);
+  Index := Inventory.Find(Item.Item);
+  if (Index > -1) then
+    Result := Self.DepositHelper(Inventory.GetItemBox(Index), Item.Quantity, UseQuantityButtons);
 end;
 
 (*
-Bank.DepositAll
-~~~~~~~~~~~~~~~
-.. pascal:: function TRSBank.DepositAll: Boolean;
+TRSBank.DepositIndex
+~~~~~~~~~~~~~~~~~~~~
+function TRSBank.DepositIndex(Item: TRSBankDepositIndex; UseQuantityButtons: Boolean): Boolean;
 
-Depositis your inventory by clicking the deposit inventory button
+Deposits an item from a inventory index.
+
+Parameters
+----------
+
+Item
+ | TRSBankDepositIndex variable. This is a record that contains the inventory item index and and quantity to deposit.
+ | You can use `TRSBankDepositItem.QUANTITY_ALL` as the quantity to deposit all of the item.
+
+UseQuantityButtons
+ | Determines if to use the `1,5,10,X,ALL` quantity buttons.
+
+Example
+-------
+
+  var
+    ItemToDeposit: TRSBankDepositIndex;
+
+  ItemToDeposit.Index := 1;
+  ItemToDeposit.Quantity := 5;
+
+  Bank.DepositIndex(ItemToDeposit, True);
+
+  // OR you can shorthand by passing an open array.
+
+  Bank.DepositIndex([1, 5], True);
+  Bank.DepositIndex([0, TRSBankDepositIndex.QUANTITY_ALL], True);
+*)
+function TRSBank.DepositIndex(Item: TRSBankDepositIndex; UseQuantityButtons: Boolean): Boolean;
+begin
+  Result := Self.DepositHelper(Inventory.GetItemBox(Item.Index), Item.Quantity, UseQuantityButtons);
+end;
+
+(*
+TRSBank.DepositAll
+~~~~~~~~~~~~~~~~~~
+function TRSBank.DepositAll: Boolean;
+
+Deposits the entire inventory by clicking the deposit inventory button.
 *)
 function TRSBank.DepositAll: Boolean;
 begin
@@ -607,9 +683,9 @@ begin
 end;
 
 (*
-GameTabs.Open
-~~~~~~~~~~~~~
-.. pascal:: function TRSGameTabs.GetCurrentTab: ERSGametab; override;
+TRSGameTabs.Open
+~~~~~~~~~~~~~~~~
+function TRSGameTabs.GetCurrentTab: ERSGametab; override;
 
 Overrides **GameTabs.GetCurrentTab** to return the inventory tab if bank is open.
 *)
@@ -622,17 +698,19 @@ begin
 end;
 
 (*
-GameTabs.Open
-~~~~~~~~~~~~~
-.. pascal:: function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+TRSGameTabs.Open
+~~~~~~~~~~~~~~~~
+function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
 
-Overrides **GameTabs.Open** to close the bank if the bank is open.
+Overrides **GameTabs.Open** to close the bank if the gametab needs changing.
 *)
 function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
 begin
+  if (Self.GetCurrentTab() = Tab) then
+    Exit(True);
+
   if (Tab = ERSGameTab.INVENTORY) and Bank.IsOpen() then
     Bank.Close();
 
   Result := inherited();
 end;
-

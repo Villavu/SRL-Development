@@ -100,7 +100,7 @@ end;
 
 (*
 TPointArray.Middle
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 .. pascal:: function TPointArray.Middle: TPoint;
 
 Wraps Simba's MiddleTPA
@@ -313,7 +313,7 @@ end;
 (*
 TPointArray.SortByX
 ~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal procedure TPointArray.SortByX(LowToHi: Boolean = True);
+.. pascal:: procedure TPointArray.SortByX(LowToHi: Boolean = True);
 
 Wraps Simba's `SortTPAByX`
 *)
@@ -322,10 +322,11 @@ begin
   SortTPAByX(Self, LowToHi);
 end;
 
+
 (*
 TPointArray.SortByY
 ~~~~~~~~~~~~~~~~~~~
-.. code-block:: pascal procedure TPointArray.SortByY(LowToHi: Boolean = True);
+.. pascal:: procedure TPointArray.SortByY(LowToHi: Boolean = True);
 
 Wraps Simba's `SortTPAByY`
 *)

@@ -26,12 +26,12 @@ begin
 
   if FindBitmap(RSBitmaps.ChooseOption.GetIndex(), P.X, P.Y) then
   begin
-    P.Y += RSBitmaps.ChooseOption.GetHeight();
+    P.Y += RSBitmaps.ChooseOption.GetHeight() - 1;
 
     if FindColors(TPA, 0, P.X, P.Y, B.X2, B.Y2) then
     begin
       ATPA := TPA.Cluster(1, 1);
-      ATPA.Sort(P);
+      SortATPAFromFirstPoint(ATPA, P);
 
       Self.Bounds := ATPA[0].Bounds().Expand(-1);
 

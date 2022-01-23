@@ -11,7 +11,12 @@ import os, sys
 DOCNAME         = 'SRL'
 IGNORE_FOLDERS  = ['.git', '.github', 'docs', 'examples', 'resources', 'tests']
 FILE_EXTENSIONS = ['.simba'] 
-SHORT_RST       = [('.. code-block:: pascal\n\n', '.. pascal::'), 
+SHORT_RST       = [('~\n.. code-block:: pascal\n\n function ', '~\nfunction '),
+                   ('~\n.. code-block:: pascal\n\n procedure ', '~\nprocedure '),
+                   ('~\n.. code-block:: pascal\n\n type ', '~\ntype '),
+                   ('~\n.. code-block:: pascal\n\n var ', '~\nvar '),
+                   ('~\n.. code-block:: pascal\n\n const ', '~\nconst '),
+                   ('.. code-block:: pascal\n\n', '.. pascal::'), 
                    ('Example\n-------\n.. code-block:: pascal  ', 'Example\n-------')]
 
 commentregex = re.compile('\(\*.+?\*\)', re.DOTALL)
