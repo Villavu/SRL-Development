@@ -41,8 +41,6 @@ begin
   Result := GameTabs.Open(Self.ID);
 end;
 
-//procedure TRSGameTab.Lock
-
 procedure TRSGameTab.Setup(Name: String); override;
 begin
   inherited;

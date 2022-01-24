@@ -136,10 +136,12 @@ begin
 
     if (AngleBetween(Result.N, Result.S) >= 180) then
     begin
-      if (Result.E.Y > Result.W.Y) then Swap(Result.E, Result.W);
+      if (Result.E.Y > Result.W.Y) then
+        Swap(Result.E, Result.W);
     end else
     begin
-      if (Result.W.Y > Result.E.Y) then Swap(Result.E, Result.W);
+      if (Result.W.Y > Result.E.Y) then
+        Swap(Result.E, Result.W);
     end;
   end;
 end;
