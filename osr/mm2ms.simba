@@ -293,7 +293,7 @@ var
 begin
   angle := Self.GetCompassAngle(False);
   with StaticMMPoint.Rotate(-angle, Point(Self.Center.X, Self.Center.Y)) do
-    Result := Self.VecToMSRect(Vec3(X,Y, Height), angle);
+    Result := Self.VecToMSRect(Vec3(X,Y, Height), -angle);
 end;
 
 (*
@@ -309,7 +309,7 @@ var
 begin
   angle := Self.GetCompassAngle(False);
   with StaticMMPoint.Rotate(-angle, Point(Self.Center.X, Self.Center.Y)) do
-    Result := Self.VecToMS(Vec3(X,Y, Height), angle);
+    Result := Self.VecToMS(Vec3(X,Y, Height), -angle);
 end;
 
 
