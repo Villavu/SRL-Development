@@ -54,7 +54,7 @@ var
   Dot: TPoint;
 begin
   if Angle = -1 then
-    Angle := MInimap.GetCompassAngle(False);
+    Angle := Minimap.GetCompassAngle(False);
 
   BMP.FromClient();
 
@@ -142,7 +142,7 @@ var
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
   for i:=0 to High(Arr) do
-    Arr[i] := Arr[i].RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+    Arr[i] := Arr[i].RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
   
   Result := MM2MS.Run(Arr, Roll);
 end;
@@ -159,7 +159,7 @@ begin
   begin
     VecArr[i].x := Arr[i].x;
     VecArr[i].y := Arr[i].y;
-    VecArr[i] := VecArr[i].RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+    VecArr[i] := VecArr[i].RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
   end;
   Result := MM2MS.Run(VecArr, Roll);
 end;
@@ -176,7 +176,7 @@ Takes a single coordinate as a Vector3 on the minimap, and converts it to a poin
 function TRSMinimap.VecToMs(Vec: Vector3; Roll:Single=$FFFF): TPoint;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  Vec := Vec.RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+  Vec := Vec.RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
   
   Result := MM2MS.Run([Vec], Roll)[0];
 end;
@@ -193,7 +193,7 @@ Takes a single coordinate as a TPoint on the minimap, and converts it to a point
 function TRSMinimap.PointToMs(PT: TPoint; Roll:Single=$FFFF): TPoint;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  pt := pt.Rotate(PI*2 - Roll, Point(Minimap.Center.X, Minimap.Center.Y));
+  pt := pt.Rotate(PI*2 - Roll, Point(Self.Center.X, Self.Center.Y));
   
   Result := MM2MS.Run([Vec3(PT.x, PT.y)], Roll)[0];
 end;
@@ -213,7 +213,7 @@ var
   arr: TPointArray;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  Vec := Vec.RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+  Vec := Vec.RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
 
   Arr := MM2MS.Run([Vec3(Vec.x-2, Vec.y-2, Vec.z), Vec3(Vec.x+2, Vec.y-2, Vec.z), Vec3(Vec.x+2, Vec.y+2, Vec.z), Vec3(Vec.x-2, Vec.y+2, Vec.z)], Roll);
   Result := [Arr[0], Arr[1], Arr[2], Arr[3]];
@@ -233,7 +233,7 @@ var
   arr: TPointArray;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  pt := pt.Rotate(PI*2 - Roll, Point(Minimap.Center.X, Minimap.Center.Y));
+  pt := pt.Rotate(PI*2 - Roll, Point(Self.Center.X, Self.Center.Y));
   
   Arr := MM2MS.Run([Vec3(PT.x-2, PT.y-2), Vec3(PT.x+2, PT.y-2), Vec3(PT.x+2, PT.y+2), Vec3(PT.x-2, PT.y+2)], Roll);
   Result := [Arr[0], Arr[1], Arr[2], Arr[3]];
@@ -253,7 +253,7 @@ var
   arr: TPointArray;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  Vec := Vec.RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+  Vec := Vec.RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
 
   Arr := MM2MS.Run([Vec3(Vec.x-2, Vec.y-2, Vec.z), Vec3(Vec.x+2, Vec.y-2, Vec.z), Vec3(Vec.x+2, Vec.y+2, Vec.z), Vec3(Vec.x-2, Vec.y+2, Vec.z)], Roll);
   Result := GetTPABounds(arr);
@@ -273,7 +273,7 @@ var
   arr: TPointArray;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  PT := PT.Rotate(PI*2 - Roll, Point(Minimap.Center.X, Minimap.Center.Y));
+  PT := PT.Rotate(PI*2 - Roll, Point(Self.Center.X, Self.Center.Y));
 
   Arr := MM2MS.Run([Vec3(PT.x-2, PT.y-2), Vec3(PT.x+2, PT.y-2), Vec3(PT.x+2, PT.y+2), Vec3(PT.x-2, PT.y+2)], Roll);
   Result := GetTPABounds(arr);
@@ -291,9 +291,9 @@ function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; Height:Int32=0): TRect
 var
   angle: Double;
 begin
-  angle := Minimap.GetCompassAngle(False);
-  with StaticMMPoint.Rotate(angle, Point(Minimap.Center.X, Minimap.Center.Y)) do
-    Result := Minimap.VecToMSRect(Vec3(X,Y, Height), angle);
+  angle := Self.GetCompassAngle(False);
+  with StaticMMPoint.Rotate(-angle, Point(Self.Center.X, Self.Center.Y)) do
+    Result := Self.VecToMSRect(Vec3(X,Y, Height), -angle);
 end;
 
 (*
@@ -307,9 +307,9 @@ function TRSMinimap.StaticToMs(StaticMMPoint: TPoint; Height:Int32=0): TPoint;
 var
   angle: Double;
 begin
-  angle := Minimap.GetCompassAngle(False);
-  with StaticMMPoint.Rotate(angle, Point(Minimap.Center.X, Minimap.Center.Y)) do
-    Result := Minimap.VecToMS(Vec3(X,Y, Height), angle);
+  angle := Self.GetCompassAngle(False);
+  with StaticMMPoint.Rotate(-angle, Point(Self.Center.X, Self.Center.Y)) do
+    Result := Self.VecToMS(Vec3(X,Y, Height), -angle);
 end;
 
 
@@ -498,7 +498,7 @@ begin
   if CurrentAngle > 180 then
     CurrentAngle -= 360;
 
-  Minimap.SetCompassAngle(-(Angle - CurrentAngle));
+  Minimap.SetCompassAngle((Angle - CurrentAngle));
 end;
 
 (*

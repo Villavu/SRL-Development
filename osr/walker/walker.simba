@@ -214,13 +214,14 @@ begin
     Find(Dot);
   Find([Bitmap.GetWidth() div 2, Bitmap.GetHeight() div 2]); // our own player
 
-  SetColorToleranceSpeed(1);
-  SetToleranceSpeed2Modifiers(0.2, 0.2);
-
   // TODO: account for tolerance
   Bitmap.ReplaceColor(255,0);
   Bitmap.ReplaceColor(284358,0);
   Bitmap.ReplaceColor(1127261,0);
+
+
+  SetColorToleranceSpeed(1);
+  SetToleranceSpeed2Modifiers(0.2, 0.2);
   
   Bitmap.DrawPolyFilled(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), True, 0);  
 
@@ -239,8 +240,8 @@ begin
   Self.CleanMinimap(Bitmap);
 
   Result.Init();
-  
-  Bitmap.RotateBitmapEx(Minimap.GetCompassAngle(False), False, True, Result);
+
+  Bitmap.RotateBitmapEx(-Minimap.GetCompassAngle(False), False, True, Result);
   Bitmap.Free();
 end;
 
@@ -381,7 +382,7 @@ end;
 function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint; overload;
 begin
   Result := WorldPoint - PlayerPoint + Minimap.Center;
-  Result := Result.Rotate(Radians, Minimap.Center);
+  Result := Result.Rotate(-Radians, Minimap.Center);
 end;
 
 function TRSWalker.WorldToMM(WorldPoint: TPoint): TPoint; overload;
@@ -809,7 +810,7 @@ var
   angle: Double;
 begin
   Loc   := Minimap.Center + (Loc - Me);
-  angle := Minimap.GetCompassAngle(False);
+  angle := -Minimap.GetCompassAngle(False);
   Loc   := Loc.Rotate(angle, Minimap.Center);
   Result := Minimap.VecToMSRect(Vec3(Loc.x - offx, Loc.y - offy, Height), angle);
 end;
@@ -822,7 +823,7 @@ end;
 function TRSWalker.MSToWorldEx(Me, Loc: TPoint; Height: Int32 = 0; Accuracy: Double = 0.2): TPoint;
 begin
   Result := Me + (MainScreen.PointToMM(Loc, Height, Accuracy).ToPoint() - Minimap.Center);
-  Result := Result.Rotate(-Minimap.GetCompassAngle(False), Me);
+  Result := Result.Rotate(Minimap.GetCompassAngle(False), Me);
 end;
 
 function TRSWalker.MSToWorld(Loc: TPoint; Height: Int32=0; Accuracy:Double=0.2): TPoint;
