@@ -112,7 +112,11 @@ function TRSXPBar.IsOpen: Boolean;
   const
     COLOR_BORDER = $233038;
   begin
-    Result := SRL.CountColor(COLOR_BORDER, Self.Bounds) > 0;
+    case Self.Width of
+      119: Result := SRL.CountColor(COLOR_BORDER, Self.Bounds) = 175; // Smallest
+      129: Result := SRL.CountColor(COLOR_BORDER, Self.Bounds) = 185; // Medium
+      140: Result := SRL.CountColor(COLOR_BORDER, Self.Bounds) = 196; // Large
+    end;
   end;
 
   function UpdateLocation: Boolean;
