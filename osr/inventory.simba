@@ -673,7 +673,7 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetItemBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetItemBoxes(), False, $00FFFF);
 end;
 
 procedure TRSInventory.Setup(Name: String); override;

@@ -8,17 +8,17 @@ begin
   System.Delete(Self, Index, Count);
 end;
 
-function TBoxArray.IndexOf(Value: TBox): Integer; constref;
+function TBoxArray.IndexOf(Value: TBox): Integer; 
 begin
   Result := System.IndexOf(Value, Self);
 end;
 
-function TBoxArray.IndicesOf(Value: TBox): TIntegerArray; constref;
+function TBoxArray.IndicesOf(Value: TBox): TIntegerArray; 
 begin
   Result := System.IndicesOf(Value, Self);
 end;
 
-function TBoxArray.Contains(Value: TBox): Boolean; constref;
+function TBoxArray.Contains(Value: TBox): Boolean; 
 begin
   Result := System.Contains(Value, Self);
 end;
@@ -28,17 +28,17 @@ begin
   Result := System.Remove(Value, Self);
 end;
 
-procedure TBoxArray.Reverse; constref;
+procedure TBoxArray.Reverse; 
 begin
   System.Reverse(Self);
 end;
 
-function TBoxArray.Reversed: TBoxArray; constref;
+function TBoxArray.Reversed: TBoxArray; 
 begin
   Result := System.Reversed(Self);
 end;
 
-procedure TBoxArray.Sort(From: TPoint); constref;
+procedure TBoxArray.Sort(From: TPoint); 
 var
   Weights: TIntegerArray;
   I: Integer;
@@ -50,13 +50,13 @@ begin
   System.Sort(Self, Weights, True);
 end;
 
-function TBoxArray.Sorted(From: TPoint): TBoxArray; constref;
+function TBoxArray.Sorted(From: TPoint): TBoxArray; 
 begin
   Result := Copy(Self);
   Result.Sort(From);
 end;
 
-function TBoxArray.Unique: TBoxArray; constref;
+function TBoxArray.Unique: TBoxArray; 
 begin
   Result := System.Unique(Self);
 end;
@@ -109,7 +109,7 @@ begin
   end;
 end;
 
-function TBoxArray.Merge: TBox; constref;
+function TBoxArray.Merge: TBox; 
 var
   I: Integer;
 begin
@@ -121,7 +121,7 @@ begin
     Result := Result.Combine(Self[I]);
 end;
 
-function TBoxArray.Middles: TPointArray; constref;
+function TBoxArray.Middles: TPointArray; 
 var
   I: Int32;
 begin

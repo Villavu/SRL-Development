@@ -33,11 +33,11 @@ const
 srl.MsToTime
 ~~~~~~~~~~~~~
 .. pascal::
-  function TSRL.MsToTime(const MS: UInt64; const Format: TTimeFormat): String; constref;
+  function TSRL.MsToTime(const MS: UInt64; const Format: TTimeFormat): String; 
 
 Converts milliseconds to a string following the given time-format.
 *)
-function TSRL.MsToTime(const MS: UInt64; const Format: TTimeFormat): String; constref;
+function TSRL.MsToTime(const MS: UInt64; const Format: TTimeFormat): String; 
 var
   STA: array [0..5] of TVariantArray;
   Time: TIntegerArray;
@@ -74,11 +74,11 @@ end;
 srl.TimeRunning
 ~~~~~~~~~~~~~~~~
 .. pascal::
-  function TSRL.TimeRunning(TheType: TTimeFormat = Time_Formal_Long): String; constref;
+  function TSRL.TimeRunning(TheType: TTimeFormat = Time_Formal_Long): String; 
 
 Returns time the script has been running as a string with the given time-format.
 *)
-function TSRL.TimeRunning(TheType: TTimeFormat = Time_Formal_Long): String; constref;
+function TSRL.TimeRunning(TheType: TTimeFormat = Time_Formal_Long): String; 
 begin
   Result := MsToTime(GetTimeRunning(), TheType);
 end;

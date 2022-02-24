@@ -13,8 +13,6 @@ type
 
       Bounds: TBox;
     end;
-
-    Size: ERSXPBarSize;
   end;
 
 function TRSXPBar.IsOpen: Boolean;
@@ -40,13 +38,22 @@ begin
   inherited;
 end;
 
+function TRSXPBar.Size: ERSXPBarSize;
+begin
+  case Self.Bounds.Width of
+    140: Result := ERSXPBarSize.LARGE;
+    129: Result := ERSXPBarSize.MEDIUM;
+    119: Result := ERSXPBarSize.SMALL;
+  end;
+end;
+
 function TRSXPBar.CustomBoundsFinder(ClientMode: ERSClientMode): TBox;
 
   function Find(Bitmap: TMufasaBitmap; Area: TBox; out Bounds: TBox): Boolean;
   var
     X, Y: Integer;
   begin
-    Result := FindBitmapToleranceIn(Bitmap.GetIndex(), X, Y, Area, 5);
+    Result := FindBitmapToleranceIn(Bitmap, X, Y, Area, 5);
 
     if Result then
     begin
@@ -60,7 +67,6 @@ function TRSXPBar.CustomBoundsFinder(ClientMode: ERSClientMode): TBox;
 var
   ClientWidth, ClientHeight: Integer;
   Area: TBox;
-  Size: ERSXPBarSize;
 begin
   GetClientDimensions(ClientWidth, ClientHeight);
   if (Self.Cache.ClientWidth = ClientWidth) and (Self.Cache.ClientHeight = ClientHeight) and (Self.Cache.ClientMode = ClientMode) then
@@ -91,7 +97,7 @@ var
 begin
   B := Self.Bounds();
 
-  case Self.Size of
+  case Self.Size() of
     ERSXPBarSize.SMALL:  Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([RSColors.TEXT_WHITE]), RS_FONT_PLAIN_11);
     ERSXPBarSize.MEDIUM: Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([RSColors.TEXT_WHITE]), RS_FONT_PLAIN_12);
     ERSXPBarSize.LARGE:  Result := OCR.RecognizeNumber(B, TOCRColorFilter.Create([RSColors.TEXT_WHITE]), RS_FONT_BOLD_12);

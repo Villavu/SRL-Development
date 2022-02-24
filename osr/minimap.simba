@@ -414,7 +414,7 @@ end;
 
 function TRSMinimap.FindFlag(out P: TPoint): Boolean;
 begin
-  Result := FindBitmapToleranceIn(RSBitmaps.MinimapFlag.GetIndex(), P.X, P.Y, Self.Bounds, 5);
+  Result := FindBitmapToleranceIn(RSBitmaps.MinimapFlag, P.X, P.Y, Self.Bounds, 5);
 end;
 
 function TRSMinimap.HasFlag: Boolean; overload;

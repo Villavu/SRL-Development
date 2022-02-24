@@ -1,9 +1,9 @@
-procedure T2DPointArray.Reverse; constref;
+procedure T2DPointArray.Reverse; 
 begin
   System.Reverse(Self);
 end;
 
-function T2DPointArray.Reversed: T2DPointArray; constref;
+function T2DPointArray.Reversed: T2DPointArray; 
 begin
   Result := System.Reversed(Self);
 end;
@@ -13,13 +13,13 @@ begin
   SortATPAFromMidPoint(Self, From);
 end;
 
-function T2DPointArray.Sorted(From: TPoint): T2DPointArray; constref;
+function T2DPointArray.Sorted(From: TPoint): T2DPointArray; 
 begin
   Result := Copy(Self);
   SortATPAFromMidPoint(Result, From);
 end;
 
-function T2DPointArray.Unique: T2DPointArray; constref;
+function T2DPointArray.Unique: T2DPointArray; 
 begin
   Result := System.Unique(Self);
 end;
@@ -33,7 +33,7 @@ begin
   SetLength(Self, H);
 end;
 
-function T2DPointArray.Bounds: TBoxArray; constref;
+function T2DPointArray.Bounds: TBoxArray; 
 var
   I: Integer;
 begin
@@ -42,7 +42,7 @@ begin
     Result[I] := GetTPABounds(Self[I]);
 end;
 
-function T2DPointArray.Middles: TPointArray; constref;
+function T2DPointArray.Middles: TPointArray; 
 var
   I: Integer;
 begin
@@ -71,7 +71,7 @@ begin
   FilterATPAByArea(Self, MinLength, MinArea, MaxArea);
 end;
 
-function T2DPointArray.Biggest: TPointArray; constref;
+function T2DPointArray.Biggest: TPointArray; 
 var
   I: Integer;
 begin
@@ -81,7 +81,7 @@ begin
       Result := Self[I];
 end;
 
-function T2DPointArray.Smallest: TPointArray; constref;
+function T2DPointArray.Smallest: TPointArray; 
 var
   I: Integer;
 begin
@@ -91,7 +91,7 @@ begin
       Result := Self[I];
 end;
 
-function T2DPointArray.Merge: TPointArray; constref;
+function T2DPointArray.Merge: TPointArray; 
 begin
   Result := MergeATPA(Self);
 end;

@@ -70,7 +70,7 @@ type
     Position: Int32;
   end;
   
-procedure TRSScrollBar.Draw(Bitmap: TMufasaBitmap); constref;
+procedure TRSScrollBar.Draw(Bitmap: TMufasaBitmap); 
 begin
   Bitmap.DrawBox(Self.SliderRegion, $00FFFF);
   Bitmap.DrawBox(Self.Slider, $00FFFF);
@@ -198,7 +198,7 @@ begin
   B.X1 := B.X2 - 50;
   B.Y2 := B.Y1 + 50;
 
-  if FindBitmapToleranceIn(RSBitmaps.CloseInterfaceButton.GetIndex(), X, Y, B, 45) then
+  if FindBitmapToleranceIn(RSBitmaps.CloseInterfaceButton, X, Y, B, 45) then
   begin
     Mouse.Click(TBox.Create(X, Y, X + RSBitmaps.CloseInterfaceButton.GetWidth(), Y + RSBitmaps.CloseInterfaceButton.GetHeight()), MOUSE_LEFT);
 

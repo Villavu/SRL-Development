@@ -35,7 +35,7 @@ begin
   SetLength(Blocking, c);
 end;
 
-function TWebGraph.FindPath(Start, Goal: Int32; Rnd:Double=0): TIntegerArray; constref;
+function TWebGraph.FindPath(Start, Goal: Int32; Rnd:Double=0): TIntegerArray; 
 type
   TNode = record
     Indices: TIntegerArray;
@@ -96,7 +96,7 @@ begin
   end;
 end;
 
-function TWebGraph.FindNearestNode(P: TPoint): Int32; constref;
+function TWebGraph.FindNearestNode(P: TPoint): Int32; 
 var
   i,j: Int32;
   d,best,dn1,dn2: Double;
@@ -119,14 +119,14 @@ begin
     end;
 end;
 
-function TWebGraph.NodesToPoints(NodeList: TIntegerArray): TPointArray; constref;
+function TWebGraph.NodesToPoints(NodeList: TIntegerArray): TPointArray; 
 var node: Int32;
 begin
   for node in NodeList do
     Result += Self.Nodes[node];
 end;
 
-function TWebGraph.PathBetween(p,q: TPoint; Rnd:Double=0): TPointArray; constref;
+function TWebGraph.PathBetween(p,q: TPoint; Rnd:Double=0): TPointArray; 
 var
   n1,n2: Int32;
   nodes: TIntegerArray;

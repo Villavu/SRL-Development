@@ -130,7 +130,7 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(Self.GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetSlotBoxes(), False, $00FFFF);
   Bitmap.DrawBox(Self.GetItemArea, $0000FF);
   //Bitmap.DrawBoxes(Self.FindItemBoundaries(), False, $0000FF);
 end;

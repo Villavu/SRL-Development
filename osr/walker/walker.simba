@@ -22,7 +22,7 @@ type
   TRSWalker_OnWalkEventEx = procedure(Walker: PRSWalker; Position: TPoint; Destination: TPoint) of object;
 
   TRSWalker = record(TSRLBaseRecord)
-    Cache: TMatchTemplateRGBCache;
+    Cache: TMatchTemplateCache;
 
     World: TMufasaBitmap;
 
@@ -151,16 +151,20 @@ begin
     AddOnTerminate(@Self.Free);
 
   // Fixed or resizable, doesn't matter.
-  Sample := Self.World.Downsample(Self.Scaling); 
+  Sample.Init();
+  Self.World.Downsample(Sample, Self.Scaling);
   Bitmap := Self.GetCleanMinimap();
   Mask := Self.ScaleMinimap(Bitmap, Self.Scaling);
+
 
   for X := 0 to Mask.getWidth() - 1 do
     for Y := 0 to Mask.getHeight() - 1 do
       if (Mask.GetPixel(X, Y) <> 0) then
         Mask.SetPixel(X, Y, $FFFFFF);
-        
-  Self.Cache := TMatchTemplateRGBCache.Create(Sample.ToMatrix(), Mask.ToMatrix());
+
+  //Self.Cache := TMatchTemplateRGBCache.Create(Sample.ToMatrix(), Mask.ToMatrix());
+
+  Self.Cache := TMatchTemplateCache.Create(Sample.ToMatrix(), Mask.ToMatrix());
 
   Sample.Free();
   Bitmap.Free();
@@ -179,7 +183,8 @@ procedure TRSWalker.CleanMinimap(Bitmap: TMufasaBitmap);
     
     for Y := Area.Y1 to Area.Y2 do
       for X := Area.X1 to Area.X2 do
-        if Bitmap.PointInBitmap(X, Y) then
+        //if Bitmap.PointInBitmap(X, Y) then
+        if (X >= 0) and (Y >= 0) and (X < Bitmap.GetWidth()) and (Y < Bitmap.GetHeight()) then
         begin
           Pixel := Bitmap.GetPixel(X, Y);
   
@@ -233,14 +238,15 @@ function TRSWalker.GetCleanMinimap: TMufasaBitmap;
 var
   Bitmap: TMufasaBitmap;
 begin
-  Bitmap := GetMufasaBitmap(BitmapFromClient(Minimap.Bounds));
+  Bitmap := TMufasaBitmap.Create();
+  Bitmap.LoadFromClient(Minimap.Bounds);
   Bitmap.ReplaceColor(0, 1); // We need zero to be unique
 
   Self.CleanMinimap(Bitmap);
 
   Result.Init();
 
-  Bitmap.RotateBitmapBilinear(Minimap.GetCompassAngle(False), False, Result);
+  Bitmap.RotateBilinear(Minimap.GetCompassAngle(False), False, Result);
   Bitmap.Free();
 end;
 
@@ -267,7 +273,8 @@ begin
   Temp.Blend(TPA.Sorted(Temp.GetCenter()), 3); 
   Temp.DrawCircleInverted(Temp.GetCenter(), RADIUS, 0);
 
-  Result := Temp.Downsample(Scaling, False);
+  Result.Init();
+  Temp.Downsample(Result, Scaling);
   
   Temp.Free();
 end;
@@ -280,6 +287,9 @@ begin
   Sample := Self.ScaleMinimap(Bitmap, Self.Scaling);
 
   Matrix := MatchTemplateMask(Cache, Sample.ToMatrix, TM_CCOEFF_NORMED);
+
+  // SimbaDebugImage.show(Matrix);
+  // Halt;
 
   while Length(Result) < Samples do
     with Matrix.ArgMax() do
@@ -312,14 +322,16 @@ begin
   ];  
 
   Slice := World.Copy(Area.X1, Area.Y1, Area.X2, Area.Y2);
-  SliceScaled := Slice.Downsample(SCALING);
-  
-  TemplScaled := Templ.Downsample(SCALING);
+  SliceScaled.Init();
+  Slice.Downsample(SliceScaled, SCALING);
+
+  TemplScaled.Init();
+  Templ.Downsample(TemplScaled, SCALING);
   with TemplScaled.GetCenter() do
     TemplScaled.Crop(X - TEMPL_SIZE, Y - TEMPL_SIZE, X + TEMPL_SIZE, Y + TEMPL_SIZE);
 
   Matrix := SliceScaled.MatchTemplate(TemplScaled, TM_CCOEFF_NORMED);
-    
+
   with Matrix.ArgMax() do
   begin
     Match := Matrix[Y, X];
@@ -762,8 +774,8 @@ begin
   Y := Position.Y - Y1;
 
   WorldBitmap := Self.World.Copy(X1, Y1, X2, Y2);
-  WorldBitmap.LineTo(Point(0, Y), Point(X2 - X1, Y), $00FF00);
-  WorldBitmap.LineTo(Point(X, 0), Point(X, Y2 - Y1), $00FF00);
+  WorldBitmap.DrawLine(Point(0, Y), Point(X2 - X1, Y), $00FF00);
+  WorldBitmap.DrawLine(Point(X, 0), Point(X, Y2 - Y1), $00FF00);
   WorldBitmap.DrawBox([X - 2, Y - 2, X + 2, Y + 2], $FFFFFF);
 
   MinimapBitmap := ScaleMinimap(GetCleanMinimap(), 1);
@@ -777,7 +789,7 @@ begin
 
   Bitmap.Init();
   Bitmap.SetSize(400 + MinimapBitmap.GetWidth() + 30, 420);
-  Bitmap.DrawClear($403027);
+  Bitmap.Fill($403027);
 
   Lines := [
     '('      + ToStr(Position.X, ', ', Position.Y) + ')',
@@ -792,10 +804,10 @@ begin
   Bitmap.DrawText(Lines[0], [420, 20 + MinimapBitmap.GetHeight()], $FFFFFF);
   Bitmap.DrawText(Lines[1] + LineEnding + Lines[2], [420, 370], $FFFFFF);
 
-  WorldBitmap.DrawTransparent(10, 10, Bitmap);
-  WorldBitmap.Free();
+  Bitmap.DrawBitmap(WorldBitmap, TPoint.Create(10, 10));
+  Bitmap.DrawBitmap(MinimapBitmap, TPoint.Create(420, 10));
 
-  MinimapBitmap.DrawTransparent(420, 10, Bitmap);
+  WorldBitmap.Free();
   MinimapBitmap.Free();
 
   Bitmap.Show();

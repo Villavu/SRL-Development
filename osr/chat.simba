@@ -64,7 +64,7 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(Self.GetLineBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetLineBoxes(), False, $00FFFF);
 end;
 
 procedure TRSChat.Setup(Name: String); override;

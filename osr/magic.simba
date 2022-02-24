@@ -507,7 +507,7 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSpellBoxes(Spellbook), False, $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetSpellBoxes(Spellbook), False, $00FFFF);
 end;
 
 procedure TRSMagic.Setup(Name: String); override;

@@ -104,7 +104,7 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(GetSlotBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxArray(GetSlotBoxes(), False, $00FFFF);
 end;
 
 procedure TRSDepositBox.Setup(Name: String); override;

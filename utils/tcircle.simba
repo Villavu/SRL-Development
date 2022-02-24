@@ -23,11 +23,11 @@ TCircle.ToTPA
 ~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TCircle.ToTPA(): TPointArray; constref;
+    function TCircle.ToTPA(): TPointArray; 
 
 Returns a full TPA of the circles circumference
 *)
-function TCircle.ToTPA(Fill: Boolean = False): TPointArray; constref;
+function TCircle.ToTPA(Fill: Boolean = False): TPointArray; 
 begin
   Result := TPAFromCircle(Self.X, Self.Y, Self.Radius);
   if Fill then
@@ -39,11 +39,11 @@ TCircle.Bounds
 ~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TCircle.Bounds(): TBox; constref;
+    function TCircle.Bounds(): TBox; 
 
 Return a TBox covering the circle
 *)
-function TCircle.Bounds(): TBox; constref;
+function TCircle.Bounds(): TBox; 
 begin
   Result := [Self.X-Self.Radius, Self.Y-Self.Radius, Self.X+Self.Radius, Self.Y+Self.Radius];
 end;
@@ -53,11 +53,11 @@ TCircle.Contains
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TCircle.Contains(p: TPoint): Boolean; constref;
+    function TCircle.Contains(p: TPoint): Boolean; 
 
 Test if the point is within the circle
 *)
-function TCircle.Contains(p: TPoint): Boolean; constref;
+function TCircle.Contains(p: TPoint): Boolean; 
 begin
   Result := Hypot(p.x-Self.x, p.y-Self.Y) <= Self.Radius;
 end; 
@@ -67,11 +67,11 @@ TCircle.CircumferenceTPA
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TCircle.CircumferenceTPA(): TPointArray; constref;
+    function TCircle.CircumferenceTPA(): TPointArray; 
 
 Alias of `.ToTPA`
 *)
-function TCircle.CircumferenceTPA(): TPointArray; constref;
+function TCircle.CircumferenceTPA(): TPointArray; 
 begin
   Result := TPAFromCircle(Self.X, Self.Y, Self.Radius);
 end;
@@ -81,11 +81,11 @@ TCircle.Mean
 ~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TCircle.Mean(): TPoint; constref;
+    function TCircle.Mean(): TPoint; 
 
 Middle of the circle, same as `Point(Circle.X, Circle.Y)`
 *)
-function TCircle.Mean(): TPoint; constref;
+function TCircle.Mean(): TPoint; 
 begin
   Result.X := Self.X;
   Result.Y := Self.Y;
@@ -96,11 +96,11 @@ TCircle.Circumference
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TCircle.Circumference(): Double; constref;
+    function TCircle.Circumference(): Double; 
 
 Returns the distance around the outside of a circle.
 *)
-function TCircle.Circumference(): Double; constref;
+function TCircle.Circumference(): Double; 
 begin
   Result := 2*PI*Self.Radius;
 end;
@@ -110,11 +110,11 @@ TCircle.Area
 ~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TCircle.Area(): Double; constref;
+    function TCircle.Area(): Double; 
 
 Returns the area the circle covers
 *)
-function TCircle.Area(): Double; constref;
+function TCircle.Area(): Double; 
 begin
   Result := PI*Sqr(Self.Radius);
 end;
@@ -125,11 +125,11 @@ TCircle.Filter
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TCircle.Filter(TestSet: TPointArray): TPointArray; constref;
+    function TCircle.Filter(TestSet: TPointArray): TPointArray; 
 
 Extract all the points from `TestSet` that fits within this circle.
 *)
-function TCircle.Filter(TestSet: TPointArray): TPointArray; constref;
+function TCircle.Filter(TestSet: TPointArray): TPointArray; 
 var
   i, h, count: Int32;
 begin
@@ -156,17 +156,17 @@ TCircle.Expand
 ~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TCircle.Expand(Inc: Int32): TCircle; constref;
+    function TCircle.Expand(Inc: Int32): TCircle; 
 
 Increase or decrease the radius of the circle, same as `Circle.Radius + Incr`.
 *)
-function TCircle.Expand(Incr: Int32): TCircle; constref;
+function TCircle.Expand(Incr: Int32): TCircle; 
 begin
   Result := Self;
   Result.Radius += Incr;
 end;
 
-function TCircle.PointAtDegrees(Degrees: Double): TPoint; constref;
+function TCircle.PointAtDegrees(Degrees: Double): TPoint; 
 begin
   Result.X := Round(Self.Radius * Cos(Radians(Degrees) - PI/2)) + Self.X;
   Result.Y := Round(Self.Radius * Sin(Radians(Degrees) - PI/2)) + Self.Y;

@@ -163,7 +163,7 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(Self.GetItemBoxes(), False, $0000FF);
+  Bitmap.DrawBoxArray(Self.GetItemBoxes(), False, $0000FF);
 end;
 
 procedure TRSMake.Setup(Name: String); override;

@@ -15,7 +15,7 @@ SRL.GetXPAtLevel
 
 Given a level it returns the minimum XP needed for it.
 *)
-function TSRL.GetXPAtLevel(level:Int32): Int32; constref;
+function TSRL.GetXPAtLevel(level:Int32): Int32; 
 var
   total:Double;
   i:Int32;
@@ -32,7 +32,7 @@ SRL.GetLevelAtXP
 
 Given some XP, it returns what level that is.
 *)
-function TSRL.GetLevelAtXP(XP:UInt32): Int32; constref;
+function TSRL.GetLevelAtXP(XP:UInt32): Int32; 
 var 
   total:Double;
 begin
@@ -51,7 +51,7 @@ SRL.GetItemAmount
 For use with items in like bankscreen, inventory, shops and so on to
 get the number of stacked items there are.
 *)
-function TSRL.GetItemAmount(Area: TBox): Int32; constref;
+function TSRL.GetItemAmount(Area: TBox): Int32; 
 const
   Colors: TIntegerArray = [RSColors.ITEM_TEXT_YELLOW, RSColors.ITEM_TEXT_WHITE, RSColors.ITEM_TEXT_GREEN];
   Multiplers: TIntegerArray = [1, 1000, 1000000];
@@ -66,7 +66,7 @@ begin
     end;
 end;
 
-function TSRL.FormatNumber(n:Extended; dec:Byte = 3): String; constref;
+function TSRL.FormatNumber(n:Extended; dec:Byte = 3): String; 
 var
   i: Int32;
   f: Extended := n;

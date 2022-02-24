@@ -112,7 +112,7 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(Self.GetItemBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetItemBoxes(), False, $00FFFF);
 end;
 
 procedure TRSAnvil.Setup(Name: String); override;

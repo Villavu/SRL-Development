@@ -8,17 +8,17 @@ begin
   System.Delete(Self, Index, Count);
 end;
 
-function TStringArray.IndexOf(Value: String): Integer; constref;
+function TStringArray.IndexOf(Value: String): Integer; 
 begin
   Result := System.IndexOf(Value, Self);
 end;
 
-function TStringArray.IndicesOf(Value: String): TIntegerArray; constref;
+function TStringArray.IndicesOf(Value: String): TIntegerArray; 
 begin
   Result := System.IndicesOf(Value, Self);
 end;
 
-function TStringArray.Contains(Value: String): Boolean; constref;
+function TStringArray.Contains(Value: String): Boolean; 
 begin
   Result := System.Contains(Value, Self);
 end;
@@ -28,27 +28,27 @@ begin
   Result := System.Remove(Value, Self);
 end;
 
-procedure TStringArray.Reverse; constref;
+procedure TStringArray.Reverse; 
 begin
   System.Reverse(Self);
 end;
 
-function TStringArray.Reversed: TStringArray; constref;
+function TStringArray.Reversed: TStringArray; 
 begin
   Result := System.Reversed(Self);
 end;
 
-procedure TStringArray.Sort; constref;
+procedure TStringArray.Sort; 
 begin
   System.Sort(Self);
 end;
 
-function TStringArray.Sorted: TStringArray; constref;
+function TStringArray.Sorted: TStringArray; 
 begin
   Result := System.Sorted(Self);
 end;
 
-function TStringArray.Unique: TStringArray; constref;
+function TStringArray.Unique: TStringArray; 
 begin
   Result := System.Unique(Self);
 end;
@@ -62,7 +62,7 @@ begin
   SetLength(Self, H);
 end;
 
-function TStringArray.Merge(glue: String = ''): String; constref;
+function TStringArray.Merge(glue: String = ''): String; 
 var
   i:Int32;
 begin

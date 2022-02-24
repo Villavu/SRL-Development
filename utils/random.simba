@@ -110,7 +110,7 @@ SRL.NormalRange
 
 Generates a random float in the given range, weighted towards the mean.
 *)
-function TSRL.NormalRange(Min, Max: Double; CUTOFF:Single=0): Double; constref; overload;
+function TSRL.NormalRange(Min, Max: Double; CUTOFF:Single=0): Double;  overload;
 begin
   if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
   case Random(0,1) of
@@ -126,7 +126,7 @@ SRL.NormalRange
 
 Integer overload.
 *)
-function TSRL.NormalRange(Min, Max: Int64; CUTOFF:Single=0): Int64; constref; overload;
+function TSRL.NormalRange(Min, Max: Int64; CUTOFF:Single=0): Int64;  overload;
 begin
   if CUTOFF <= 0 then CUTOFF := SRL_GAUSS_CUTOFF;
   case Random(0,1) of
@@ -143,7 +143,7 @@ SRL.RandomPoint
 Generates a random TPoint which weights around ``Mean``, with a max distance 
 from mean defined by ``MaxRad``.
 *)
-function TSRL.RandomPoint(Mean: TPoint; MaxRad: Int32; CUTOFF:Single=0): TPoint; constref;
+function TSRL.RandomPoint(Mean: TPoint; MaxRad: Int32; CUTOFF:Single=0): TPoint; 
 begin
   Result.X := NormalRange(Mean.x-maxRad, Mean.x+MaxRad, CUTOFF);
   Result.Y := NormalRange(Mean.y-maxRad, Mean.y+MaxRad, CUTOFF);
@@ -157,7 +157,7 @@ SRL.RandomPoint
 Generates a random TPoint in the bounds of the given box ``Bounds``, 
 the point weights towards the middle of the box.
 *)
-function TSRL.RandomPoint(Bounds: TBox; CUTOFF:Single=0): TPoint; constref; overload;
+function TSRL.RandomPoint(Bounds: TBox; CUTOFF:Single=0): TPoint;  overload;
 begin
   Result.X := NormalRange(Bounds.x1, Bounds.x2, CUTOFF);
   Result.Y := NormalRange(Bounds.y1, Bounds.y2, CUTOFF);
@@ -171,7 +171,7 @@ SRL.RandomPoint
 Generates a random TPoint in the given rectangle ``Rect``,
 The point weights towards the middle of the rectangle.
 *)
-function TSRL.RandomPoint(Rect: TRectangle; CUTOFF:Single = 0): TPoint; constref; overload;
+function TSRL.RandomPoint(Rect: TRectangle; CUTOFF:Single = 0): TPoint;  overload;
 var
   a,x,y,x1,y1,x2,y2: Double;
 begin
@@ -194,7 +194,7 @@ end;
 (*
 SRL.RandonPointEx
 ~~~~~~~~~~~~~~~~~
-.. pascal:: function TSRL.RandonPointEx(From: TPoint; B: TBox; Force: Double=0.35): TPoint; constref;
+.. pascal:: function TSRL.RandonPointEx(From: TPoint; B: TBox; Force: Double=0.35): TPoint; 
 
 Generates a random point within the bounds of the given box `B`, the point generated is skewed towards towards the `From`-point.
 The last parameter `Force` defines how much the generated point is to be skewed towards or away from `From` - Expects value in the range 0..2
@@ -203,7 +203,7 @@ The last parameter `Force` defines how much the generated point is to be skewed 
 * Force = 1: Result in the middle of box is most common
 * Force = 2: Result weighs heavily towrads the edge furthest away from `From`
 *)
-function TSRL.RandomPointEx(From: TPoint; B: TBox; Force: Double=0.35): TPoint; constref;
+function TSRL.RandomPointEx(From: TPoint; B: TBox; Force: Double=0.35): TPoint; 
 var
   p,c: TPoint;
   x,r: Double;

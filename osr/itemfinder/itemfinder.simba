@@ -197,9 +197,9 @@ begin
   
     AlignedTemplate.Init();
     AlignedTemplate.SetSize(Image.GetWidth(), Image.GetHeight());
-    
-    Template.DrawTransparent(Align.X, Align.Y, AlignedTemplate);  
-    
+
+    AlignedTemplate.DrawBitmap(Template, Align);
+
     if (@CustomFilter <> nil) then
       ClearSparkles(AlignedImage, AlignedTemplate);
 

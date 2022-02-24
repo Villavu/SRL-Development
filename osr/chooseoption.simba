@@ -24,7 +24,7 @@ var
 begin
   B := GetClientBounds();
 
-  if FindBitmap(RSBitmaps.ChooseOption.GetIndex(), P.X, P.Y) then
+  if FindBitmap(RSBitmaps.ChooseOption, P.X, P.Y) then
   begin
     P.Y += RSBitmaps.ChooseOption.GetHeight() - 1;
 

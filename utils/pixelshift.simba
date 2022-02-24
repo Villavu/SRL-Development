@@ -18,14 +18,20 @@ Returns how many pixels changed in the given area ``Area`` after ``WaitTime`` ha
 *)
 function TSRL.GetPixelShift(Area: TBox; WaitTime: UInt32): Int32;
 var
-  Before, After: Int32;
+  Before, After: TMufasaBitmap;
 begin
-  Before := BitmapFromClient(Area);
+  Before := TMufasaBitmap.Create();
+  Before.LoadFromClient(Area);
+
   Wait(WaitTime);
-  After := BitmapFromClient(Area);
-  Result := CalculatePixelShift(Before, After, [0, 0, (Area.X2 - Area.X1), (Area.Y2 - Area.Y1)]);
-  FreeBitmap(Before);
-  FreeBitmap(After);
+
+  After := TMufasaBitmap.Create();
+  After.LoadFromClient(Area);
+
+  Result := Before.PixelDifference(After);
+
+  After.Free();
+  Before.Free();
 end;
 
 (*
@@ -41,32 +47,27 @@ if ``AcceptLength`` is none-zero, it will return when / if this many pixels has 
 *)
 function TSRL.GetPixelShiftTPA(Area: TBox; WaitTime: UInt32; Count: Int32=1; AcceptLength:Int32=0): TPointArray;
 var
-  Before, After: PtrInt;
+  Before, After: TMufasaBitmap;
   x,y,c: Int32;
 begin
-  SetLength(Result, 64);
   for 1 to Count do
   begin
-    Before := BitmapFromClient(Area);
+    Before := TMufasaBitmap.Create();
+    Before.LoadFromClient(Area);
+
     Wait(WaitTime);
-    After := BitmapFromClient(Area);
 
-    for y:=0 to Area.Y2-Area.Y1 do
-      for x:=0 to Area.X2-Area.X1 do
-        if FastGetPixel(Before,x,y) <> FastGetPixel(After,x,y) then
-        begin
-          if c = Length(Result) then
-            SetLength(Result, c*2);
-          Result[c] := Point(Area.x1+x,Area.y1+y);
-          Inc(c);
-        end;
+    After := TMufasaBitmap.Create();
+    After.LoadFromClient(Area);
 
-    FreeBitmap(Before);
-    FreeBitmap(After);
+    Result := Result + Before.PixelDifferenceTPA(After);
+
+    Before.Free();
+    After.Free();
+
     if (AcceptLength <> 0) and (c > AcceptLength) then
       Break;
   end;
-  SetLength(Result, c);
 end;
 
 (*

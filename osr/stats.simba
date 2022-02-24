@@ -151,7 +151,7 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSkillBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetSkillBoxes(), False, $00FFFF);
 end;
 
 var

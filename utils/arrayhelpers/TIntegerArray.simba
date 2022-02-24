@@ -8,17 +8,17 @@ begin
   System.Delete(Self, Index, Count);
 end;
 
-function TIntegerArray.IndexOf(Value: Integer): Integer; constref;
+function TIntegerArray.IndexOf(Value: Integer): Integer; 
 begin
   Result := System.IndexOf(Value, Self);
 end;
 
-function TIntegerArray.IndicesOf(Value: Integer): TIntegerArray; constref;
+function TIntegerArray.IndicesOf(Value: Integer): TIntegerArray; 
 begin
   Result := System.IndicesOf(Value, Self);
 end;
 
-function TIntegerArray.Contains(Value: Integer): Boolean; constref;
+function TIntegerArray.Contains(Value: Integer): Boolean; 
 begin
   Result := System.Contains(Value, Self);
 end;
@@ -28,12 +28,12 @@ begin
   Result := System.Remove(Value, Self);
 end;
 
-procedure TIntegerArray.Reverse; constref;
+procedure TIntegerArray.Reverse; 
 begin
   System.Reverse(Self);
 end;
 
-function TIntegerArray.Reversed: TIntegerArray; constref;
+function TIntegerArray.Reversed: TIntegerArray; 
 begin
   Result := System.Reversed(Self);
 end;
@@ -43,12 +43,12 @@ begin
   System.Sort(Self);
 end;
 
-function TIntegerArray.Sorted: TIntegerArray; constref;
+function TIntegerArray.Sorted: TIntegerArray; 
 begin
   Result := System.Sorted(Self);
 end;
 
-function TIntegerArray.Unique: TIntegerArray; constref;
+function TIntegerArray.Unique: TIntegerArray; 
 begin
   Result := System.Unique(Self);
 end;
@@ -62,22 +62,22 @@ begin
   SetLength(Self, H);
 end;
 
-function TIntegerArray.Sum: Int64; constref;
+function TIntegerArray.Sum: Int64; 
 begin
   Result := System.Sum(Self);
 end;
 
-function TIntegerArray.Mean: Double; constref;
+function TIntegerArray.Mean: Double; 
 begin
   Result := Self.Sum() / Length(self);
 end;
 
-function TIntegerArray.Min: Int32; constref;
+function TIntegerArray.Min: Int32; 
 begin
   Result := MinA(Self);
 end;
 
-function TIntegerArray.Max: Int32; constref;
+function TIntegerArray.Max: Int32; 
 begin
   Result := MaxA(Self);
 end;
@@ -121,7 +121,7 @@ begin
   Result := System.Mode(Self);
 end;
 
-function TIntegerArray.UniqueCount: Integer; constref;
+function TIntegerArray.UniqueCount: Integer; 
 begin
   Result := Length(System.Unique(Self));
 end;

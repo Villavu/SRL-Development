@@ -8,17 +8,17 @@ begin
   System.Delete(Self, Index, Count);
 end;
 
-function TExtendedArray.IndexOf(Value: Extended): Integer; constref;
+function TExtendedArray.IndexOf(Value: Extended): Integer; 
 begin
   Result := System.IndexOf(Value, Self);
 end;
 
-function TExtendedArray.IndicesOf(Value: Extended): TIntegerArray; constref;
+function TExtendedArray.IndicesOf(Value: Extended): TIntegerArray; 
 begin
   Result := System.IndicesOf(Value, Self);
 end;
 
-function TExtendedArray.Contains(Value: Extended): Boolean; constref;
+function TExtendedArray.Contains(Value: Extended): Boolean; 
 begin
   Result := System.Contains(Value, Self);
 end;
@@ -28,27 +28,27 @@ begin
   Result := System.Remove(Value, Self);
 end;
 
-procedure TExtendedArray.Reverse; constref;
+procedure TExtendedArray.Reverse; 
 begin
   System.Reverse(Self);
 end;
 
-function TExtendedArray.Reversed: TExtendedArray; constref;
+function TExtendedArray.Reversed: TExtendedArray; 
 begin
   Result := System.Reversed(Self);
 end;
 
-procedure TExtendedArray.Sort; constref;
+procedure TExtendedArray.Sort; 
 begin
   System.Sort(Self);
 end;
 
-function TExtendedArray.Sorted: TExtendedArray; constref;
+function TExtendedArray.Sorted: TExtendedArray; 
 begin
   Result := System.Sorted(Self);
 end;
 
-function TExtendedArray.Unique: TExtendedArray; constref;
+function TExtendedArray.Unique: TExtendedArray; 
 begin
   Result := System.Unique(Self);
 end;
@@ -62,22 +62,22 @@ begin
   SetLength(Self, H);
 end;
 
-function TExtendedArray.Sum: Extended; constref;
+function TExtendedArray.Sum: Extended; 
 begin
   Result := System.Sum(Self);
 end;
 
-function TExtendedArray.Mean: Extended; constref;
+function TExtendedArray.Mean: Extended; 
 begin
   Result := Self.Sum() / Length(Self);
 end;
 
-function TExtendedArray.Min: Extended; constref;
+function TExtendedArray.Min: Extended; 
 begin
   Result := MinA(Self);
 end;
 
-function TExtendedArray.Max: Extended; constref;
+function TExtendedArray.Max: Extended; 
 begin
   Result := MaxA(Self);
 end;
