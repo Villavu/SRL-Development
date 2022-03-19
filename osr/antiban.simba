@@ -598,22 +598,22 @@ var
   Tries: Int32;
   a: Double;
   rDot: TPoint;
-  msRect: TRectangle;
-  tpa,cTPA: TPointArray;
+  MSRect: TRectangle;
+  TPA,cTPA: TPointArray;
   cArr: TIntegerArray;
 begin
-  tpa := Minimap.GetDots(DotType);
-  if tpa.Len() < 1 then Exit;
+  TPA := Minimap.GetDots(DotType);
+  if TPA.Len() < 1 then Exit;
   a := Minimap.GetCompassAngle(False);
   repeat
-    inc(Tries);
-    rDot := tpa[random(low(tpa),high(tpa))];
-    msRect := Minimap.VecToMSRect(Vec3(rDot.X + 2, rDot.Y + 2, 0), a);
-    if MainScreen.Bounds.Contains(msRect) then
+    Inc(Tries);
+    rDot := TPA[Random(Low(TPA),High(TPA))];
+    MSRect := Minimap.VecToMSRect(Vec3(rDot.X + 2, rDot.Y + 2, 0), a);
+    if Mainscreen.IsVisible(MSRect.Mean()) then
     begin
       Self.DebugLn('Hovering random ' + toStr(DotType));
-      cArr := getColors(tpaFromBox(msRect.Bounds));
-      SRL.FindColors(cTPA, CTS1(cArr.GetRarest(), 30), msRect.Bounds);
+      cArr := GetColors(TPAFromBox(MSRect.Bounds));
+      SRL.FindColors(cTPA, CTS1(cArr.GetRarest(), 30), MSRect.Bounds);
       Mouse.Move(cTPA.Mean());
       if RightClick then
         Mouse.Click(MOUSE_RIGHT);
