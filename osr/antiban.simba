@@ -596,6 +596,7 @@ end;
 procedure TAntiBan.HoverMSTile(DotType: ERSMinimapDot; RightClick: Boolean = False);
 var
   Tries: Int32;
+  B: TBox;
   a: Double;
   rDot: TPoint;
   MSRect: TRectangle;
@@ -612,7 +613,9 @@ begin
     if Mainscreen.IsVisible(MSRect.Mean()) then
     begin
       Self.DebugLn('Hovering random ' + toStr(DotType));
-      cArr := GetColors(TPAFromBox(MSRect.Bounds));
+      B := MSRect.Bounds;
+      B.LimitTo(Mainscreen.Bounds);
+      cArr := GetColors(TPAFromBox(B));
       SRL.FindColors(cTPA, CTS1(cArr.GetRarest(), 30), MSRect.Bounds);
       Mouse.Move(cTPA.Mean());
       if RightClick then
