@@ -596,27 +596,24 @@ end;
 procedure TAntiBan.HoverMSTile(DotType: ERSMinimapDot; RightClick: Boolean = False);
 var
   Tries: Int32;
-  B: TBox;
   a: Double;
   rDot: TPoint;
-  MSRect: TRectangle;
-  TPA,cTPA: TPointArray;
+  MSBox: TBox;
+  Dots,cTPA: TPointArray;
   cArr: TIntegerArray;
 begin
-  TPA := Minimap.GetDots(DotType);
-  if TPA.Len() < 1 then Exit;
+  Dots := Minimap.GetDots(DotType);
+  if Dots.Len() < 1 then Exit;
   a := Minimap.GetCompassAngle(False);
   repeat
     Inc(Tries);
-    rDot := TPA[Random(Low(TPA),High(TPA))];
-    MSRect := Minimap.VecToMSRect(Vec3(rDot.X + 2, rDot.Y + 2, 0), a);
-    if Mainscreen.IsVisible(MSRect.Mean()) then
+    rDot := Dots[Random(Low(Dots),High(Dots))];
+    MSBox := Minimap.VecToMsBox(Vec3(rDot.X + 2, rDot.Y + 2, 0), a);
+    if MainScreen.Bounds.Contains(MSBox) then
     begin
       Self.DebugLn('Hovering random ' + toStr(DotType));
-      B := MSRect.Bounds;
-      B.LimitTo(Mainscreen.Bounds);
-      cArr := GetColors(TPAFromBox(B));
-      SRL.FindColors(cTPA, CTS1(cArr.GetRarest(), 30), MSRect.Bounds);
+      cArr := GetColors(TPAFromBox(MSBox));
+      SRL.FindColors(cTPA, CTS1(cArr.GetRarest(), 30), MSBox);
       Mouse.Move(cTPA.Mean());
       if RightClick then
         Mouse.Click(MOUSE_RIGHT);
@@ -627,7 +624,7 @@ begin
       Exit;
     end;
   until(Tries > 10);
-end;
+end;;
 
 procedure TAntiban.HoverMSItems();
 begin
