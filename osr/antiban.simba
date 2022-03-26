@@ -624,7 +624,7 @@ begin
       Exit;
     end;
   until(Tries > 10);
-end;;
+end;
 
 procedure TAntiban.HoverMSItems();
 begin
