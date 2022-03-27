@@ -5,7 +5,7 @@
 
 {$DEFINE SRL_USE_REMOTEINPUT}
 
-{$I SRL/osr.simba}
+{$I SRL-F/OSR.simba}
 
 type
   EFiremakingTask = (
@@ -70,8 +70,8 @@ end;
 
 procedure TScript.NextTask;
 begin
-  if BankScreen.IsOpen() then
-    BankScreen.Close();
+  if Bank.IsOpen() then
+    Bank.Close();
 
   if (XPBar.Read() >= Self.Task.FinishXP) then
   begin
@@ -122,14 +122,13 @@ var
 begin
   Walker.WebWalk(Self.StartPoints[0]);
 
-  Tinderbox := Inventory.Find('tinderbox');
+  if (not Inventory.FindItem('Tinderbox', Tinderbox)) then Exit;
 
   while True do
   begin
     XP := XPBar.Read();
 
-    Logs := Inventory.FindAll(Self.Task.Item);
-    if Length(Logs) = 0 then
+    if (not Inventory.FindItem(Self.Task.Item, Logs)) then
       Break;
 
     if Inventory.PointToSlot(Mouse.Position) = Tinderbox then
@@ -171,7 +170,7 @@ begin
         Timeout.Init(25000);
         while RSClient.IsLoggedIn() do
         begin
-          if Chatbox.HasLevelUp() then
+          if Chat.LeveledUp() then
             Break;
           if XPBar.Read() > XP then
             Break;
@@ -193,16 +192,17 @@ begin
   Swap(Self.StartPoints[0], Self.StartPoints[1]);
 end;
 
-procedure TScript.Bank;
+procedure TScript.DoBank;
 begin
-  if Walker.WebWalk(LOCATION_FALADOR_EBANK) and BankScreen.Open(BANK_LOCATION_FALADOR_EAST) then
-  begin
-    if BankScreen.Count(Self.Task.Item) = 0 then
-      Self.Fatal('Out of logs: ' + Self.Task.Item);
+  if Walker.WebWalk(WorldWeb.LOCATION_FALADOR_EBANK) then
+    if Bank.Open(ERSBankLocation.FALADOR_EAST) then
+    begin
+      if Bank.CountItem(Self.Task.Item) = 0 then
+        Self.Fatal('Out of logs: ' + Self.Task.Item);
 
-    if BankScreen.WithdrawQuantity(Self.Task.Item, BANK_WITHDRAW_ALL, False) then
-      WaitUntil(Inventory.Count(Self.Task.Item) > 0, SRL.TruncatedGauss(100, 1000), 3000);
-  end;
+      if Bank.WithdrawItem([Self.Task.Item, BANK_WITHDRAW_ALL], False) then
+        WaitUntil(Inventory.CountItem(Self.Task.Item) > 0, SRL.TruncatedGauss(100, 1000), 3000);
+    end;
 end;
 
 procedure TScript.Run;
@@ -220,10 +220,10 @@ begin
     Self.CheckActivity();
     Self.NextTask();
 
-    if Inventory.Count(Self.Task.Item) > 0 then
+    if Inventory.CountItem(Self.Task.Item) > 0 then
       Burn()
     else
-      Bank();
+      DoBank();
   end;
 end;
 
