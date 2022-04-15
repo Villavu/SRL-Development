@@ -146,6 +146,8 @@ begin
       begin
         if (not Available.Contains(MousePosition)) or ((MousePosition.Y + 200 > Available.Y2) or (MousePosition.X + Pixels > Available.X2)) then
         begin
+          Mouse.Release(MOUSE_MIDDLE);
+          Wait(35, 75);
           Mouse.Move([Available.X1, Available.Y1, Available.X1 + 200, Available.Y1 + 200]);
 
           MousePosition := Mouse.Position();
@@ -157,6 +159,8 @@ begin
       begin
         if (not Available.Contains(MousePosition)) or ((MousePosition.Y + 200 > Available.Y2) or (MousePosition.X - Pixels < Available.X1)) then
         begin
+          Mouse.Release(MOUSE_MIDDLE);
+          Wait(35, 75);
           Mouse.Move([Available.X2 - 200, Available.Y1, Available.X2, Available.Y1 + 200]);
 
           MousePosition := Mouse.Position();

@@ -3,7 +3,7 @@
 
 {$DEFINE SRL_USE_REMOTEINPUT}
 
-{$I SRL/osr.simba}
+{$I SRL-F/osr.simba}
 
 type
   EFletchItem = (
@@ -16,7 +16,7 @@ type
     FLETCH_YEW_LONGBOW
   );
 
-  TScriptConfig = record
+  TScriptSettings = record
     Bank: ERSBankLocation;
 
     Tasks: array of record
@@ -30,10 +30,10 @@ type
   end;
 
 var
-  Config: TScriptConfig;
+  Config: TScriptSettings;
 
 begin
-  Config.Bank := BANK_LOCATION_GRAND_EXCHANGE;
+  Config.Bank := ERSBankLocation.CASTLE_WARS;
 
   Config.User := '';
   Config.Pass := '';
@@ -50,7 +50,7 @@ end;
 
 type
   TScript = record
-    Config: TScriptConfig;
+    Config: TScriptSettings;
 
     HighestPitch: Boolean;
     TaskChanged: Boolean;
@@ -83,18 +83,11 @@ begin
   end;
 end;
 
-procedure TScript.Antiban_HoverBank;
-begin
-  Antiban.Debug('Hover bank');
-
-  BankScreen.Hover(Self.Config.Bank, SRL.Dice(50));
-end;
-
 procedure TScript.Antiban_EarlyBank;
 begin
   Self.EarlyBank := SRL.TruncatedGauss(Self.Task.Materials[0].Amount, 1);
 
-  Antiban.Debug('Early bank: ' + ToString(Self.EarlyBank));
+  Antiban.Debugln('Early bank: ' + ToString(Self.EarlyBank));
 end;
 
 procedure TScript.Antiban_Randomness;
@@ -110,8 +103,8 @@ end;
 
 procedure TScript.NextTask;
 begin
-  if BankScreen.IsOpen() then
-    BankScreen.Close();
+  if Bank.IsOpen() then
+    Bank.Close();
 
   if (XPBar.Read() >= Self.Task.FinishXP) then
   begin
@@ -206,7 +199,7 @@ begin
   end;
 end;
 
-procedure TScript.Setup(constref Config: TScriptConfig);
+procedure TScript.Setup(constref Config: TScriptSettings);
 begin
   Self.Config := Config;
 
@@ -214,7 +207,7 @@ begin
 
   Mouse.IdleInterval := 12.5;
 
-  Antiban.Skills := [SKILL_FLETCHING];
+  Antiban.Skills += ERSSKILL.FLETCHING;
   Antiban.MinZoom := 0;
   Antiban.MaxZoom := 75;
 
@@ -231,16 +224,10 @@ begin
   Antiban.AddTask(10 * ONE_MINUTE, @Self.Antiban_EarlyBank);
   Antiban.AddTask(30 * ONE_MINUTE, @Self.Antiban_EarlyBank);
 
-  Antiban.AddTask(10 * ONE_MINUTE, @Self.Antiban_HoverBank);
-  Antiban.AddTask(30 * ONE_MINUTE, @Self.Antiban_HoverBank);
-
   Antiban.AddTask(20 * ONE_MINUTE, @Self.Antiban_Randomness);
   Antiban.AddTask(40 * ONE_MINUTE, @Self.Antiban_Randomness);
 
   Activity.Countdown.Init(90000);
-
-  if RSClient.IsLoggedIn() then
-    Players[CurrentPlayer].LoggedIn();
 end;
 
 procedure TScript.Debug(S: String);
@@ -273,7 +260,7 @@ var
   Amounts: TIntegerArray;
 begin
   for I := 0 to High(Self.Task.Materials) do
-    Amounts += Inventory.Count(Self.Task.Materials[I].Item);
+    Amounts += Inventory.CountItem(Self.Task.Materials[I].Item);
 
   Result := Amounts.Min();
 end;
@@ -298,49 +285,49 @@ begin
   Result := True;
 
   for I := 0 to High(Self.Task.Materials) do
-    if (BankScreen.CountStack(Self.Task.Materials[I].Item) < Self.Task.Materials[I].Amount) and BankScreen.IsOpen() then
+    if (Bank.CountItem(Self.Task.Materials[I].Item) < Self.Task.Materials[I].Amount) and Bank.IsOpen() then
       Result := False;
 end;
 
-function TScript.Bank: Boolean;
+function TScript.DoBank: Boolean;
 var
   I: Int32;
 begin
   if (Self.EarlyBank = 0) and Self.HasMaterials() then
   begin
-    Result := BankScreen.Close();
+    Result := Bank.Close();
     if not Result then
       Self.Debug('Failed to close bankscreen. (already had materials)');
 
     Exit;
   end;
 
-  if not BankScreen.Open(Self.Config.Bank) then
+  if not Bank.Open(Self.Config.Bank) then
   begin
     Self.Debug('Failed to open bank');
 
     Exit;
   end;
 
-  if Self.TaskChanged and (not BankScreen.DepositAll()) then
+  if Self.TaskChanged and (not Bank.DepositAll()) then
   begin
     Self.Debug('Failed to deposit all after task change');
 
     Exit;
   end;
 
-  if (Inventory.Count(Self.Task.Item) > 0) and (not BankScreen.DepositQuantity(Self.Task.Item, Self.Task.Materials[0].Amount)) then
+  if (Inventory.CountItem(Self.Task.Item) > 0) and (not Bank.DepositItem([Self.Task.Item, Self.Task.Materials[0].Amount], False)) then
   begin
     Self.Debug('Failed to deposit current item');
 
     Exit;
   end;
 
-  if (Self.Task.Tool <> '') and (Inventory.Count(Self.Task.Tool) = 0) then
+  if (Self.Task.Tool <> '') and (Inventory.CountItem(Self.Task.Tool) = 0) then
   begin
-    BankScreen.DepositAll();
+    Bank.DepositAll();
 
-    if (not BankScreen.Search(Self.Task.Tool)) and (not BankScreen.Withdraw(Self.Task.Tool, 1, False)) then
+    if (not Bank.ScrollToItem(Self.Task.Tool)) then
     begin
       Self.Fatal('Failed to withdraw tool');
 
@@ -348,7 +335,7 @@ begin
     end;
   end;
 
-  if not BankScreen.Search('') then
+  if not Bank.Search('') then
   begin
     Self.Debug('Unable to clear search');
 
@@ -357,7 +344,7 @@ begin
 
   for I := 0 to High(Self.Task.Materials) do
   begin
-    if not BankScreen.WithdrawQuantity(Self.Task.Materials[I].Item, Self.Task.Materials[I].Amount, False) then
+    if not Bank.WithdrawItem([Self.Task.Materials[I].Item, Self.Task.Materials[I].Amount], False) then
     begin
       Self.Debug('Failed to withdraw: ' + Self.Task.Materials[I].Item);
 
@@ -374,12 +361,12 @@ begin
     else
       Self.Debug('Failed to withdraw materials');
 
-    BankScreen.DepositAll(); // Clean attempt next time
+    Bank.DepositAll(); // Clean attempt next time
 
     Exit;
   end;
 
-  if not BankScreen.Close() then
+  if not Bank.Close() then
   begin
     Self.Debug('Failed to close bankscreen');
 
@@ -413,14 +400,14 @@ begin
     Exit;
   end;
 
-  if not Chatbox.IsMakeOpen(Random(3000, 6000)) then
+  if not Make.IsOpen(Random(3000, 6000)) then
   begin
     Self.Debug('Make interface did not open');
 
     Exit;
   end;
 
-  if not Chatbox.ClickMakeButton(Self.task.Item.Replace('(u)', '').Strip(), 'All') then
+  if not Make.Select(Self.task.Item.Replace('(u)', '').Strip(), MAKE_QUANTITY_ALL) then
   begin
     Self.Debug('Failed to handle make interface');
 
@@ -429,8 +416,6 @@ begin
 
   if SRL.Dice(50) then
     Antiban.LoseFocus();
-
-  Antiban.ResumeTask(@Self.Antiban_HoverBank);
 
   Timeout.Init(5000);
 
@@ -441,14 +426,14 @@ begin
 
     if (HoverXP > 0) and (XPBar.Read() >= HoverXP) then
     begin
-      BankScreen.Hover(Self.Config.Bank, SRL.Dice(80));
+      Bank.Hover(Self.Config.Bank, SRL.Dice(80));
 
       HoverXP := 0;
     end;
 
     if Self.CheckActivity() then
       Timeout.Restart();
-  until Timeout.IsFinished() or Chatbox.HasLevelUp() or (XPBar.Read() >= TargetXP);
+  until Timeout.IsFinished() or Chat.LeveledUp() or (XPBar.Read() >= TargetXP);
 
   Result := not Timeout.IsFinished();
   if not Result then
@@ -461,7 +446,7 @@ var
 begin
   while True do
   begin
-    if not RSClient.IsLoggedIn() and (not Players[CurrentPlayer].Login) then
+    if not RSClient.IsLoggedIn() and (not Login.LoginPlayer) then
       Self.Fatal('Failed to login player');
 
     Self.NextTask();
@@ -471,43 +456,13 @@ begin
       Swap(Self.Task.Materials[I], Self.Task.Materials[Random(Length(Self.Task.Materials))]);
 
     Self.CheckActivity();
-    if (not Self.Bank()) or (not Self.Fletch()) then
+    if (not Self.DoBank()) or (not Self.Fletch()) then
       Wait(1000, 2000);
   end;
 end;
 
 var
   Script: TScript;
-
-procedure TRSPlayer.LoggedIn; override;
-begin
-  Script.Activity.Countdown.Restart();
-
-  if not Script.HighestPitch then
-  begin
-    Script.HighestPitch := True;
-
-    MainScreen.SetHighestPitch();
-  end;
-end;
-
-// ANTIBAN: 5% chance of deposit normally
-function TRSBankScreen.DepositQuantity(Item: String; Amount: Int32): Boolean; override;
-begin
-  if SRL.Dice(5) then
-    Result := Self.Deposit(Item, Amount)
-  else
-    Result := inherited();
-end;
-
-// ANTIBAN: 5% chance of withdrawing normally
-function TRSBankScreen.WithdrawQuantity(Item: String; Amount: Int32; Noted: Boolean): Boolean; override;
-begin
-  if SRL.Dice(5) then
-    Result := Self.Withdraw(Item, Amount, Noted)
-  else
-    Result := inherited();
-end;
 
 // ANTIBAN: 25% chance of losing focus when idling
 procedure TMouse.Idle; override;
@@ -527,27 +482,16 @@ begin
 end;
 
 // ANTIBAN: 10% chance of clicking the close button
-function TRSBankScreen.Close(UseKeyboard: Boolean = False): Boolean; override;
+function TRSBank.Close(UseKeyboard: Boolean = False): Boolean; override;
 begin
   UseKeyboard := SRL.Dice(90);
 
   Result := inherited();
 end;
 
-// ANTIBAN: 10% chance of clicking make
-function TRSChatBox.ClickMakeButton(Item: String; Quantity: String; UseKeyboard: Boolean = False): Boolean; override;
 begin
-  UseKeyboard := SRL.Dice(90);
-  if UseKeyboard then
-    Wait(0, 1500, wdLeft);
-
-  Result := inherited();
-end;
-
-begin
-  Players.Add(Config.User, Config.Pass, Config.Pin);
-
   Script.Setup(Config);
   Script.Run();
 end.
+
 

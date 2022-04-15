@@ -88,7 +88,6 @@ begin
     Result := Tabs[Tab];
 end;
 
-
 function TRSBank.GetButtons: TRSButtonArray;
 begin
   Result := FindButtons([[48,20], [23,20], [34,34], [23,23]]);
@@ -185,8 +184,8 @@ begin
     
   Self.Name := 'Bank';
 
-  Self.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
-  Self.FINDER_OPTION := ['Use Bank', 'Bank Bank'];
+  Self.FINDER_UPTEXT := ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker', 'Arnold'];
+  Self.FINDER_OPTION := ['Use Bank', 'Bank Bank', 'Bank Arnold'];
 end;
 
 procedure TRSBank.SetupAlignment(Mode: ERSClientMode); override;
@@ -451,13 +450,12 @@ begin
     if MainScreen.IsUpText(Self.FINDER_UPTEXT) then
     begin
       if HoverOption then
-        ChooseOption.Hover(['Use Bank', 'Bank Bank']);
+        ChooseOption.Hover(Self.FINDER_OPTION);
 
       Exit(True);
     end;
   end;
 end;
-
 
 function TRSBank.IsCustomQuantity(Quantity: Int32): Boolean;
 begin
@@ -869,6 +867,17 @@ var
 begin
   if Inventory.FindItem(Item.Item, Slot) then
     Result := Self.DepositHelper(Inventory.GetSlotBox(Slot), Item.Quantity, UseQuantityButtons);
+end;
+
+function TRSBank.DepositRandomItem(Item: TRSBankDepositItem; UseQuantityButtons: Boolean): Boolean;
+var
+  Slots: TIntegerArray;
+begin
+  if Inventory.FindItem(Item.Item, Slots) then
+    if Slots.Len() > 1 then
+      Result := Self.DepositHelper(Inventory.GetSlotBox(SRL.TruncatedGauss(Slots[Low(Slots)],Slots[High(Slots)])), Item.Quantity, UseQuantityButtons)
+    else
+      Result := Self.DepositHelper(Inventory.GetSlotBox(Slots[0]), Item.Quantity, UseQuantityButtons);
 end;
 
 function TRSBank.DepositSlot(Item: TRSBankDepositSlot; UseQuantityButtons: Boolean): Boolean; 

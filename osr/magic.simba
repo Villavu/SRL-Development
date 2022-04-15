@@ -349,13 +349,13 @@ Example
 *)
 function TRSMagic.GetSpellBook: ERSSpellBook;
 const
-  ARCEUUS_COLOR := CTS0(9801276, 78); // Colors of the book on the gametab
+  ARCEUUS_COLOR := CTS1(14931312, 25); // Colors of the book on the gametab
   ANCIENT_COLOR := CTS1(8273495, 27);
   LUNAR_COLOR   := CTS1(12761525, 27);
 var
   Box: TBox := Gametabs.GetTabBox(ERSGameTab.MAGIC); 
 begin
-  if SRL.CountColor(ARCEUUS_COLOR, Box) >= 85 then Exit(ERSSpellBook.ARCEUUS);
+  if SRL.CountColor(ARCEUUS_COLOR, Box) >= 25 then Exit(ERSSpellBook.ARCEUUS);
   if SRL.CountColor(ANCIENT_COLOR, Box) >= 85 then Exit(ERSSpellBook.ANCIENT);
   if SRL.CountColor(LUNAR_COLOR,   Box) >= 85 then Exit(ERSSpellBook.LUNAR);
 end;

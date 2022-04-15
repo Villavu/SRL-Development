@@ -1,5 +1,5 @@
 {$DEFINE SRL_USE_REMOTEINPUT}
-{$I SRL/osr.simba}
+{$I SRL-F/osr.simba}
 
 const
   GOAL_WC_LEVEL = 36;

@@ -132,9 +132,14 @@ TRSObjectFinder is the record used in **MainScreen.FindObject**.
     Example bounding rectangle with a long and short side.
 *)
 type
+  TRSColorCluster = record
+    Primary, Secondary: TCTS2Color;
+    Distance: Int32;
+  end;
+
   TRSObjectFinder = record
     Colors: array of TCTS2Color;
-    ColorClusters: array of record Primary, Secondary: TCTS2Color; Distance: Int32;end;
+    ColorClusters: array of TRSColorCluster;
     ClusterDistance: Int32;
     Erode: Int32;
     Grow: Int32;
