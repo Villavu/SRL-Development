@@ -9,7 +9,7 @@ type
     CLICK_HERE
   );
   
-  ERSLogoutWorldSwitcherButton = (
+  ERSWorldSwitcherButton = (
     CLOSE
   );
 
@@ -19,7 +19,7 @@ procedure TRSLogout.Setup; override;
 begin
   inherited;
   
-  Self.Name := 'Options';
+  Self.Name := 'Logout';
 end;
 
 procedure TRSLogout.SetupAlignment(Mode: ERSClientMode); override;
@@ -60,17 +60,26 @@ begin
   Result := Self.FindButtons([[21, 21]]);
 end;
 
-function TRSLogout.GetWorldSwitcherButton(Button: ERSLogoutWorldSwitcherButton): TRSButton;
+function TRSLogout.GetWorldSwitcherButton(Button: ERSWorldSwitcherButton): TRSButton;
 var
   Buttons: TRSButtonArray := Self.GetWorldSwitcherButtons();
 begin
-  if Length(Buttons) = Length(ERSLogoutWorldSwitcherButton) then
+  if Length(Buttons) = Length(ERSWorldSwitcherButton) then
     Result := Buttons[Button];
 end;
 
 function TRSLogout.IsWorldSwitcherOpen: Boolean;
 begin
-  Result := Self.IsOpen() and Self.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE).Visible();
+  Self.Open();
+  Result := Self.IsOpen() and Self.GetWorldSwitcherButton(ERSWorldSwitcherButton.CLOSE).Visible();
+end;
+
+function TRSLogout.OpenWorldSwitcher: Boolean;
+begin
+  if Self.IsWorldSwitcherOpen() then Exit(True);
+
+  if Self.GetButton(ERSLogoutButton.WORLD_SWITCHER).Click() and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000 + SRL.NormalRange(-2000, 2000)) then
+    Exit(True);
 end;
 
 function TRSLogout.CloseWorldSwitcher: Boolean;
@@ -78,7 +87,40 @@ begin
   if Self.IsOpen() and (not Self.IsWorldSwitcherOpen()) then
     Exit(True);
   
-  Result := Self.GetWorldSwitcherButton(ERSLogoutWorldSwitcherButton.CLOSE).Click() and WaitUntil(not Self.IsWorldSwitcherOpen(), 500, 5000);
+  Result := Self.GetWorldSwitcherButton(ERSWorldSwitcherButton.CLOSE).Click() and WaitUntil(not Self.IsWorldSwitcherOpen(), 500, 5000);
+end;
+
+function TRSLogout.GetCurrentWorld: Int32;
+begin
+  Self.OpenWorldSwitcher();
+  Result := OCR.RecognizeNumber([Self.Bounds.X1+17,Self.Bounds.Y1,Self.Bounds.X1+150,Self.Bounds.Y1+20], TOCRColorRule.Create([2070783]), RS_FONT_BOLD_12);
+end;
+
+function TRSLogout.SwitchWorlds(World:Int32): Boolean;
+var
+  B: TBox;
+  ListBox: TBox := [Self.Bounds.X1+17,Self.Bounds.Y1+36,Self.Bounds.X1+42,Self.Bounds.Y2-38];
+  VisibleWorld: Int32;
+begin
+  if (Self.GetCurrentWorld = World) then Exit(True);
+
+  // Read the first visible members world from the world list
+  VisibleWorld := OCR.RecognizeNumber(ListBox, TOCRColorRule.Create([61680]), RS_FONT_PLAIN_12);
+  Mouse.Move(Self.Bounds, True);
+
+  if World > VisibleWorld then
+  begin
+    While (OCR.LocateText(ListBox, ToStr(World), RS_FONT_PLAIN_12,  TOCRColorRule.Create([61680]), B) < 1) do
+      Mouse.Scroll(1, True);
+  end else
+  begin
+    While (OCR.LocateText(ListBox, ToStr(World), RS_FONT_PLAIN_12,  TOCRColorRule.Create([61680]), B) < 1) do
+      Mouse.Scroll(1, False);
+  end;
+
+  if B.X1 < 1 then Exit;
+  Mouse.Click(B, MOUSE_LEFT);
+  Result := WaitUntil((Self.GetCurrentWorld = World), 75, 15000);
 end;
 
 function TRSLogout.ClickLogout(Attempts: Int32 = 5; TryTime: Int32 = 20000): Boolean;
