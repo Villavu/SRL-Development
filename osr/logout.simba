@@ -106,7 +106,7 @@ begin
 
   // Read the first visible members world from the world list
   VisibleWorld := OCR.RecognizeNumber(ListBox, TOCRColorRule.Create([61680]), RS_FONT_PLAIN_12);
-  Mouse.Move(Self.Bounds, True);
+  Mouse.Move(Self.Bounds.Expand(-5,-36), True);
 
   if World > VisibleWorld then
   begin
