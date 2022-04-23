@@ -63,7 +63,7 @@ end;
 
 function TRSInventory.GetSlotBoxes: TBoxArray;
 begin
-  Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
+  Result := Grid(4, 7, 34, 34, [8, 2], [Self.X1 + 13, Self.Y1 + 9]);
 end;
 
 function TRSInventory.GetSlotBox(Slot: Int32): TBox;
