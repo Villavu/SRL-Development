@@ -463,12 +463,19 @@ end;
 function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): Boolean;
 var
   Item: TRSItem;
+  i: Int32;
+  TBA, tmp: TBoxArray;
 begin
   if not Self.Open() then
     Exit;
 
+  TBA := Self.GetSlotBoxes();
+  for i:=0 to High(TBA) do
+    if Self.IsSlotUsed(TBA[i]) then
+      tmp += TBA[i];
+
   for Item in Items do
-    Slots += ItemFinder.Find(Item, Self.GetSlotBoxes());
+    Slots += ItemFinder.Find(Item, tmp);
   
   Result := Length(Slots) > 0;
 end;
