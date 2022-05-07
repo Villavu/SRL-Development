@@ -121,19 +121,6 @@ begin
   end;
 end;
 
-function TRSStore.IsInventoryFull(): Boolean;
-var
-  B: TBox;
-begin
-  if (not Self.IsOpen) then Exit(Inventory.IsFull);
-
-  for B in Inventory.GetSlotBoxes() do
-    if SRL.CountColor(CTS1(1118740, 35), B) < 0 then
-      Exit(False);
-
-  Result := True;
-end;
-
 procedure TRSStore.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
