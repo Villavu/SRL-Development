@@ -63,7 +63,7 @@ end;
 
 function TRSInventory.GetSlotBoxes: TBoxArray;
 begin
-  Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
+  Result := Grid(4, 7, 34, 34, [8, 2], [Self.X1 + 13, Self.Y1 + 9]);
 end;
 
 function TRSInventory.GetSlotBox(Slot: Int32): TBox;
@@ -195,12 +195,13 @@ begin
   Result := SRL.CountColor($FFFFFF, B) > 0;
 end;
 
-function TRSInventory.IsFull: Boolean;
+function TRSInventory.IsFull(MustBeOpen: Boolean=True): Boolean;
 var
   B: TBox;
 begin
-  if not Self.Open() then
-    Exit(False);
+  if MustBeOpen then
+    if not Self.Open() then
+      Exit(False);
 
   for B in Self.GetSlotBoxes() do
     if not Self.IsSlotUsed(B) then
@@ -459,13 +460,13 @@ begin
   Result := Slots[SRL.RandomBoxNearby(Self.GetSlotBox(Slot).Middle, Boxes)];
 end;
 
-
-function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): Boolean;
+function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray; MustBeOpen: Boolean=True): Boolean;
 var
   Item: TRSItem;
 begin
-  if not Self.Open() then
-    Exit;
+  if MustBeOpen then
+    if not Self.Open() then
+      Exit;
 
   for Item in Items do
     Slots += ItemFinder.Find(Item, Self.GetSlotBoxes());
@@ -473,25 +474,26 @@ begin
   Result := Length(Slots) > 0;
 end;
 
-function TRSInventory.FindItems(Items: TRSItemArray): Boolean; overload;
+function TRSInventory.FindItems(Items: TRSItemArray; MustBeOpen: Boolean=True): Boolean; overload;
 var
   Slots: TIntegerArray;
 begin
-  Result := Self.FindItems(Items, Slots);
+  Result := Self.FindItems(Items, Slots, MustBeOpen);
 end;
 
 
-function TRSInventory.FindItem(Item: TRSItem; out Slots: TIntegerArray): Boolean;
+function TRSInventory.FindItem(Item: TRSItem; out Slots: TIntegerArray; MustBeOpen: Boolean=True): Boolean;
 begin
-  Result := Self.FindItems([Item], Slots);
+  Result := Self.FindItems([Item], Slots, MustBeOpen);
 end;
 
-function TRSInventory.FindItem(Item: TRSItem; out Slot: Int32): Boolean; overload;
+function TRSInventory.FindItem(Item: TRSItem; out Slot: Int32; MustBeOpen: Boolean=True): Boolean; overload;
 var
   Slots: TIntegerArray;
 begin
-  if not Self.Open() then
-    Exit;
+  if MustBeOpen then
+    if not Self.Open() then
+      Exit;
 
   Slots := ItemFinder.Find(Item, Self.GetSlotBoxes(), 1);
   
@@ -504,11 +506,11 @@ begin
 end;
 
 //for use without having to pass extra parameters.
-function TRSInventory.FindItem(Item: TRSItem): Boolean; overload;
+function TRSInventory.FindItem(Item: TRSItem; MustBeOpen: Boolean=True): Boolean; overload;
 var
   Slots: TIntegerArray;
 begin
-  Result := Self.FindItems([Item], Slots);
+  Result := Self.FindItems([Item], Slots, MustBeOpen);
 end;
 
 function TRSInventory.CountItem(Item: TRSItem): Int32;
