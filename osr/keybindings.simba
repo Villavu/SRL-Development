@@ -1,0 +1,297 @@
+(*
+Keybindings
+===========
+Methods to interact with gametabs via FKeys.
+
+Use or uncomment {$DEFINE SRL_KEYBINDINGS_DEBUG} to debug already setup FKeys.
+*)
+
+{$DEFINE SRL_KEYBINDINGS_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+{.$DEFINE SRL_KEYBINDINGS_DEBUG}
+
+type
+(*
+type TRSKeyTabPair
+~~~~~~~~~~~~~~~~~~
+
+TRSKeyTabPair is a record to represent a single pair of gametab/FKey.
+*)
+
+  TRSKeyTabPair = record
+    IsSetup: Boolean;
+    Tab: ERSGameTab;
+    Key: UInt32;
+  end;
+
+(*
+type TRSKeybindings
+~~~~~~~~~~~~~~~~~~~
+
+TRSKeybindings is a record used to:
+  - enable/disable the use of keybinds.
+  - store our already setup KeyTabPair.
+  - figure out which keybinds we have setup if we don't preset them.
+  - manage keys we don't know their match yet.
+*)
+  TRSKeybindings = record
+    UseKeybinds: Boolean;
+    RandomizeChecks: Boolean;
+    KeyTabPairs: array of TRSKeyTabPair;
+    UncheckedKeyArray: TIntegerArray;
+  end;
+
+(*
+KeyTabPair.Setup
+~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSKeyTabPair.Setup(Gametab: ERSGameTab);
+
+Sets up a single FKey/Gametab pair.
+
+Example
+-------
+
+  var
+    KeyTabPair: TRSKeyTabPair;
+
+  begin
+    KeyTabPair.Setup(ERSGameTab.COMBAT);
+  end;
+*)
+procedure TRSKeyTabPair.Setup(Gametab: ERSGameTab);
+begin
+  if IsSetup then Exit;
+  Tab := Gametab;
+  IsSetup := True;
+end;
+
+(*
+Keybindings.Setup
+~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSKeybindings.Setup(Keys: TIntegerArray = DEFAULT_FKEYS);
+
+**Keybindings.Setup** is a procedure that is used to setup it's internal variables so it's ready to use.
+By default it's called with **SRL.Setup** but can be called again with a TIntegerArray argument as a FKeys preset.
+
+Note: This array of ints should be the **VK_** constants built into Simba that represent FKeys.
+
+Example
+-------
+
+  Keybindings.Setup([
+    VK_F1, VK_ESCAPE, VK_F2, VK_F10, VK_F4, VK_F9, VK_F6,
+    VK_F7, VK_F8, VK_F5, VK_F3
+  ]);
+*)
+procedure TRSKeybindings.Setup(Keys: TIntegerArray = []);
+var
+  i: Int32;
+begin
+  Self := []; //Reset itself in case setup is called again.
+
+  RandomizeChecks := Keys = []; //if we passed in keys we won't randomly check them.
+
+  if RandomizeChecks then
+    UncheckedKeyArray := [VK_ESCAPE, VK_F1, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6,
+                          VK_F7, VK_F8, VK_F9, VK_F10, VK_F11, VK_F12]
+  else
+    UncheckedKeyArray := Keys;
+
+  SetLength(KeyTabPairs, Length(UncheckedKeyArray));
+
+  for i := 0 to High(UncheckedKeyArray) do
+  begin
+    KeyTabPairs[i].Key := UncheckedKeyArray[i];
+    KeyTabPairs[i].Tab := ERSGameTab.UNKNOWN;
+  end;
+end;
+
+(*
+Keybindings.GetKeyIndex
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSKeybindings.GetKeyIndex(Key: Int32): Int32;
+.. pascal:: function TRSKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
+
+Internal function used to find the index of a **Key** or **Gametab** of an already setup **KeyTabPair** if it already exists otherwise we return **-1** to know the pair does not exist yet.
+
+*)
+function TRSKeybindings.GetKeyIndex(Key: Int32): Int32;
+var
+  i: Int32;
+begin
+  for i := 0 to High(KeyTabPairs) do
+    if KeyTabPairs[i].Key = Key then
+      Exit(i);
+
+  Result := -1;
+end;
+
+function TRSKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
+var
+  i: Int32;
+begin
+  for i := 0 to High(KeyTabPairs) do
+    if KeyTabPairs[i].Tab = Gametab then
+      Exit(i);
+
+  Result := -1;
+end;
+
+(*
+var Keybindings
+~~~~~~~~~~~~~~~
+  Global Keybindings variable.
+
+*)
+var
+  Keybindings: TRSKeybindings;
+
+(*
+GameTabs.FKeyOpen
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
+
+Attempts to open the **Tab** gametab with FKeys.
+If the Gametab is already stored in **Keybindings.KeyTabPairs** the corresponding Fkey will simply be pressed.
+Otherwise we will fetch a random yet unchecked key from **Keybindings.UncheckedKeyArray** and press it.
+The following then happens:
+  - If a gametab opens we store it this pair in **Keybindings.KeyTabPairs** and then:
+    - If the gametab that was open was the one we wanted the result of the function will be true, otherwise false.
+  - If a gametab doesn't open:
+
+  TODO.....
+*)
+
+(*
+GameTabs.FKeyOpen
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
+
+This function attempts to open a gametab with the help of **Keybindings** global variable.
+When called the following happens:
+  - **Keybindings.KeyTabPairs** is checked for a match of the gametab **Tab** we passed in as an argument.
+    - If a match is found, the FKey is pressed and we Exit the function returning **True** if **Tab** was opened.
+    - If no match is found we then check if there's still FKeys available in **Keybindings.UncheckedKeyArray** (There's 13 Fkeys for 14 tabs and some might even be disabled).
+      - If there's no FKeys we exit.
+      - If there's FKeys available:
+        - We pick a Key from **Keybindings.UncheckedKeyArray**, which key will depend on **Keybindings.RandomizeChecks**.
+        - We check if our Key is in **Keybindings.KeyTabPairs**:
+        - If not we Exit. This meants this Key is either not an FKey or the user didn't pass it in in **Keybindings.Setup**. (This might not be needed? Not 100% sure...)
+        - Now we press the key and monitor gametab changes:
+        - Wether we opened the tab we wanted or not, if the the current gametab switched that the new Tab will be added to **Keybindings.KeyTabPairs** as a new pair to the key pressed and removed from **Keybindings.UncheckedKeyArray**.
+          - If the tab switched to the one we wanted the function results true, otherwise false.
+        - If the gametab didn't switch:
+          - We check if the currenttab has a pair in **Keybindings.KeyTabPairs** and is setup.
+            - If it's not we don't do anything, we can't assume the FKey is a pair to the current tab without being 100% sure.
+            - If it exists and is setup, then we set the FKey we pressed in **Keybindings.KeyTabPairs** as a pair to **ERSGameTab.UNKNOWN** so we know we check it again while also deleting it from **Keybindings.UncheckedKeyArray**.
+
+Note: {$DEFINE WL_KEYBINDINGS_DEBUG} can be used to debug already setup **Keybindings.KeyTabPairs**.
+
+Example
+-------
+
+  Gametabs.FKeyOpen(ERSGameTab.COMBAT);
+*)
+function TRSGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
+var
+  CurrentTab: ERSGameTab;
+  NewTab: ERSGameTab;
+  Idx: Int32;
+  Idx2: Int32;
+  Key: UInt32;
+  TabSwitched: Boolean;
+begin
+  {$IFDEF WL_KEYBINDINGS_DEBUG}
+  for Idx := 0 to High(Keybindings.KeyTabPairs) do
+    if KeyBindings.KeyTabPairs[Idx].IsSetup;
+      WriteLn(Keybindings.KeyTabPairs[Idx].Key, ': ', Keybindings.KeyTabPairs[Idx].Tab);
+  {$ENDIF}
+
+
+  Idx := Keybindings.GetKeyIndex(Tab);
+
+  if Idx > -1 then
+  begin
+    Keyboard.PressKey(Keybindings.KeyTabPairs[Idx].Key);
+    Exit(WaitUntil(Self.GetCurrentTab = Tab,
+                   SRL.TruncatedGauss(50, 2000),
+                   SRL.TruncatedGauss(2000, 3000)));
+  end;
+
+  if Keybindings.UncheckedKeyArray = [] then
+    Exit(False); //all keys are already setup and there's no match
+
+  if Keybindings.RandomizeChecks then
+    Idx := Random(0, High(Keybindings.UncheckedKeyArray))
+  else
+    Idx := 0;
+
+  Key := Keybindings.UncheckedKeyArray[Idx];
+
+  CurrentTab := Self.GetCurrentTab;
+
+  Idx := Keybindings.GetKeyIndex(Key);
+
+  if Idx = -1 then
+    Exit;
+
+  Keyboard.PressKey(Keybindings.KeyTabPairs[Idx].Key);
+
+  TabSwitched := WaitUntil(CurrentTab <> (NewTab := Self.GetCurrentTab),
+                           SRL.TruncatedGauss(50, 2000),
+                           SRL.TruncatedGauss(2000, 3000));
+
+  if TabSwitched then //if tab switched we are sure of this key-gametab pair
+  begin
+    Keybindings.KeyTabPairs[Idx].Setup(NewTab);
+    Keybindings.UncheckedKeyArray.Del(
+                Keybindings.UncheckedKeyArray.Find(Key));
+  end
+  else   //if the tab didn't switch the key is either paired to the current tab
+  begin  //or has no pair. We only decide it has no pair if we are sure by setting it to UNKNOWN
+    Idx2 := Keybindings.GetKeyIndex(CurrentTab);
+    if (Idx2 > -1) and Keybindings.KeyTabPairs[Idx2].IsSetup then
+    begin
+      Keybindings.KeyTabPairs[Idx].Setup(ERSGameTab.UNKNOWN);
+      Keybindings.UncheckedKeyArray.Del(
+                  Keybindings.UncheckedKeyArray.Find(Key));
+    end;
+  end;
+
+  Result := NewTab = Tab;
+end;
+
+(*
+GameTabs.Open
+~~~~~~~~~~~~~
+.. pascal:: function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+
+Override to open gametabs with **GameTabs.FKeyOpen** if **Keybindings.UseKeybinds** is true.
+
+Example
+-------
+
+  Gametabs.Open(ERSGameTab.COMBAT);
+*)
+function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+begin
+  if Self.GetCurrentTab = Tab then
+    Exit(True);
+
+  if Keybindings.UseKeybinds then
+    Result := Self.FKeyOpen(Tab);
+
+  if not Result then
+    Result := inherited(Tab);
+end;
+
+
+procedure TSRL.Setup; override;
+begin
+  inherited;
+
+  Keybindings.Setup;
+end;
