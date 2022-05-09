@@ -38,7 +38,10 @@ type
 
     Path: TPointArray;
     PathIndex: Int32;
-    
+
+    FancyMouse: Boolean;
+    MouseAheadTimer: Int32;
+
     Enabled: Boolean;
 
     OnWalkEvent: TRSWalker_OnWalkEvent;
@@ -106,6 +109,18 @@ TRSWalker.Setup
 
 Setup a RSWalker variable.
 This only needs calling once per variable so it's suggested to use a global variable.
+This method is to be called before using the walking functionality.
+
+Other parameters that you can set up after are:
+* RSW.ScreenWalk := True;
+	If this is set to True, RSW will walk on the mainscreen.
+
+* RSW.FancyMouse := True;
+	If this is set to True, RSW will attempt to make the mousemovement a little more human.
+
+* RSW.ClickRandomness := 5;
+	This is by default 4, it's the radius of the area we click in the path to make the path more random.
+
 
 Parameters
 ----------
@@ -113,12 +128,12 @@ Parameters
 Map
 	File path to an image or a map name found in *SRL/osr/walker/maps*.
 
-Manage  
+Manage
   Automatically free walker at the end of the script. Only works if the TRSWalker variable is global. (Default: True)
-    
+
 Scaling
 	Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 9)
-	
+
 Example
 -------
 
@@ -133,7 +148,7 @@ var
   X, Y: Int32;
 begin
   Self.Name := 'Walker';
-  
+
   Path := Self.FindMap(Map);
   if (Path = '') then
     Self.Fatal('Unable to find map: ' + Map);
@@ -147,11 +162,13 @@ begin
   end;
 
   Self.World := Self.LoadMap(Path);
-  if Manage then 
+  if Manage then
     AddOnTerminate(@Self.Free);
 
+  //Self.HighlightFeatures(Self.World);
+
   // Fixed or resizable, doesn't matter.
-  Sample := Self.World.Downsample(Self.Scaling); 
+  Sample := Self.World.Downsample(Self.Scaling);
   Bitmap := Self.GetCleanMinimap();
   Mask := Self.ScaleMinimap(Bitmap, Self.Scaling);
 
@@ -159,7 +176,7 @@ begin
     for Y := 0 to Mask.getHeight() - 1 do
       if (Mask.GetPixel(X, Y) <> 0) then
         Mask.SetPixel(X, Y, $FFFFFF);
-        
+
   Self.Cache := TMatchTemplateRGBCache.Create(Sample.ToMatrix(), Mask.ToMatrix());
 
   Sample.Free();
@@ -176,25 +193,25 @@ procedure TRSWalker.CleanMinimap(Bitmap: TMufasaBitmap);
     X, Y: Int32;
   begin
     Area := [P.X - 5, P.Y - 5, P.X + 5, P.Y + 5];
-    
+
     for Y := Area.Y1 to Area.Y2 do
       for X := Area.X1 to Area.X2 do
         if Bitmap.PointInBitmap(X, Y) then
         begin
           Pixel := Bitmap.GetPixel(X, Y);
-  
+
           SetToleranceSpeed2Modifiers(0.001, 0.001);
           if SimilarColors($FFFFFF, Pixel, 30) then
             Bitmap.SetPixel(X, Y, 0);
-  
+
           SetToleranceSpeed2Modifiers(0.05, 1);
           if SimilarColors($00FFFF, Pixel, 30) then
             Bitmap.SetPixel(X, Y, 0);
-  
+
           SetToleranceSpeed2Modifiers(0.05, 1);
           if SimilarColors($0000FF, Pixel, 30) then
             Bitmap.SetPixel(X, Y, 0);
-  
+
           SetToleranceSpeed2Modifiers(50, 100);
           if SimilarColors($000000, Pixel, 1) then
             Bitmap.SetPixel(X, Y, 0);
@@ -221,12 +238,12 @@ begin
   Bitmap.ReplaceColor(255,0);
   Bitmap.ReplaceColor(284358,0);
   Bitmap.ReplaceColor(1127261,0);
-  
-  Bitmap.DrawPolyFilled(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), True, 0);  
+
+  Bitmap.DrawPolyFilled(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), True, 0);
 
   Bitmap.FindColors(TPA, 0);
-  Bitmap.Blend(TPA.Sorted(Bitmap.GetCenter()), 5); 
-  Bitmap.Pad(10); 
+  Bitmap.Blend(TPA.Sorted(Bitmap.GetCenter()), 5);
+  Bitmap.Pad(10);
 end;
 
 function TRSWalker.GetCleanMinimap: TMufasaBitmap;
@@ -239,7 +256,7 @@ begin
   Self.CleanMinimap(Bitmap);
 
   Result.Init();
-  
+
   Bitmap.RotateBitmapEx(Minimap.GetCompassAngle(False), False, True, Result);
   Bitmap.Free();
 end;
@@ -253,22 +270,22 @@ var
   TPA: TPointArray;
 begin
   Temp := Bitmap.Copy();
-  
+
   P := Temp.GetCenter();
   if RSClient.Mode = ERSClientMode.FIXED then
     P := P.Offset(0, -8).Rotate(-Minimap.GetCompassAngle(False), P); // fixed
- 
+
   Temp.DrawCircleFilled(P.X, P.Y, RADIUS, True, 0);
 
   RADIUS += 3;
-  
+
   Temp.Crop(P.X - RADIUS, P.Y - RADIUS, P.X + RADIUS, P.Y + RADIUS);
   Temp.FindColors(TPA, 0);
-  Temp.Blend(TPA.Sorted(Temp.GetCenter()), 3); 
+  Temp.Blend(TPA.Sorted(Temp.GetCenter()), 3);
   Temp.DrawCircleFilled(Temp.GetCenter().X, Temp.GetCenter().Y, RADIUS, True, 0);
 
   Result := Temp.Downsample(Scaling, False);
-  
+
   Temp.Free();
 end;
 
@@ -284,13 +301,12 @@ begin
   while Length(Result) < Samples do
     with Matrix.ArgMax() do
     begin
-      Result += Offset(Sample.GetWidth() div 2, Sample.GetHeight() div 2) * Self.Scaling;;
-      
+      Result += Offset(Sample.GetWidth() div 2, Sample.GetHeight() div 2) * Self.Scaling;
       Matrix.Fill([X - 5, Y - 5, X + 5, Y + 5], 0);
     end;
-    
+
   Result := Result.Offset(Self.Scaling div 2, Self.Scaling div 2);
-      
+
   Sample.Free();
 end;
 
@@ -309,25 +325,25 @@ begin
     Max(0, Position.Y - SLICE_SIZE),
     Min(World.GetWidth()  - 1, Position.X + SLICE_SIZE),
     Min(World.GetHeight() - 1, Position.Y + SLICE_SIZE)
-  ];  
+  ];
 
   Slice := World.Copy(Area.X1, Area.Y1, Area.X2, Area.Y2);
   SliceScaled := Slice.Downsample(SCALING);
-  
+
   TemplScaled := Templ.Downsample(SCALING);
   with TemplScaled.GetCenter() do
     TemplScaled.Crop(X - TEMPL_SIZE, Y - TEMPL_SIZE, X + TEMPL_SIZE, Y + TEMPL_SIZE);
 
   Matrix := SliceScaled.MatchTemplate(TemplScaled, TM_CCOEFF_NORMED);
-    
+
   with Matrix.ArgMax() do
   begin
     Match := Matrix[Y, X];
-      
+
     Result.X := Area.X1 + (X + TEMPL_SIZE) * SCALING;
     Result.Y := Area.Y1 + (Y + TEMPL_SIZE) * SCALING;
   end;
-  
+
   TemplScaled.Free();
   SliceScaled.Free();
   Slice.Free();
@@ -344,7 +360,7 @@ Example
 -------
 
   WriteLn(Walker.GetMyPos());
-  
+
   // Check to see the match percentage if needed
   WriteLn(Walker.Similarity);
 *)
@@ -370,7 +386,7 @@ begin
     if Match > Self.Similarity then
     begin
       Self.Similarity := Match;
-      
+
       Result := Hit;
     end;
   end;
@@ -397,6 +413,48 @@ begin
   Self.EnableRunAtEnergy := SRL.SkewedRand(40, 10, 100);
 
   Minimap.EnableRun();
+end;
+
+
+procedure TRSWalker.DoMouseAhead(Position: TPoint);
+var
+  flag: TPoint;
+  dist: Int32;
+
+  procedure MouseToNextPoint(myPos: TPoint);
+  var
+    mmPos: TPoint;
+    idx: Int32;
+    angle: Double;
+    SlowMouse: TMouse;
+  begin
+    angle := Minimap.GetCompassAngle(False);
+    idx := Self.PathIndex;
+    while (idx < High(Self.Path)) and Self.IsWalkable(Self.Path[idx+1], myPos, angle) do
+      Inc(idx);
+
+    if (Idx = High(Self.Path)) and (Random(10) > 2) then Exit();
+
+    mmPos := Path[idx] - myPos + minimap.Center;
+    mmPos := RotatePoint(mmPos, angle, Minimap.Center.X, Minimap.Center.Y);
+
+    SlowMouse := Mouse;
+    SlowMouse.Speed := Random(6,10);
+    SlowMouse.Move(Box(mmPos, Random(5,16), Random(5,16)));
+  end;
+
+begin
+  if Self.ScreenWalk then
+    Exit();
+
+  if (GetTimeRunning() < Self.MouseAheadTimer) or (not Minimap.FindFlag(Flag)) then
+    Exit();
+
+  dist := Trunc(flag.DistanceTo(Minimap.Bounds.Middle()));
+  if InRange(dist, Random(5,10), Random(60,70)) then
+    MouseToNextPoint(Position);
+
+  Self.MouseAheadTimer := GetTimeRunning() + srl.SkewedRand(0,50,500);
 end;
 
 procedure TRSWalker.WaitMoving(Destination: TPoint; WaitUntilDistance: Int32);
@@ -428,6 +486,9 @@ begin
 
     if (@OnWalkingEvent <> nil) then
       OnWalkingEvent(@Self, Position.Current, Destination);
+
+    if Self.FancyMouse then
+      Self.DoMouseAhead(Position.Current);
 
     if not Self.Enabled then
       Break;
@@ -548,22 +609,23 @@ begin
   end;
 end;
 
+
 (*
 TRSWalker.WalkPath
 ~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Boolean;
 
-Walks a path of points taken from the loaded map. 
+Walks a path of points taken from the loaded map. We advice that WaitUntilDistance is not 0.
 
 Parameters
 ----------
 
 Path
-	Array of points taken from the loaded map to walk. Must be ordered from start to finish.	
-	
+	Array of points taken from the loaded map to walk. Must be ordered from start to finish.
+
 WaitUntilDistance
 	Determines when the method returns once the final point has been clicked. Default value: 0.
-	
+
 	| *WaitUntilDistance=0* waits until the player has reached the final point.
 	| *WaitUntilDistance=20* waits until the player is within 20 pixels of the final point.
 
@@ -602,14 +664,15 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
     Nearest, Furthest: Int32;
   begin
     Nearest := Self.Path.Find(Self.Path.Sorted(PlayerPoint)[0]);
+    Self.PathIndex := Nearest;
 
     while (Nearest < High(Self.Path)) and (not Self.IsWalkable(Self.Path[Nearest+1], PlayerPoint, Angle)) do
       Inc(Nearest);
-      
+
     Furthest := Nearest;
     while (Furthest < High(Self.Path)) and Self.IsWalkable(Self.Path[Furthest+1], PlayerPoint, Angle) do
       Inc(Furthest);
-    
+
     // 15% chance of randomness else furthest
     Index := Furthest;
     if Random() < 0.15 then
@@ -617,7 +680,7 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
 
     Result := Index > Previous;
   end;
-  
+
 var
   PlayerPoint: TPoint;
   Index, Fails: Int32;
@@ -672,10 +735,10 @@ Parameters
 
 Destination
 	Destination point taken from the loaded map.
-	
+
 WaitUntilDistance
 	Determines when the method returns once the final point has been clicked. Default value: 0.
-	
+
 	| *WaitUntilDistance=0* waits until the player has reached the final point.
 	| *WaitUntilDistance=20* waits until the player is within 20 pixels of the final point.
 
@@ -704,10 +767,10 @@ Parameters
 
 Destination
 	Destination point taken from the loaded map.
-	
+
 WaitUntilDistance
 	Determines when the method returns once the final point has been clicked. Default value: 0.
-	
+
 	| *WaitUntilDistance=0* waits until the player has reached the final point.
 	| *WaitUntilDistance=20* waits until the player is within 20 pixels of the final point.
 
@@ -746,7 +809,7 @@ var
   Lines: TStringArray;
 begin
   Freeze();
-  
+
   Time := PerformanceTimer();
   Position := Self.GetMyPos();
   Time := PerformanceTimer() - Time;
@@ -765,11 +828,11 @@ begin
   WorldBitmap.DrawBox([X - 2, Y - 2, X + 2, Y + 2], $FFFFFF);
 
   MinimapBitmap := ScaleMinimap(GetCleanMinimap(), 1);
-  
+
   P := MinimapBitmap.GetCenter();
   if RSClient.Mode = ERSClientMode.FIXED then
     P := P.Offset(0, 8).Rotate(-Minimap.GetCompassAngle(False), P);
-    
+
   MinimapBitmap.DrawBoxFilled([P.X - 1, P.Y - 1, P.X + 1, P.Y + 1], False, $FFFFFF);
   MinimapBitmap.SetTransparentColor(0);
 
@@ -786,7 +849,7 @@ begin
   Bitmap.SetFontName('Consolas');
   Bitmap.SetFontSize(18);
   Bitmap.SetFontAntialiasing(True);
-  
+
   Bitmap.DrawText(Lines[0], [420, 20 + MinimapBitmap.GetHeight()], $FFFFFF);
   Bitmap.DrawText(Lines[1] + LineEnding + Lines[2], [420, 370], $FFFFFF);
 
@@ -797,6 +860,7 @@ begin
   MinimapBitmap.Free();
 
   Bitmap.Debug();
+  DisplayDebugImgWindow(Bitmap.getWidth, bitmap.getHeight());
   Bitmap.Free();
 
   UnFreeze();
