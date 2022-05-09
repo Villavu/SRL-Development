@@ -101,6 +101,21 @@ end;
 var
   DepositBox: TRSDepositBox;
 
+(*
+GameTabs.GetCurrentTab
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSGameTabs.GetCurrentTab: ERSGametab; override;
+
+Overrides **GameTabs.GetCurrentTab** to return the inventory tab if bank or depositbox is open.
+*)
+function TRSGameTabs.GetCurrentTab: ERSGametab; override;
+begin
+  Result := inherited;
+
+  if (Result = ERSGameTab.UNKNOWN) and (Bank.IsOpen or DepositBox.IsOpen) then
+    Result := ERSGameTab.INVENTORY;
+end;
+
 procedure TRSClient.ClientModeChanged; override;
 begin
   inherited;
