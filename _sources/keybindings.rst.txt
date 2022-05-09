@@ -1,0 +1,168 @@
+
+Keybindings
+===========
+Methods to interact with gametabs via FKeys.
+
+Use or uncomment {$DEFINE SRL_KEYBINDINGS_DEBUG} to debug already setup FKeys.
+
+
+------------
+
+type TRSKeyTabPair
+~~~~~~~~~~~~~~~~~~
+
+TRSKeyTabPair is a record to represent a single pair of gametab/FKey.
+
+
+------------
+
+type TRSKeybindings
+~~~~~~~~~~~~~~~~~~~
+
+TRSKeybindings is a record used to:
+  - enable/disable the use of keybinds.
+  - store our already setup KeyTabPair.
+  - figure out which keybinds we have setup if we don't preset them.
+  - manage keys we don't know their match yet.
+
+
+------------
+
+KeyTabPair.Setup
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSKeyTabPair.Setup(Gametab: ERSGameTab);
+
+Sets up a single FKey/Gametab pair.
+
+Example
+-------
+.. code-block:: pascal  
+
+  var
+    KeyTabPair: TRSKeyTabPair;
+
+  begin
+    KeyTabPair.Setup(ERSGameTab.COMBAT);
+  end;
+
+
+------------
+
+Keybindings.Setup
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSKeybindings.Setup(Keys: TIntegerArray = DEFAULT_FKEYS);
+
+**Keybindings.Setup** is a procedure that is used to setup it's internal variables so it's ready to use.
+By default it's called with **SRL.Setup** but can be called again with a TIntegerArray argument as a FKeys preset.
+
+Note: This array of ints should be the **VK_** constants built into Simba that represent FKeys.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Keybindings.Setup([
+    VK_F1, VK_ESCAPE, VK_F2, VK_F10, VK_F4, VK_F9, VK_F6,
+    VK_F7, VK_F8, VK_F5, VK_F3
+  ]);
+
+
+------------
+
+Keybindings.GetKeyIndex
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSKeybindings.GetKeyIndex(Key: Int32): Int32;
+.. code-block:: pascal
+
+ function TRSKeybindings.GetKeyIndex(Gametab: ERSGameTab): Int32; overload;
+
+Internal function used to find the index of a **Key** or **Gametab** of an already setup **KeyTabPair** if it already exists otherwise we return **-1** to know the pair does not exist yet.
+
+
+
+------------
+
+var Keybindings
+~~~~~~~~~~~~~~~
+  Global Keybindings variable.
+
+
+
+------------
+
+GameTabs.FKeyOpen
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
+
+Attempts to open the **Tab** gametab with FKeys.
+If the Gametab is already stored in **Keybindings.KeyTabPairs** the corresponding Fkey will simply be pressed.
+Otherwise we will fetch a random yet unchecked key from **Keybindings.UncheckedKeyArray** and press it.
+The following then happens:
+  - If a gametab opens we store it this pair in **Keybindings.KeyTabPairs** and then:
+    - If the gametab that was open was the one we wanted the result of the function will be true, otherwise false.
+  - If a gametab doesn't open:
+
+  TODO.....
+
+
+------------
+
+GameTabs.FKeyOpen
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSGameTabs.FKeyOpen(Tab: ERSGameTab): Boolean;
+
+This function attempts to open a gametab with the help of **Keybindings** global variable.
+When called the following happens:
+  - **Keybindings.KeyTabPairs** is checked for a match of the gametab **Tab** we passed in as an argument.
+    - If a match is found, the FKey is pressed and we Exit the function returning **True** if **Tab** was opened.
+    - If no match is found we then check if there's still FKeys available in **Keybindings.UncheckedKeyArray** (There's 13 Fkeys for 14 tabs and some might even be disabled).
+      - If there's no FKeys we exit.
+      - If there's FKeys available:
+        - We pick a Key from **Keybindings.UncheckedKeyArray**, which key will depend on **Keybindings.RandomizeChecks**.
+        - We check if our Key is in **Keybindings.KeyTabPairs**:
+        - If not we Exit. This meants this Key is either not an FKey or the user didn't pass it in in **Keybindings.Setup**. (This might not be needed? Not 100% sure...)
+        - Now we press the key and monitor gametab changes:
+        - Wether we opened the tab we wanted or not, if the the current gametab switched that the new Tab will be added to **Keybindings.KeyTabPairs** as a new pair to the key pressed and removed from **Keybindings.UncheckedKeyArray**.
+          - If the tab switched to the one we wanted the function results true, otherwise false.
+        - If the gametab didn't switch:
+          - We check if the currenttab has a pair in **Keybindings.KeyTabPairs** and is setup.
+            - If it's not we don't do anything, we can't assume the FKey is a pair to the current tab without being 100% sure.
+            - If it exists and is setup, then we set the FKey we pressed in **Keybindings.KeyTabPairs** as a pair to **ERSGameTab.UNKNOWN** so we know we check it again while also deleting it from **Keybindings.UncheckedKeyArray**.
+
+Note: {$DEFINE WL_KEYBINDINGS_DEBUG} can be used to debug already setup **Keybindings.KeyTabPairs**.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Gametabs.FKeyOpen(ERSGameTab.COMBAT);
+
+
+------------
+
+GameTabs.Open
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
+
+Override to open gametabs with **GameTabs.FKeyOpen** if **Keybindings.UseKeybinds** is true.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Gametabs.Open(ERSGameTab.COMBAT);
+
+
+------------

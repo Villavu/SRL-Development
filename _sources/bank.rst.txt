@@ -178,17 +178,6 @@ GameTabs.Open
 ~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSGameTabs.GetCurrentTab: ERSGametab; override;
-
-Overrides **GameTabs.GetCurrentTab** to return the inventory tab if bank is open.
-
-
-------------
-
-GameTabs.Open
-~~~~~~~~~~~~~
-.. code-block:: pascal
-
  function TRSGameTabs.Open(Tab: ERSGameTab): Boolean; override;
 
 Overrides **GameTabs.Open** to close the bank if the bank open.

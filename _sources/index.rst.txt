@@ -34,12 +34,14 @@ Welcome to SRL documentation!
 
    mainscreen
    login
+   keybindings
    antiban
    combat
    prayer
    inventory
    misc
    mm2ms
+   depositbox
    bank
    chat
    magic

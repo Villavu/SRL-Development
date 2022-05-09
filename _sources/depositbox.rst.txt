@@ -1,0 +1,11 @@
+
+GameTabs.GetCurrentTab
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSGameTabs.GetCurrentTab: ERSGametab; override;
+
+Overrides **GameTabs.GetCurrentTab** to return the inventory tab if bank or depositbox is open.
+
+
+------------

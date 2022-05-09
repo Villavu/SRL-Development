@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keybindings &mdash; SRL  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Antiban" href="antiban.html" />
+    <link rel="prev" title="Login" href="login.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> SRL
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="login.html">Login</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Keybindings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#type-trskeytabpair">type TRSKeyTabPair</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#type-trskeybindings">type TRSKeybindings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#keytabpair-setup">KeyTabPair.Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#keybindings-setup">Keybindings.Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#keybindings-getkeyindex">Keybindings.GetKeyIndex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#var-keybindings">var Keybindings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gametabs-fkeyopen">GameTabs.FKeyOpen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">GameTabs.FKeyOpen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gametabs-open">GameTabs.Open</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="antiban.html">Antiban</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combat.html">Combat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combat.html#minimap">Minimap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prayer.html">Prayer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prayer.html#minimap">Minimap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="depositbox.html">GameTabs.GetCurrentTab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bank.html">Bank</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chat.html">Chat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="magic.html">Magic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsclient.html">RSClient</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grandexchange.html">BankScreen.Open</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html">Item Finder</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SRL</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Keybindings</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/keybindings.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="keybindings">
+<h1>Keybindings<a class="headerlink" href="#keybindings" title="Permalink to this headline"></a></h1>
+<p>Methods to interact with gametabs via FKeys.</p>
+<p>Use or uncomment {$DEFINE SRL_KEYBINDINGS_DEBUG} to debug already setup FKeys.</p>
+<hr class="docutils" />
+<section id="type-trskeytabpair">
+<h2>type TRSKeyTabPair<a class="headerlink" href="#type-trskeytabpair" title="Permalink to this headline"></a></h2>
+<p>TRSKeyTabPair is a record to represent a single pair of gametab/FKey.</p>
+</section>
+<hr class="docutils" />
+<section id="type-trskeybindings">
+<h2>type TRSKeybindings<a class="headerlink" href="#type-trskeybindings" title="Permalink to this headline"></a></h2>
+<dl class="simple">
+<dt>TRSKeybindings is a record used to:</dt><dd><ul class="simple">
+<li><p>enable/disable the use of keybinds.</p></li>
+<li><p>store our already setup KeyTabPair.</p></li>
+<li><p>figure out which keybinds we have setup if we don’t preset them.</p></li>
+<li><p>manage keys we don’t know their match yet.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<hr class="docutils" />
+<section id="keytabpair-setup">
+<h2>KeyTabPair.Setup<a class="headerlink" href="#keytabpair-setup" title="Permalink to this headline"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSKeyTabPair</span><span class="o">.</span><span class="nf">Setup</span><span class="p">(</span><span class="n">Gametab</span><span class="o">:</span> <span class="n">ERSGameTab</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Sets up a single FKey/Gametab pair.</p>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span>
+  <span class="n">KeyTabPair</span><span class="o">:</span> <span class="n">TRSKeyTabPair</span><span class="o">;</span>
+
+<span class="k">begin</span>
+  <span class="n">KeyTabPair</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">ERSGameTab</span><span class="o">.</span><span class="n">COMBAT</span><span class="p">)</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="keybindings-setup">
+<h2>Keybindings.Setup<a class="headerlink" href="#keybindings-setup" title="Permalink to this headline"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSKeybindings</span><span class="o">.</span><span class="nf">Setup</span><span class="p">(</span><span class="n">Keys</span><span class="o">:</span> <span class="n">TIntegerArray</span> <span class="o">=</span> <span class="n">DEFAULT_FKEYS</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p><strong>Keybindings.Setup</strong> is a procedure that is used to setup it’s internal variables so it’s ready to use.
+By default it’s called with <strong>SRL.Setup</strong> but can be called again with a TIntegerArray argument as a FKeys preset.</p>
+<p>Note: This array of ints should be the <strong>VK_</strong> constants built into Simba that represent FKeys.</p>
+<section id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Keybindings</span><span class="o">.</span><span class="n">Setup</span><span class="p">([</span>
+  <span class="n">VK_F1</span><span class="o">,</span> <span class="n">VK_ESCAPE</span><span class="o">,</span> <span class="n">VK_F2</span><span class="o">,</span> <span class="n">VK_F10</span><span class="o">,</span> <span class="n">VK_F4</span><span class="o">,</span> <span class="n">VK_F9</span><span class="o">,</span> <span class="n">VK_F6</span><span class="o">,</span>
+  <span class="n">VK_F7</span><span class="o">,</span> <span class="n">VK_F8</span><span class="o">,</span> <span class="n">VK_F5</span><span class="o">,</span> <span class="n">VK_F3</span>
+<span class="p">])</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="keybindings-getkeyindex">
+<h2>Keybindings.GetKeyIndex<a class="headerlink" href="#keybindings-getkeyindex" title="Permalink to this headline"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSKeybindings</span><span class="o">.</span><span class="nf">GetKeyIndex</span><span class="p">(</span><span class="n">Key</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSKeybindings</span><span class="o">.</span><span class="nf">GetKeyIndex</span><span class="p">(</span><span class="n">Gametab</span><span class="o">:</span> <span class="n">ERSGameTab</span><span class="p">)</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal function used to find the index of a <strong>Key</strong> or <strong>Gametab</strong> of an already setup <strong>KeyTabPair</strong> if it already exists otherwise we return <strong>-1</strong> to know the pair does not exist yet.</p>
+</section>
+<hr class="docutils" />
+<section id="var-keybindings">
+<h2>var Keybindings<a class="headerlink" href="#var-keybindings" title="Permalink to this headline"></a></h2>
+<blockquote>
+<div><p>Global Keybindings variable.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="gametabs-fkeyopen">
+<h2>GameTabs.FKeyOpen<a class="headerlink" href="#gametabs-fkeyopen" title="Permalink to this headline"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSGameTabs</span><span class="o">.</span><span class="nf">FKeyOpen</span><span class="p">(</span><span class="n">Tab</span><span class="o">:</span> <span class="n">ERSGameTab</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Attempts to open the <strong>Tab</strong> gametab with FKeys.
+If the Gametab is already stored in <strong>Keybindings.KeyTabPairs</strong> the corresponding Fkey will simply be pressed.
+Otherwise we will fetch a random yet unchecked key from <strong>Keybindings.UncheckedKeyArray</strong> and press it.
+The following then happens:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If a gametab opens we store it this pair in <strong>Keybindings.KeyTabPairs</strong> and then:
+- If the gametab that was open was the one we wanted the result of the function will be true, otherwise false.</p></li>
+<li><p>If a gametab doesn’t open:</p></li>
+</ul>
+<p>TODO…..</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="id2">
+<h2>GameTabs.FKeyOpen<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSGameTabs</span><span class="o">.</span><span class="nf">FKeyOpen</span><span class="p">(</span><span class="n">Tab</span><span class="o">:</span> <span class="n">ERSGameTab</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>This function attempts to open a gametab with the help of <strong>Keybindings</strong> global variable.
+When called the following happens:</p>
+<blockquote>
+<div><ul>
+<li><p><strong>Keybindings.KeyTabPairs</strong> is checked for a match of the gametab <strong>Tab</strong> we passed in as an argument.
+- If a match is found, the FKey is pressed and we Exit the function returning <strong>True</strong> if <strong>Tab</strong> was opened.
+- If no match is found we then check if there’s still FKeys available in <strong>Keybindings.UncheckedKeyArray</strong> (There’s 13 Fkeys for 14 tabs and some might even be disabled).</p>
+<blockquote>
+<div><ul>
+<li><p>If there’s no FKeys we exit.</p></li>
+<li><p>If there’s FKeys available:
+- We pick a Key from <strong>Keybindings.UncheckedKeyArray</strong>, which key will depend on <strong>Keybindings.RandomizeChecks</strong>.
+- We check if our Key is in <strong>Keybindings.KeyTabPairs</strong>:
+- If not we Exit. This meants this Key is either not an FKey or the user didn’t pass it in in <strong>Keybindings.Setup</strong>. (This might not be needed? Not 100% sure…)
+- Now we press the key and monitor gametab changes:
+- Wether we opened the tab we wanted or not, if the the current gametab switched that the new Tab will be added to <strong>Keybindings.KeyTabPairs</strong> as a new pair to the key pressed and removed from <strong>Keybindings.UncheckedKeyArray</strong>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If the tab switched to the one we wanted the function results true, otherwise false.</p></li>
+</ul>
+</div></blockquote>
+<ul>
+<li><p>If the gametab didn’t switch:
+- We check if the currenttab has a pair in <strong>Keybindings.KeyTabPairs</strong> and is setup.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>If it’s not we don’t do anything, we can’t assume the FKey is a pair to the current tab without being 100% sure.</p></li>
+<li><p>If it exists and is setup, then we set the FKey we pressed in <strong>Keybindings.KeyTabPairs</strong> as a pair to <strong>ERSGameTab.UNKNOWN</strong> so we know we check it again while also deleting it from <strong>Keybindings.UncheckedKeyArray</strong>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>Note: {$DEFINE WL_KEYBINDINGS_DEBUG} can be used to debug already setup <strong>Keybindings.KeyTabPairs</strong>.</p>
+<section id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Gametabs</span><span class="o">.</span><span class="n">FKeyOpen</span><span class="p">(</span><span class="n">ERSGameTab</span><span class="o">.</span><span class="n">COMBAT</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="gametabs-open">
+<h2>GameTabs.Open<a class="headerlink" href="#gametabs-open" title="Permalink to this headline"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSGameTabs</span><span class="o">.</span><span class="nf">Open</span><span class="p">(</span><span class="n">Tab</span><span class="o">:</span> <span class="n">ERSGameTab</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Override to open gametabs with <strong>GameTabs.FKeyOpen</strong> if <strong>Keybindings.UseKeybinds</strong> is true.</p>
+<section id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Gametabs</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">ERSGameTab</span><span class="o">.</span><span class="n">COMBAT</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="login.html" class="btn btn-neutral float-left" title="Login" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="antiban.html" class="btn btn-neutral float-right" title="Antiban" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, SRL Group.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+
+
+</body>
+</html>

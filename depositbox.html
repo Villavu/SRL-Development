@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Keyboard &mdash; SRL  documentation</title>
+  <title>GameTabs.GetCurrentTab &mdash; SRL  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -18,8 +18,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Random" href="random.html" />
-    <link rel="prev" title="Wrappers" href="wrappers.html" /> 
+    <link rel="next" title="Bank" href="bank.html" />
+    <link rel="prev" title="Minimap to Mainscreen" href="mm2ms.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -37,7 +37,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
@@ -50,21 +50,14 @@
 <li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Keyboard</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#keyboard-presskey">Keyboard.PressKey</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#keyboard-keydown">Keyboard.KeyDown</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#keyboard-keyup">Keyboard.KeyUp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#keyboard-iskeydown">Keyboard.IsKeyDown</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#keyboard-send">Keyboard.Send</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
 <li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
 </ul>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
 <li class="toctree-l1"><a class="reference internal" href="login.html">Login</a></li>
 <li class="toctree-l1"><a class="reference internal" href="keybindings.html">Keybindings</a></li>
@@ -76,7 +69,7 @@
 <li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
-<li class="toctree-l1"><a class="reference internal" href="depositbox.html">GameTabs.GetCurrentTab</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GameTabs.GetCurrentTab</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bank.html">Bank</a></li>
 <li class="toctree-l1"><a class="reference internal" href="chat.html">Chat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="magic.html">Magic</a></li>
@@ -106,9 +99,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Keyboard</li>
+      <li>GameTabs.GetCurrentTab</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/keyboard.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/depositbox.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -116,66 +109,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="keyboard">
-<h1>Keyboard<a class="headerlink" href="#keyboard" title="Permalink to this headline"></a></h1>
-<p>The Keyboard file holds functions and procedures that are related to the keyboard.</p>
-<hr class="docutils" />
-<section id="keyboard-presskey">
-<h2>Keyboard.PressKey<a class="headerlink" href="#keyboard-presskey" title="Permalink to this headline"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TKeyboard</span><span class="o">.</span><span class="nf">PressKey</span><span class="p">(</span><span class="n">Key</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">;</span>
+  <section id="gametabs-getcurrenttab">
+<h1>GameTabs.GetCurrentTab<a class="headerlink" href="#gametabs-getcurrenttab" title="Permalink to this headline"></a></h1>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSGameTabs</span><span class="o">.</span><span class="nf">GetCurrentTab</span><span class="o">:</span> <span class="n">ERSGametab</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Presses the given virtual key.</p>
-<p>Note: See <cite>VK_</cite> constants for values to pass it.</p>
-</section>
+<p>Overrides <strong>GameTabs.GetCurrentTab</strong> to return the inventory tab if bank or depositbox is open.</p>
 <hr class="docutils" />
-<section id="keyboard-keydown">
-<h2>Keyboard.KeyDown<a class="headerlink" href="#keyboard-keydown" title="Permalink to this headline"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TKeyboard</span><span class="o">.</span><span class="nf">KeyDown</span><span class="p">(</span><span class="n">Key</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">;</span>
-</pre></div>
-</div>
-<p>Presses down the given virtual key.</p>
-<p>Note: See <cite>VK_</cite> constants for values to pass it.</p>
-</section>
-<hr class="docutils" />
-<section id="keyboard-keyup">
-<h2>Keyboard.KeyUp<a class="headerlink" href="#keyboard-keyup" title="Permalink to this headline"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TKeyboard</span><span class="o">.</span><span class="nf">KeyUp</span><span class="p">(</span><span class="n">Key</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">;</span>
-</pre></div>
-</div>
-<p>Releases the given virtual key.</p>
-<p>Note: See <cite>VK_</cite> constants for values to pass it.</p>
-</section>
-<hr class="docutils" />
-<section id="keyboard-iskeydown">
-<h2>Keyboard.IsKeyDown<a class="headerlink" href="#keyboard-iskeydown" title="Permalink to this headline"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TKeyboard</span><span class="o">.</span><span class="nf">IsKeyDown</span><span class="p">(</span><span class="n">Key</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">;</span>
-</pre></div>
-</div>
-<p>Returns True if the given virtual key is currently down.</p>
-<p>Note: See <cite>VK_</cite> constants for values to pass it.</p>
-</section>
-<hr class="docutils" />
-<section id="keyboard-send">
-<h2>Keyboard.Send<a class="headerlink" href="#keyboard-send" title="Permalink to this headline"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TKeyboard</span><span class="o">.</span><span class="nf">Send</span><span class="p">(</span><span class="k">const</span> <span class="n">Text</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="k">const</span> <span class="n">KeyWait</span><span class="o">,</span> <span class="n">KeyModWait</span><span class="o">,</span> <span class="n">KeyPressWait</span><span class="o">:</span> <span class="n">UInt32</span><span class="p">)</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
-<span class="k">procedure</span> <span class="nc">TKeyboard</span><span class="o">.</span><span class="nf">Send</span><span class="p">(</span><span class="k">const</span> <span class="n">Text</span><span class="o">:</span> <span class="k">String</span><span class="p">)</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
-<span class="k">procedure</span> <span class="nc">TKeyboard</span><span class="o">.</span><span class="nf">Send</span><span class="p">(</span><span class="k">const</span> <span class="n">Text</span><span class="o">:</span> <span class="k">String</span><span class="o">;</span> <span class="n">KeyPressAfter</span><span class="o">:</span> <span class="kt">Integer</span><span class="p">)</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
-</pre></div>
-</div>
-<p>Writes the given text to whatever window is currently in focus.</p>
-<p>First overload allows you to pass KeyWait, KeyModWait, and KeyPressWait, all are timing modifiers.
-Last overload allows you to pass a long a key to be pressed after the text has been typed, for example <code class="docutils literal notranslate"><span class="pre">VK_ENTER</span></code>.</p>
-<hr class="docutils" />
-</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="wrappers.html" class="btn btn-neutral float-left" title="Wrappers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="random.html" class="btn btn-neutral float-right" title="Random" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="mm2ms.html" class="btn btn-neutral float-left" title="Minimap to Mainscreen" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bank.html" class="btn btn-neutral float-right" title="Bank" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
