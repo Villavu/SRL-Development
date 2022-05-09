@@ -25,7 +25,7 @@ type
   );
 
 {
-function TRSGameTabs.X1: Int32; constref; override;
+function TRSGameTabs.X1: Int32;  override;
 begin
   Result := inherited
 end;
@@ -109,12 +109,12 @@ end;
 
 function TRSGameTabs.Open(Tab: ERSGameTab): Boolean;
 begin
-  if GetCurrentTab() = Tab then
+  if Self.GetCurrentTab() = Tab then
     Exit(True);
 
   for 1 to 3 do
   begin
-    Mouse.Click(GetTabBox(Tab), MOUSE_LEFT, SRL.Dice(50));
+    Mouse.Click(Self.GetTabBox(Tab), MOUSE_LEFT, SRL.Dice(50));
 
     Result := WaitUntil(Self.GetCurrentTab() = Tab, SRL.TruncatedGauss(50, 2000), SRL.TruncatedGauss(2000, 3000));
     if Result then
@@ -126,7 +126,7 @@ procedure TRSGameTabs.Draw(Bitmap: TMufasaBitmap); override;
 begin
   inherited;
 
-  Bitmap.DrawBoxes(GetTabBoxes(), $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetTabBoxes(), False, $00FFFF);
 end;
 
 procedure TRSGameTabs.Setup; override;

@@ -9,55 +9,55 @@ TPoint
 TPoint related methods
 *)
 
-function TPoint.InRect(Rect: TRectangle): Boolean; constref;
+function TPoint.InRect(Rect: TRectangle): Boolean; 
 begin
   Result := SRL.PointInTriangle(Self, Rect.Top, Rect.Btm, Rect.Right) or
             SRL.PointInTriangle(Self, Rect.Top, Rect.Left, Rect.Btm);
 end;
 
-function TPoint.InBox(Box: TBox): Boolean; constref;
+function TPoint.InBox(Box: TBox): Boolean; 
 begin
   Result := PointInBox(Self, Box);
 end;
 
-function TPoint.InCircle(Circle: TCircle): Boolean; constref;
+function TPoint.InCircle(Circle: TCircle): Boolean; 
 begin
   Result := Hypot(Self.X - Circle.X, Self.Y - Circle.Y) <= Circle.Radius;
 end;
 
-function TPoint.DistanceTo(Other:TPoint): Double; constref;
+function TPoint.DistanceTo(Other:TPoint): Double; 
 begin
   Result := Hypot(Self.x-other.x, Self.y-other.y);
 end;
 
-function TPoint.Rotate(Angle: Double; Mid: TPoint): TPoint; constref;
+function TPoint.Rotate(Angle: Double; Mid: TPoint): TPoint; 
 begin
   Result := RotatePoint(Self, Angle, Mid.X, Mid.Y);
 end;
 
-function TPoint.Magnitude(): Double; constref;
+function TPoint.Magnitude(): Double; 
 begin
   Result := Sqrt(Sqr(Self.x) + Sqr(Self.y));
 end;
 
-function TPoint.AngleBetween(Other: TPoint): Double; constref;
+function TPoint.AngleBetween(Other: TPoint): Double; 
 begin
   Result := SRL.Modulo(Degrees(ArcTan2(other.Y - self.Y, other.X - self.X)) - 90, 360);
 end;
 
-function TPoint.Offset(P: TPoint): TPoint; constref; overload;
+function TPoint.Offset(P: TPoint): TPoint;  overload;
 begin
   Result.X := Self.X + P.X;
   Result.Y := Self.Y + P.Y;
 end;
 
-function TPoint.Offset(X, Y: Int32): TPoint; constref; overload;
+function TPoint.Offset(X, Y: Int32): TPoint;  overload;
 begin
   Result.X := Self.X + X;
   Result.Y := Self.Y + Y;
 end;
 
-function TPoint.Random(Min, Max: Integer; Gauss: Boolean = False): TPoint; constref;
+function TPoint.Random(Min, Max: Integer; Gauss: Boolean = False): TPoint; 
 begin
   if (Gauss) then
   begin
@@ -70,7 +70,7 @@ begin
   end;
 end;
 
-function TPoint.Random(XMin, XMax: Integer; YMin, YMax: Integer; Gauss: Boolean = False): TPoint; constref; overload;
+function TPoint.Random(XMin, XMax: Integer; YMin, YMax: Integer; Gauss: Boolean = False): TPoint;  overload;
 begin
   if (Gauss) then
   begin

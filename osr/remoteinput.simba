@@ -21,7 +21,7 @@ begin
   try
     if (Self.PID = 0) then
     begin
-      if (MessageDlg('SRL', 'Automatically try to find a RS client?', mtConfirmation, [mbYes, mbNo]) = mrNo) then
+      if (ShowDialog('SRL', 'Automatically try to find a RS client?', mtConfirmation, [mbYes, mbNo]) = mrNo) then
         raise 'No RS clients found';
       
       RIInject(RS_EXECUTABLE, Self.PID); 
@@ -94,7 +94,7 @@ var
 begin
   inherited();
 
-  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000) and (Pids.Find(Pid) > -1)) then
+  if (not WaitUntil(Length(PIDs := EIOS_GetClientPIDs()) > 0, 100, 1000) and (Pids.Contains(Pid))) then
     raise 'Failed to inject into pid ' + ToString(pid);  
 end;
 

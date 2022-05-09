@@ -12,7 +12,7 @@ type
   TRSChooseOption_OptionArray = array of TRSChooseOption_Option;
 
   TRSChooseOption = record
-    Bitmap: Int32;
+    Bitmap: TMufasaBitmap;
     BitmapWidth: Int32;
     BitmapHeight: Int32;
 
@@ -71,14 +71,14 @@ end;
 
 procedure TRSChooseOption.Free;
 begin
-  FreeBitmap(Self.Bitmap);
+  Self.Bitmap.Free();
 end;
 
 procedure TRSChooseOption.Setup;
 begin
-  Self.Bitmap := BitmapFromString(20, 18, 'meJxzD4l1pwAxkAsGj15Mv+DyGpogXBmyemL04lEzgHqxhgPxehkwwoEkN9NCLwMRcYRHL5rvSNVLPBhAvWQjAO6IcGE=');
-
-  GetBitmapSize(Self.Bitmap, Self.BitmapWidth, Self.BitmapHeight);
+  Self.Bitmap := TMufasaBitmap.CreateFromString(20, 18, 'meJxzD4l1pwAxkAsGj15Mv+DyGpogXBmyemL04lEzgHqxhgPxehkwwoEkN9NCLwMRcYRHL5rvSNVLPBhAvWQjAO6IcGE=');
+  Self.BitmapWidth := Self.Bitmap.GetWidth();
+  Self.BitmapHeight := Self.Bitmap.GetHeight();
 
   AddOnTerminate(@Self.Free);
 end;
@@ -90,14 +90,14 @@ var
 begin
   if Self.Open() then
   begin
-    if (Bounds.Height() < 15) then
+    if (Self.Bounds.Height() < 15) then
       Exit;
 
-    SetLength(Result, Bounds.Height() div 15);
+    SetLength(Result, Self.Bounds.Height() div 15);
     for I := 0 to High(Result) do
     begin
-      B := [Bounds.X1, Bounds.Y1 + (I * 15), Bounds.X2, Bounds.Y1 + (I * 15) + 15];
-      if (B.Y2 > Bounds.Y2) then
+      B := [Self.Bounds.X1, Self.Bounds.Y1 + (I * 15), Self.Bounds.X2, Self.Bounds.Y1 + (I * 15) + 15];
+      if (B.Y2 > Self.Bounds.Y2) then
         Exit;
 
       Result[I].Text := OCR.RecognizeStatic(B, TOCRThresholdRule.Create(-1), RS_FONT_BOLD_12_SHADOW);
@@ -164,7 +164,7 @@ begin
   begin
     Wait(0, 1000, wdLeft);
 
-    Choices := GetOptions();
+    Choices := Self.GetOptions();
 
     for I := 0 to High(Choices) do
       for J := 0 to High(Text) do
@@ -186,17 +186,17 @@ end;
 
 function TRSChooseOption.Select(Text: String; MouseAction: Int32 = MOUSE_LEFT; CaseSensitive: Boolean = True; CloseIfNotFound: Boolean = True): Boolean; overload;
 begin
-  Result := Select([Text], MouseAction, CaseSensitive, CloseIfNotFound);
+  Result := Self.Select([Text], MouseAction, CaseSensitive, CloseIfNotFound);
 end;
 
 function TRSChooseOption.Hover(Text: TStringArray; CaseSensitive: Boolean = True; CloseIfNotFound: Boolean = True): Boolean; overload;
 begin
-  Result := Select(Text, MOUSE_MOVE, CaseSensitive, CloseIfNotFound);
+  Result := Self.Select(Text, MOUSE_MOVE, CaseSensitive, CloseIfNotFound);
 end;
 
 function TRSChooseOption.Hover(Text: String; CaseSensitive: Boolean = True; CloseIfNotFound: Boolean = True): Boolean; overload;
 begin
-  Result := Select([Text], MOUSE_MOVE, CaseSensitive, CloseIfNotFound);
+  Result := Self.Select([Text], MOUSE_MOVE, CaseSensitive, CloseIfNotFound);
 end;
 
 var

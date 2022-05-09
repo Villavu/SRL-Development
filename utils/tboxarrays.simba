@@ -9,137 +9,7 @@ TBoxArray
 TBoxArray related methods
 *)
 
-procedure TBoxArray.Append(const Value: TBox);
-var top:Int32;
-begin
-  top := Length(Self);
-  SetLength(self, top+1);
-  Self[top] := Value;
-end;
-
-procedure TBoxArray.Insert(const Value: TBox; Index: Integer);
-var
-  l: UInt32;
-begin
-  l := Length(Self);
-  if (l <= Index) then
-  begin
-    Self.Append(Value);
-    Exit();
-  end;
-
-  SetLength(Self, l + 1);
-  MemMove(Self[Index], self[Index + 1], (L - Index) * SizeOf(self[0]));
-  Self[Index] := Value;
-end;
-
-procedure TBoxArray.Del(const Index: Integer; const Count: Integer = 1);
-begin
-  Delete(Self, Index, Count);
-end;
-
-function TBoxArray.Len(): Integer;
-begin
-  Result := Length(Self);
-end;
-
-procedure TBoxArray.Remove(const Value: TBox; const All: Boolean = False);
-var
-  i: Int32;
-  lst: TIntegerArray;
-begin
-  if (not All) then
-  begin
-    i := Self.Find(Value);
-    if i >= 0 then Self.Del(i);
-    Exit;
-  end;
-  
-  lst := Self.FindAll(Value);
-  for i:=High(lst) downto 0 do
-    Self.Del(lst[i]);
-end;
-
-function TBoxArray.Pop(): TBox;
-var
-  h: Integer;
-begin
-  h := High(Self);
-  Result := Self[h];
-  SetLength(Self, h);
-end;
-
-procedure TBoxArray.Extend(Arr:TBoxArray);
-var L:Int32;
-begin
-  if Length(arr) > 0 then
-  begin
-    L := Length(Self);
-    SetLength(Self, Length(Arr) + L);
-    MemMove(Arr[0],Self[L],Length(Arr)*SizeOf(TBox));
-  end;
-end; 
-
-function TBoxArray.Find(const Value: TBox): Integer; constref;
-begin
-  for Result := 0 to High(Self) do
-    if Self[result] = Value then
-      Exit;
-
-  Result := -1;
-end;
-
-function TBoxArray.FindAll(const Value: TBox): TIntegerArray; constref;
-var
-  i: UInt32;
-begin
-  for i:=0 to High(Self) do
-    if Self[i] = Value then
-      Result += i;
-end;
-
-function TBoxArray.Reversed(): TBoxArray;
-var
-  lo:PtrUInt;
-  p,r:^TBox;
-begin
-  if (Length(Self) = 0) then
-    Exit();
-
-  SetLength(Result,length(self));
-  p := @Self[high(self)];
-  r := @Result[0];
-
-  lo := PtrUInt(@Self[0]);
-  while (lo<=PtrUInt(p)) do
-  begin
-    r^ := p^;
-    dec(p);
-    inc(r);
-  end;
-end;
-
-procedure TBoxArray.Reverse();
-var
-  tmp:TBox;
-  lo,hi:^TBox;
-begin
-  if (Length(Self) = 0) then
-    Exit();
-
-  lo := @Self[0];
-  hi := @Self[High(self)];
-  while (PtrUInt(lo)<PtrUInt(hi)) do
-  begin
-    tmp := hi^;
-    hi^ := lo^;
-    lo^ := tmp;
-    dec(hi);
-    inc(lo);
-  end;
-end;
-
-function TBoxArray.Combine(Other: TBoxArray): TBoxArray; constref;
+function TBoxArray.Combine(Other: TBoxArray): TBoxArray; 
 begin
   SetLength(Result, Length(Self) + Length(Other));
   if Length(self) > 0 then
@@ -148,44 +18,11 @@ begin
     MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
 end;
 
-function TBoxArray.Equals(Other:TBoxArray): Boolean; constref;
+function TBoxArray.Equals(Other:TBoxArray): Boolean; 
 begin
   if (Length(Self) <> Length(Other)) then Exit(False);
   if (Length(Self) = 0) then Exit(True);
   Result := CompareMem(Self[0], Other[0], length(self)*SizeOf(self[0]));     
-end;
-
-//--| Type helpers (extended) |------------------------------------------------>
-//----------------------------------------------------------------------------->
-
-procedure TBoxArray.Sort(weights: TIntegerArray; iLo, iHi: Int32; SortUp: Boolean);
-var
-  lo, hi, mid: Int32;
-begin
-  if (Length(weights) <> Length(self)) then Exit;
-  lo := iLo;
-  hi := iHi;
-  Mid := weights[(lo + hi) shr 1];
-  repeat
-    if SortUp then
-    begin
-      while (weights[lo] < mid) do Inc(lo);
-      while (weights[hi] > mid) do Dec(hi);
-    end else
-    begin
-      while (weights[Lo] > mid) do Inc(Lo);
-      while (weights[Hi] < mid) do Dec(Hi);
-    end;
-    if (lo <= hi) then
-    begin
-      Swap(weights[lo], weights[hi]);
-      Swap(self[lo], self[hi]);
-      Inc(lo);
-      Dec(hi);
-    end;
-  until Lo > Hi;
-  if (hi > iLo) then self.Sort(weights, iLo, hi, SortUp);
-  if (lo < iHi) then self.Sort(weights, lo, iHi, SortUp);
 end;
 
 procedure TBoxArray.SortFromMidPoint(From: TPoint);
@@ -205,7 +42,7 @@ begin
     weights[i] := Round(Sqr(From.X - Mid.X) + Sqr(From.Y - Mid.Y));
   end;
 
-  Self.Sort(weights, 0, L, True);
+  Self.Sort(weights, True);
 end;
 
 procedure TBoxArray.ModifySide(side:String='x1'; change:Int32=1);
@@ -237,7 +74,7 @@ begin
   end;
 end;
 
-function TBoxArray.Merge(): TBox; constref;
+function TBoxArray.Merge(): TBox; 
 var i:Int32;
 begin
   if Length(Self) = 0 then
@@ -260,7 +97,7 @@ begin
   for I := 0 to High(Weights) do
     Weights[I] := Self[I].X1;
 
-  Sort(Weights, 0, High(Self), LowToHi);
+  Self.Sort(Weights, LowToHi);
 end;
 
 procedure TBoxArray.SortByY(LowToHi: Boolean = True);
@@ -275,7 +112,7 @@ begin
   for I := 0 to High(Weights) do
     Weights[I] := Self[I].Y1;
 
-  Sort(Weights, 0, High(Self), LowToHi);
+  Self.Sort(Weights, LowToHi);
 end;
 
 // Sorts column wise
@@ -306,10 +143,10 @@ begin
         Weights[I] := Means[I].X + (Means[J].Y * 1000);
   end;
     
-  Self.Sort(Weights, 0, High(Weights), True);
+  Self.Sort(Weights, True);
 end;
 
-function TBoxArray.Middles: TPointArray; constref;
+function TBoxArray.Middles: TPointArray; 
 var
   I: Int32;
 begin

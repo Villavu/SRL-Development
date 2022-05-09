@@ -20,7 +20,7 @@ type
     RunCircleOffset: TPoint;
     SpecAttackCircleOffset: TPoint;
     PolygonOffset: TPointArray;
-    FlagBitmap: Int32;
+    FlagBitmap: TMufasaBitmap;
   end;
 
 function TRSMinimap.GetCompassCircle: TCircle;
@@ -60,7 +60,7 @@ end;
 
 function TRSMinimap.GetRunEnergy: Int32;
 begin
-  Result := Self.GetOrbLevel(GetRunCircle());
+  Result := Self.GetOrbLevel(Self.GetRunCircle());
 end;
 
 function TRSMinimap.GetPolygon: TPointArray;
@@ -74,7 +74,7 @@ var
   ATPA: T2DPointArray;
   South: Vector2;
 begin
-  with GetCompassCircle() do
+  with Self.GetCompassCircle() do
     if SRL.FindColors(TPA, CTS1(2565532, 50), Bounds()) then // red
     begin
       FilterPointsDist(TPA, 0, Radius, X,Y);
@@ -181,14 +181,14 @@ begin
   with Self.GetSpecAttackCircle() do
     Bitmap.DrawCircle([X, Y], Radius, $00FFFF);
 
-  Bitmap.DrawPoly(Self.GetPolygon(), $0000FF);
+  Bitmap.DrawPolygon(Self.GetPolygon(), $0000FF);
   Bitmap.DrawTPA(Self.GetPolygon(), $00FF00);
   Bitmap.SetPixel(Self.Center.X, Self.Center.Y, $0000FF);
 end;
 
 procedure TRSMinimap.Free;
 begin
-  FreeBitmap(Self.FlagBitmap);
+  Self.FlagBitmap.Free();
 end;
 
 procedure TRSMinimap.Setup; override;
@@ -196,7 +196,7 @@ begin
   inherited;
 
   Self.Name := 'Minimap';
-  Self.FlagBitmap := BitmapFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
+  Self.FlagBitmap := TMufasaBitmap.CreateFromString(2, 2, 'meJxjYPgvaBzLEnYMSAIAFJIDYg==');
 
   AddOnTerminate(@Self.Free);
 end;
@@ -328,7 +328,7 @@ function TRSMinimap.HasFlag: Boolean; overload;
 var
   P: TPoint;
 begin
-  Result := FindFlag(P);
+  Result := Self.FindFlag(P);
 end;
 
 function TRSMinimap.HasFlag(WaitTime: Int32): Boolean; overload;
@@ -340,7 +340,7 @@ begin
 
   while (T > GetTickCount()) do
   begin
-    if FindFlag(P) then
+    if Self.FindFlag(P) then
       Exit(True);
 
     Wait(0, 1000, wdLeft);
@@ -396,7 +396,7 @@ var
         if right then p.x -= 3;
         p.y -= 3;
 
-        if Result.Find(p) > -1 then
+        if Result.Contains(p) then
           Continue;
 
         if Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+0), t)) +
@@ -453,9 +453,9 @@ function TRSMinimap.GetDots(Dots: ERSMinimapDots): TPointArray; overload;
 var
   BMP: TMufasaBitmap;
 begin
-  BMP.FromClient(Self.Bounds());
+  BMP := TMufasaBitmap.CreateFromClient(Self.Bounds());
 
-  Result := GetDotsBitmap(BMP, Dots);
+  Result := Self.GetDotsBitmap(BMP, Dots);
   Result := Result.Offset([Self.X1, Self.Y1]);
 
   BMP.Free();
@@ -463,7 +463,7 @@ end;
 
 function TRSMinimap.GetDots(Dot: ERSMinimapDot): TPointArray; overload;
 begin
-  Result := GetDots([Dot]);
+  Result := Self.GetDots([Dot]);
 end;
 
 function TRSMinimap.IsPlayerMoving(MinShift: Integer = 500): Boolean;

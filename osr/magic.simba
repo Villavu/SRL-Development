@@ -576,7 +576,7 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSpellBoxes(Spellbook), $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetSpellBoxes(Spellbook), False, $00FFFF);
 end;
 
 (*

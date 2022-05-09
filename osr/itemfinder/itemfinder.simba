@@ -102,16 +102,6 @@ begin
 end;
 
 function TRSItemFinder.GetItemImages(Item: String): array of TMufasaBitmap;
-type
-  TMufasaBitmap = TMufasaBitmap;
-
-  function TMufasaBitmap.Equals(Other: TMufasaBitmap): Boolean;
-  begin
-    Result := (Self.GetWidth()  = Other.GetWidth()) and
-              (Self.GetHeight() = Other.GetHeight()) and
-              (CompareMem(Self.GetData()^, Other.GetData()^, Self.GetWidth() * Self.GetHeight() * SizeOf(TRGB32)));
-  end;
-
 var
   FileName: String;
   Image: TMufasaBitmap;
@@ -126,14 +116,13 @@ begin
       Exit;
     end;
 
-  for ItemID in GetItemIDs(Item) do
+  for ItemID in Self.GetItemIDs(Item) do
   begin
     FileName := ExpandFileName(ITEM_FINDER_IMAGES_PATH + ToStr(ItemID) + '.png');
 
     if FileExists(FileName) or UnZipOneFile(ITEM_FINDER_IMAGES_ZIP, ExtractFileName(FileName), ITEM_FINDER_IMAGES_PATH) then
     begin
-      Image.Init(Client.GetMBitmaps());
-      Image.LoadFromFile(FileName);
+      Image := TMufasaBitmap.CreateFromFile(FileName);
       Image.SetName(Item);
       Image.ReplaceColor(RS_ITEM_SHADOW, 0);
 
@@ -206,19 +195,19 @@ begin
       begin
         if (P.Y <= 8) then // Possible stack number... Don't compare.
           Continue;
-        if (not PointInTPA(P, ImageBorder)) then // Borders don't match. No point going further.
+        if (not ImageBorder.Contains(P)) then // Borders don't match. No point going further.
           Exit;
       end;
     
     AlignedImage := Image.Copy();
   
-    AlignedTemplate.Init(Client.GetMBitmaps());
+    AlignedTemplate := TMufasaBitmap.Create();
     AlignedTemplate.SetSize(Image.GetWidth(), Image.GetHeight());
     
-    Template.DrawTransparent(Align.X, Align.Y, AlignedTemplate);  
+    Template.DrawBitmap(AlignedTemplate, Align);
     
     if (@CustomFilter <> nil) then
-      ClearSparkles(AlignedImage, AlignedTemplate);
+      Self.ClearSparkles(AlignedImage, AlignedTemplate);
 
     // Clear these template colors on both images
     for ClearColor in [RS_ITEM_YELLOW_STACK, RS_ITEM_WHITE_STACK, RS_ITEM_GREEN_STACK, RS_ITEM_BORDER] do
@@ -255,7 +244,7 @@ begin
   for I := 0 to High(Slots) do
     for J := 0 to High(Images) do
     begin
-      Templ.FromClient(Slots[I]);
+      Templ := TMufasaBitmap.CreateFromClient(Slots[I]);
       if Self.CompareItems(Images[J], Templ, @CustomFilter) >= Self.Similarity then
         Result := Result + I;
       Templ.Free();

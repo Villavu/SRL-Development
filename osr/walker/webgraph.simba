@@ -6,7 +6,7 @@ Web Graph
 type
   TWebGraph = record
     Nodes: TPointArray;
-    Paths: T2DIntArray;
+    Paths: T2DIntegerArray;
     Names: TStringArray;
     Blocking: TIntegerArray;
   end;
@@ -23,19 +23,19 @@ procedure TWebGraph.BlockOutside(Area: TBox);
 var
   i, c: Int32;
 begin
-  SetLength(Blocking, Length(Self.Nodes));
+  SetLength(Self.Blocking, Length(Self.Nodes));
 
   for i := 0 to High(Self.Nodes) do
     if (not Area.Contains(Self.Nodes[i])) then
     begin
-      Blocking[c] := i;
+      Self.Blocking[c] := i;
       Inc(c);
     end;
 
-  SetLength(Blocking, c);
+  SetLength(Self.Blocking, c);
 end;
 
-function TWebGraph.FindPath(Start, Goal: Int32; Rnd:Double=0): TIntegerArray; constref;
+function TWebGraph.FindPath(Start, Goal: Int32; Rnd:Double=0): TIntegerArray; 
 type
   TNode = record
     Indices: TIntegerArray;
@@ -43,10 +43,10 @@ type
   end;
 var
   queue: array of TNode;
-  visited: TBoolArray;
+  visited: TBooleanArray;
   cIdx, pathIdx, i: Int32;
   current, node: TNode;
-  altPaths: array of TIntegerArray;
+  altPaths: T2DIntegerArray;
   p,q: TPoint;
   hyp: Double;
 
@@ -67,7 +67,7 @@ begin
   SetLength(visited, Length(Self.Nodes));
 
   // block certain paths by marking them as visited
-  for i:=0 to High(Blocking) do Visited[Blocking[i]] := True;
+  for i:=0 to High(Self.Blocking) do Visited[Self.Blocking[i]] := True;
 
   // ...
   while Length(queue) <> 0 do
@@ -96,7 +96,7 @@ begin
   end;
 end;
 
-function TWebGraph.FindNearestNode(P: TPoint): Int32; constref;
+function TWebGraph.FindNearestNode(P: TPoint): Int32; 
 var
   i,j: Int32;
   d,best,dn1,dn2: Double;
@@ -119,14 +119,14 @@ begin
     end;
 end;
 
-function TWebGraph.NodesToPoints(NodeList: TIntegerArray): TPointArray; constref;
+function TWebGraph.NodesToPoints(NodeList: TIntegerArray): TPointArray; 
 var node: Int32;
 begin
   for node in NodeList do
     Result += Self.Nodes[node];
 end;
 
-function TWebGraph.PathBetween(p,q: TPoint; Rnd:Double=0): TPointArray; constref;
+function TWebGraph.PathBetween(p,q: TPoint; Rnd:Double=0): TPointArray; 
 var
   n1,n2: Int32;
   nodes: TIntegerArray;
@@ -142,7 +142,7 @@ begin
   // if distance between nodes > ??? then Unreliable result
 
   Result += p;
-  Result += NodesToPoints(nodes);
+  Result += Self.NodesToPoints(nodes);
   Result += q;
 end;
 
@@ -193,7 +193,7 @@ function TWebGraph.AddNode(p: TPoint; FromNode: Int32): Boolean;
 var
   c: Int32;
 begin
-  if (FromNode <> -1) and (InvalidConnection(p, Self.Nodes[FromNode])) then
+  if (FromNode <> -1) and (Self.InvalidConnection(p, Self.Nodes[FromNode])) then
     Exit(False);
 
   c := Length(Self.Nodes);
@@ -212,7 +212,7 @@ end;
 
 function TWebGraph.ConnectNodes(a,b: Int32): Boolean;
 begin
-  if InIntArray(Self.Paths[a], b) then
+  if Self.Paths[a].Contains(b) then
   begin
     Self.Paths[a].Remove(b);
     Self.Paths[b].Remove(a);
@@ -239,7 +239,7 @@ begin
 
     for n in Self.Paths[curr] do
     begin
-      Self.Paths[n].Remove(curr, True);
+      Self.Paths[n].RemoveAll(curr);
       if Length(Self.Paths[n]) = 0 then
         marked += n;
     end;

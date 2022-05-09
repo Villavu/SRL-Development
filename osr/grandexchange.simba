@@ -129,7 +129,7 @@ begin
       if Length(Result[I]) > 0 then
         Weights[I] := Distance(Result[I].Mean, P) + Min(Distance(Result[I].Mean, MainScreen.Center), Size);
 
-    QuickATPASort(Weights, Result, 0, High(Result), True);
+    Result.Sort(Weights, True);
   end;
 end;
 

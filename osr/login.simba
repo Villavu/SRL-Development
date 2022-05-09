@@ -101,14 +101,14 @@ function TRSLogin.FindText(Text: String): Boolean; overload;
 var
   _: TBox;
 begin
-  Result := FindText(Text, _);
+  Result := Self.FindText(Text, _);
 end;  
 
 function TRSLogin.ClickText(Text: String): Boolean;
 var
   B: TBox;
 begin
-  Result := FindText(Text, B);
+  Result := Self.FindText(Text, B);
   if Result then 
     Mouse.Click(B, MOUSE_LEFT);
 end;
@@ -145,7 +145,7 @@ end;
 
 function TRSLogin.OpenWorldSwitcher: Boolean;
 begin
-  Result := ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000); 
+  Result := Self.ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000); 
 end;
 
 function TRSLogin.CloseWorldSwitcher: Boolean;

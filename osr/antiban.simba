@@ -506,7 +506,7 @@ begin
     Exit;
   end;
 
-  HoverSkill(Self.Skills[Random(Length(Self.Skills))], SRL.TruncatedGauss(1000, 10000), SRL.Dice(50));
+  Self.HoverSkill(Self.Skills[Random(Length(Self.Skills))], SRL.TruncatedGauss(1000, 10000), SRL.Dice(50));
 end;
 
 procedure TAntiban.LoseFocus;

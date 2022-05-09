@@ -407,7 +407,7 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetSlotBoxes(), $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetSlotBoxes(), False, $00FFFF);
 end;
 
 function TRSInventory.Count: Int32; 
@@ -596,7 +596,7 @@ begin
   if Self.FindItems(Items, Slots) then
   begin
     for I := 0 to High(Pattern) do
-      if Slots.Find(Pattern[I]) > -1 then
+      if Slots.Contains(Pattern[I]) then
         Order += Pattern[I];
   
     Result := Self.ShiftDrop(Order);

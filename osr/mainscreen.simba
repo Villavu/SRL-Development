@@ -146,16 +146,16 @@ type
     UpTextArea: TBox;
     UpTextFilter: TCompareRules;
 
-    YellowClicks: TIntegerArray;
-    RedClicks: TIntegerArray;
+    YellowClicks: TMufasaBitmapArray;
+    RedClicks: TMufasaBitmapArray;
   end;
 
 procedure TRSMainScreen.Free;
 var
-  Bitmap: Int32;
+  Bitmap: TMufasaBitmap;
 begin
   for Bitmap in Self.YellowClicks + Self.RedClicks do
-    FreeBitmap(Bitmap);
+    Bitmap.Free();
 end;
 
 (*
@@ -169,7 +169,7 @@ Setups the mainscreen.
 *)
 procedure TRSMainScreen.Setup; override;
 var
-  Bitmap: Int32;
+  Bitmap: TMufasaBitmap;
 begin
   inherited;
   
@@ -179,19 +179,19 @@ begin
   Self.UpTextFilter.MinCharacterMatch := '-'; 
   
   Self.YellowClicks := [
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCWjieCxCU4xHGVbF+AOEDAOJcSQeHxEZSsSHPEmxSWQKAQAWmB8k'),
-    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQQMbgCZBE4GysXWTEyQrYLTQGmM4jUiMtSPI7E5SM8oQEA57h/pQ==')
+    TMufasaBitmap.CreateFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
+    TMufasaBitmap.CreateFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCWjieCxCU4xHGVbF+AOEDAOJcSQeHxEZSsSHPEmxSWQKAQAWmB8k'),
+    TMufasaBitmap.CreateFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQQMbgCZBE4GysXWTEyQrYLTQGmM4jUiMtSPI7E5SM8oQEA57h/pQ==')
   ];
 
   Self.RedClicks := [
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsEiDhWMzFdhcuduHxKXUSk7UT6iMhQIj7kSYpNIlMIABY0Azw='),
-    BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsENHE8FqEpxqMMq2L8AUKGgcQ4Eo+PiAwl4kOepNgkMoUAALvi31U='),
-    BitmapFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQgGbAIXAouAmdj5SIrRkbIdqEpwHQGkRpxWYrHkbh8hCc0AHnjV80=')
+    TMufasaBitmap.CreateFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsEiDhWMzFdhcuduHxKXUSk7UT6iMhQIj7kSYpNIlMIABY0Azw='),
+    TMufasaBitmap.CreateFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiACqQKLYFUGl4WzMRVjSmFVjMsENHE8FqEpxqMMq2L8AUKGgcQ4Eo+PiAwl4kOepNgkMoUAALvi31U='),
+    TMufasaBitmap.CreateFromString(10, 10, 'meJxjZGBgBKP/DP/hiBEmCEQgGbAIXAouAmdj5SIrRkbIdqEpwHQGkRpxWYrHkbh8hCc0AHnjV80=')
   ];
 
   for Bitmap in Self.YellowClicks + Self.RedClicks do
-    SetTransparentColor(Bitmap, $FF00FF);
+    Bitmap.SetTransparentColor($FF00FF);
 
   AddOnTerminate(@Self.Free);
 end;
@@ -813,7 +813,7 @@ Example
 function TRSMainScreen.FindClick(Area: TBox): ERSClickType;
 var
   X, Y: Int32;
-  Bitmap: Int32;
+  Bitmap: TMufasaBitmap;
   Attempt: Int32;
 begin
   Area.LimitTo(Self.Bounds);

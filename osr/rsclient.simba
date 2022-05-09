@@ -51,8 +51,8 @@ type
 function TRSClient.Image: TMufasaBitmap;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RemoteInput.IsSetup() then
-    Exit(RemoteInput.GetImage());
+  if Self.RemoteInput.IsSetup() then
+    Exit(Self.RemoteInput.GetImage());
   {$ENDIF}
   
   Self.Fatal('Unable to draw on this client');
@@ -128,9 +128,9 @@ Loses focus if available. Maybe useful for antiban.
 procedure TRSClient.LoseFocus; overload;
 begin
   {$IFNDEF SRL_DISABLE_REMOTEINPUT}
-  if RemoteInput.IsSetup() then
+  if Self.RemoteInput.IsSetup() then
   begin
-    RemoteInput.LoseFocus();
+    Self.RemoteInput.LoseFocus();
     
     Exit;
   end;

@@ -22,7 +22,7 @@ type
   TRSWalker_OnWalkEventEx = procedure(Walker: PRSWalker; Position: TPoint; Destination: TPoint) of object;
 
   TRSWalker = record(TSRLBaseRecord)
-    Cache: TMatchTemplateRGBCache;
+    Cache: TMatchTemplateCache;
 
     World: TMufasaBitmap;
 
@@ -70,7 +70,7 @@ const
 var
   Cache: String;
 begin
-  Result.Init(Client.GetMBitmaps());
+  Result := TMufasaBitmap.Create();
 
   if ExtractFileExt(Path) <> '.bmp' then
   begin
@@ -151,7 +151,8 @@ begin
     AddOnTerminate(@Self.Free);
 
   // Fixed or resizable, doesn't matter.
-  Sample := Self.World.Downsample(Self.Scaling); 
+  Sample := TMufasaBitmap.Create();
+  Self.World.Downsample(Sample, Self.Scaling);
   Bitmap := Self.GetCleanMinimap();
   Mask := Self.ScaleMinimap(Bitmap, Self.Scaling);
 
@@ -160,7 +161,7 @@ begin
       if (Mask.GetPixel(X, Y) <> 0) then
         Mask.SetPixel(X, Y, $FFFFFF);
         
-  Self.Cache := TMatchTemplateRGBCache.Create(Sample.ToMatrix(), Mask.ToMatrix());
+  Self.Cache := TMatchTemplateCache.Create(Sample.ToMatrix(), Mask.ToMatrix());
 
   Sample.Free();
   Bitmap.Free();
@@ -222,7 +223,7 @@ begin
   Bitmap.ReplaceColor(284358,0);
   Bitmap.ReplaceColor(1127261,0);
   
-  Bitmap.DrawPolyFilled(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), True, 0);  
+  Bitmap.DrawPolygonFilled(Minimap.GetPolygon().Offset(-Minimap.X1, -Minimap.Y1), 0);
 
   Bitmap.FindColors(TPA, 0);
   Bitmap.Blend(TPA.Sorted(Bitmap.GetCenter()), 5); 
@@ -233,14 +234,14 @@ function TRSWalker.GetCleanMinimap: TMufasaBitmap;
 var
   Bitmap: TMufasaBitmap;
 begin
-  Bitmap := GetMufasaBitmap(BitmapFromClient(Minimap.Bounds));
+  Bitmap := TMufasaBitmap.CreateFromClient(Minimap.Bounds);
   Bitmap.ReplaceColor(0, 1); // We need zero to be unique
 
   Self.CleanMinimap(Bitmap);
 
   Result.Init();
   
-  Bitmap.RotateBitmapEx(Minimap.GetCompassAngle(False), False, True, Result);
+  Bitmap.RotateBilinear(Minimap.GetCompassAngle(False), False, Result);
   Bitmap.Free();
 end;
 
@@ -258,17 +259,18 @@ begin
   if RSClient.Mode = ERSClientMode.FIXED then
     P := P.Offset(0, -8).Rotate(-Minimap.GetCompassAngle(False), P); // fixed
  
-  Temp.DrawCircleFilled(P.X, P.Y, RADIUS, True, 0);
+  Temp.DrawCircleFilled(P, RADIUS, 0);
 
   RADIUS += 3;
   
   Temp.Crop(P.X - RADIUS, P.Y - RADIUS, P.X + RADIUS, P.Y + RADIUS);
   Temp.FindColors(TPA, 0);
   Temp.Blend(TPA.Sorted(Temp.GetCenter()), 3); 
-  Temp.DrawCircleFilled(Temp.GetCenter().X, Temp.GetCenter().Y, RADIUS, True, 0);
+  Temp.DrawCircleFilled(Temp.GetCenter, RADIUS, 0);
 
-  Result := Temp.Downsample(Scaling, False);
-  
+  Result := Temp.Copy();
+  Result.Downsample(Scaling);
+
   Temp.Free();
 end;
 
@@ -279,7 +281,7 @@ var
 begin
   Sample := Self.ScaleMinimap(Bitmap, Self.Scaling);
 
-  Matrix := MatchTemplateMask(Cache, Sample.ToMatrix, TM_CCOEFF_NORMED);
+  Matrix := MatchTemplateMask(Self.Cache, Sample.ToMatrix, TM_CCOEFF_NORMED);
 
   while Length(Result) < Samples do
     with Matrix.ArgMax() do
@@ -312,9 +314,11 @@ begin
   ];  
 
   Slice := World.Copy(Area.X1, Area.Y1, Area.X2, Area.Y2);
-  SliceScaled := Slice.Downsample(SCALING);
-  
-  TemplScaled := Templ.Downsample(SCALING);
+  SliceScaled := Slice.Copy();
+  SliceScaled.Downsample(SCALING);
+
+  TemplScaled := Templ.Copy();
+  TemplScaled.Downsample(SCALING);
   with TemplScaled.GetCenter() do
     TemplScaled.Crop(X - TEMPL_SIZE, Y - TEMPL_SIZE, X + TEMPL_SIZE, Y + TEMPL_SIZE);
 
@@ -360,12 +364,12 @@ var
 begin
   Self.Similarity := 0;
 
-  Bitmap := GetCleanMinimap();
+  Bitmap := Self.GetCleanMinimap();
 
   TPA := Self.ScaledSearch(Bitmap, SAMPLES);
   for I := 0 to High(TPA) do
   begin
-    Hit := FullSearch(Bitmap, Self.World, TPA[I], Match);
+    Hit := Self.FullSearch(Bitmap, Self.World, TPA[I], Match);
 
     if Match > Self.Similarity then
     begin
@@ -426,8 +430,8 @@ begin
     if Position.Current <> Position.Previous then
       Countdown.Restart();
 
-    if (@OnWalkingEvent <> nil) then
-      OnWalkingEvent(@Self, Position.Current, Destination);
+    if (@Self.OnWalkingEvent <> nil) then
+      Self.OnWalkingEvent(@Self, Position.Current, Destination);
 
     if not Self.Enabled then
       Break;
@@ -601,7 +605,7 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
     Previous: Int32 := Index;
     Nearest, Furthest: Int32;
   begin
-    Nearest := Self.Path.Find(Self.Path.Sorted(PlayerPoint)[0]);
+    Nearest := Self.Path.IndexOf(Self.Path.Sorted(PlayerPoint)[0]);
 
     while (Nearest < High(Self.Path)) and (not Self.IsWalkable(Self.Path[Nearest+1], PlayerPoint, Angle)) do
       Inc(Nearest);
@@ -686,7 +690,7 @@ Example
 *)
 function TRSWalker.WalkBlind(Destination: TPoint; WaitUntilDistance: Int32 = 0): Boolean;
 begin
-  Result := WalkPath([Destination], WaitUntilDistance);
+  Result := Self.WalkPath([Destination], WaitUntilDistance);
 end;
 
 (*
@@ -760,22 +764,22 @@ begin
   Y := Position.Y - Y1;
 
   WorldBitmap := Self.World.Copy(X1, Y1, X2, Y2);
-  WorldBitmap.LineTo(Point(0, Y), Point(X2 - X1, Y), $00FF00);
-  WorldBitmap.LineTo(Point(X, 0), Point(X, Y2 - Y1), $00FF00);
+  WorldBitmap.DrawLine(Point(0, Y), Point(X2 - X1, Y), $00FF00);
+  WorldBitmap.DrawLine(Point(X, 0), Point(X, Y2 - Y1), $00FF00);
   WorldBitmap.DrawBox([X - 2, Y - 2, X + 2, Y + 2], $FFFFFF);
 
-  MinimapBitmap := ScaleMinimap(GetCleanMinimap(), 1);
+  MinimapBitmap := Self.ScaleMinimap(Self.GetCleanMinimap(), 1);
   
   P := MinimapBitmap.GetCenter();
   if RSClient.Mode = ERSClientMode.FIXED then
     P := P.Offset(0, 8).Rotate(-Minimap.GetCompassAngle(False), P);
     
-  MinimapBitmap.DrawBoxFilled([P.X - 1, P.Y - 1, P.X + 1, P.Y + 1], False, $FFFFFF);
+  MinimapBitmap.DrawBoxFilled([P.X - 1, P.Y - 1, P.X + 1, P.Y + 1], $FFFFFF);
   MinimapBitmap.SetTransparentColor(0);
 
   Bitmap.Init();
   Bitmap.SetSize(400 + MinimapBitmap.GetWidth() + 30, 420);
-  Bitmap.DrawClear($403027);
+  Bitmap.Fill($403027);
 
   Lines := [
     '('      + ToStr(Position.X, ', ', Position.Y) + ')',
@@ -790,13 +794,13 @@ begin
   Bitmap.DrawText(Lines[0], [420, 20 + MinimapBitmap.GetHeight()], $FFFFFF);
   Bitmap.DrawText(Lines[1] + LineEnding + Lines[2], [420, 370], $FFFFFF);
 
-  WorldBitmap.DrawTransparent(10, 10, Bitmap);
+  WorldBitmap.DrawBitmap(Bitmap, [10, 10]);
   WorldBitmap.Free();
 
-  MinimapBitmap.DrawTransparent(420, 10, Bitmap);
+  MinimapBitmap.DrawBitmap(Bitmap, [420, 10]);
   MinimapBitmap.Free();
 
-  Bitmap.Debug();
+  Bitmap.Show();
   Bitmap.Free();
 
   UnFreeze();
@@ -814,7 +818,7 @@ end;
 
 function TRSWalker.GetTileMS(Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
 begin
-  Result := GetTileMSEx(Self.GetMyPos(), Loc, Height, Offx, Offy);
+  Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, Height, Offx, Offy);
 end;
 
 function TRSWalker.MSToWorldEx(Me, Loc: TPoint; Height: Int32 = 0; Accuracy: Double = 0.2): TPoint;

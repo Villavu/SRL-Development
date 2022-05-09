@@ -18,83 +18,85 @@ type
 (*
 TRectangle.ToTPA
 ~~~~~~~~~~~~~~~~~
-.. pascal:: function TRectangle.ToTPA(): TPointArray; constref;
+.. pascal:: function TRectangle.ToTPA(): TPointArray; 
 
 TPA from the rectangle.
 *)
-function TRectangle.ToTPA(): TPointArray; constref;
+function TRectangle.ToTPA(): TPointArray; 
 begin
-  Result := [Top, Right, Btm, Left];
+  Result := [Self.Top, Self.Right, Self.Btm, Self.Left];
 end;
 
 
 (*
 TRectangle.Bounds
 ~~~~~~~~~~~~~~~~~
-.. pascal:: function TRectangle.Bounds(): TBox; constref;
+.. pascal:: function TRectangle.Bounds(): TBox; 
 
 Returns the minimum bounding box covering the rectangle
 *)
-function TRectangle.Bounds(): TBox; constref;
+function TRectangle.Bounds(): TBox; 
 begin
-  Result := GetTPABounds([Top, Right, Btm, Left]);
+  Result := GetTPABounds([Self.Top, Self.Right, Self.Btm, Self.Left]);
 end;
 
 (*
 TRectangle.Radius
 ~~~~~~~~~~~~~~~~~
-.. pascal:: function TRectangle.Radius(): Double; constref;
+.. pascal:: function TRectangle.Radius(): Double; 
 
 Returns the radius of the shortest side, for the maximum see MaxRadius
 *)
-function TRectangle.Radius(): Double; constref;
+function TRectangle.Radius(): Double; 
 begin
-  if (Hypot(Left.y-Top.y, Left.x-Top.x) < Hypot(Left.y-Btm.y, Left.x-Btm.x)) then
-    Result := Hypot(Left.y-Top.y, Left.x-Top.x) / 2
-  else
-    Result := Hypot(Left.y-Btm.y, Left.x-Btm.x) / 2;
+  with Self do
+    if (Hypot(Left.y-Top.y, Left.x-Top.x) < Hypot(Left.y-Btm.y, Left.x-Btm.x)) then
+      Result := Hypot(Left.y-Top.y, Left.x-Top.x) / 2
+    else
+      Result := Hypot(Left.y-Btm.y, Left.x-Btm.x) / 2;
 end;
 
 (*
 TRectangle.MaxRadius
 ~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRectangle.MaxRadius(): Double; constref;
+.. pascal:: function TRectangle.MaxRadius(): Double; 
 
 Returns the radius of the longest side, for minimum see Radius
 *)
-function TRectangle.MaxRadius(): Double; constref;
+function TRectangle.MaxRadius(): Double; 
 begin
-  if (Hypot(Left.y-Top.y, Left.x-Top.x) > Hypot(Left.y-Btm.y, Left.x-Btm.x)) then
-    Result := Hypot(Left.y-Top.y, Left.x-Top.x) / 2
-  else
-    Result := Hypot(Left.y-Btm.y, Left.x-Btm.x) / 2;
+  with Self do
+    if (Hypot(Left.y-Top.y, Left.x-Top.x) > Hypot(Left.y-Btm.y, Left.x-Btm.x)) then
+      Result := Hypot(Left.y-Top.y, Left.x-Top.x) / 2
+    else
+      Result := Hypot(Left.y-Btm.y, Left.x-Btm.x) / 2;
 end;
 
 (*
 TRectangle.Mean
 ~~~~~~~~~~~~~~~~
-.. pascal:: function TRectangle.Mean(): TPoint; constref;
+.. pascal:: function TRectangle.Mean(): TPoint; 
 
 Middle of the rectangle
 
 .. note:: by slacky
 *)
-function TRectangle.Mean(): TPoint; constref;
+function TRectangle.Mean(): TPoint; 
 begin
-  Result.X := (Top.X + Right.X + Btm.X + Left.X) div 4;
-  Result.Y := (Top.Y + Right.Y + Btm.Y + Left.Y) div 4;
+  Result.X := (Self.Top.X + Self.Right.X + Self.Btm.X + Self.Left.X) div 4;
+  Result.Y := (Self.Top.Y + Self.Right.Y + Self.Btm.Y + Self.Left.Y) div 4;
 end;
 
 
 (*
 TRectangle.FixOrder
 ~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRectangle.FixOrder(): TRectangle; constref;
+.. pascal:: function TRectangle.FixOrder(): TRectangle; 
 
 As long as the order of the points are clockwise, this will shift the points so that
 ``Top``, is the topmost,``Right`` is the right-most etc... 
 *)
-function TRectangle.FixOrder(): TRectangle; constref;
+function TRectangle.FixOrder(): TRectangle; 
 type T4PTS = array [0..3] of TPoint;
 var
   i,t: Int32;
@@ -116,11 +118,11 @@ TRectangle.Rotate
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TRectangle.Rotate(Angle: Double): TRectangle; constref;
+    function TRectangle.Rotate(Angle: Double): TRectangle; 
     
 Returns a rotated copy of the rectangle
 *)
-function TRectangle.Rotate(Angle: Double): TRectangle; constref;
+function TRectangle.Rotate(Angle: Double): TRectangle; 
 begin
   with Self.Mean() do
   begin
@@ -137,12 +139,12 @@ TRectangle.Contains
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TRectangle.Contains(Pt: TPoint): Boolean; constref;
+    function TRectangle.Contains(Pt: TPoint): Boolean; 
   
 Returns true if the point `Pt` is inside the rectangle.
 .. note:: by slacky
 *)
-function TRectangle.Contains(Pt: TPoint): Boolean; constref;
+function TRectangle.Contains(Pt: TPoint): Boolean; 
 var
   Vec: TPoint;
   Dot: Double;
@@ -163,18 +165,19 @@ TRectangle.DirByLen
 ~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TRectangle.DirByLen(Longest: Boolean=True): ESplitDirection; constref;
+    function TRectangle.DirByLen(Longest: Boolean=True): ESplitDirection; 
   
 Returns the direction which is the longest or shortest.
 
 .. note:: by slacky
 *)
-function TRectangle.DirByLen(Longest: Boolean=True): ESplitDirection; constref;
+function TRectangle.DirByLen(Longest: Boolean=True): ESplitDirection; 
 begin
-  if (Hypot(Left.y-Top.y, Left.x-Top.x) > Hypot(Left.y-Btm.y, Left.x-Btm.x)) = Longest then
-    Result := rpTopLeft
-  else
-    Result := rpBtmRight;
+  with Self do
+    if (Hypot(Left.y-Top.y, Left.x-Top.x) > Hypot(Left.y-Btm.y, Left.x-Btm.x)) = Longest then
+      Result := rpTopLeft
+    else
+      Result := rpBtmRight;
 end;
 
 
@@ -183,13 +186,13 @@ TRectangle.Partition
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TRectangle.Partition(m,n:Int32; dir:ESplitDirection=rpTopLeft): TRectArray; constref;
+    function TRectangle.Partition(m,n:Int32; dir:ESplitDirection=rpTopLeft): TRectArray; 
     
 Break the rectangle into smaller rectangles. Goes well along with `DirByLen`
 
 .. note:: by slacky
 *)
-function TRectangle.Partition(m,n:Int32; dir:ESplitDirection=rpTopLeft): TRectArray; constref;
+function TRectangle.Partition(m,n:Int32; dir:ESplitDirection=rpTopLeft): TRectArray; 
 var
   i: Int32;
   a: Double;
@@ -214,23 +217,26 @@ var
       end;
   end;
 begin
-  if m = 0 then m := 1;
-  if n = 0 then n := 1;
-  if dir <> rpTopLeft then Swap(m,n);
-  SetLength(Result, m*n);
-  a  := ArcTan2(Left.y-Btm.y, Left.x-Btm.x) + PI/2;
-  lf := Left;
-  box.x1 := Left.x;
-  box.y1 := Left.y;
-  box.x2 := Left.x + Round(Hypot(Left.y-Top.y, Left.x-Top.x));
-  box.y2 := Left.y + Round(Hypot(Left.y-Btm.y, Left.x-Btm.x));
-  for box in PartitionBox(box, m,n) do
+  with Self do
   begin
-    Result[i].Top   := RotatePoint(Point(box.x1, box.y1), a, lf.x, lf.y);
-    Result[i].Right := RotatePoint(Point(box.x2, box.y1), a, lf.x, lf.y);
-    Result[i].Btm   := RotatePoint(Point(box.x2, box.y2), a, lf.x, lf.y);
-    Result[i].Left  := RotatePoint(Point(box.x1, box.y2), a, lf.x, lf.y);
-    Inc(i);
+    if m = 0 then m := 1;
+    if n = 0 then n := 1;
+    if dir <> rpTopLeft then Swap(m,n);
+    SetLength(Result, m*n);
+    a  := ArcTan2(Self.Left.y-Btm.y, Left.x-Btm.x) + PI/2;
+    lf := Left;
+    box.x1 := Left.x;
+    box.y1 := Left.y;
+    box.x2 := Left.x + Round(Hypot(Left.y-Top.y, Left.x-Top.x));
+    box.y2 := Left.y + Round(Hypot(Left.y-Btm.y, Left.x-Btm.x));
+    for box in PartitionBox(box, m,n) do
+    begin
+      Result[i].Top   := RotatePoint(Point(box.x1, box.y1), a, lf.x, lf.y);
+      Result[i].Right := RotatePoint(Point(box.x2, box.y1), a, lf.x, lf.y);
+      Result[i].Btm   := RotatePoint(Point(box.x2, box.y2), a, lf.x, lf.y);
+      Result[i].Left  := RotatePoint(Point(box.x1, box.y2), a, lf.x, lf.y);
+      Inc(i);
+    end;
   end;
 end;
 
@@ -240,14 +246,15 @@ TRectangle.Offset
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TRectangle.Offset(pt: TPoint): TRectangle; constref;
+    function TRectangle.Offset(pt: TPoint): TRectangle; 
 
 Offset the rectangle.
 *)
-function TRectangle.Offset(pt: TPoint): TRectangle; constref;
+function TRectangle.Offset(pt: TPoint): TRectangle; 
 begin
-  Result := [Point(Top.X+pt.x, top.y+pt.y), Point(Right.X+pt.x, Right.y+pt.y),
-             Point(Btm.X+pt.x, Btm.y+pt.y), Point(Left.X+pt.x,  Left.y+pt.y)];
+  with Self do
+    Result := [Point(Top.X+pt.x, top.y+pt.y), Point(Right.X+pt.x, Right.y+pt.y),
+               Point(Btm.X+pt.x, Btm.y+pt.y), Point(Left.X+pt.x,  Left.y+pt.y)];
 end;
 
 
@@ -256,11 +263,11 @@ TRectangle.Filter
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TRectangle.Filter(TestSet: TPointArray): TPointArray; constref;
+    function TRectangle.Filter(TestSet: TPointArray): TPointArray; 
     
 Extract all the points from `TestSet` that fits within this rectangle.
 *)
-function TRectangle.Filter(TestSet: TPointArray): TPointArray; constref;
+function TRectangle.Filter(TestSet: TPointArray): TPointArray; 
 var
   i, count: UInt32;
 begin
@@ -286,17 +293,17 @@ TRectangle.Expand
 ~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TRectangle.Expand(Inc: Int32): TRectangle; constref;
+    function TRectangle.Expand(Inc: Int32): TRectangle; 
   
 Increase or decrease the dimensions of the rectangle.
 *)
-function TRectangle.Expand(Incr: Single): TRectangle; constref;
+function TRectangle.Expand(Incr: Single): TRectangle; 
 var
   vSides,tmp: array [0..3] of TPoint;
   theta: Single;
   i,j: Int32;
 begin
-  vSides := [Top, Right, Btm, Left];
+  vSides := [Self.Top, Self.Right, Self.Btm, Self.Left];
   Incr *= Sqrt(2);
   for i:=0 to High(vSides) do
   begin
@@ -314,11 +321,11 @@ TRectangle.NearestEdge
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TRectangle.NearestEdge(P: TPoint): TPoint; constref;
+    function TRectangle.NearestEdge(P: TPoint): TPoint; 
 
 Returns the closest edge point (think Rect.ToTPA.Connect) to the TPoint `P`.
 *)
-function TRectangle.NearestEdge(P: TPoint): TPoint; constref;
+function TRectangle.NearestEdge(P: TPoint): TPoint; 
 var
   Best, Dist: Double;
   X: TPoint;
@@ -329,7 +336,7 @@ begin
   if (dist := srl.DistToLineEx(P, Self.Right,Self.Top,   X)) < Best then begin Result := X; Best := Dist; end;
 end;
 
-function TRectangle.Area: Int32; constref;
+function TRectangle.Area: Int32; 
 begin
   Result := Round(Distance(Self.Btm, Self.Right)) *
             Round(Distance(Self.Btm, Self.Left));

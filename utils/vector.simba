@@ -32,49 +32,49 @@ end;
 
 // ---------------------------------------------------------------------------
 // VECTOR 2
-function Vector2.ToPoint(): TPoint; constref;
+function Vector2.ToPoint(): TPoint; 
 begin
-  Result.X := Trunc(X);
-  Result.Y := Trunc(Y);
+  Result.X := Trunc(Self.X);
+  Result.Y := Trunc(Self.Y);
 end;
 
-function Vector2.ToVec3(): Vector3; constref;
+function Vector2.ToVec3(): Vector3; 
 begin
-  Result.X := X;
-  Result.Y := Y;
+  Result.X := Self.X;
+  Result.Y := Self.Y;
   Result.Z := 0;
 end;
 
-function Vector2.Magnitude(): Single; constref;
+function Vector2.Magnitude(): Single; 
 begin
   Result := Sqrt(Sqr(Self.X) + Sqr(Self.Y));
 end;
 
-function Vector2.Distance(Other: Vector2): Single; constref;
+function Vector2.Distance(Other: Vector2): Single; 
 begin
   Result := Sqrt(Sqr(Self.X-Other.X) + Sqr(self.Y-Other.Y));
 end;
 
-function Vector2.SqDistance(Other: Vector2): Single; constref;
+function Vector2.SqDistance(Other: Vector2): Single; 
 begin
   Result := Sqr(Self.X-Other.X) + Sqr(Self.Y-Other.Y);
 end;
 
-function Vector2.Cross(Other: Vector2): Single; constref;
+function Vector2.Cross(Other: Vector2): Single; 
 begin
   Result := (Self.X * Other.Y) - (Self.Y * Other.X);
 end;
 
-function Vector2.Dot(Other: Vector2): Single; constref;
+function Vector2.Dot(Other: Vector2): Single; 
 begin
   Result := (Self.X * Other.X) + (Self.Y * Other.Y);
 end;
 
-function Vector2.Normalize(): Vector2; constref;
+function Vector2.Normalize(): Vector2; 
 var len,inv: Single;
 begin
   Result := Self;
-  len := Sqrt(X*X + Y*Y);
+  len := Sqrt(Self.X*Self.X + Self.Y*Self.Y);
   if len <> 0 then
   begin
     inv := 1.0 / len;
@@ -83,7 +83,7 @@ begin
   end;
 end;
 
-function Vector2.Rotate(Angle:Single; Mx,My:Single): Vector2; constref;
+function Vector2.Rotate(Angle:Single; Mx,My:Single): Vector2; 
 begin
   Result.X := Mx + Cos(Angle) * (Self.x - Mx) - Sin(Angle) * (Self.y - My);
   Result.Y := My + Sin(Angle) * (Self.x - Mx) + Cos(Angle) * (Self.y - My);
@@ -160,57 +160,57 @@ const
   Vector3_UnitY: Vector3 = [0,1,0];
   Vector3_UnitZ: Vector3 = [0,0,1];
 
-function Vector3.ToVec2(): Vector2; constref;
+function Vector3.ToVec2(): Vector2; 
 begin
   Result.X := Self.X;
   Result.Y := Self.Y;
 end;
 
-function Vector3.ToPoint(): TPoint; constref;
+function Vector3.ToPoint(): TPoint; 
 begin
-  Result.X := Trunc(X);
-  Result.Y := Trunc(Y);
+  Result.X := Trunc(Self.X);
+  Result.Y := Trunc(Self.Y);
 end;
 
-function Vector3.Abs(): Vector3; constref;
+function Vector3.Abs(): Vector3; 
 begin
   Result.X := System.Abs(Self.X);
   Result.Y := System.Abs(Self.Y);
   Result.Z := System.Abs(Self.Y);
 end;
 
-function Vector3.Cross(Other: Vector3): Vector3; constref;
+function Vector3.Cross(Other: Vector3): Vector3; 
 begin
   Result.x := (Self.Y * Other.Z) - (Self.Z * Other.Y);
   Result.y := (Self.Z * Other.X) - (Self.X * Other.Z);
   Result.z := (Self.X * Other.Y) - (Self.Y * Other.X);
 end;
 
-function Vector3.Dot(Other: Vector3): Single; constref;
+function Vector3.Dot(Other: Vector3): Single; 
 begin
   Result := (Self.X * Other.X) + (Self.Y * Other.Y) + (Self.Z * Other.Z);
 end;
 
-function Vector3.Magnitude(): Single; constref;
+function Vector3.Magnitude(): Single; 
 begin
   Result := Sqrt(Sqr(self.X) + Sqr(self.Y) + Sqr(self.Z));
 end;
 
-function Vector3.Distance(Other: Vector3): Single; constref;
+function Vector3.Distance(Other: Vector3): Single; 
 begin
   Result := Sqrt(Sqr(self.X-Other.X) + Sqr(self.Y-Other.Y) + Sqr(self.Z-Other.Z));
 end;
 
-function Vector3.SqDistance(Other: Vector3): Single; constref;
+function Vector3.SqDistance(Other: Vector3): Single; 
 begin
   Result := Sqr(self.X-Other.X) + Sqr(self.Y-Other.Y) + Sqr(self.Z-Other.Z);
 end;
 
-function Vector3.Normalize(): Vector3; constref;
+function Vector3.Normalize(): Vector3; 
 var len,inv: Single;
 begin
   Result := Self;
-  len := Sqrt(X*X + Y*Y + Z*Z);
+  len := Sqrt(Self.X*Self.X + Self.Y*Self.Y + Self.Z*Self.Z);
   if len <> 0 then
   begin
     inv := 1.0 / len;
@@ -220,7 +220,7 @@ begin
   end;
 end;
 
-function Vector3.RotateXY(Angle: Single; Mx,My: Single): Vector3; constref;
+function Vector3.RotateXY(Angle: Single; Mx,My: Single): Vector3; 
 begin
   Result.X := Mx + Cos(angle) * (Self.x - Mx) - Sin(angle) * (Self.y - My);
   Result.Y := My + Sin(angle) * (Self.x - Mx) + Cos(angle) * (Self.y - My);
@@ -367,7 +367,7 @@ begin
   end;
 end;
 
-function Vector3Array.Mean(): Vector3;
+function Vector3Array.Mean: Vector3; overload;
 var
   i: Int32;
 begin

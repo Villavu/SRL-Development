@@ -9,139 +9,7 @@ TPointArray
 TPointArray related methods
 *)
 
-procedure TPointArray.Append(const Value: TPoint);
-var top:Int32;
-begin
-  top := Length(Self);
-  SetLength(self, top+1);
-  Self[top] := Value;
-end;
-
-procedure TPointArray.Insert(const Value: TPoint; Index: Integer);
-var
-  l: UInt32;
-begin
-  l := Length(Self);
-  if (l <= Index) then
-  begin
-    Self.Append(Value);
-    Exit();
-  end;
-
-  SetLength(Self, l + 1);
-  MemMove(Self[Index], self[Index + 1], (L - Index) * SizeOf(self[0]));
-  Self[Index] := Value;
-end;
-
-procedure TPointArray.Del(const Index: Integer; const Count: Integer = 1);
-begin
-  Delete(Self, Index, Count);
-end;
-
-function TPointArray.Len(): Integer;
-begin
-  Result := Length(Self);
-end;
-
-procedure TPointArray.Remove(const Value: TPoint; const All: Boolean = False);
-var
-  Arr: TIntegerArray;
-  i: Integer;
-begin
-  if (All) then
-    Arr := Self.FindAll(Value)
-  else begin
-    SetLength(Arr, 1);
-    Arr[0] := Self.Find(Value);
-  end;
-
-  for i := 0 to High(Arr) do
-    Self.Del(Arr[i]);
-end;
-
-function TPointArray.Pop(): TPoint;
-var
-  h: Integer;
-begin
-  h := High(Self);
-  Result := Self[h];
-  SetLength(Self, h);
-end;
-
-procedure TPointArray.Extend(Arr:TPointArray);
-var L:Int32;
-begin
-  if Length(arr) > 0 then
-  begin
-    L := Length(Self);
-    SetLength(Self, Length(Arr) + L);
-    MemMove(Arr[0],Self[L],Length(Arr)*SizeOf(TPoint));
-  end;
-end; 
-
-function TPointArray.Find(const Value: TPoint): Integer; constref;
-begin
-  for Result := 0 to High(Self) do
-    if (Value.X = Self[Result].X) and (Value.Y = Self[Result].Y) then
-      Exit;
-
-  Result := -1;
-end;
-
-function TPointArray.FindAll(const Value: TPoint): TIntegerArray; constref;
-var
-  i,top: UInt32;
-begin
-  for i := 0 to High(Self) do
-    if Self[i] = Value then
-    begin
-      SetLength(Result, top+1);
-      Result[Inc(top)-1] := i;
-    end;
-end;
-
-function TPointArray.Reversed(): TPointArray;
-var
-  lo:PtrUInt;
-  r, p:^TPoint;
-begin
-  if (Length(Self) = 0) then
-    Exit();
-
-  SetLength(Result,length(self));
-  p := @Self[high(self)];
-  r := @Result[0];
-
-  lo := PtrUInt(@Self[0]);
-  while (lo<=PtrUInt(p)) do
-  begin
-    r^ := p^;
-    dec(p);
-    inc(r);
-  end;
-end;
-
-procedure TPointArray.Reverse();
-var
-  tmp:TPoint;
-  lo,hi:^TPoint;
-begin
-  if (Length(Self) = 0) then
-    Exit();
-
-  lo := @Self[0];
-  hi := @Self[High(self)];
-  while (PtrUInt(lo)<PtrUInt(hi)) do
-  begin
-    tmp := hi^;
-    hi^ := lo^;
-    lo^ := tmp;
-    dec(hi);
-    inc(lo);
-  end;
-end;
-
-function TPointArray.Combine(Other: TPointArray): TPointArray; constref;
+function TPointArray.Combine(Other: TPointArray): TPointArray; 
 begin
   SetLength(Result, Length(Self) + Length(Other));
   if Length(self) > 0 then
@@ -151,15 +19,12 @@ begin
 end;  
 
 
-function TPointArray.Equals(Other:TPointArray): Boolean; constref;
+function TPointArray.Equals(Other:TPointArray): Boolean; 
 begin
   if (Length(Self) <> Length(Other)) then Exit(False);
   if (Length(Self) = 0) then Exit(True);
   Result := CompareMem(Self[0], Other[0], length(self)*SizeOf(self[0]));     
 end;
- 
-
-
 
 //--| Type helpers (extended) |------------------------------------------------>
 //----------------------------------------------------------------------------->
@@ -168,11 +33,11 @@ TPointArray.Mean
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.Mean(): TPoint; constref;
+    function TPointArray.Mean(): TPoint; 
 
 Wraps Simba's TPAMiddle
 *)
-function TPointArray.Mean(): TPoint; constref;
+function TPointArray.Mean: TPoint; overload;
 begin
   Result := MiddleTPA(self);
 end;
@@ -183,11 +48,11 @@ TPointArray.MeanEx
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.MeanEx(): Vector2; constref;
+    function TPointArray.MeanEx(): Vector2; 
 
 Middle as a Vector.
 *)
-function TPointArray.MeanEx(): Vector2; constref;
+function TPointArray.MeanEx(): Vector2; 
 var
   i,x,y: Int64;
 begin
@@ -200,7 +65,7 @@ begin
   Result.y := y / Length(Self);
 end;
 
-function TPointArray.Median: TPoint; constref;
+function TPointArray.Median: TPoint; overload;
 begin
   Result := MedianTPA(Self);
 end;
@@ -214,7 +79,7 @@ TPointArray.Sort
 
 Wraps Simba's `SortTPAFrom`
 *)
-procedure TPointArray.Sort(From:TPoint=[0,0]);
+procedure TPointArray.Sort(From:TPoint=[0,0]); overload;
 begin
   SortTPAFrom(self, From);
 end;
@@ -228,12 +93,11 @@ TPointArray.Sorted
 
 Wraps Simba's `SortTPAFrom`, produces a sorted copy.
 *)
-function TPointArray.Sorted(From:TPoint=[0,0]): TPointArray;
+function TPointArray.Sorted(From:TPoint=[0,0]): TPointArray; overload;
 begin
   Result := Copy(Self);
   SortTPAFrom(Result, From);
 end;
-
 
 (*
 TPointArray.SortByX
@@ -276,17 +140,17 @@ Sorts a given TPointArray TPA row-by-row, starting from the smallest Y coordinat
 procedure TPointArray.SortByRow(reverse:Boolean=False);
 var
   i,hi,w: Int32;
-  weight: TIntegerArray;
+  Weights: TIntegerArray;
   area : TBox;
 begin
   Hi := High(self);
   if Hi <= 1 then Exit;
   area := GetTPABounds(self);
   w := Area.X2 - Area.X1 + 1;
-  SetLength(weight, hi+1);
+  SetLength(Weights, hi+1);
   for i:=0 to Hi do
-    weight[i] := self[i].y * W + self[i].x;
-  QuickTPASort(Weight, self, 0, Hi, not reverse);
+    Weights[i] := self[i].y * W + self[i].x;
+  Self.Sort(Weights, not reverse);
 end;
 
 
@@ -302,17 +166,17 @@ much like SortByRow, but the order of the column comes first
 procedure TPointArray.SortByColumn(reverse:Boolean=False);
 var
   i,Hi,H: Int32;
-  weight: TIntegerArray;
+  Weights: TIntegerArray;
   area: TBox;
 begin
   Hi := High(self);
   if Hi <= 1 then Exit;
   Area := GetTPABounds(self);
   H := Area.Y2 - Area.Y1 + 1;
-  SetLength(Weight, Hi+1);
+  SetLength(Weights, Hi+1);
   for i := 0 to Hi do
-    Weight[i] := self[i].x * H + self[i].y;
-  QuickTPASort(Weight, self, 0, Hi, not reverse);
+    Weights[i] := self[i].x * H + self[i].y;
+  Self.Sort(Weights, not reverse);
 end;
 
 (*
@@ -327,19 +191,14 @@ The name tells the story
 procedure TPointArray.SortFromLine(p,q:TPoint; reverse:Boolean=False);
 var
   i,hi: Int32;
-  weight: TIntegerArray;
+  Weights: TIntegerArray;
 begin
   Hi := High(self);
   if Hi <= 1 then Exit;
-  SetLength(weight, hi+1);
+  SetLength(Weights, hi+1);
   for i:=0 to Hi do
-    weight[i] := Ceil(srl.DistToLine(self[i],p,q));
-  QuickTPASort(Weight, self, 0, Hi, not reverse);
-end;
-
-procedure TPointArray.SortCircle(Center: TPoint; StartDegree: Int32; ClockWise: Boolean);
-begin
-  SortCircleWise(Self, Center.X, Center.Y, StartDegree, True, ClockWise);
+    Weights[i] := Ceil(srl.DistToLine(self[i],p,q));
+  Self.Sort(Weights, not reverse);
 end;
 
 (*
@@ -347,11 +206,11 @@ TPointArray.Bounds
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.Bounds(): TBox; constref;
+    function TPointArray.Bounds(): TBox; 
 
 Wraps Simba's GetTPABounds
 *)
-function TPointArray.Bounds(): TBox; constref;
+function TPointArray.Bounds(): TBox; 
 begin
   if Length(Self) = 1 then
     Exit(TBox([Self[0].x, Self[0].y, Self[0].x, Self[0].y]));
@@ -364,13 +223,13 @@ TPointArray.Edges
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.Edges(): TPointArray; constref;
+    function TPointArray.Edges(): TPointArray; 
 
 Filters all points out of the given TPointArray which aren't edge-points. 
 Edge-points are points that are on the edge of the TPA, not completely surrounded by other points. 
 Same as Simba's `FindTPAEdges`
 *)
-function TPointArray.Edges(): TPointArray; constref;
+function TPointArray.Edges(): TPointArray; 
 begin
   Result := FindTPAEdges(Self);
 end;
@@ -380,12 +239,12 @@ TPointArray.Cluster
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.Cluster(dist:Int32): T2DPointArray; constref;
-    function TPointArray.Cluster(distX,distY:Int32): T2DPointArray; constref; overload;
+    function TPointArray.Cluster(dist:Int32): T2DPointArray; 
+    function TPointArray.Cluster(distX,distY:Int32): T2DPointArray;  overload;
 
 Smart wrapper of Simba's `ClusterTPA` and `ClusterTPAEx` (fall backs to `SplitTPA` when it's better suited)
 *)
-function TPointArray.Cluster(dist: Int32): T2DPointArray; constref;
+function TPointArray.Cluster(dist: Int32): T2DPointArray; 
 begin
   if (Length(Self) < 700) then
     Result := SplitTPA(Self, dist)
@@ -393,7 +252,7 @@ begin
     Result := ClusterTPA(Self, dist);
 end;
 
-function TPointArray.Cluster(distX,distY: Int32): T2DPointArray; constref; overload;
+function TPointArray.Cluster(distX,distY: Int32): T2DPointArray;  overload;
 begin
   if (Length(Self) < 1200) then
     Result := SplitTPAEx(Self, distX, distY)
@@ -406,17 +265,17 @@ TPointArray.Split
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.Split(dist:Int32): T2DPointArray; constref;
-    function TPointArray.Split(distX,distY:Int32): T2DPointArray; constref; overload;
+    function TPointArray.Split(dist:Int32): T2DPointArray; 
+    function TPointArray.Split(distX,distY:Int32): T2DPointArray;  overload;
 
 Wraps Simba's `SplitTPA` and `SplitTPAEx`
 *)
-function TPointArray.Split(dist: Int32): T2DPointArray; constref;
+function TPointArray.Split(dist: Int32): T2DPointArray; 
 begin
   Result := SplitTPA(Self, dist);
 end; 
 
-function TPointArray.Split(distX,distY: Int32): T2DPointArray; constref; overload;
+function TPointArray.Split(distX,distY: Int32): T2DPointArray;  overload;
 begin
   Result := SplitTPAEx(Self, distX, distY);
 end;
@@ -427,17 +286,17 @@ TPointArray.ToATPA
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.ToATPA(WH:Int32): T2DPointArray; constref;
-    function TPointArray.ToATPA(W,H:Int32): T2DPointArray; constref; overload;
+    function TPointArray.ToATPA(WH:Int32): T2DPointArray; 
+    function TPointArray.ToATPA(W,H:Int32): T2DPointArray;  overload;
 
 Wraps Simba's `TPAToATPA` and `TPAToATPAEx`
 *)
-function TPointArray.ToATPA(WH:Int32): T2DPointArray; constref;
+function TPointArray.ToATPA(WH:Int32): T2DPointArray; 
 begin
   Result := TPAToATPA(Self, WH);
 end; 
 
-function TPointArray.ToATPA(W,H:Int32): T2DPointArray; constref; overload;
+function TPointArray.ToATPA(W,H:Int32): T2DPointArray;  overload;
 begin
   Result := TPAToATPAEx(Self, W,H);
 end; 
@@ -451,16 +310,16 @@ TPointArray.Offset
 
 Wraps Simba's `OffsetTPA`
 *)
-function TPointArray.Offset(X, Y: Int32): TPointArray; constref; overload;
+function TPointArray.Offset(X, Y: Int32): TPointArray;  overload;
 begin
   Result := Copy(Self);
 
   OffsetTPA(Result, [X, Y]);
 end;
 
-function TPointArray.Offset(off: TPoint): TPointArray; constref; overload;
+function TPointArray.Offset(off: TPoint): TPointArray;  overload;
 begin
-  Result := Offset(Off.X, Off.Y);
+  Result := Self.Offset(Off.X, Off.Y);
 end;
 
 (*
@@ -468,12 +327,12 @@ TPointArray.Invert
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.Invert(Area:TBox=[0,0,-1,-1]): TPointArray; constref;
+    function TPointArray.Invert(Area:TBox=[0,0,-1,-1]): TPointArray; 
 
 Inverts the shape based on the area covered, alternatively the given area.
 Same as `ReturnPointsNotInTPA` in Simba.
 *)
-function TPointArray.Invert(Area:TBox=[0,0,-1,-1]): TPointArray; constref;
+function TPointArray.Invert(Area:TBox=[0,0,-1,-1]): TPointArray; 
 begin
   if Area = Box(0,0,-1,-1) then
     Area := Self.Bounds();
@@ -485,12 +344,12 @@ TPointArray.FilterBox
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.FilterBox(Box: TBox): TPointArray; constref;
+    function TPointArray.FilterBox(Box: TBox): TPointArray; 
 
 Returns a filtered version of the TPA.
 Same as Simba's `FilterPointsBox`
 *)
-function TPointArray.FilterBox(Box: TBox): TPointArray; constref;
+function TPointArray.FilterBox(Box: TBox): TPointArray; 
 begin
   Result := Copy(Self);
   FilterPointsBox(Result, Box.X1, Box.Y1, Box.X2, Box.Y2);
@@ -501,12 +360,12 @@ TPointArray.FilterBox
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.FilterDist(MinDist,MaxDist: Double; Mx,My: Int32): TPointArray; constref;
+    function TPointArray.FilterDist(MinDist,MaxDist: Double; Mx,My: Int32): TPointArray; 
 
 Returns a filtered version of the TPA.
 Same as Simba's `FilterPointsDist`
 *)
-function TPointArray.FilterDist(MinDist,MaxDist: Double; Mx,My: Int32): TPointArray; constref;
+function TPointArray.FilterDist(MinDist,MaxDist: Double; Mx,My: Int32): TPointArray; 
 begin
   Result := Copy(Self);
   FilterPointsDist(Result, MinDist, MaxDist, Mx,My);
@@ -525,7 +384,7 @@ Returns a copy where all duplicate points are removed.
 function TPointArray.FilterDuplicates(): TPointArray;
 begin
   Result := Copy(Self);
-  ClearDoubleTPA(Result);
+  ClearSamePoints(Result);
 end;
 
 (*
@@ -539,7 +398,7 @@ Removes all the duplicate points from self.
 *)
 procedure TPointArray.ClearDuplicates();
 begin
-  ClearDoubleTPA(Self);
+  ClearSamePoints(Self);
 end;
 
 (*
@@ -552,7 +411,7 @@ TPointArray.Rotate
 Returns a copy where all points are rotated around MidX, MidY.
 Same as Simba's `RotatePoints`.
 *)
-function TPointArray.Rotate(AngleRad, MidX, MidY: Double): TPointArray; constref;
+function TPointArray.Rotate(AngleRad, MidX, MidY: Double): TPointArray; 
 begin
   Result := RotatePoints(Self, AngleRad, MidX, MidY);
 end;
@@ -562,7 +421,7 @@ TPointArray.SplitRows
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.SplitRows(dist:Int32): T2DPointArray; constref;
+    function TPointArray.SplitRows(dist:Int32): T2DPointArray; 
 
 Splits a TPA `Arr` into TPAs of each row, it then proceeds to further split the rows
 in to separate TPAs when the given distance ``dist`` is less than the distance between the points
@@ -576,7 +435,7 @@ Example:
 
     ATPA := TPA.SplitRows(5);
 *)
-function TPointArray.SplitRows(dist:Int32): T2DPointArray; constref;
+function TPointArray.SplitRows(dist:Int32): T2DPointArray; 
 var
   TPA,tmp:TPointArray;
   i,ii,j,n,s,h,l:Int32 = 0;
@@ -615,7 +474,7 @@ TPointArray.Connect
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.Connect(): TPointArray; constref;
+    function TPointArray.Connect(): TPointArray; 
 
 Fills a line between all the points (by their order), can be used to get the edges
 around a polygon
@@ -628,7 +487,7 @@ Example:
     
     edges := TPA.ConvexHull().Connect();
 *)
-function TPointArray.Connect(): TPointArray; constref;
+function TPointArray.Connect(): TPointArray; 
 var line:TPointArray; i:Int32;
 begin
   if Length(self) = 0 then Exit;
@@ -648,7 +507,7 @@ TPointArray.ConvexHull
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-     function TPointArray.ConvexHull(): TPointArray; constref;
+     function TPointArray.ConvexHull(): TPointArray; 
 
 Computes the convex hull around the given TPA. Imagine placing a rubber band around the
 points, the points which strech the band are the points returned by this function.
@@ -663,7 +522,7 @@ Example:
 
     Smart.Image.DrawTPA(TPA.ConvexHull());
 *)
-function TPointArray.ConvexHull(): TPointArray; constref;
+function TPointArray.ConvexHull(): TPointArray; 
 var
   pts: TPointArray;
   h,i,k,u: Int32;
@@ -714,7 +573,7 @@ Example:
 
     WriteLn('The four box corners are: ', TPA.MinAreaRect());
 *)
-function TPointArray.MinAreaRect(): TRectangle; constref;
+function TPointArray.MinAreaRect(): TRectangle; 
 var
   TPA: TPointArray;
   l,i,ii,j,c: Int32;
@@ -783,7 +642,7 @@ begin
   end;
 end;
 
-function TPointArray.MinAreaRectEx(out LongSideLen, ShortSideLen: Int32): TRectangle; constref;
+function TPointArray.MinAreaRectEx(out LongSideLen, ShortSideLen: Int32): TRectangle; 
 begin
   Result := Self.MinAreaRect();
   LongSideLen  := Round(Distance(Result.Btm, Result.Right));
@@ -806,7 +665,7 @@ See: https://en.wikipedia.org/wiki/Smallest-circle_problem for more information.
 
 Implementation is a mixture of a few implementations I've seen.
 *)
-function TPointArray.MinAreaCircle(): TCircle; constref;
+function TPointArray.MinAreaCircle(): TCircle; 
   function NewCircle2(p0, p1: TPoint): TCircle;
   var
     x,y: Int32;
@@ -924,11 +783,11 @@ TPointArray.Density
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
-    function TPointArray.Density(): Double; constref;
+    function TPointArray.Density(): Double; 
 
 Returns the TPA's density (Length(TPA)/(width*height))
 *)
-function TPointArray.Density: Double; constref;
+function TPointArray.Density: Double; 
 var
   Area: Int32;
 begin
@@ -1020,12 +879,12 @@ begin
   FillEllipse(Self);
 end;
 
-function TPointArray.Grow(constref Amount: Int32): TPointArray; constref;
+function TPointArray.Grow(constref Amount: Int32): TPointArray; 
 begin
   Result := TPAGrow(Self, Amount);
 end;
 
-function TPointArray.Erode(constref Amount: Int32): TPointArray; constref;
+function TPointArray.Erode(constref Amount: Int32): TPointArray; 
 begin
   Result := TPAErode(Self, Amount);
 end;
@@ -1034,12 +893,12 @@ end;
 TPointArray.PointsInRangeOf
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal::
-  function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref;
+  function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDist, MaxDist: Double): TPointArray; 
 
 Returns all the points from `self` that are within range of any point in `other`.
 The parameters `mindist` and `maxdist` determine what "within range" means.
 *)
-function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDist, MaxDist: Double): TPointArray; constref; overload;
+function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDist, MaxDist: Double): TPointArray;  overload;
 begin
   Result := System.PointsInRangeOf(Self, Other, MinDist, MinDist, MaxDist, MaxDist);
 end;
@@ -1048,11 +907,11 @@ end;
 TPointArray.PointsInRangeOf
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal::
-  function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDistX, MinDistY, MaxDistX, MaxDistY: Double): TPointArray; constref; overload;
+  function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDistX, MinDistY, MaxDistX, MaxDistY: Double): TPointArray;  overload;
 
 Same as the above but lets you specify X- and Y-wise min & max distance separately.
 *)
-function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDistX, MinDistY, MaxDistX, MaxDistY: Double): TPointArray; constref; overload;
+function TPointArray.PointsInRangeOf(constref Other: TPointArray; MinDistX, MinDistY, MaxDistX, MaxDistY: Double): TPointArray;  overload;
 begin
   Result := System.PointsInRangeOf(Self, Other, MinDistX, MinDistY, MaxDistX, MaxDistY);
 end;
@@ -1062,135 +921,9 @@ var
   Edge: TPointArray := EdgeFromBox(Self.Bounds());
 begin
   Result := (Length(Edge.PointsInRangeOf(Self, 0, 1)) / Length(Edge)) * 100;
-end; 
-
-procedure T2DPointArray.Append(const Value: TPointArray);
-var top:Int32;
-begin
-  top := Length(Self);
-  SetLength(self, top+1);
-  Self[top] := Value;
 end;
 
-procedure T2DPointArray.Insert(const Value: TPointArray; Index: Integer);
-var
-  l: UInt32;
-begin
-  l := Length(Self);
-  if (l <= Index) then
-  begin
-    Self.Append(Value);
-    Exit();
-  end;
-
-  SetLength(Self, l + 1);
-  MemMove(Self[Index], self[Index + 1], (L - Index) * SizeOf(self[0]));
-  Self[Index] := Value;
-end;
-
-procedure T2DPointArray.Del(const Index:Int32; const Count:Int32=1);
-begin
-  Delete(Self, Index, Count);
-end;
-
-function T2DPointArray.Len(): Integer;
-begin
-  Result := Length(Self);
-end;
-
-procedure T2DPointArray.Remove(const Value: TPointArray; const All: Boolean = False);
-var
-  i: Int32;
-  lst: TIntegerArray;
-begin
-  if (not All) then
-  begin
-    i := Self.Find(Value);
-    if i >= 0 then Self.Del(i);
-    Exit;
-  end;
-
-  lst := Self.FindAll(Value);
-  for i:=High(lst) downto 0 do
-    Self.Del(lst[i]);
-end;
-
-function T2DPointArray.Pop(): TPointArray;
-var
-  h: Integer;
-begin
-  h := High(Self);
-  Result := Self[h];
-  SetLength(Self, h);
-end;
-
-procedure T2DPointArray.Extend(Arr:T2DPointArray);
-var
-  i: Int32;
-begin
-  for i := 0 to High(Arr) do
-    Self := Self + Copy(Arr[i]);
-end;
-
-function T2DPointArray.Find(const Value: TPointArray): Integer; constref;
-begin
-  for Result:=0 to High(Self) do
-    if Self[Result].Equals(Value) then
-      Exit;
-  Result := -1;
-end;
-
-function T2DPointArray.FindAll(const Value: TPointArray): TIntegerArray; constref;
-var
-  i: UInt32;
-begin
-  for i:=0 to High(Self) do
-    if Value.Equals(Self[i]) then
-      Result += i;
-end;
-
-function T2DPointArray.Reversed(): T2DPointArray;
-var
-  lo:PtrUInt;
-  p,r:^TPointArray;
-begin
-  if (Length(Self) = 0) then
-    Exit();
-
-  SetLength(Result,length(self));
-  p := @Self[high(self)];
-  r := @Result[0];
-
-  lo := PtrUInt(@Self[0]);
-  while (lo<=PtrUInt(p)) do
-  begin
-    r^ := p^;
-    dec(p);
-    inc(r);
-  end;
-end;
-
-procedure T2DPointArray.Reverse();
-var
-  tmp:TPointArray;
-  lo,hi:^TPointArray;
-begin
-  if (Length(Self) = 0) then
-    Exit();
-
-  lo := @Self[0];
-  hi := @Self[High(self)];
-  while (PtrUInt(lo)<PtrUInt(hi)) do
-  begin
-    tmp := hi^;
-    hi^ := lo^;
-    lo^ := tmp;
-    dec(hi);
-    inc(lo);
-  end;
-end;
-
-function T2DPointArray.Combine(Other: T2DPointArray): T2DPointArray; constref;
+function T2DPointArray.Combine(Other: T2DPointArray): T2DPointArray; 
 begin
   SetLength(Result, Length(Self) + Length(Other));
   if Length(self) > 0 then
@@ -1198,7 +931,6 @@ begin
   if Length(Other) > 0 then
     MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
 end;
-
 
 function T2DPointArray.Equals(Other:T2DPointArray): Boolean;
 var i:Int32;
@@ -1212,11 +944,10 @@ begin
   Result := True;
 end;
 
-function T2DPointArray.Merge(): TPointArray; constref;
+function T2DPointArray.Merge(): TPointArray; 
 begin
   Result := MergeATPA(self);
 end;
-
 
 procedure T2DPointArray.FilterSize(MinLen:Int32; KeepIf:EComparator=__LT__);
 var
@@ -1264,16 +995,16 @@ end;
 procedure T2DPointArray.SortByIndex(From: TPoint; Index:Int32=0);
 var
   i: Int32;
-  weight: TIntegerArray;
+  weights: TIntegerArray;
 begin
   if (Length(self) <= 1) then Exit;
-  SetLength(weight, Length(self));
+  SetLength(weights, Length(self));
   for i:=0 to High(self) do
   begin
     if Length(Self[i]) = 0 then continue;
-    weight[i] := Round(Sqr(From.x - self[i][Index].x) + Sqr(From.y - self[i][Index].y));
+    weights[i] := Round(Sqr(From.x - self[i][Index].x) + Sqr(From.y - self[i][Index].y));
   end;
-  QuickATPASort(weight, self, 0, High(self), True);
+  Self.Sort(weights, True);
 end;
 
 procedure T2DPointArray.SortBySize(Size:Int32=0; ClosestFirst: Boolean=False);
@@ -1284,51 +1015,51 @@ end;
 procedure T2DPointArray.SortByArea(LowToHi: Boolean = False);
 var
   i: Int32;
-  weight: TIntegerArray;
+  weights: TIntegerArray;
 begin
   if (Length(self) <= 1) then Exit;
-  SetLength(weight, Length(self));
+  SetLength(weights, Length(self));
   for i:=0 to High(self) do
   begin
     if Length(Self[i]) = 0 then
       Continue;
-    weight[i] := Self[i].MinAreaRect.Area;
+    weights[i] := Self[i].MinAreaRect.Area;
   end;
-  QuickATPASort(weight, self, 0, High(Self), LowToHi);
+  Self.Sort(weights, LowToHi);
 end;
 
 procedure T2DPointArray.SortByLongSide(LowToHi: Boolean = False);
 var
   i, Long, Short: Int32;
-  weight: TIntegerArray;
+  weights: TIntegerArray;
 begin
   if (Length(self) <= 1) then Exit;
-  SetLength(weight, Length(self));
+  SetLength(weights, Length(self));
   for i:=0 to High(self) do
   begin
     if Length(Self[i]) = 0 then
       Continue;
     Self[i].MinAreaRectEx(Long, Short);
-    weight[i] := Long;
+    weights[i] := Long;
   end;
-  QuickATPASort(weight, self, 0, High(Self), LowToHi);
+  Self.Sort(weights, LowToHi);
 end;
 
 procedure T2DPointArray.SortByDensity(LowToHi: Boolean = False);
 var
   i: Int32;
-  weight: TIntegerArray;
+  weights: TIntegerArray;
 begin
   if (Length(self) <= 1) then Exit;
-  SetLength(weight, Length(self));
+  SetLength(weights, Length(self));
   for i:=0 to High(self) do
   begin
     if Length(Self[i]) = 0 then
       Continue;
 
-    weight[i] := Round(Self[i].Density * 100);
+    weights[i] := Round(Self[i].Density * 100);
   end;
-  QuickATPASort(weight, self, 0, High(Self), LowToHi);
+  Self.Sort(weights, LowToHi);
 end;
 
 procedure T2DPointArray.SortByX(LowToHi: Boolean = True);
@@ -1343,7 +1074,7 @@ begin
   for I := 0 to High(Weights) do
     Weights[I] := Self[I].Bounds.X1;
 
-  QuickATPASort(Weights, Self, Low(Self), High(Self), LowToHi);
+  Self.Sort(weights, LowToHi);
 end;
 
 procedure T2DPointArray.SortByY(LowToHi: Boolean = True);
@@ -1358,10 +1089,10 @@ begin
   for I := 0 to High(Weights) do
     Weights[I] := Self[I].Bounds.Y1;
 
-  QuickATPASort(Weights, Self, Low(Self), High(Self), LowToHi);
+  Self.Sort(weights, LowToHi);
 end;
 
-function T2DPointArray.Means(): TPointArray; constref;
+function T2DPointArray.Means(): TPointArray; 
 var i:Int32;
 begin
   SetLength(Result, Length(self));
@@ -1369,7 +1100,7 @@ begin
     Result[i] := MiddleTPA(Self[i]);
 end;
 
-function T2DPointArray.ToTBA(): TBoxArray; constref;
+function T2DPointArray.ToTBA(): TBoxArray; 
 var i:Int32;
 begin
   SetLength(Result, Length(self));
@@ -1377,7 +1108,7 @@ begin
     Result[i] := GetTPABounds(Self[i]);
 end;
 
-function T2DPointArray.Smallest(): TPointArray; constref;
+function T2DPointArray.Smallest(): TPointArray; 
 var
   TPA: TPointArray;
 begin
@@ -1386,7 +1117,7 @@ begin
       Result := TPA;
 end;
 
-function T2DPointArray.Biggest(): TPointArray; constref;
+function T2DPointArray.Biggest(): TPointArray; 
 var
   TPA: TPointArray;
 begin

@@ -20,12 +20,14 @@ function TSRL.GetPixelShift(Area: TBox; WaitTime: UInt32): Int32;
 var
   Before, After: Int32;
 begin
+{
   Before := BitmapFromClient(Area);
   Wait(WaitTime);
   After := BitmapFromClient(Area);
   Result := CalculatePixelShift(Before, After, [0, 0, (Area.X2 - Area.X1), (Area.Y2 - Area.Y1)]);
   FreeBitmap(Before);
   FreeBitmap(After);
+  }
 end;
 
 (*
@@ -44,6 +46,7 @@ var
   Before, After: PtrInt;
   x,y,c: Int32;
 begin
+{
   SetLength(Result, 64);
   for 1 to Count do
   begin
@@ -67,6 +70,7 @@ begin
       Break;
   end;
   SetLength(Result, c);
+  }
 end;
 
 (*

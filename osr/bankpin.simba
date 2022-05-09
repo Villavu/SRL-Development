@@ -43,7 +43,7 @@ end;
 
 function TRSBankPin.GetButtons: TRSButtonArray;
 begin
-  Result := FindButtons([[56,56]]);
+  Result := Self.FindButtons([[56,56]]);
 end;
 
 function TRSBankPin.ClickDigit(Digit: Char): Boolean; overload;

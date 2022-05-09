@@ -83,7 +83,7 @@ begin
 
   inherited;
 
-  Bitmap.DrawBoxes(Self.GetLineBoxes(), $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetLineBoxes(), False, $00FFFF);
 end;
 
 (*
@@ -95,7 +95,7 @@ Internal function that returns the bounds of the chat lines.
 *)
 function TRSChat.GetLineBoxes: TBoxArray;
 begin
-  Result := Grid(1, 9, Width - 35, 13, [0, 1], [Self.X1 + 10, Self.Y1 + 8]);
+  Result := Grid(1, 9, Self.Width - 35, 13, [0, 1], [Self.X1 + 10, Self.Y1 + 8]);
   Result[CHAT_INPUT_LINE].Y2 += 2;
 end;
 
@@ -229,7 +229,7 @@ Example
 *)
 function TRSChat.AnswerQuery(Query, Answer: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
-  if Result := FindQuery(Query, WaitTime, Interval) then
+  if Result := Self.FindQuery(Query, WaitTime, Interval) then
   begin
     if Self.GetQueryAnswer() <> Answer then
       while Self.GetQueryAnswer() <> '*' do
@@ -290,7 +290,7 @@ function TRSChat.FindOption(Text: String; Colors: TIntegerArray = [CHAT_COLOR_WH
 var
   Option: TRSChatboxOption;
 begin
-  for Option in GetOptions(Colors) do
+  for Option in Self.GetOptions(Colors) do
     if Text in Option.Text then
       Exit(True);
 end;
@@ -311,7 +311,7 @@ function TRSChat.ClickOption(Text: String; UseKeyboard: Boolean = True; Colors: 
 var
   Option: TRSChatboxOption;
 begin
-  for Option in GetOptions(Colors) do
+  for Option in Self.GetOptions(Colors) do
     if Text in Option.Text then
     begin 
       if UseKeyboard then
@@ -388,12 +388,12 @@ var
   Transparent: Boolean;
   Matrix: T2DIntegerArray;
 begin
-  B := GetLineBoxes()[Line];
+  B := Self.GetLineBoxes()[Line];
   B.Y1 -= StaticOffset; 
   
   Transparent := Self.IsTransparent();
   if Transparent then
-    Colors.Remove(CHAT_COLOR_BLACK, True);
+    Colors.Remove(CHAT_COLOR_BLACK);
   
   if (Length(Colors) > 0) then
   begin

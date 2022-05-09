@@ -46,10 +46,10 @@ var
   p: Vector3;
   scale: Double;
 begin
-  scale := ScaleMin + ZOOM * (ScaleMax - ScaleMin);
+  scale := Self.ScaleMin + Self.ZOOM * (Self.ScaleMax - Self.ScaleMin);
   p := Vector3.TransformCoordinate(coord, matrix);
-  Result.x := (+p.X * 513 * scale) + MainScreen.Middle.X;                // fixed mainscreen width
-  Result.y := (-p.Y * 335 * scale) + MainScreen.Middle.Y + (zoom * 24);  // fixed mainscreen height, y shift
+  Result.x := (+p.X * 513 * scale) + Self.MainScreen.Middle.X;                // fixed mainscreen width
+  Result.y := (-p.Y * 335 * scale) + Self.MainScreen.Middle.Y + (Self.zoom * 24);  // fixed mainscreen height, y shift
 end;
 
 function TMM2MSProjector.Run(Coords: Vector3Array; Rotation: Vector3): TPointArray; overload;
@@ -58,32 +58,35 @@ const
 var
   I: Int32;
 begin
-  if not Calculated then
+  with Self do
   begin
-    Zoom := ZoomLevelToRSZoom[Self.ZoomLevel];
-    ScaleMin := Self.SCALE_MIN * MainScreen.Height / 503; // fixed client height
-    ScaleMax := Self.SCALE_MAX * MainScreen.Height / 503; // fixed client height
-
-    ViewMatrix := TMatrix4.LookAtRH([0, Self.Y_LOOK, 61], [0, 0, 1.3], Vector3_UnitY);
-    ProjMatrix := TMatrix4.PerspectiveFovRH(Sqrt(2), 765 / 503, 0.01, 1.0);           // fixed client width & height
-
-    WorldMatrix := TMatrix4.RotationYawPitchRoll(Rotation.Y, Rotation.X, Rotation.Z) * Matrix_Identity;
-    TransMatrix := WorldMatrix * ViewMatrix * ProjMatrix;
-
-    Calculated := True;
-  end;
-
-  SetLength(Result, Length(Coords));
-
-  for I := 0 to High(Coords) do
-    with Self.Transform(Coords[I], Self.TransMatrix) do
+    if not Calculated then
     begin
-      Result[I].X := Round(X);
-      Result[I].Y := Round(Y);
+      Zoom := ZoomLevelToRSZoom[Self.ZoomLevel];
+      ScaleMin := Self.SCALE_MIN * MainScreen.Height / 503; // fixed client height
+      ScaleMax := Self.SCALE_MAX * MainScreen.Height / 503; // fixed client height
+
+      ViewMatrix := TMatrix4.LookAtRH([0, Self.Y_LOOK, 61], [0, 0, 1.3], Vector3_UnitY);
+      ProjMatrix := TMatrix4.PerspectiveFovRH(Sqrt(2), 765 / 503, 0.01, 1.0);           // fixed client width & height
+
+      WorldMatrix := TMatrix4.RotationYawPitchRoll(Rotation.Y, Rotation.X, Rotation.Z) * Matrix_Identity;
+      TransMatrix := WorldMatrix * ViewMatrix * ProjMatrix;
+
+      Calculated := True;
     end;
+
+    SetLength(Result, Length(Coords));
+
+    for I := 0 to High(Coords) do
+      with Self.Transform(Coords[I], Self.TransMatrix) do
+      begin
+        Result[I].X := Round(X);
+        Result[I].Y := Round(Y);
+      end;
+  end;
 end;
 
 function TMM2MSProjector.Run(Coord: Vector3; Rotation: Vector3): TPoint; overload;
 begin
-  Result := Run([Coord], Rotation)[0];
+  Result := Self.Run([Coord], Rotation)[0];
 end;

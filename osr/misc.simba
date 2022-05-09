@@ -23,7 +23,7 @@ SRL.GetXPAtLevel
 
 Given a level it returns the minimum XP needed for it.
 *)
-function TSRL.GetXPAtLevel(level:Int32): Int32; constref;
+function TSRL.GetXPAtLevel(level:Int32): Int32; 
 var
   total:Double;
   i:Int32;
@@ -40,7 +40,7 @@ SRL.GetLevelAtXP
 
 Given some XP, it returns what level that is.
 *)
-function TSRL.GetLevelAtXP(XP:UInt32): Int32; constref;
+function TSRL.GetLevelAtXP(XP:UInt32): Int32; 
 var 
   total:Double;
 begin
@@ -59,7 +59,7 @@ SRL.GetItemAmount
 For use with items in like bankscreen, inventory, shops and so on to
 get the number of stacked items there are.
 *)
-function TSRL.GetItemAmount(constref Area: TBox): Int32; constref;
+function TSRL.GetItemAmount(constref Area: TBox): Int32; 
 begin
   if SRL.CountColor(RS_ITEM_YELLOW_STACK, Area) > 0 then
     Result := OCR.RecognizeNumber(Area, TOCRColorRule.Create([RS_ITEM_YELLOW_STACK]), RS_FONT_PLAIN_11)
@@ -79,12 +79,12 @@ SRL.AvgBrightness
 Returns the average brightness of a area on the screen. 
 Returns a value between ``0`` and ``100``, ``0`` being black.
 *)
-function TSRL.AvgBrightness(B: TBox): Int32; constref;
+function TSRL.AvgBrightness(B: TBox): Int32; 
 var
   BMP: TMufasaBitmap;
 begin
-  BMP.FromClient(B);
-  Result := BMP.AvgBrightness();
+  BMP := TMufasaBitmap.CreateFromClient(B);
+  Result := BMP.AverageBrightness();
   BMP.Free();
 end;
 
@@ -96,16 +96,16 @@ SRL.PeakBrightness
 Returns the peak brightness of a area on the screen. 
 Returns a value between ``0`` and ``100``, ``0`` being black.
 *)
-function TSRL.PeakBrightness(B: TBox): Int32; constref;
+function TSRL.PeakBrightness(B: TBox): Int32; 
 var
   BMP: TMufasaBitmap;
 begin
-  BMP.FromClient(B);
+  BMP := TMufasaBitmap.CreateFromClient(B);
   Result := BMP.PeakBrightness();
   BMP.Free();
 end;
 
-function TSRL.FormatNumber(n:Extended; dec:Byte = 3): String; constref;
+function TSRL.FormatNumber(n:Extended; dec:Byte = 3): String; 
 var
   i: Int32;
   f: Extended := n;

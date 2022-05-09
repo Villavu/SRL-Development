@@ -29,11 +29,11 @@ begin
   Freeze();
 
   try
-    Bitmap.FromClient();
+    Bitmap := TMufasaBitmap.CreateFromClient();
 
     Self.Debug(Bitmap);
 
-    Bitmap.Debug();
+    Bitmap.Show();
     Bitmap.Free();
   finally
     Unfreeze();

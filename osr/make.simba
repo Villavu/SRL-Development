@@ -77,7 +77,7 @@ begin
   else
     Text := ToString(Amount);
 
-  Buttons := GetQuantityButtons();
+  Buttons := Self.GetQuantityButtons();
 
   for Button in Buttons do
   begin

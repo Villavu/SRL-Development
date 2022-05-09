@@ -373,9 +373,9 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Self.GetPrayerBoxes, $00FFFF);
-  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetAvailablePrayers), $00FF22);
-  Bitmap.DrawBoxes(Self.GetPrayerBoxes(Self.GetActivePrayers), $FFFFFF);
+  Bitmap.DrawBoxArray(Self.GetPrayerBoxes, False, $00FFFF);
+  Bitmap.DrawBoxArray(Self.GetPrayerBoxes(Self.GetAvailablePrayers), False, $00FF22);
+  Bitmap.DrawBoxArray(Self.GetPrayerBoxes(Self.GetActivePrayers), False, $FFFFFF);
 end;
 
 (*
@@ -589,9 +589,9 @@ begin
 
   inherited();
 
-  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(), $00FFFF);
-  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers), $00ff22);
-  Bitmap.DrawBoxes(Prayer.GetPrayerBoxes(Self.GetSelectedPrayers), $FFFFFF);
+  Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(), False, $00FFFF);
+  Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(Prayer.GetAvailablePrayers), False, $00ff22);
+  Bitmap.DrawBoxArray(Prayer.GetPrayerBoxes(Self.GetSelectedPrayers), False, $FFFFFF);
   Bitmap.DrawBox(Self.GetButton, $00FFFF);
 end;
 

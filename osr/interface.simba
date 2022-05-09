@@ -191,12 +191,12 @@ end;
 
 function TRSInterface.Width: Int32; 
 begin
-  Result := Bounds.Width;
+  Result := Self.Bounds.Width;
 end;
 
 function TRSInterface.Height: Int32; 
 begin
-  Result := Bounds.Height;
+  Result := Self.Bounds.Height;
 end;
 
 function TRSInterface.Center: TPoint; 
@@ -317,7 +317,7 @@ begin
   end;
 end;
 
-function TRSButtonArray.ToBoxes: TBoxArray; constref;
+function TRSButtonArray.ToBoxes: TBoxArray; 
 var
   I: Int32;
 begin
@@ -326,12 +326,12 @@ begin
     Result[I] := Self[I].Bounds;
 end;
 
-function TRSButton.Visible: Boolean; constref;
+function TRSButton.Visible: Boolean; 
 begin 
   Result := Self <> [];
 end;
 
-function TRSButton.Enabled: Boolean; constref;
+function TRSButton.Enabled: Boolean; 
 var
   Color: TCTS1Color;
 begin
@@ -343,34 +343,34 @@ begin
   end;
 end;
 
-function TRSButton.Click(MouseButton: Int32 = MOUSE_LEFT): Boolean; constref;
+function TRSButton.Click(MouseButton: Int32 = MOUSE_LEFT): Boolean; 
 begin
   Result := Self.Visible();
   if Result then
     Mouse.Click(Self.Bounds, MouseButton);
 end;
 
-function TRSButton.Enable: Boolean; constref;
+function TRSButton.Enable: Boolean; 
 begin
   Result := Self.Enabled() or Self.Click();
 end;
 
-function TRSButton.Disable: Boolean; constref;
+function TRSButton.Disable: Boolean; 
 begin
   Result := not Self.Enabled() or Self.Click();
 end;
 
-function TRSButton.FindText(constref Text: String; constref Font: TFontSet; Color: Int32): Boolean; constref; overload;
+function TRSButton.FindText(constref Text: String; constref Font: TFontSet; Color: Int32): Boolean;  overload;
 begin
   Result := OCR.LocateText(Self.Bounds, Text, Font, TOCRColorRule.Create([Color]), 1);
 end;
 
-function TRSButton.FindText(constref Text: String; constref Font: TFontSet): Boolean; constref; overload;
+function TRSButton.FindText(constref Text: String; constref Font: TFontSet): Boolean;  overload;
 begin
   Result := OCR.LocateText(Self.Bounds, Text, Font, TOCRAnyColorRule.Create(0), 1);
 end;
 
-function TRSButton.FindText(Text: TStringArray; constref Font: TFontSet; out Found: String): Boolean; constref; overload;
+function TRSButton.FindText(Text: TStringArray; constref Font: TFontSet; out Found: String): Boolean;  overload;
 var
   I: Int32;
 begin
@@ -390,7 +390,7 @@ type
     Position: Int32;
   end;
   
-procedure TRSScrollBar.Draw(Bitmap: TMufasaBitmap); constref;
+procedure TRSScrollBar.Draw(Bitmap: TMufasaBitmap); 
 begin
   Bitmap.DrawBox(Self.SliderRegion, $00FFFF);
   Bitmap.DrawBox(Self.Slider, $00FFFF);
@@ -613,9 +613,9 @@ procedure Debug(Buttons: TRSButtonArray); overload;
 var
   BMP: TMufasaBitmap;
 begin
-  BMP.FromClient();
+  BMP := TMufasaBitmap.CreateFromClient();
   BMP.DrawButtons(Buttons);
-  BMP.Debug();
+  BMP.Show();
   BMP.Free();
 end;
 

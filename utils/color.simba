@@ -51,7 +51,7 @@ end;
 // -----------------------------------------------------------------------------
 // Find Colors
 
-function TSRL.FindColorsHelper(out TPA: TPointArray; Area: TBox; Color, Tol, CTS: Integer; Hue, Sat: Extended = 0.2): Int32; constref;
+function TSRL.FindColorsHelper(out TPA: TPointArray; Area: TBox; Color, Tol, CTS: Integer; Hue, Sat: Extended = 0.2): Int32; 
 type
   TCTSContainer = record CTS: Int32; Hue, Sat: Extended; end;
 var
@@ -76,13 +76,13 @@ end;
 srl.FindColors
 ~~~~~~~~~~~~~~~
 .. pascal::
-  function TSRL.FindColors(out TPA: TPointArray; Color: TCTSColor;  Area: TBox): UInt32; constref;
-  function TSRL.FindColors(out TPA: TPointArray; Color: TCTS1Color; Area: TBox): UInt32; constref;
-  function TSRL.FindColors(out TPA: TPointArray; Color: TCTS2Color; Area: TBox): UInt32; constref;
+  function TSRL.FindColors(out TPA: TPointArray; Color: TCTSColor;  Area: TBox): UInt32; 
+  function TSRL.FindColors(out TPA: TPointArray; Color: TCTS1Color; Area: TBox): UInt32; 
+  function TSRL.FindColors(out TPA: TPointArray; Color: TCTS2Color; Area: TBox): UInt32; 
 
 Searches for the given Color, returns the resulting points in the TPA.
 *)
-function TSRL.FindColors(out TPA: TPointArray; Colors: TIntegerArray; Area: TBox): Int32; constref; overload;
+function TSRL.FindColors(out TPA: TPointArray; Colors: TIntegerArray; Area: TBox): Int32;  overload;
 var
   Points: TPointArray;
   Color: Int32;
@@ -95,23 +95,23 @@ begin
   Result := Length(TPA);
 end;
 
-function TSRL.FindColors(out TPA: TPointArray; Color: Int32; Area: TBox): Int32; constref; overload;
+function TSRL.FindColors(out TPA: TPointArray; Color: Int32; Area: TBox): Int32;  overload;
 begin
   if FindColorsTolerance(TPA, Color, Area, 0) then
     Result := Length(TPA);
 end;
 
-function TSRL.FindColors(out TPA: TPointArray; Color: TCTS0Color; Area: TBox): Int32; constref; overload;
+function TSRL.FindColors(out TPA: TPointArray; Color: TCTS0Color; Area: TBox): Int32;  overload;
 begin
   Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 0);
 end;
 
-function TSRL.FindColors(out TPA: TPointArray; Color: TCTS1Color; Area: TBox): Int32; constref; overload;
+function TSRL.FindColors(out TPA: TPointArray; Color: TCTS1Color; Area: TBox): Int32;  overload;
 begin
   Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 1);
 end;
 
-function TSRL.FindColors(out TPA: TPointArray; Color: TCTS2Color; Area: TBox): Int32; constref; overload;
+function TSRL.FindColors(out TPA: TPointArray; Color: TCTS2Color; Area: TBox): Int32;  overload;
 begin
   Result := Self.FindColorsHelper(TPA, Area, Color.Color, Color.Tolerance, 2, Color.HueMod, Color.SatMod);
 end;
