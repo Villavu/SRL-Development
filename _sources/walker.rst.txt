@@ -13,6 +13,18 @@ TRSWalker.Setup
 
 Setup a RSWalker variable.
 This only needs calling once per variable so it's suggested to use a global variable.
+This method is to be called before using the walking functionality.
+
+Other parameters that you can set up after are:
+* RSW.ScreenWalk := True;
+	If this is set to True, RSW will walk on the mainscreen.
+
+* RSW.FancyMouse := True;
+	If this is set to True, RSW will attempt to make the mousemovement a little more human.
+
+* RSW.ClickRandomness := 5;
+	This is by default 4, it's the radius of the area we click in the path to make the path more random.
+
 
 Parameters
 ----------
@@ -20,12 +32,12 @@ Parameters
 Map
 	File path to an image or a map name found in *SRL/osr/walker/maps*.
 
-Manage  
+Manage
   Automatically free walker at the end of the script. Only works if the TRSWalker variable is global. (Default: True)
-    
+
 Scaling
 	Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 9)
-	
+
 Example
 -------
 .. code-block:: pascal  
@@ -50,7 +62,7 @@ Example
 .. code-block:: pascal  
 
   WriteLn(Walker.GetMyPos());
-  
+
   // Check to see the match percentage if needed
   WriteLn(Walker.Similarity);
 
@@ -63,17 +75,17 @@ TRSWalker.WalkPath
 
  function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Boolean;
 
-Walks a path of points taken from the loaded map. 
+Walks a path of points taken from the loaded map. We advice that WaitUntilDistance is not 0.
 
 Parameters
 ----------
 
 Path
-	Array of points taken from the loaded map to walk. Must be ordered from start to finish.	
-	
+	Array of points taken from the loaded map to walk. Must be ordered from start to finish.
+
 WaitUntilDistance
 	Determines when the method returns once the final point has been clicked. Default value: 0.
-	
+
 	| *WaitUntilDistance=0* waits until the player has reached the final point.
 	| *WaitUntilDistance=20* waits until the player is within 20 pixels of the final point.
 
@@ -100,10 +112,10 @@ Parameters
 
 Destination
 	Destination point taken from the loaded map.
-	
+
 WaitUntilDistance
 	Determines when the method returns once the final point has been clicked. Default value: 0.
-	
+
 	| *WaitUntilDistance=0* waits until the player has reached the final point.
 	| *WaitUntilDistance=20* waits until the player is within 20 pixels of the final point.
 
@@ -132,10 +144,10 @@ Parameters
 
 Destination
 	Destination point taken from the loaded map.
-	
+
 WaitUntilDistance
 	Determines when the method returns once the final point has been clicked. Default value: 0.
-	
+
 	| *WaitUntilDistance=0* waits until the player has reached the final point.
 	| *WaitUntilDistance=20* waits until the player is within 20 pixels of the final point.
 

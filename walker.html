@@ -123,7 +123,25 @@
 </pre></div>
 </div>
 <p>Setup a RSWalker variable.
-This only needs calling once per variable so it’s suggested to use a global variable.</p>
+This only needs calling once per variable so it’s suggested to use a global variable.
+This method is to be called before using the walking functionality.</p>
+<p>Other parameters that you can set up after are:
+* RSW.ScreenWalk := True;</p>
+<blockquote>
+<div><p>If this is set to True, RSW will walk on the mainscreen.</p>
+</div></blockquote>
+<ul class="simple">
+<li><dl class="simple">
+<dt>RSW.FancyMouse := True;</dt><dd><p>If this is set to True, RSW will attempt to make the mousemovement a little more human.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>RSW.ClickRandomness := 5;</dt><dd><p>This is by default 4, it’s the radius of the area we click in the path to make the path more random.</p>
+</dd>
+</dl>
+</li>
+</ul>
 <section id="parameters">
 <h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline"></a></h3>
 <dl class="simple">
@@ -167,7 +185,7 @@ This only needs calling once per variable so it’s suggested to use a global va
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkPath</span><span class="p">(</span><span class="n">Path</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">WaitUntilDistance</span><span class="o">:</span> <span class="n">Int32</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Walks a path of points taken from the loaded map.</p>
+<p>Walks a path of points taken from the loaded map. We advice that WaitUntilDistance is not 0.</p>
 <section id="id2">
 <h3>Parameters<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
 <dl>
