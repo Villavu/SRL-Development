@@ -803,22 +803,6 @@ var Bank
 var
   Bank: TRSBank;
 
-
-(*
-GameTabs.Open
-~~~~~~~~~~~~~
-.. pascal:: function TRSGameTabs.GetCurrentTab: ERSGametab; override;
-
-Overrides **GameTabs.GetCurrentTab** to return the inventory tab if bank is open.
-*)
-function TRSGameTabs.GetCurrentTab: ERSGametab; override;
-begin
-  Result := inherited;
-
-  if (Result = ERSGameTab.UNKNOWN) and Bank.IsOpen then
-    Result := ERSGameTab.INVENTORY;
-end;
-
 (*
 GameTabs.Open
 ~~~~~~~~~~~~~
