@@ -465,6 +465,7 @@ var
   Item: TRSItem;
   i: Int32;
   TBA, tmp: TBoxArray;
+  UsedSlots, TempSlots: TIntegerArray;
 begin
   if not Self.Open() then
     Exit;
@@ -472,11 +473,17 @@ begin
   TBA := Self.GetSlotBoxes();
   for i:=0 to High(TBA) do
     if Self.IsSlotUsed(TBA[i]) then
+    begin
       tmp += TBA[i];
+      UsedSlots += i;
+    end;
 
   for Item in Items do
-    Slots += ItemFinder.Find(Item, tmp);
-  
+    TempSlots += ItemFinder.Find(Item, tmp);
+
+  for i in TempSlots do
+    Slots += UsedSlots[i];
+
   Result := Length(Slots) > 0;
 end;
 
