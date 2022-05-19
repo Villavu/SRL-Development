@@ -226,29 +226,56 @@ begin
   Boxes := Self.GetItemBoxes();
   Result := SRL.FindColors(TPA, CTS0(GOLD_COLOR, 15), Boxes[CraftItem]) > 0;
 end;
-
 (*
-TRSCraftScreen.ClickItem
+TRSCraftScreen.IsItemHighlighted
 ~~~~~~~~~~~~
-.. pascal:: function TRSCraftScreen.ClickItem(Item: TRSItem; Quantity: Int32): Boolean;
+.. pascal:: function TRSCraftScreen.IsItemHighlighted(CraftItem: ERSCraftItem): Boolean;
 
-Sets the desired quantity then clicks on the given ERSCraftItem on the gold crafting
-interface.  Returns false if the given ERSCraftItem is not found on the interface.
+Returns if the given ERSCraftItem is highlighted on the crafting interface.
 
 Example
 -------
 
-  if CraftScreen.ClickItem((ERSCraftItem.RUBY_AMULET, 5) then
+  if CraftScreen.IsItemHighlighted(ERSCraftItem.GOLD_BRACELET) then
+    Keyboard.PressKey(VK_SPACE);
+*)
+function TRSCraftScreen.IsItemHighlighted(CraftItem: ERSCraftItem): Boolean;
+var
+  HighlightCol: TCTS1Color := CTS1(4807018, 2);
+  Boxes: TBoxArray;
+  TPA: TPointArray;
+begin
+  if not Self.IsOpen() then Exit;
+  if not Self.CanCraftItem(CraftItem) then Exit;
+  Result := SRL.FindColors(TPA, HighlightCol, Self.GetItemBoxes()[CraftItem]) > 0;
+end;
+
+(*
+TRSCraftScreen.CraftItem
+~~~~~~~~~~~~
+.. pascal:: function TRSCraftScreen.CraftItem(Item: TRSItem; Quantity: Int32): Boolean;
+
+Sets the desired quantity then crafts the given ERSCraftItem on the gold crafting
+interface.  If the item is highlighted (previously crafted) then the spacebar is used,
+if not then the interface item is clicked.  Returns false if the given ERSCraftItem
+is not found on the interface.
+
+Example
+-------
+
+  if CraftScreen.CraftItem(ERSCraftItem.RUBY_AMULET, 5) then
     Writeln('Beginning crafting...');
 *)
-function TRSCraftScreen.ClickItem(Item: ERSCraftItem; Quantity: Int32): Boolean;
+function TRSCraftScreen.CraftItem(Item: ERSCraftItem; Quantity: Int32): Boolean;
 begin
   if not Self.CanCraftItem(Item) then Exit;
 
-  Self.SetQuantity(Quantity);
-  Mouse.Move(Self.GetItemBoxes()[Item]);
-  Mouse.Click(MOUSE_LEFT);
-  Result := True;
+  Result := Self.SetQuantity(Quantity);
+  if Result then
+    if Self.IsItemHighlighted(Item) then
+      Keyboard.PressKey(VK_SPACE)
+    else
+      Mouse.Click(Self.GetItemBoxes()[Item], MOUSE_LEFT);
 end;
 
 procedure TRSCraftScreen.Draw(Bitmap: TMufasaBitmap); override;
