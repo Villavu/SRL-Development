@@ -201,29 +201,56 @@ begin
 end;
 
 (*
-TRSSmithScreen.ClickItem
+TRSSmithScreen.IsItemHighlighted
 ~~~~~~~~~~~~
-.. pascal:: function TRSSmithScreen.ClickItem(Item: TRSItem; Quantity: Int32): Boolean;
+.. pascal:: function TRSSmithScreen.IsItemHighlighted(Item: TRSItem): Boolean;
 
-Sets the desired quantity then clicks on the given TRSItem on the smithing screen.
-Returns false if the given TRSItem is not found on the screen.
+Returns if the given TRSItem is highlighted on the smithing interface.
 
 Example
 -------
 
-  if SmithScreen.ClickItem('Rune scimitar', -1) then
-    Writeln('Smithing items...');
+  if SmithScreen.IsItemHighlighted('Steel platebody') then
+    Keyboard.PressKey(VK_SPACE);
 *)
-function TRSSmithScreen.ClickItem(Item: TRSItem; Quantity: Int32): Boolean;
+function TRSSmithScreen.IsItemHighlighted(Item: TRSItem): Boolean;
+var
+  HighlightCol: TCTS1Color := CTS1(4807018, 2);
+  Box: TBox;
+  TPA: TPointArray;
+begin
+  if not Self.IsOpen() then Exit;
+  if not Self.CanSmithItem(Item, Box) then Exit;
+  Result := SRL.FindColors(TPA, HighlightCol, Box) > 0;
+end;
+
+(*
+TRSSmithScreen.SmithItem
+~~~~~~~~~~~~
+.. pascal:: function TRSSmithScreen.SmithItem(Item: TRSItem; Quantity: Int32): Boolean;
+
+Sets the desired quantity then smiths the given TRSItem on the smithing interface.
+If the item is highlighted (previously smithed) then the spacebar is used,
+if not then the interface item is clicked.  Returns false if 'Item' is not found on the interface.
+
+Example
+-------
+
+  if SmithScreen.SmithItem('Adamant platelegs', 5) then
+    Writeln('Beginning smithing...');
+*)
+function TRSSmithScreen.SmithItem(Item: TRSItem; Quantity: Int32): Boolean;
 var
   Box: TBox;
 begin
   if not Self.CanSmithItem(Item, Box) then Exit;
 
-  Self.SetQuantity(Quantity);
-  Mouse.Move(Box);
-  Mouse.Click(MOUSE_LEFT);
-  Result := True;
+  Result := Self.SetQuantity(Quantity);
+  if Result then
+    if Self.IsItemHighlighted(Item) then
+      Keyboard.PressKey(VK_SPACE)
+    else
+      Mouse.Click(Box, MOUSE_LEFT);
 end;
 
 procedure TRSSmithScreen.Draw(Bitmap: TMufasaBitmap); override;
