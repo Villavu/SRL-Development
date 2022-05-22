@@ -193,29 +193,56 @@ begin
 end;
 
 (*
-TRSSilverScreen.ClickItem
+TRSSilverScreen.IsItemHighlighted
 ~~~~~~~~~~~~
-.. pascal:: function TRSSilverScreen.ClickItem(Item: TRSItem; Quantity: Int32): Boolean;
+.. pascal:: function TRSSilverScreen.IsItemHighlighted(Item: TRSItem): Boolean;
 
-Sets the desired quantity then clicks on the given TRSItem on the silver screen interface.
-Returns false if the given TRSItem is not found on the interface.
+Returns if the given TRSItem is highlighted on the silver crafting interface.
 
 Example
 -------
 
-  if SilverScreen.ClickItem('Jade amulet (u)', 10) then
+  if SilverScreen.IsItemHighlighted('Unstrun symbol') then
+    Keyboard.PressKey(VK_SPACE);
+*)
+function TRSSilverScreen.IsItemHighlighted(Item: TRSItem): Boolean;
+var
+  HighlightCol: TCTS1Color := CTS1(4807018, 2);
+  Box: TBox;
+  TPA: TPointArray;
+begin
+  if not Self.IsOpen() then Exit;
+  if not Self.CanCraftItem(Item, Box) then Exit;
+  Result := SRL.FindColors(TPA, HighlightCol, Box) > 0;
+end;
+
+(*
+TRSSilverScreen.CraftItem
+~~~~~~~~~~~~
+.. pascal:: function TRSSilverScreen.CraftItem(Item: TRSItem; Quantity: Int32): Boolean;
+
+Sets the desired quantity then crafts on the given TRSItem on the silver screen interface.
+If the item is highlighted (previously crafted) then the spacebar is used,
+if not then the interface item is clicked.  Returns false if 'Item' is not found on the interface.
+
+Example
+-------
+
+  if SilverScreen.CraftItem('Jade amulet (u)', 10) then
     Writeln('Beginning crafting...');
 *)
-function TRSSilverScreen.ClickItem(Item: TRSItem; Quantity: Int32): Boolean;
+function TRSSilverScreen.CraftItem(Item: TRSItem; Quantity: Int32): Boolean;
 var
   Box: TBox;
 begin
   if not Self.CanCraftItem(Item, Box) then Exit;
 
-  Self.SetQuantity(Quantity);
-  Mouse.Move(Box);
-  Mouse.Click(MOUSE_LEFT);
-  Result := True;
+  Result := Self.SetQuantity(Quantity);
+  if Result then
+    if Self.IsItemHighlighted(Item) then
+      Keyboard.PressKey(VK_SPACE)
+    else
+      Mouse.Click(Box, MOUSE_LEFT);
 end;
 
 procedure TRSSilverScreen.Draw(Bitmap: TMufasaBitmap); override;
