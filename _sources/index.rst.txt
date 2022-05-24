@@ -6,6 +6,7 @@ Welcome to SRL documentation!
 
 	:caption: UTILS
 
+   matrix
    time
    mouse
    tpointarrays

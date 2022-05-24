@@ -1,0 +1,13 @@
+
+Mouse.Setup
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TSingleMatrix.Smoothen;
+
+Smoothens the matrix
+
+.. note:: By slacky
+
+
+------------
