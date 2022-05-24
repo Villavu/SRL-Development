@@ -657,7 +657,7 @@ begin
     begin
       tmp := Copy(v);
       for i:=High(tmp) downto 1 do
-        for k:=0 to i do
+        for k:=0 to i-1 do
         begin
           tmp[k].x := tmp[k].x + (tmp[k+1].x - tmp[k].x) * t;
           tmp[k].y := tmp[k].y + (tmp[k+1].y - tmp[k].y) * t;
