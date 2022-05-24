@@ -135,6 +135,12 @@ Built in Antiban Tasks
 .. code-block:: pascal
 
  procedure TAntiban.AdjustZoom;
+.. code-block:: pascal
+
+ procedure TAntiban.SwivelNear(start: TBox; radius: Int32; Iterations: Int32=1); overload;
+.. code-block:: pascal
+
+ procedure TAntiban.Swivel;
 
 SRL built in Antiban Tasks that can be added with **TAntiban.AddTask**.
 
