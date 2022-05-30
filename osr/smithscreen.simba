@@ -62,9 +62,13 @@ begin
 end;
 
 function TRSSmithScreen.GetItemBoxes: TBoxArray;
+var
+  LastCols: TBoxArray;
 begin
-  Result := Grid(5, 5, 77, 42, [2, 13], [Self.X1 + 10, Self.Y1 + 36]);
-end;
+  Result   := Grid(4, 5, 80, 42, [0, 13], [Self.X1 + 10, Self.Y1 + 36]);
+  LastCols := Grid(2, 5, 58, 42, [6, 13], [Self.X2 - 169, Self.Y1 + 36]);
+  Result   += LastCols;
+end; 
 
 (*
 TRSSmithScreen.IsOpen
@@ -192,8 +196,7 @@ var
 begin
   if not Self.IsOpen() then Exit;
   Boxes := Self.GetItemBoxes();
-
-  Indices := ItemFinder.Find(Item, Boxes, 1);
+  Indices := ItemFinder.Find(Item, Boxes);
   if Indices.Len < 1 then Exit;
 
   ItemBox := Boxes[Indices[0]];
