@@ -259,12 +259,40 @@ begin
             Self.IsTitle('Showing items: ' + LowerCase(Item), Random(2000, 2500));
 end;
 
+(*
+Bank.CloseSearch
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBank.CloseSearch: Boolean;
+
+Closes the bank search if it's open.
+
+Example
+-------
+  
+  Bank.Search('logs'); // Search for logs
+  Wait(1000);
+  Bank.CloseSearch();
+*)
 function TRSBank.CloseSearch: Boolean;
 begin
   Result := Self.ClearSearch() and
             Chat.AnswerQuery('Show items', '', Random(2000, 2500));
 end;
 
+(*
+Bank.FindItemBoundaries
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBank.FindItemBoundaries: TBoxArray;
+
+Finds item boundaries. This is an internal function used to retrieve the boxes we
+search for items in.
+
+Example
+-------
+  
+  Boxes := Self.FindItemBoundaries();
+  WriteLn ItemFinder.Find(Item, Boxes);
+*)
 function TRSBank.FindItemBoundaries: TBoxArray;
 var
   TPA: TPointArray;
@@ -287,6 +315,20 @@ begin
   end;
 end;
 
+(*
+Bank.Open
+~~~~~~~~~
+.. pascal:: function TRSBank.Open(P: TPoint): Boolean;
+
+Function to open a bank at a specified **P** TPoint.
+This function will move the mouse to **P** and if the uptext matches the bank or a banker uptext it will open the bank.
+
+Example
+-------
+  
+  P := CustomBankFinderFunction();
+  Bank.Open(P);
+*)
 function TRSBank.Open(P: TPoint): Boolean;
 begin
   Mouse.Move(P);
