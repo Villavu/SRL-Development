@@ -19,8 +19,14 @@ Other parameters that you can set up after are:
 * RSW.ScreenWalk := True;
 	If this is set to True, RSW will walk on the mainscreen.
 
+* RSW.AdaptiveWalk := True;
+	If this is set to True, RSW will try to mix minimap walking with mainscreen walking, so first and last clicks will usually happen on the mainscreen.
+
 * RSW.FancyMouse := True;
 	If this is set to True, RSW will attempt to make the mousemovement a little more human.
+
+* RSW.NearZoomMode := True;
+	Use this is you are zoomed in a lot, and still wanna do mainscreen walking. It will bypass some random meassures in order to walk with fewer errors.
 
 * RSW.ClickRandomness := 5;
 	This is by default 4, it's the radius of the area we click in the path to make the path more random.
