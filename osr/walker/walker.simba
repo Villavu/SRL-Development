@@ -17,7 +17,7 @@ Walker
 
 // not a const, allow people to edit.
 var
-  RSW_ADAPTIVE_SCREEN_TOGGLE_DISTANCES: TPoint = [25,100];
+  RSW_ADAPTIVE_SCREEN_TOGGLE_DISTANCES: TPoint = [25,110];
 
 type
   PRSWalker = ^TRSWalker;
@@ -38,7 +38,8 @@ type
     Similarity: Single;
     ScreenWalk: Boolean;
     AdaptiveWalk: Boolean;
-
+    NearZoomMode: Boolean;
+    
     ClickRandomness: Int32;
     AdaptiveToggleDistances: TPoint;
 
@@ -121,8 +122,14 @@ Other parameters that you can set up after are:
 * RSW.ScreenWalk := True;
 	If this is set to True, RSW will walk on the mainscreen.
 
+* RSW.AdaptiveWalk := True;
+	If this is set to True, RSW will try to mix minimap walking with mainscreen walking, so first and last clicks will usually happen on the mainscreen.
+
 * RSW.FancyMouse := True;
 	If this is set to True, RSW will attempt to make the mousemovement a little more human.
+
+* RSW.NearZoomMode := True;
+	Use this is you are zoomed in a lot, and still wanna do mainscreen walking. It will bypass some random meassures in order to walk with fewer errors.
 
 * RSW.ClickRandomness := 5;
 	This is by default 4, it's the radius of the area we click in the path to make the path more random.
@@ -428,14 +435,15 @@ var
 begin
   wasEnabled := Self.ScreenWalk;
   Self.ScreenWalk := False;
-  if (Position.DistanceTo(Self.Path[0]) < Self.AdaptiveToggleDistances.X) or
-     (Position.DistanceTo(Self.Path[High(Self.Path)]) < Self.AdaptiveToggleDistances.Y) then
+  if ((Position.DistanceTo(Self.Path[0]) < Self.AdaptiveToggleDistances.X) or
+      (Position.DistanceTo(Self.Path[High(Self.Path)]) < Self.AdaptiveToggleDistances.Y)) and
+     (Random() > 0.05) then
+    Self.ScreenWalk := True
+  
+  else if Random() < 0.02 then
     Self.ScreenWalk := True;
-
-  if Random() < 0.05 then
-    Self.ScreenWalk := True;
-
-  if (not wasEnabled) and (Self.FancyMouse) and (Random() < 0.667) and Minimap.IsPointOn(Mouse.Position) then
+  
+  if (not wasEnabled) and (Self.ScreenWalk) and (Self.FancyMouse) and (Random() < 0.75) and (Minimap.IsPointOn(Mouse.Position)) then
     Self.DoMouseAhead(Position, True);
 end;
 
@@ -493,15 +501,18 @@ var
   Position: record
     Current, Previous: TPoint;
   end;
+  awct: Int64; 
 begin
   Timeout.Init(Round(SRL.TruncatedGauss(20000, 25000)));
 
   Countdown.Init(Round(SRL.TruncatedGauss(500, 1500)));
+  
+  // initial timeout needs to be longer, as we might not have started walking yet.
   Countdown.Timeout := GetTickCount() + Round(SRL.TruncatedGauss(2500, 3500));
 
   Position.Previous := Self.GetMyPos();
   Position.Current := Position.Previous;
-
+  
   // Break from the loop if:
   // - Haven't moved in 500ms
   // - Been walking for over 20 seconds
@@ -516,10 +527,13 @@ begin
 
     if (@OnWalkingEvent <> nil) then
       OnWalkingEvent(@Self, Position.Current, Destination);
-
-    if Self.AdaptiveWalk then
+    
+    if (Self.AdaptiveWalk) and (GetTickCount() > awct) then
+    begin
       Self.AdaptiveWalkCheck(Position.Current);
-
+      awct := GetTickCount() + 1000;
+    end;
+    
     if Self.FancyMouse then
       Self.DoMouseAhead(Position.Current);
 
@@ -677,13 +691,17 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
     for I := 1 to High(TPA) do
     begin
       Line := TPAFromLine(TPA[I-1], TPA[I]);
-
+      
       J := 0;
       while J < High(Line) do
       begin
         Result += Line[J];
-
-        Inc(J, Random(3, 10));
+        
+        // keep the steps low, as mainscreen walking might just have a few tiles visible when NearZoomMode is set True
+        if (Self.NearZoomMode) and ((Self.ScreenWalk) or (Self.AdaptiveWalk)) then
+          Inc(J, Random(1, 4))
+        else
+          Inc(J, Random(3, 12));
       end;
     end;
 
@@ -705,13 +723,15 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
     Furthest := Nearest;
     while (Furthest < High(Self.Path)) and Self.IsWalkable(Self.Path[Furthest+1], PlayerPoint, Angle) do
       Inc(Furthest);
-
-    // 15% chance of randomness else furthest
+    
     Index := Furthest;
+    
+    // do the result check before randomness to avoid false error
+    Result := (Index > Previous);
+    
+    // 15% chance of randomness else furthest
     if Random() < 0.15 then
       Index := Random(Nearest, Furthest);
-
-    Result := Index > Previous;
   end;
 
 var
@@ -740,13 +760,20 @@ begin
       Inc(Fails);
 
       // Likely haven't moved far enough to advance to next point
-      if (Fails < 5) then
-      begin
+      if (Fails < 5) then begin
         Wait(300);
-
         Continue;
+      end else begin
+        // screen walking struggles, so disable it  
+        if Self.AdaptiveWalk then
+          Self.ScreenWalk := False
+        else if (Fails = 5) then
+          case SRL.Dice(50) of
+            True:  Minimap.SetCompassAngle(Minimap.GetCompassAngle() - SRL.TruncatedGauss(30, 360, 3));
+            False: Minimap.SetCompassAngle(Minimap.GetCompassAngle() + SRL.TruncatedGauss(30, 360, 3));
+          end;
       end;
-
+      
       if (Fails mod 2 = 0) then
         Minimap.WaitFlag();
     end;
