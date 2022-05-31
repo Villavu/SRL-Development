@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Prayer &mdash; SRL  documentation</title>
@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -149,11 +150,11 @@
            <div itemprop="articleBody">
              
   <section id="prayer">
-<h1>Prayer<a class="headerlink" href="#prayer" title="Permalink to this headline"></a></h1>
+<h1>Prayer<a class="headerlink" href="#prayer" title="Permalink to this heading"></a></h1>
 <p>Methods to interact with the prayer tab and quick prayers.</p>
 <hr class="docutils" />
 <section id="prayer-setup">
-<h2>Prayer.Setup<a class="headerlink" href="#prayer-setup" title="Permalink to this headline"></a></h2>
+<h2>Prayer.Setup<a class="headerlink" href="#prayer-setup" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">Setup</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -165,7 +166,7 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-setupalignment">
-<h2>Prayer.SetupAlignment<a class="headerlink" href="#prayer-setupalignment" title="Permalink to this headline"></a></h2>
+<h2>Prayer.SetupAlignment<a class="headerlink" href="#prayer-setupalignment" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">SetupAlignment</span><span class="p">(</span><span class="n">Mode</span><span class="o">:</span> <span class="n">ERSClientMode</span><span class="p">)</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -177,13 +178,13 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-getprayerlevel">
-<h2>Prayer.GetPrayerLevel<a class="headerlink" href="#prayer-getprayerlevel" title="Permalink to this headline"></a></h2>
+<h2>Prayer.GetPrayerLevel<a class="headerlink" href="#prayer-getprayerlevel" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">GetPrayerLevel</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
 <p><strong>Prayer.GetPrayerLevel</strong> is used to retrieve the prayer level from the prayer tab.</p>
 <section id="example">
-<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span> <span class="n">Prayer</span><span class="o">.</span><span class="n">GetPrayerLevel</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -191,7 +192,7 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-isopen">
-<h2>Prayer.IsOpen<a class="headerlink" href="#prayer-isopen" title="Permalink to this headline"></a></h2>
+<h2>Prayer.IsOpen<a class="headerlink" href="#prayer-isopen" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">IsOpen</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -199,13 +200,13 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-open">
-<h2>Prayer.Open<a class="headerlink" href="#prayer-open" title="Permalink to this headline"></a></h2>
+<h2>Prayer.Open<a class="headerlink" href="#prayer-open" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">Open</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Attempts to open the prayer tab.</p>
 <section id="id1">
-<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Prayer</span><span class="o">.</span><span class="n">Open</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -213,7 +214,7 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-getprayerboxes">
-<h2>Prayer.GetPrayerBoxes<a class="headerlink" href="#prayer-getprayerboxes" title="Permalink to this headline"></a></h2>
+<h2>Prayer.GetPrayerBoxes<a class="headerlink" href="#prayer-getprayerboxes" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">GetPrayerBoxes</span><span class="o">:</span> <span class="n">TBoxArray</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -224,7 +225,7 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-getprayerbox">
-<h2>Prayer.GetPrayerBox<a class="headerlink" href="#prayer-getprayerbox" title="Permalink to this headline"></a></h2>
+<h2>Prayer.GetPrayerBox<a class="headerlink" href="#prayer-getprayerbox" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">GetPrayerBox</span><span class="p">(</span><span class="n">Prayer</span><span class="o">:</span> <span class="n">ERSPrayer</span><span class="p">)</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -232,14 +233,14 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-pointtoprayer">
-<h2>Prayer.PointToPrayer<a class="headerlink" href="#prayer-pointtoprayer" title="Permalink to this headline"></a></h2>
+<h2>Prayer.PointToPrayer<a class="headerlink" href="#prayer-pointtoprayer" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">PointToPrayer</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="p">)</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns the prayer number that <strong>P</strong> is part of.
 -1 is returned if there’s no result.</p>
 <section id="id2">
-<h3>Example<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="s">&#39;Mouse is hovering prayer &#39;</span><span class="o">,</span> <span class="n">Prayer</span><span class="o">.</span><span class="n">PointToPrayer</span><span class="p">(</span><span class="n">Mouse</span><span class="o">.</span><span class="n">Position</span><span class="p">))</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -247,13 +248,13 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-mouseover">
-<h2>Prayer.MouseOver<a class="headerlink" href="#prayer-mouseover" title="Permalink to this headline"></a></h2>
+<h2>Prayer.MouseOver<a class="headerlink" href="#prayer-mouseover" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">MouseOver</span><span class="p">(</span><span class="n">Prayer</span><span class="o">:</span> <span class="n">ERSPrayer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Hovers the specified prayer.</p>
 <section id="id3">
-<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Prayer</span><span class="o">.</span><span class="n">MouseOver</span><span class="p">(</span><span class="n">ERSPrayer</span><span class="o">.</span><span class="n">PROTECT_FROM_MELEE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -261,13 +262,13 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-canactivate">
-<h2>Prayer.CanActivate<a class="headerlink" href="#prayer-canactivate" title="Permalink to this headline"></a></h2>
+<h2>Prayer.CanActivate<a class="headerlink" href="#prayer-canactivate" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">CanActivate</span><span class="p">(</span><span class="n">Prayer</span><span class="o">:</span> <span class="n">ERSPrayer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if we have enough level and have unlocked the specified prayer.</p>
 <section id="id4">
-<h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">Prayer</span><span class="o">.</span><span class="n">CanActivate</span><span class="p">(</span><span class="n">ERSPrayer</span><span class="o">.</span><span class="n">PROTECT_FROM_MELEE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -275,7 +276,7 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-getavailableprayers">
-<h2>Prayer.GetAvailablePrayers<a class="headerlink" href="#prayer-getavailableprayers" title="Permalink to this headline"></a></h2>
+<h2>Prayer.GetAvailablePrayers<a class="headerlink" href="#prayer-getavailableprayers" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">GetAvailablePrayers</span><span class="o">:</span> <span class="k">array</span> <span class="k">of</span> <span class="n">ERSPrayer</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -283,13 +284,13 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-isprayeractive">
-<h2>Prayer.IsPrayerActive<a class="headerlink" href="#prayer-isprayeractive" title="Permalink to this headline"></a></h2>
+<h2>Prayer.IsPrayerActive<a class="headerlink" href="#prayer-isprayeractive" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">IsPrayerActive</span><span class="p">(</span><span class="n">Prayer</span><span class="o">:</span> <span class="n">ERSPrayer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if the specified prayer is active right now.</p>
 <section id="id5">
-<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">Prayer</span><span class="o">.</span><span class="n">IsPrayerActive</span><span class="p">(</span><span class="n">ERSPrayer</span><span class="o">.</span><span class="n">SMITE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -297,7 +298,7 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-getactiveprayers">
-<h2>Prayer.GetActivePrayers<a class="headerlink" href="#prayer-getactiveprayers" title="Permalink to this headline"></a></h2>
+<h2>Prayer.GetActivePrayers<a class="headerlink" href="#prayer-getactiveprayers" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">GetActivePrayers</span><span class="o">:</span> <span class="k">array</span> <span class="k">of</span> <span class="n">ERSPrayer</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -305,7 +306,7 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-prayeractive">
-<h2>Prayer.PrayerActive<a class="headerlink" href="#prayer-prayeractive" title="Permalink to this headline"></a></h2>
+<h2>Prayer.PrayerActive<a class="headerlink" href="#prayer-prayeractive" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">PrayerActive</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -313,13 +314,13 @@
 </section>
 <hr class="docutils" />
 <section id="prayer-activateprayer">
-<h2>Prayer.ActivatePrayer<a class="headerlink" href="#prayer-activateprayer" title="Permalink to this headline"></a></h2>
+<h2>Prayer.ActivatePrayer<a class="headerlink" href="#prayer-activateprayer" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">ActivatePrayer</span><span class="p">(</span><span class="n">Prayer</span><span class="o">:</span> <span class="n">ERSPrayer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Attempts to activate the specified prayer.</p>
 <section id="id6">
-<h3>Example<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Prayer</span><span class="o">.</span><span class="n">ActivatePrayer</span><span class="p">(</span><span class="n">ERSPrayer</span><span class="o">.</span><span class="n">PROTECT_FROM_MELEE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -327,13 +328,13 @@
 </section>
 <hr class="docutils" />
 <section id="id7">
-<h2>Prayer.ActivatePrayer<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h2>
+<h2>Prayer.ActivatePrayer<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">ActivatePrayer</span><span class="p">(</span><span class="n">Prayers</span><span class="o">:</span> <span class="k">array</span> <span class="k">of</span> <span class="n">ERSPrayer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Attempts to activate the several prayers.</p>
 <section id="id8">
-<h3>Example<a class="headerlink" href="#id8" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Prayer</span><span class="o">.</span><span class="n">ActivatePrayer</span><span class="p">([</span><span class="n">ERSPrayer</span><span class="o">.</span><span class="n">PROTECT_FROM_MELEE</span><span class="o">,</span> <span class="n">ERSPrayer</span><span class="o">.</span><span class="n">PIETY</span><span class="p">])</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -341,14 +342,14 @@
 </section>
 <hr class="docutils" />
 <section id="var-prayer">
-<h2>var Prayer<a class="headerlink" href="#var-prayer" title="Permalink to this headline"></a></h2>
+<h2>var Prayer<a class="headerlink" href="#var-prayer" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>Global Prayer variable.</p>
 </div></blockquote>
 </section>
 <hr class="docutils" />
 <section id="quickprayer-setup">
-<h2>QuickPrayer.Setup<a class="headerlink" href="#quickprayer-setup" title="Permalink to this headline"></a></h2>
+<h2>QuickPrayer.Setup<a class="headerlink" href="#quickprayer-setup" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">QuickPrayer</span><span class="o">.</span><span class="nf">Setup</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -360,7 +361,7 @@
 </section>
 <hr class="docutils" />
 <section id="quickprayer-setupsetupalignment">
-<h2>QuickPrayer.SetupSetupAlignment<a class="headerlink" href="#quickprayer-setupsetupalignment" title="Permalink to this headline"></a></h2>
+<h2>QuickPrayer.SetupSetupAlignment<a class="headerlink" href="#quickprayer-setupsetupalignment" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">QuickPrayer</span><span class="o">.</span><span class="nf">SetupSetupAlignment</span><span class="p">(</span><span class="n">Mode</span><span class="o">:</span> <span class="n">ERSClientMode</span><span class="p">)</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -372,7 +373,7 @@
 </section>
 <hr class="docutils" />
 <section id="quickprayer-isopen">
-<h2>QuickPrayer.IsOpen<a class="headerlink" href="#quickprayer-isopen" title="Permalink to this headline"></a></h2>
+<h2>QuickPrayer.IsOpen<a class="headerlink" href="#quickprayer-isopen" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">QuickPrayer</span><span class="o">.</span><span class="nf">IsOpen</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -383,13 +384,13 @@
 </section>
 <hr class="docutils" />
 <section id="quickprayer-open">
-<h2>QuickPrayer.Open<a class="headerlink" href="#quickprayer-open" title="Permalink to this headline"></a></h2>
+<h2>QuickPrayer.Open<a class="headerlink" href="#quickprayer-open" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">QuickPrayer</span><span class="o">.</span><span class="nf">Open</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Attempts to open the quick prayers.</p>
 <section id="id9">
-<h3>Example<a class="headerlink" href="#id9" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">QuickPrayer</span><span class="o">.</span><span class="n">Open</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -397,7 +398,7 @@
 </section>
 <hr class="docutils" />
 <section id="quickprayer-getbutton">
-<h2>QuickPrayer.GetButton<a class="headerlink" href="#quickprayer-getbutton" title="Permalink to this headline"></a></h2>
+<h2>QuickPrayer.GetButton<a class="headerlink" href="#quickprayer-getbutton" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">QuickPrayer</span><span class="o">.</span><span class="nf">GetButton</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -405,13 +406,13 @@
 </section>
 <hr class="docutils" />
 <section id="quickprayer-close">
-<h2>QuickPrayer.Close<a class="headerlink" href="#quickprayer-close" title="Permalink to this headline"></a></h2>
+<h2>QuickPrayer.Close<a class="headerlink" href="#quickprayer-close" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">QuickPrayer</span><span class="o">.</span><span class="nf">Close</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Attempts to close the quick prayers.</p>
 <section id="id10">
-<h3>Example<a class="headerlink" href="#id10" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">QuickPrayers</span><span class="o">.</span><span class="n">Close</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -419,13 +420,13 @@
 </section>
 <hr class="docutils" />
 <section id="quickprayer-isprayerselected">
-<h2>QuickPrayer.IsPrayerSelected<a class="headerlink" href="#quickprayer-isprayerselected" title="Permalink to this headline"></a></h2>
+<h2>QuickPrayer.IsPrayerSelected<a class="headerlink" href="#quickprayer-isprayerselected" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">QuickPrayer</span><span class="o">.</span><span class="nf">IsPrayerSelected</span><span class="p">(</span><span class="n">QPrayer</span><span class="o">:</span> <span class="n">ERSPrayer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if the specified quick prayer is selected.</p>
 <section id="id11">
-<h3>Example<a class="headerlink" href="#id11" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">QuickPrayers</span><span class="o">.</span><span class="n">IsPrayerSelected</span><span class="p">(</span><span class="n">ERSPrayer</span><span class="o">.</span><span class="n">PROTECT_FROM_MAGIC</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -433,13 +434,13 @@
 </section>
 <hr class="docutils" />
 <section id="quickprayer-getselectedprayers">
-<h2>QuickPrayer.GetSelectedPrayers<a class="headerlink" href="#quickprayer-getselectedprayers" title="Permalink to this headline"></a></h2>
+<h2>QuickPrayer.GetSelectedPrayers<a class="headerlink" href="#quickprayer-getselectedprayers" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">QuickPrayer</span><span class="o">.</span><span class="nf">GetSelectedPrayers</span><span class="o">:</span> <span class="k">array</span> <span class="k">of</span> <span class="n">ERSPrayer</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns an array of all selected quick prayers</p>
 <section id="id12">
-<h3>Example<a class="headerlink" href="#id12" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">QuickPrayers</span><span class="o">.</span><span class="n">GetSelectedPrayers</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -447,7 +448,7 @@
 </section>
 <hr class="docutils" />
 <section id="quickprayer-selectprayer">
-<h2>QuickPrayer.SelectPrayer<a class="headerlink" href="#quickprayer-selectprayer" title="Permalink to this headline"></a></h2>
+<h2>QuickPrayer.SelectPrayer<a class="headerlink" href="#quickprayer-selectprayer" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">QuickPrayer</span><span class="o">.</span><span class="nf">SelectPrayer</span><span class="p">(</span><span class="n">QPrayer</span><span class="o">:</span> <span class="n">ERSPrayer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -456,7 +457,7 @@
 </div>
 <p>Attempts to select the specified quick prayer/prayers.</p>
 <section id="id13">
-<h3>Example<a class="headerlink" href="#id13" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">QuickPrayers</span><span class="o">.</span><span class="n">SelectPrayer</span><span class="p">(</span><span class="n">ERSPrayer</span><span class="o">.</span><span class="n">PROTECT_ITEM</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -464,7 +465,7 @@
 </section>
 <hr class="docutils" />
 <section id="var-quickprayer">
-<h2>var QuickPrayer<a class="headerlink" href="#var-quickprayer" title="Permalink to this headline"></a></h2>
+<h2>var QuickPrayer<a class="headerlink" href="#var-quickprayer" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>Global QuickPrayer variable.</p>
 </div></blockquote>
@@ -472,17 +473,17 @@
 </section>
 <hr class="docutils" />
 <section id="minimap">
-<h1>Minimap<a class="headerlink" href="#minimap" title="Permalink to this headline"></a></h1>
+<h1>Minimap<a class="headerlink" href="#minimap" title="Permalink to this heading"></a></h1>
 <p>Methods to handle the minimap prayer orb.</p>
 <hr class="docutils" />
 <section id="minimap-getprayerlevel">
-<h2>Minimap.GetPrayerLevel<a class="headerlink" href="#minimap-getprayerlevel" title="Permalink to this headline"></a></h2>
+<h2>Minimap.GetPrayerLevel<a class="headerlink" href="#minimap-getprayerlevel" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">GetPrayerLevel</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
 <p><strong>Minimap.GetPrayerLevel</strong> is used to retrieve the prayer level from the minimap orb.</p>
 <section id="id14">
-<h3>Example<a class="headerlink" href="#id14" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span> <span class="n">Minimap</span><span class="o">.</span><span class="n">GetPrayerLevel</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -490,13 +491,13 @@
 </section>
 <hr class="docutils" />
 <section id="minimap-isprayerenabled">
-<h2>Minimap.IsPrayerEnabled<a class="headerlink" href="#minimap-isprayerenabled" title="Permalink to this headline"></a></h2>
+<h2>Minimap.IsPrayerEnabled<a class="headerlink" href="#minimap-isprayerenabled" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">IsPrayerEnabled</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p><strong>Minimap.IsPrayerEnabled</strong> is used to retrieve the quick prayer state (enabled or disabled).</p>
 <section id="id15">
-<h3>Example<a class="headerlink" href="#id15" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">Writeln</span> <span class="n">Minimap</span><span class="o">.</span><span class="n">IsPrayerEnabled</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -504,13 +505,13 @@
 </section>
 <hr class="docutils" />
 <section id="minimap-enableprayer">
-<h2>Minimap.EnablePrayer<a class="headerlink" href="#minimap-enableprayer" title="Permalink to this headline"></a></h2>
+<h2>Minimap.EnablePrayer<a class="headerlink" href="#minimap-enableprayer" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">EnablePrayer</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p><strong>Minimap.EnablePrayer</strong> is used to enable quick prayers.</p>
 <section id="id16">
-<h3>Example<a class="headerlink" href="#id16" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Minimap</span><span class="o">.</span><span class="n">EnablePrayer</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -518,13 +519,13 @@
 </section>
 <hr class="docutils" />
 <section id="minimap-disableprayer">
-<h2>Minimap.DisablePrayer<a class="headerlink" href="#minimap-disableprayer" title="Permalink to this headline"></a></h2>
+<h2>Minimap.DisablePrayer<a class="headerlink" href="#minimap-disableprayer" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">DisablePrayer</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p><strong>Minimap.DisablePrayer</strong> is used to disable quick prayers.</p>
 <section id="id17">
-<h3>Example<a class="headerlink" href="#id17" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Minimap</span><span class="o">.</span><span class="n">DisablePrayer</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -532,7 +533,7 @@
 </section>
 <hr class="docutils" />
 <section id="id18">
-<h2>Prayer.Open<a class="headerlink" href="#id18" title="Permalink to this headline"></a></h2>
+<h2>Prayer.Open<a class="headerlink" href="#id18" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">Open</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -540,7 +541,7 @@
 </section>
 <hr class="docutils" />
 <section id="id19">
-<h2>Prayer.CanActivate<a class="headerlink" href="#id19" title="Permalink to this headline"></a></h2>
+<h2>Prayer.CanActivate<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">CanActivate</span><span class="p">(</span><span class="n">Prayer</span><span class="o">:</span> <span class="n">ERSPrayer</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -548,7 +549,7 @@
 </section>
 <hr class="docutils" />
 <section id="id20">
-<h2>Prayer.GetAvailablePrayers<a class="headerlink" href="#id20" title="Permalink to this headline"></a></h2>
+<h2>Prayer.GetAvailablePrayers<a class="headerlink" href="#id20" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSPrayer</span><span class="o">.</span><span class="nf">GetAvailablePrayers</span><span class="o">:</span> <span class="k">array</span> <span class="k">of</span> <span class="n">ERSPrayer</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>

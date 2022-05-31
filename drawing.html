@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Drawing &mdash; SRL  documentation</title>
@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -120,11 +121,11 @@
            <div itemprop="articleBody">
              
   <section id="drawing">
-<h1>Drawing<a class="headerlink" href="#drawing" title="Permalink to this headline"></a></h1>
+<h1>Drawing<a class="headerlink" href="#drawing" title="Permalink to this heading"></a></h1>
 <p>Extends TMufasaBitmap with mostly drawing functions.</p>
 <hr class="docutils" />
 <section id="tmufasabitmap-fromclient">
-<h2>TMufasaBitmap.FromClient<a class="headerlink" href="#tmufasabitmap-fromclient" title="Permalink to this headline"></a></h2>
+<h2>TMufasaBitmap.FromClient<a class="headerlink" href="#tmufasabitmap-fromclient" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMufasaBitmap</span><span class="o">.</span><span class="nf">FromClient</span><span class="p">(</span><span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -132,7 +133,7 @@
 </section>
 <hr class="docutils" />
 <section id="tmufasabitmap-clearallbut">
-<h2>TMufasaBitmap.ClearAllBut<a class="headerlink" href="#tmufasabitmap-clearallbut" title="Permalink to this headline"></a></h2>
+<h2>TMufasaBitmap.ClearAllBut<a class="headerlink" href="#tmufasabitmap-clearallbut" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMufasaBitmap</span><span class="o">.</span><span class="nf">ClearAllBut</span><span class="p">(</span><span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -140,7 +141,7 @@
 </section>
 <hr class="docutils" />
 <section id="tmufasabitmap-avgbrightness">
-<h2>TMufasaBitmap.AvgBrightness<a class="headerlink" href="#tmufasabitmap-avgbrightness" title="Permalink to this headline"></a></h2>
+<h2>TMufasaBitmap.AvgBrightness<a class="headerlink" href="#tmufasabitmap-avgbrightness" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMufasaBitmap</span><span class="o">.</span><span class="nf">AvgBrightness</span><span class="p">(</span><span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="o">,-</span><span class="mi">1</span><span class="o">,-</span><span class="mi">1</span><span class="p">])</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -148,7 +149,7 @@
 </section>
 <hr class="docutils" />
 <section id="tmufasabitmap-peakbrightness">
-<h2>TMufasaBitmap.PeakBrightness<a class="headerlink" href="#tmufasabitmap-peakbrightness" title="Permalink to this headline"></a></h2>
+<h2>TMufasaBitmap.PeakBrightness<a class="headerlink" href="#tmufasabitmap-peakbrightness" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMufasaBitmap</span><span class="o">.</span><span class="nf">PeakBrightness</span><span class="p">(</span><span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="o">,</span><span class="mi">0</span><span class="o">,-</span><span class="mi">1</span><span class="o">,-</span><span class="mi">1</span><span class="p">])</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -156,7 +157,7 @@
 </section>
 <hr class="docutils" />
 <section id="tmufasabitmap-drawbox">
-<h2>TMufasaBitmap.DrawBox<a class="headerlink" href="#tmufasabitmap-drawbox" title="Permalink to this headline"></a></h2>
+<h2>TMufasaBitmap.DrawBox<a class="headerlink" href="#tmufasabitmap-drawbox" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMufasaBitmap</span><span class="o">.</span><span class="nf">DrawBox</span><span class="p">(</span><span class="n">Center</span><span class="o">:</span><span class="n">TPoint</span><span class="o">;</span> <span class="n">Radius</span><span class="o">:</span><span class="n">UInt32</span><span class="o">;</span> <span class="n">Fill</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -164,7 +165,7 @@
 </section>
 <hr class="docutils" />
 <section id="tmufasabitmap-drawrect">
-<h2>TMufasaBitmap.DrawRect<a class="headerlink" href="#tmufasabitmap-drawrect" title="Permalink to this headline"></a></h2>
+<h2>TMufasaBitmap.DrawRect<a class="headerlink" href="#tmufasabitmap-drawrect" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMufasaBitmap</span><span class="o">.</span><span class="nf">DrawRect</span><span class="p">(</span><span class="nb">Rect</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -172,7 +173,7 @@
 </section>
 <hr class="docutils" />
 <section id="tmufasabitmap-drawpoly">
-<h2>TMufasaBitmap.DrawPoly<a class="headerlink" href="#tmufasabitmap-drawpoly" title="Permalink to this headline"></a></h2>
+<h2>TMufasaBitmap.DrawPoly<a class="headerlink" href="#tmufasabitmap-drawpoly" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TMufasaBitmap</span><span class="o">.</span><span class="nf">DrawPoly</span><span class="p">(</span><span class="nb">Poly</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Magic &mdash; SRL  documentation</title>
@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -127,11 +128,11 @@
            <div itemprop="articleBody">
              
   <section id="magic">
-<h1>Magic<a class="headerlink" href="#magic" title="Permalink to this headline"></a></h1>
+<h1>Magic<a class="headerlink" href="#magic" title="Permalink to this heading"></a></h1>
 <p>Methods to interact with the magic tab.</p>
 <hr class="docutils" />
 <section id="magic-setup">
-<h2>Magic.Setup<a class="headerlink" href="#magic-setup" title="Permalink to this headline"></a></h2>
+<h2>Magic.Setup<a class="headerlink" href="#magic-setup" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">Setup</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -143,7 +144,7 @@
 </section>
 <hr class="docutils" />
 <section id="magic-setupalignment">
-<h2>Magic.SetupAlignment<a class="headerlink" href="#magic-setupalignment" title="Permalink to this headline"></a></h2>
+<h2>Magic.SetupAlignment<a class="headerlink" href="#magic-setupalignment" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">SetupAlignment</span><span class="p">(</span><span class="n">Mode</span><span class="o">:</span> <span class="n">ERSClientMode</span><span class="p">)</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -155,13 +156,13 @@
 </section>
 <hr class="docutils" />
 <section id="magic-isopen">
-<h2>Magic.IsOpen<a class="headerlink" href="#magic-isopen" title="Permalink to this headline"></a></h2>
+<h2>Magic.IsOpen<a class="headerlink" href="#magic-isopen" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsOpen</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if the Magic tab is open.</p>
 <section id="example">
-<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">Magic</span><span class="o">.</span><span class="n">IsOpen</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -169,13 +170,13 @@
 </section>
 <hr class="docutils" />
 <section id="magic-open">
-<h2>Magic.Open<a class="headerlink" href="#magic-open" title="Permalink to this headline"></a></h2>
+<h2>Magic.Open<a class="headerlink" href="#magic-open" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">Open</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Attempts to open the magic tab.</p>
 <section id="id1">
-<h3>Example<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">Open</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -183,13 +184,13 @@
 </section>
 <hr class="docutils" />
 <section id="magic-getspellbook">
-<h2>Magic.GetSpellBook<a class="headerlink" href="#magic-getspellbook" title="Permalink to this headline"></a></h2>
+<h2>Magic.GetSpellBook<a class="headerlink" href="#magic-getspellbook" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">GetSpellBook</span><span class="o">:</span> <span class="n">ERSSpellBook</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns the current spell book.</p>
 <section id="id2">
-<h3>Example<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">Magic</span><span class="o">.</span><span class="n">GetSpellBook</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -205,13 +206,13 @@ begin</p>
 </section>
 <hr class="docutils" />
 <section id="magic-isspellbook">
-<h2>Magic.IsSpellBook<a class="headerlink" href="#magic-isspellbook" title="Permalink to this headline"></a></h2>
+<h2>Magic.IsSpellBook<a class="headerlink" href="#magic-isspellbook" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsSpellBook</span><span class="p">(</span><span class="n">SpellBook</span><span class="o">:</span> <span class="n">ERSSpellBook</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if we are using the specified spell book.</p>
 <section id="id3">
-<h3>Example<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">Magic</span><span class="o">.</span><span class="n">IsSpellBook</span><span class="p">(</span><span class="n">ERSSpellBook</span><span class="o">.</span><span class="n">LUNAR</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -219,7 +220,7 @@ begin</p>
 </section>
 <hr class="docutils" />
 <section id="magic-getspellboxes">
-<h2>Magic.GetSpellBoxes<a class="headerlink" href="#magic-getspellboxes" title="Permalink to this headline"></a></h2>
+<h2>Magic.GetSpellBoxes<a class="headerlink" href="#magic-getspellboxes" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">GetSpellBoxes</span><span class="p">(</span><span class="n">out</span> <span class="n">Spellbook</span><span class="o">:</span> <span class="n">ERSSpellBook</span><span class="p">)</span><span class="o">:</span> <span class="n">TBoxArray</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -227,7 +228,7 @@ begin</p>
 </section>
 <hr class="docutils" />
 <section id="magic-getspellbox">
-<h2>Magic.GetSpellBox<a class="headerlink" href="#magic-getspellbox" title="Permalink to this headline"></a></h2>
+<h2>Magic.GetSpellBox<a class="headerlink" href="#magic-getspellbox" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">GetSpellBox</span><span class="p">(</span><span class="n">Spell</span><span class="o">:</span> <span class="n">ERSSpell</span><span class="o">;</span> <span class="n">out</span> <span class="n">Box</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -235,13 +236,13 @@ begin</p>
 </section>
 <hr class="docutils" />
 <section id="magic-mousespell">
-<h2>Magic.MouseSpell<a class="headerlink" href="#magic-mousespell" title="Permalink to this headline"></a></h2>
+<h2>Magic.MouseSpell<a class="headerlink" href="#magic-mousespell" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">MouseSpell</span><span class="p">(</span><span class="n">Spell</span><span class="o">:</span> <span class="n">ERSSpell</span><span class="o">;</span> <span class="n">Button</span><span class="o">:</span> <span class="n">Int32</span> <span class="o">=</span> <span class="n">MOUSE_MOVE</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Used to interact with the specified spell.</p>
 <section id="id4">
-<h3>Example<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">MouseSpell</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">HIGH_LEVEL_ALCHEMY</span><span class="o">,</span> <span class="n">MOUSE_LEFT</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -249,13 +250,13 @@ begin</p>
 </section>
 <hr class="docutils" />
 <section id="magic-canactivate">
-<h2>Magic.CanActivate<a class="headerlink" href="#magic-canactivate" title="Permalink to this headline"></a></h2>
+<h2>Magic.CanActivate<a class="headerlink" href="#magic-canactivate" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">CanActivate</span><span class="p">(</span><span class="n">Spell</span><span class="o">:</span> <span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if we can activate the spell (we have runes, level and the spell unlocked).</p>
 <section id="id5">
-<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">CanActivate</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">HIGH_LEVEL_ALCHEMY</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -263,13 +264,13 @@ begin</p>
 </section>
 <hr class="docutils" />
 <section id="magic-isspellselected">
-<h2>Magic.IsSpellSelected<a class="headerlink" href="#magic-isspellselected" title="Permalink to this headline"></a></h2>
+<h2>Magic.IsSpellSelected<a class="headerlink" href="#magic-isspellselected" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">IsSpellSelected</span><span class="p">(</span><span class="n">Spell</span><span class="o">:</span> <span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns true if the specified spell is currently active (with white outline).</p>
 <section id="id6">
-<h3>Example<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">IsSpellSelected</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">ICE_BARRAGE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -277,13 +278,13 @@ begin</p>
 </section>
 <hr class="docutils" />
 <section id="magic-getselectedspell">
-<h2>Magic.GetSelectedSpell<a class="headerlink" href="#magic-getselectedspell" title="Permalink to this headline"></a></h2>
+<h2>Magic.GetSelectedSpell<a class="headerlink" href="#magic-getselectedspell" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">GetSelectedSpell</span><span class="o">:</span> <span class="n">ERSSpell</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns the currently selected spell.</p>
 <section id="id7">
-<h3>Example<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">Magic</span><span class="o">.</span><span class="n">GetSelectedSpell</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -291,13 +292,13 @@ begin</p>
 </section>
 <hr class="docutils" />
 <section id="magic-castspell">
-<h2>Magic.CastSpell<a class="headerlink" href="#magic-castspell" title="Permalink to this headline"></a></h2>
+<h2>Magic.CastSpell<a class="headerlink" href="#magic-castspell" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMagic</span><span class="o">.</span><span class="nf">CastSpell</span><span class="p">(</span><span class="n">Spell</span><span class="o">:</span> <span class="n">ERSSpell</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Attempts to cast the specified spell.</p>
 <section id="id8">
-<h3>Example<a class="headerlink" href="#id8" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Magic</span><span class="o">.</span><span class="n">CastSpell</span><span class="p">(</span><span class="n">ERSSpell</span><span class="o">.</span><span class="n">LOW_LEVEL_ALCHEMY</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -305,7 +306,7 @@ begin</p>
 </section>
 <hr class="docutils" />
 <section id="var-magic">
-<h2>var Magic<a class="headerlink" href="#var-magic" title="Permalink to this headline"></a></h2>
+<h2>var Magic<a class="headerlink" href="#var-magic" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>Global Magic variable.</p>
 </div></blockquote>

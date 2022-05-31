@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Color &mdash; SRL  documentation</title>
@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -115,11 +116,11 @@
            <div itemprop="articleBody">
              
   <section id="color">
-<h1>Color<a class="headerlink" href="#color" title="Permalink to this headline"></a></h1>
+<h1>Color<a class="headerlink" href="#color" title="Permalink to this heading"></a></h1>
 <p>Color finding related methods</p>
 <hr class="docutils" />
 <section id="cts0-cts1-cts2">
-<h2>CTS0, CTS1, CTS2<a class="headerlink" href="#cts0-cts1-cts2" title="Permalink to this headline"></a></h2>
+<h2>CTS0, CTS1, CTS2<a class="headerlink" href="#cts0-cts1-cts2" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nf">CTS0</span><span class="p">(</span><span class="n">Color</span><span class="o">,</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="n">TCTSColor</span><span class="o">;</span>
 <span class="k">function</span> <span class="nf">CTS1</span><span class="p">(</span><span class="n">Color</span><span class="o">,</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="n">TCTS1Color</span><span class="o">;</span>
 <span class="k">function</span> <span class="nf">CTS2</span><span class="p">(</span><span class="n">Color</span><span class="o">,</span> <span class="n">Tolerance</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">HueMod</span><span class="o">:</span><span class="kt">Extended</span><span class="o">=</span><span class="mf">0.2</span><span class="o">;</span> <span class="n">SatMod</span><span class="o">:</span><span class="kt">Extended</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">:</span> <span class="n">TCTS2Color</span><span class="o">;</span>
@@ -129,7 +130,7 @@
 </section>
 <hr class="docutils" />
 <section id="srl-findcolors">
-<h2>srl.FindColors<a class="headerlink" href="#srl-findcolors" title="Permalink to this headline"></a></h2>
+<h2>srl.FindColors<a class="headerlink" href="#srl-findcolors" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">FindColors</span><span class="p">(</span><span class="n">out</span> <span class="n">TPA</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="n">TCTSColor</span><span class="o">;</span>  <span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">UInt32</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 <span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">FindColors</span><span class="p">(</span><span class="n">out</span> <span class="n">TPA</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="n">TCTS1Color</span><span class="o">;</span> <span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">UInt32</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>
 <span class="k">function</span> <span class="nc">TSRL</span><span class="o">.</span><span class="nf">FindColors</span><span class="p">(</span><span class="n">out</span> <span class="n">TPA</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">Color</span><span class="o">:</span> <span class="n">TCTS2Color</span><span class="o">;</span> <span class="n">Area</span><span class="o">:</span> <span class="n">TBox</span><span class="p">)</span><span class="o">:</span> <span class="n">UInt32</span><span class="o">;</span> <span class="n">constref</span><span class="o">;</span>

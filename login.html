@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login &mdash; SRL  documentation</title>
@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -114,7 +115,7 @@
            <div itemprop="articleBody">
              
   <section id="login">
-<h1>Login<a class="headerlink" href="#login" title="Permalink to this headline"></a></h1>
+<h1>Login<a class="headerlink" href="#login" title="Permalink to this heading"></a></h1>
 <p>Handles logging in players.</p>
 <p>Summary:</p>
 <ul class="simple">
@@ -123,7 +124,7 @@
 <li><p>Switch to the next player with <cite>Login.NextPlayer</cite></p></li>
 </ul>
 <section id="example">
-<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h2>
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Login</span><span class="o">.</span><span class="n">AddPlayer</span><span class="p">(</span><span class="s">&#39;myusername&#39;</span><span class="o">,</span> <span class="s">&#39;mypassword&#39;</span><span class="p">)</span><span class="o">;</span>
 <span class="k">if</span> <span class="k">not</span> <span class="n">Login</span><span class="o">.</span><span class="n">LoginPlayer</span><span class="p">()</span> <span class="k">then</span>
   <span class="n">TerminateScript</span><span class="p">(</span><span class="s">&#39;Failed to login!&#39;</span><span class="p">)</span><span class="o">;</span>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Minimap to Mainscreen &mdash; SRL  documentation</title>
@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -129,14 +130,14 @@
            <div itemprop="articleBody">
              
   <section id="minimap-to-mainscreen">
-<h1>Minimap to Mainscreen<a class="headerlink" href="#minimap-to-mainscreen" title="Permalink to this headline"></a></h1>
+<h1>Minimap to Mainscreen<a class="headerlink" href="#minimap-to-mainscreen" title="Permalink to this heading"></a></h1>
 <p>The core for our minimap to mainscreen projection.
 Supports rotation, and zoom, and resizable client.</p>
 <p>MM2MS extends the Minimap interface as well as the mainscreen interface with
 functionality to convert coordinates to &amp; from the minimap to the mainscreen.</p>
 <hr class="docutils" />
 <section id="type-tmm2ms">
-<h2>type TMM2MS<a class="headerlink" href="#type-tmm2ms" title="Permalink to this headline"></a></h2>
+<h2>type TMM2MS<a class="headerlink" href="#type-tmm2ms" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">type</span>
   <span class="n">TMM2MS</span> <span class="o">=</span> <span class="k">record</span>
     <span class="n">BASE_W</span><span class="o">,</span> <span class="n">BASE_H</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>        <span class="c1">// the size of the area we project to (mainscreen size)</span>
@@ -152,20 +153,20 @@ functionality to convert coordinates to &amp; from the minimap to the mainscreen
 </section>
 <hr class="docutils" />
 <section id="var-mm2ms">
-<h2>var MM2MS<a class="headerlink" href="#var-mm2ms" title="Permalink to this headline"></a></h2>
+<h2>var MM2MS<a class="headerlink" href="#var-mm2ms" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">MM2MS</span><span class="o">:</span> <span class="n">TMM2MS</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>The global variable which you would refer to.</p>
 <hr class="docutils" />
 <section id="minimap">
-<h3>Minimap<a class="headerlink" href="#minimap" title="Permalink to this headline"></a></h3>
+<h3>Minimap<a class="headerlink" href="#minimap" title="Permalink to this heading"></a></h3>
 <p>Extend the minimap-functionality with MM2MS functions</p>
 </section>
 </section>
 <hr class="docutils" />
 <section id="minimap-arrtoms">
-<h2>Minimap.ArrToMs<a class="headerlink" href="#minimap-arrtoms" title="Permalink to this headline"></a></h2>
+<h2>Minimap.ArrToMs<a class="headerlink" href="#minimap-arrtoms" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">ArrToMs</span><span class="p">(</span><span class="n">Arr</span><span class="o">:</span> <span class="n">Vector3Array</span><span class="o">;</span> <span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
 <span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">ArrToMs</span><span class="p">(</span><span class="n">Arr</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span> <span class="n">TPointArray</span><span class="o">;</span> <span class="n">overload</span><span class="o">;</span>
 </pre></div>
@@ -175,7 +176,7 @@ The first method takes a vector3 array as input, so we can pass height as well, 
 </section>
 <hr class="docutils" />
 <section id="minimap-vectoms">
-<h2>Minimap.VecToMs<a class="headerlink" href="#minimap-vectoms" title="Permalink to this headline"></a></h2>
+<h2>Minimap.VecToMs<a class="headerlink" href="#minimap-vectoms" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">VecToMs</span><span class="p">(</span><span class="n">Vec</span><span class="o">:</span> <span class="n">Vector3</span><span class="o">;</span> <span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -184,7 +185,7 @@ The first method takes a vector3 array as input, so we can pass height as well, 
 </section>
 <hr class="docutils" />
 <section id="minimap-pointtoms">
-<h2>Minimap.PointToMs<a class="headerlink" href="#minimap-pointtoms" title="Permalink to this headline"></a></h2>
+<h2>Minimap.PointToMs<a class="headerlink" href="#minimap-pointtoms" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">PointToMs</span><span class="p">(</span><span class="n">PT</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -193,7 +194,7 @@ The first method takes a vector3 array as input, so we can pass height as well, 
 </section>
 <hr class="docutils" />
 <section id="minimap-vectomsrect">
-<h2>Minimap.VecToMsRect<a class="headerlink" href="#minimap-vectomsrect" title="Permalink to this headline"></a></h2>
+<h2>Minimap.VecToMsRect<a class="headerlink" href="#minimap-vectomsrect" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">VecToMsRect</span><span class="p">(</span><span class="n">Vec</span><span class="o">:</span> <span class="n">Vector3</span><span class="o">;</span> <span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -202,7 +203,7 @@ The first method takes a vector3 array as input, so we can pass height as well, 
 </section>
 <hr class="docutils" />
 <section id="minimap-pointtomsrect">
-<h2>Minimap.PointToMsRect<a class="headerlink" href="#minimap-pointtomsrect" title="Permalink to this headline"></a></h2>
+<h2>Minimap.PointToMsRect<a class="headerlink" href="#minimap-pointtomsrect" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">PointToMsRect</span><span class="p">(</span><span class="n">PT</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -211,7 +212,7 @@ The first method takes a vector3 array as input, so we can pass height as well, 
 </section>
 <hr class="docutils" />
 <section id="minimap-vectomsbox">
-<h2>Minimap.VecToMsBox<a class="headerlink" href="#minimap-vectomsbox" title="Permalink to this headline"></a></h2>
+<h2>Minimap.VecToMsBox<a class="headerlink" href="#minimap-vectomsbox" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">VecToMsBox</span><span class="p">(</span><span class="n">Vec</span><span class="o">:</span> <span class="n">Vector3</span><span class="o">;</span> <span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -220,7 +221,7 @@ The first method takes a vector3 array as input, so we can pass height as well, 
 </section>
 <hr class="docutils" />
 <section id="id1">
-<h2>Minimap.VecToMsBox<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h2>
+<h2>Minimap.VecToMsBox<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">PointToMsBox</span><span class="p">(</span><span class="n">PT</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -229,7 +230,7 @@ The first method takes a vector3 array as input, so we can pass height as well, 
 </section>
 <hr class="docutils" />
 <section id="minimap-statictomsrect">
-<h2>Minimap.StaticToMsRect<a class="headerlink" href="#minimap-statictomsrect" title="Permalink to this headline"></a></h2>
+<h2>Minimap.StaticToMsRect<a class="headerlink" href="#minimap-statictomsrect" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">StaticToMsRect</span><span class="p">(</span><span class="n">StaticMMPoint</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Height</span><span class="o">:</span><span class="n">Int32</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span> <span class="n">TRectangle</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -238,20 +239,20 @@ The static point is therefor gathered at north, and it will rotate it as expecte
 </section>
 <hr class="docutils" />
 <section id="minimap-statictoms">
-<h2>Minimap.StaticToMs<a class="headerlink" href="#minimap-statictoms" title="Permalink to this headline"></a></h2>
+<h2>Minimap.StaticToMs<a class="headerlink" href="#minimap-statictoms" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">StaticToMs</span><span class="p">(</span><span class="n">StaticMMPoint</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Height</span><span class="o">:</span><span class="n">Int32</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>This is the same as the above, only that it returns a single point on the mainscreen.</p>
 <hr class="docutils" />
 <section id="mainscreen">
-<h3>Mainscreen<a class="headerlink" href="#mainscreen" title="Permalink to this headline"></a></h3>
+<h3>Mainscreen<a class="headerlink" href="#mainscreen" title="Permalink to this heading"></a></h3>
 <p>Extend the mainscreen-functionality with MS2MM function</p>
 </section>
 </section>
 <hr class="docutils" />
 <section id="mainscreen-pointtomm">
-<h2>Mainscreen.PointToMM<a class="headerlink" href="#mainscreen-pointtomm" title="Permalink to this headline"></a></h2>
+<h2>Mainscreen.PointToMM<a class="headerlink" href="#mainscreen-pointtomm" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">PointToMM</span><span class="p">(</span><span class="n">MS</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Height</span><span class="o">:</span> <span class="n">Int32</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">Accuracy</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">:</span> <span class="n">Vector3</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -259,7 +260,7 @@ The static point is therefor gathered at north, and it will rotate it as expecte
 <p>Returns a Vector3 which includes input height. Conversion to a TPoint if that’s what you need is simply
 done by calling <cite>.ToPoint</cite> on the result.</p>
 <section id="example">
-<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span> <span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="o">,</span><span class="mi">140</span><span class="p">)</span><span class="o">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">;</span>
 <span class="nb">WriteLn</span> <span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="o">,</span><span class="mi">140</span><span class="p">)</span><span class="o">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">ToPoint</span><span class="p">()</span><span class="o">;</span> <span class="c1">// as a TPoint (lost accuracy)</span>
 </pre></div>
@@ -268,14 +269,14 @@ done by calling <cite>.ToPoint</cite> on the result.</p>
 </section>
 <hr class="docutils" />
 <section id="mainscreen-convertdistance">
-<h2>MainScreen.ConvertDistance<a class="headerlink" href="#mainscreen-convertdistance" title="Permalink to this headline"></a></h2>
+<h2>MainScreen.ConvertDistance<a class="headerlink" href="#mainscreen-convertdistance" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">ConvertDistance</span><span class="p">(</span><span class="n">Dist</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span> <span class="n">Accuracy</span><span class="o">:</span> <span class="kt">Single</span> <span class="o">=</span> <span class="mf">1.05</span><span class="p">)</span><span class="o">:</span> <span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Converts a distance acquired from the <strong>fixed client* and **default zoom</strong> to the
 current mainscreen.</p>
 <section id="id2">
-<h3>Example<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<h3>Example<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom &amp; client size.</span>
 <span class="nb">WriteLn</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">TranslateDistance</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span><span class="o">;</span>
 </pre></div>
@@ -284,7 +285,7 @@ current mainscreen.</p>
 </section>
 <hr class="docutils" />
 <section id="mainscreen-getplayerbox">
-<h2>MainScreen.GetPlayerBox<a class="headerlink" href="#mainscreen-getplayerbox" title="Permalink to this headline"></a></h2>
+<h2>MainScreen.GetPlayerBox<a class="headerlink" href="#mainscreen-getplayerbox" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">GetPlayerBox</span><span class="o">:</span> <span class="n">TBox</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -292,7 +293,7 @@ current mainscreen.</p>
 </section>
 <hr class="docutils" />
 <section id="mainscreen-facepoint">
-<h2>MainScreen.FacePoint<a class="headerlink" href="#mainscreen-facepoint" title="Permalink to this headline"></a></h2>
+<h2>MainScreen.FacePoint<a class="headerlink" href="#mainscreen-facepoint" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">FacePoint</span><span class="p">(</span><span class="n">P</span><span class="o">:</span> <span class="n">TPoint</span><span class="o">;</span> <span class="n">Randomness</span><span class="o">:</span> <span class="n">Int32</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -300,7 +301,7 @@ current mainscreen.</p>
 </section>
 <hr class="docutils" />
 <section id="options-setzoomlevel">
-<h2>Options.SetZoomLevel<a class="headerlink" href="#options-setzoomlevel" title="Permalink to this headline"></a></h2>
+<h2>Options.SetZoomLevel<a class="headerlink" href="#options-setzoomlevel" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span> <span class="nc">TRSOptions</span><span class="o">.</span><span class="nf">SetZoomLevel</span><span class="p">(</span><span class="n">Level</span><span class="o">:</span> <span class="n">Int32</span><span class="p">)</span><span class="o">:</span> <span class="kt">Boolean</span><span class="o">;</span> <span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
