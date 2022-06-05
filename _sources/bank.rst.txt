@@ -68,6 +68,107 @@ Example
 
 ------------
 
+Bank.CloseSearch
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.CloseSearch: Boolean;
+
+Closes the bank search if it's open.
+
+Example
+-------
+.. code-block:: pascal  
+  
+  Bank.Search('logs'); // Search for logs
+  Wait(1000);
+  Bank.CloseSearch();
+
+
+------------
+
+Bank.FindItemBoundaries
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.FindItemBoundaries: TBoxArray;
+
+Finds item boundaries. This is an internal function used to retrieve the boxes we
+search for items in.
+
+Example
+-------
+.. code-block:: pascal  
+  
+  Boxes := Self.FindItemBoundaries();
+  WriteLn ItemFinder.Find(Item, Boxes);
+
+
+------------
+
+Bank.Open
+~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.Open(P: TPoint): Boolean;
+
+Function to open a bank at a specified **P** TPoint.
+This function will move the mouse to **P** and if the uptext matches the bank or a banker uptext it will open the bank.
+
+Example
+-------
+.. code-block:: pascal  
+  
+  P := CustomBankFinderFunction();
+  Bank.Open(P);
+
+
+------------
+
+Bank._SimplifyItemName
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank._SimplifyItemName(Item: TRSItem): String;
+
+Internal function to get a human like search term for an item.
+This could be improved for better antiban but I decided to keep it simple since it's not used very frequently.
+This basically strips the item name from things humans won't usually type when searching, like brackets. It also makes the string lower case because people searching don't usually care about casing.
+Once that's done wee crop some characters from the final string, because humans don't usually search the full item name, but just enough until it's seen on screen.
+
+.. note:: Could be improved to in the future for only using the relevant part of the string. For example, an human searching for 'Amulet of glory(6)' would probably search for 'glory' instead of 'amulet of gl'.
+
+Example
+-------
+.. code-block:: pascal  
+  
+  WriteLn Bank._SimplifyItemName('Amulet of glory(6)');
+
+
+------------
+
+Bank.FindItemTab
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.FindItemTab(Item: TRSItem; OpenTab: Boolean = True): Int32;
+
+Find the bank tab of an item just by knowing it's name.
+This is very useful when you want to support people having items in any tab they want without much hassle for people to setup.
+By default it will open the banktab if the item is found. This can be changed by setting **OpenTab** to false.
+The result will be the BankTab of the item. **-1** means we didn't find a BankTab.
+
+.. note:: A known limitation of this is that if several items match the sprite of the item (for example multiple charged jewlry) the tab retrieved will be the first one found. If you have 'Games necklace(1)' in tab 1 and 'Games necklace(8)' in tab 5 and search for the latter, you will get tab 1.
+
+Example
+-------
+.. code-block:: pascal  
+  
+  WriteLn Bank.FindItemTab('Molten glass');
+
+
+------------
+
 Bank.CountTabs
 ~~~~~~~~~~~
 .. code-block:: pascal
