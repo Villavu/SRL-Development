@@ -203,9 +203,9 @@ begin
   
     AlignedTemplate := TMufasaBitmap.Create();
     AlignedTemplate.SetSize(Image.GetWidth(), Image.GetHeight());
-    
-    Template.DrawBitmap(AlignedTemplate, Align);
-    
+
+    AlignedTemplate.DrawBitmap(Template, Align);
+
     if (@CustomFilter <> nil) then
       Self.ClearSparkles(AlignedImage, AlignedTemplate);
 

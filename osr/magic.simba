@@ -244,6 +244,7 @@ type
     APE_ATOLL_TELEPORT,
     SINISTER_OFFERING
   );
+  TRSSpellSet = set of ERSSpell;
 
 const
   RS_STANDARD_SPELL_FIRST = ERSSpell.LUMBRIDGE_HOME_TELEPORT;
@@ -262,6 +263,51 @@ const
   RS_ANCIENT_SPELLS  = [RS_ANCIENT_SPELL_FIRST..RS_ANCIENT_SPELL_LAST];
   RS_LUNAR_SPELLS    = [RS_LUNAR_SPELL_FIRST..RS_LUNAR_SPELL_LAST];
   RS_ARCEUUS_SPELLS  = [RS_ARCEUUS_SPELL_FIRST..RS_ARCEUUS_SPELL_LAST];
+
+  RS_INSTANT_THROW_SPELLS = TRSSpellSet([
+    ERSSpell.TELEPORT_TO_HOUSE,
+    ERSSpell.TELEPORT_TO_KOUREND,
+    ERSSpell.TELEPORT_TO_APE_ATOLL,
+    ERSSpell.BOUNTY_TELEPORT,
+    ERSSpell.LASSAR_TELEPORT,
+    ERSSpell.OURANIA_TELEPORT,
+    ERSSpell.RESPAWN_TELEPORT,
+    ERSSpell.VARROCK_TELEPORT,
+    ERSSpell.CAMELOT_TELEPORT,
+    ERSSpell.KHAZARD_TELEPORT,
+    ERSSpell.FALADOR_TELEPORT,
+    ERSSpell.BARROWS_TELEPORT,
+    ERSSpell.MOONCLAN_TELEPORT,
+    ERSSpell.CEMETERY_TELEPORT,
+    ERSSpell.GHORROCK_TELEPORT,
+    ERSSpell.ARDOUGNE_TELEPORT,
+    ERSSpell.PADDEWWA_TELEPORT,
+    ERSSpell.KHARYRLL_TELEPORT,
+    ERSSpell.ANNAKARL_TELEPORT,
+    ERSSpell.CATHERBY_TELEPORT,
+    ERSSpell.APE_ATOLL_TELEPORT,
+    ERSSpell.LUMBRIDGE_TELEPORT,
+    ERSSpell.BARBARIAN_TELEPORT,
+    ERSSpell.TROLLHEIM_TELEPORT,
+    ERSSpell.MIND_ALTAR_TELEPORT,
+    ERSSpell.WATCHTOWER_TELEPORT,
+    ERSSpell.ICE_PLATEU_TELEPORT,
+    ERSSpell.LUNAR_HOME_TELEPORT,
+    ERSSpell.FENKENSTRAINS_CASTLE_TELEPORT,
+    ERSSpell.SALVE_GRAVEYARD_TELEPORT,
+    ERSSpell.ARCEUUS_LIBRARY_TELEPORT,
+    ERSSpell.STANDARD_TARGET_TELEPORT,
+    ERSSpell.HARMONY_ISLAND_TELEPORT,
+    ERSSpell.EDGEVILLE_HOME_TELEPORT,
+    ERSSpell.ANCIENT_TARGET_TELEPORT,
+    ERSSpell.DRAYNOR_MANOR_TELEPORT,
+    ERSSpell.FISHING_GUILD_TELEPORT,
+    ERSSpell.LUMBRIDGE_HOME_TELEPORT,
+    ERSSpell.WEST_ARDOUGNE_TELEPORT,
+    ERSSpell.CARRALLANGAR_TELEPORT,
+    ERSSpell.ARCEUUS_HOME_TELEPORT,
+    ERSSpell.WATERBIRTH_TELEPORT,
+    ERSSpell.SENNTISTEN_TELEPORT]);
   
 type
   TRSMagic = type TRSInterface;
@@ -355,6 +401,13 @@ const
 var
   Box: TBox := Gametabs.GetTabBox(ERSGameTab.MAGIC); 
 begin
+  (* BROKEN DETECTION: 22. May 2022, STANDARD BOOK NOT DETECTED
+     QUICK FIX IN SCRIPT =
+        function TRSMagic.GetSpellBook: ERSSpellBook; override;
+        begin
+          Result := ERSSpellBook.STANDARD;
+        end;
+  *)
   if SRL.CountColor(ARCEUUS_COLOR, Box) >= 85 then Exit(ERSSpellBook.ARCEUUS);
   if SRL.CountColor(ANCIENT_COLOR, Box) >= 85 then Exit(ERSSpellBook.ANCIENT);
   if SRL.CountColor(LUNAR_COLOR,   Box) >= 85 then Exit(ERSSpellBook.LUNAR);
@@ -563,7 +616,15 @@ begin
   // Unselect
   if (Selected <> ERSSpell.UNKNOWN) then
     Self.MouseSpell(Selected, MOUSE_LEFT);
- 
+
+  // spells that doesn't activete, but are thrown instantly
+  if Spell in RS_INSTANT_THROW_SPELLS then
+  begin
+    Self.MouseSpell(Spell, MOUSE_LEFT);
+    WaitUntil(Self.IsOpen(), 100, SRL.TruncatedGauss(1000, 2000));
+    Exit(True);
+  end;
+
   Result := Self.MouseSpell(Spell, MOUSE_LEFT) and WaitUntil((Self.IsOpen() and (Self.GetSelectedSpell() = Spell)) or Inventory.IsOpen(), 100, SRL.TruncatedGauss(1000, 2000));
 end;
 
