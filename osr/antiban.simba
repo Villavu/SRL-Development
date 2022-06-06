@@ -424,6 +424,8 @@ Built in Antiban Tasks
 .. pascal:: procedure TAntiban.RandomTab;
 .. pascal:: procedure TAntiban.RandomRightClick;
 .. pascal:: procedure TAntiban.AdjustZoom;
+.. pascal:: procedure TAntiban.SwivelNear(start: TBox; radius: Int32; Iterations: Int32=1); overload;
+.. pascal:: procedure TAntiban.Swivel;
 
 SRL built in Antiban Tasks that can be added with **TAntiban.AddTask**.
 
@@ -619,6 +621,118 @@ begin
     end;
   end;
 end;
+
+function TAntiban.GenerateSwivelPoints(A: TPoint; invCircularity:Double; curls: Int32; baseRad:Int32; direction:Boolean): TPointArray;
+var
+  t,o,rr: Double;
+  i,j,k,rad: Int32;
+  vec,prev: Vector2;
+  v,tmp: array of Vector2;
+  pts: TPointArray;
+  c: TPoint;
+begin
+  o := Random(360);
+  for j:=1 to curls do
+  begin
+    v := [];
+    rad := baseRad;
+    c := Point(a.x+rad, a.y+rad).Rotate(180-o, A);
+
+    pts := TPAFromCircle(c.x, c.y, rad);
+    pts.SortCircle(c, Round(o), Direction);
+    pts := pts.Offset(a.x-pts[0].x, a.y-pts[0].y);
+
+    rr := Round(rad*invCircularity);
+
+    v += [pts[0].x, pts[0].y];
+    for i:=1 to High(pts) with 35 do
+      v += [pts[i].x+Random(-rr, rr), pts[i].y+Random(-rr, rr)];
+    v += [pts[High(pts)].x+Random(-rr, rr), pts[High(pts)].y+Random(-rr, rr)];
+
+    rad := Round(rad * Round(srl.SkewedRand(1.2,0.9,1.7)));
+
+    t := 0;
+    prev := v[0];
+    while t <= 1 do
+    begin
+      tmp := Copy(v);
+      for i:=High(tmp) downto 1 do
+        for k:=0 to i-1 do
+        begin
+          tmp[k].x := tmp[k].x + (tmp[k+1].x - tmp[k].x) * t;
+          tmp[k].y := tmp[k].y + (tmp[k+1].y - tmp[k].y) * t;
+        end;
+      vec := tmp[0];
+
+      Result += TPAFromLine(Round(prev.x),Round(prev.y), Round(vec.x),Round(vec.y));
+      prev := vec;
+      t += 0.01;
+    end;
+
+    a := Result[High(Result)];
+  end;
+end;
+
+procedure TAntiban.SwivelNear(start: TPoint; invCircularity: Double; curls, radius: Int32; dir:Boolean; maxSpeed: Double=22; minSpeed: Double=9; baseSpeed: Double=14);
+var
+  p,q: TPoint;
+  i: Int32;
+  swivel: TPointArray;
+  speed, d1, d2, asc: Double;
+  fastMouse: TMouse;
+begin
+  fastMouse := Mouse;
+  fastMouse.Speed := Random(15,20);
+  fastMouse.CanIdle := False;
+
+  q := Point(-1,-1);
+  swivel := Self.GenerateSwivelPoints([start.x, start.y], invCircularity, curls, radius, dir);
+  speed := baseSpeed;
+  for i:=0 to High(swivel) do
+  begin
+    p := swivel[i];
+    if p.DistanceTo(q) > Max(4, speed * 2) then
+      fastMouse.Move(p.x, p.y);
+    fastMouse.Teleport(p.x+Random(-1,1), p.y+Random(-1,1));
+
+    q := p;
+    d1 := swivel[i].AngleBetween(swivel[Min(High(swivel), i+20)]);
+    d2 := swivel[i].AngleBetween(swivel[Min(High(swivel), i+40)]);
+    asc := abs(srl.DeltaAngle(d1, d2));
+
+    if High(swivel)-i < Speed then speed -= 1;
+
+    if asc < 2.0 then speed += 2;
+    speed := Min(maxSpeed, speed);
+    speed := Max(minSpeed, speed - Random() * 0.5);
+
+    Sleep(1);
+    Inc(i, Round(speed));
+  end;
+end;
+
+procedure TAntiban.SwivelNear(start: TBox; radius: Int32; Iterations: Int32=1); overload;
+begin
+  for 1 to Iterations do
+  begin
+    Self.SwivelNear(srl.RandomPoint(start), 1/2, Round(srl.TruncatedGauss(1,4)), radius, srl.TruncatedGauss(0.0,1.25) > 0.5, Random(12,22), 9, 14);
+    if Random() < 0.5 then Wait(0, 300, wdLeft);
+  end;
+end;
+
+procedure TAntiban.Swivel(); overload;
+begin
+  for 1 to Round(srl.TruncatedGauss(1,4)) do
+  begin
+    Self.SwivelNear(mouse.Position, 1/2, Round(srl.TruncatedGauss(1,4)), Random(25,40), srl.TruncatedGauss(0.0,1.25) > 0.5, Random(12,22), 9, 14);
+    if Random() < 0.5 then Wait(0, 300, wdLeft);
+  end;
+end;
+
+//
+//
+// ---------------- End of random taks ----------------
+
 
 function TAntiban.TimeUntilBreak(Task: TBreakTask): String;
 begin

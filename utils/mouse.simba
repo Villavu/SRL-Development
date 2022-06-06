@@ -82,33 +82,83 @@ type
     CanIdle: Boolean;
     
     {$IFDEF SRL_DEBUG_MOUSE}
-    DebugBitmap: TMufasaBitmap;
+    DebugMovement: TSingleMatrix;
+    DebugClicks: TSingleMatrix;
     {$ENDIF}
   end;
 
 {$IFDEF SRL_DEBUG_MOUSE}
 procedure TMouse._Debug;
+var
+  p: TPoint;
+  i,x,y,wid,hei: Int32;
+  clr, tol,heat: Int32;
+  hue,sat: Extended;
+  m: TSingleMatrix;
+  mats: array of TSingleMatrix;
+  tmp,ClientBitmap, DebugBitmap: TMufasaBitmap;
+  TPA: TPointArray;
+  function AlphaColor(A,B: TColor; Weight: Double): TColor;
+  var R1,R2,G1,G2,B1,B2: Int32;
+  begin
+    ColorToRGB(A, R1,G1,B1);
+    ColorToRGB(A, R1,G1,B1);
+    Result := RGBtoColor(Round(R1*weight+R2*(1-Weight)), Round(G1*weight+G2*(1-Weight)), Round(B1*weight+B2*(1-Weight)))
+  end;
 begin
-  if (Self.DebugBitmap = nil) then
-    Exit;
+  self.DebugLn('Generating a heatmap from clicks and movements...');
+
+  ClientBitmap := GetMufasaBitmap(BitmapFromClient(GetClientBounds()));
+  DebugBitmap := ClientBitmap.Copy();
+  wid := DebugBitmap.GetWidth();
+  hei := DebugBitmap.GetHeight();
+  DebugBitmap.SetSize(wid*2, hei);
+  ClientBitmap.DrawTransparent(wid, 0, DebugBitmap);
+
+  mats := [Self.DebugClicks, Self.DebugMovement];
+  for i:=0 to High(mats) do
+  begin
+    SetLength(m, 0);
+    SetLength(m, Length(mats[i]));
+    for x:=0 to High(m) do m[x] := Copy(mats[i][x]);
+    for 0 to 2 do m.Smoothen(3);
+    if Length(m) = 0 then 
+	  continue;
+	
+    tmp.Init();
+    tmp.DrawMatrix(m, 1);
+
+    for y:=0 to tmp.GetHeight() - 1 do
+      for x:=0 to tmp.GetWidth() - 1 do
+        if tmp.GetPixel(x,y) <> 0 then
+        begin
+          heat := tmp.GetPixel(x,y);
+          ACA([0,heat], 1, clr, tol, hue, sat);
+
+          if tol < 20 then DebugBitmap.SetPixel(x+wid*i,y, AlphaColor(ClientBitmap.GetPixel(x,y), heat, 1-tol/20))
+          else             DebugBitmap.SetPixel(x+wid*i,y,tmp.GetPixel(x,y));
+        end;
+    tmp.Free();
+  end;
 
   ShowBitmap(DebugBitmap);
-
+  ClientBitmap.Free();
   DebugBitmap.Free();
 end;
 
 procedure TMouse._DebugCallback(Sender: PMouse; X, Y: Int32); static;
+var
+  w,h: Int32;
 begin
-  if (Sender^.DebugBitmap = nil) then
+  GetClientDimensions(W,H);
+  if Sender^.DebugMovement = nil then
   begin
-    Sender^.DebugBitmap := GetMufasaBitmap(BitmapFromClient(GetClientBounds()));
-    Sender^.DebugBitmap.DrawClear(0);
-
+    Sender^.DebugMovement.SetSize(W,H);
     AddOnTerminate(@Sender^._Debug);
   end;
 
-  if Sender^.DebugBitmap.PointInBitmap(X, Y) and (Sender^.DebugBitmap.GetPixel(X, Y) <> $0000FF) then
-    Sender^.DebugBitmap.SetPixel(X, Y, $00FF00);
+  if InRange(x,0,W-1) and InRange(y,0,H-1) then
+    Sender^.DebugMovement[y,x] += 1;
 end;
 {$ENDIF}
 
@@ -569,15 +619,22 @@ Example
   Mouse.Click(MOUSE_LEFT); // Left click the current mouse position
 *)
 procedure TMouse.Click(Button: Int32);
+{$IFDEF SRL_DEBUG_MOUSE}
+var w,h: Int32; p: TPoint;
+{$ENDIF}
 begin
   Self.Hold(Button);
   Wait(SRL.TruncatedGauss(30, 300));
   Self.Release(Button);
 
   {$IFDEF SRL_DEBUG_MOUSE}
-  if (Self.DebugBitmap <> nil) then
-    with Self.Position() do
-      Self.DebugBitmap.SetPixel(X, Y, $0000FF);
+  GetClientDimensions(W,H);
+  if Length(Self.DebugClicks) = 0 then
+    Self.DebugClicks.SetSize(W,H);
+
+  p := Self.Position();
+  //if InRange(p.x,0,W-1) and InRange(p.y,0,H-1) then
+    Self.DebugClicks[p.y,p.x] += 1;
   {$ENDIF}
 end;
 
