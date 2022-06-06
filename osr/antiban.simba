@@ -639,7 +639,7 @@ begin
     c := Point(a.x+rad, a.y+rad).Rotate(180-o, A);
 
     pts := TPAFromCircle(c.x, c.y, rad);
-    pts.SortCircle(c, Round(o), Direction);
+    SortTPACircular(pts, c, Round(o), Direction);
     pts := pts.Offset(a.x-pts[0].x, a.y-pts[0].y);
 
     rr := Round(rad*invCircularity);
