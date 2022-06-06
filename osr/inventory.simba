@@ -597,17 +597,10 @@ Example
 *)
 function TRSInventory.ShiftDrop(Items: TRSItemArray; Pattern: TIntegerArray): Boolean; overload;
 var
-  Slots, Order: TIntegerArray;
-  I: Int32;
+  Slots: TIntegerArray;
 begin
   if Self.FindItems(Items, Slots) then
-  begin
-    for I := 0 to High(Pattern) do
-      if Slots.Contains(Pattern[I]) then
-        Order += Pattern[I];
-  
-    Result := Self.ShiftDrop(Order);
-  end;
+    Result := Self.ShiftDrop(Slots.Intersection(Pattern));
 end;
 
 var
