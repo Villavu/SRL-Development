@@ -1,0 +1,53 @@
+{$DEFINE SRL_MATRIX_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
+(*
+Mouse.Setup
+~~~~~~~~~~~
+.. pascal:: procedure TSingleMatrix.Smoothen;
+
+Smoothens the matrix
+
+.. note:: By slacky
+*)
+procedure TSingleMatrix.Smoothen(block: Int32);
+var
+  wid,hei,x,y,mid,fx,fy,area: Int32;
+  lx,ly,hx,hy: Int32;
+  heat: Single;
+  data: TSingleMatrix;
+begin
+  if (block*block<=1) or (block mod 2 = 0) then
+    Exit;
+
+  SetLength(data, Length(self));
+  for y:=0 to High(self) do data[y] := Copy(Self[y]);
+
+  wid := (data.Width - 1);
+  hei := (data.Height - 1);
+  mid := (block div 2);
+
+  for y:=0 to hei do
+  begin
+    ly := System.Max(0,  y-mid);
+    hy := System.Min(hei,y+mid);
+    for x:=0 to wid do
+    begin
+      lx := System.Max(0,x-mid);
+      hx := System.Min(wid,x+mid);
+      area := 0;
+      heat := 0;
+
+      for fy:=ly to hy do
+        for fx:=lx to hx do
+        begin
+          heat += data[fy,fx];
+          inc(area);
+        end;
+
+      Self[y,x] := heat/area;
+    end;
+  end;
+end;

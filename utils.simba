@@ -21,6 +21,7 @@ var
 {$IFNDEF SRL_EXTENDEDARRAY_INCLUDED} {$I utils/extendedarrays.simba}
 {$IFNDEF SRL_INTEGERARRAY_INCLUDED}  {$I utils/integerarrays.simba}
 {$IFNDEF SRL_TPOINTARRAY_INCLUDED}   {$I utils/tpointarrays.simba}
+{$IFNDEF SRL_MATRIX_INCLUDED}        {$I utils/matrix.simba}
 {$IFNDEF SRL_RANDOM_INCLUDED}        {$I utils/random.simba}
 
 {$IFNDEF SRL_TIME_INCLUDED}          {$I utils/time.simba}
@@ -31,6 +32,7 @@ var
 {$IFNDEF SRL_COLOR_INCLUDED}         {$I utils/color.simba}
 {$IFNDEF SRL_DRAWING_INCLUDED}       {$I utils/drawing.simba}
 
+{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
