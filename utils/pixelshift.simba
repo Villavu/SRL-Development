@@ -18,16 +18,16 @@ Returns how many pixels changed in the given area ``Area`` after ``WaitTime`` ha
 *)
 function TSRL.GetPixelShift(Area: TBox; WaitTime: UInt32): Int32;
 var
-  Before, After: Int32;
+  Before, After: TMufasaBitmap;
 begin
-{
-  Before := BitmapFromClient(Area);
+  Before := TMufasaBitmap.CreateFromClient(Area);
   Wait(WaitTime);
-  After := BitmapFromClient(Area);
-  Result := CalculatePixelShift(Before, After, [0, 0, (Area.X2 - Area.X1), (Area.Y2 - Area.Y1)]);
-  FreeBitmap(Before);
-  FreeBitmap(After);
-  }
+  After := TMufasaBitmap.CreateFromClient(Area);
+
+  Result := Before.PixelDifference(After);
+
+  Before.Free();
+  After.Free();
 end;
 
 (*
