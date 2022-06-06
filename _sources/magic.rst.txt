@@ -82,15 +82,6 @@ Example
 
 
 ------------
- BROKEN DETECTION: 22. May 2022, STANDARD BOOK NOT DETECTED
-     QUICK FIX IN SCRIPT =
-        function TRSMagic.GetSpellBook: ERSSpellBook; override;
-        begin
-          Result := ERSSpellBook.STANDARD;
-        end;
-  
-
-------------
 
 Magic.IsSpellBook
 ~~~~~~~~~~~~~~~~~
