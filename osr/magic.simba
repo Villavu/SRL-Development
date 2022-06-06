@@ -393,21 +393,14 @@ Example
 
   WriteLn Magic.GetSpellBook;
 *)
-function TRSMagic.GetSpellBook: ERSSpellBook;
+function TRSMagic.GetSpellBook: ERSSpellBook; override;
 const
-  ARCEUUS_COLOR := CTS0(9801276, 78); // Colors of the book on the gametab
-  ANCIENT_COLOR := CTS1(8273495, 27);
+  ARCEUUS_COLOR := CTS1(9801276, 78); // Colors of the book on the gametab
+  ANCIENT_COLOR := CTS1(8077142, 28);
   LUNAR_COLOR   := CTS1(12761525, 27);
 var
   Box: TBox := Gametabs.GetTabBox(ERSGameTab.MAGIC); 
 begin
-  (* BROKEN DETECTION: 22. May 2022, STANDARD BOOK NOT DETECTED
-     QUICK FIX IN SCRIPT =
-        function TRSMagic.GetSpellBook: ERSSpellBook; override;
-        begin
-          Result := ERSSpellBook.STANDARD;
-        end;
-  *)
   if SRL.CountColor(ARCEUUS_COLOR, Box) >= 85 then Exit(ERSSpellBook.ARCEUUS);
   if SRL.CountColor(ANCIENT_COLOR, Box) >= 85 then Exit(ERSSpellBook.ANCIENT);
   if SRL.CountColor(LUNAR_COLOR,   Box) >= 85 then Exit(ERSSpellBook.LUNAR);
