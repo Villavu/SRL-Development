@@ -393,7 +393,7 @@ Example
 
   WriteLn Magic.GetSpellBook;
 *)
-function TRSMagic.GetSpellBook: ERSSpellBook; override;
+function TRSMagic.GetSpellBook: ERSSpellBook;
 const
   ARCEUUS_COLOR := CTS1(9801276, 78); // Colors of the book on the gametab
   ANCIENT_COLOR := CTS1(8077142, 28);
