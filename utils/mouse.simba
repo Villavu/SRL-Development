@@ -108,12 +108,14 @@ var
 begin
   self.DebugLn('Generating a heatmap from clicks and movements...');
 
-  ClientBitmap := GetMufasaBitmap(BitmapFromClient(GetClientBounds()));
+  ClientBitmap := TMufasaBitmap.CreateFromClient();
   DebugBitmap := ClientBitmap.Copy();
   wid := DebugBitmap.GetWidth();
   hei := DebugBitmap.GetHeight();
   DebugBitmap.SetSize(wid*2, hei);
-  ClientBitmap.DrawTransparent(wid, 0, DebugBitmap);
+
+  //TODO: NEEDS FIX. IDK what this is in Simba1500. By Torwent.
+  //ClientBitmap.DrawTransparent(wid, 0, DebugBitmap);
 
   mats := [Self.DebugClicks, Self.DebugMovement];
   for i:=0 to High(mats) do
@@ -133,7 +135,9 @@ begin
         if tmp.GetPixel(x,y) <> 0 then
         begin
           heat := tmp.GetPixel(x,y);
-          ACA([0,heat], 1, clr, tol, hue, sat);
+
+          //TODO: NEEDS FIX. IDK what this is in Simba1500. By Torwent.
+          //ACA([0,heat], 1, clr, tol, hue, sat);
 
           if tol < 20 then DebugBitmap.SetPixel(x+wid*i,y, AlphaColor(ClientBitmap.GetPixel(x,y), heat, 1-tol/20))
           else             DebugBitmap.SetPixel(x+wid*i,y,tmp.GetPixel(x,y));
