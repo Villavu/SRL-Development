@@ -136,8 +136,7 @@ begin
         begin
           heat := tmp.GetPixel(x,y);
 
-          //TODO: NEEDS FIX. IDK what this is in Simba1500. By Torwent.
-          //ACA([0,heat], 1, clr, tol, hue, sat);
+          CalculateBestColor([0,heat], 1, clr, tol, hue, sat);
 
           if tol < 20 then DebugBitmap.SetPixel(x+wid*i,y, AlphaColor(ClientBitmap.GetPixel(x,y), heat, 1-tol/20))
           else             DebugBitmap.SetPixel(x+wid*i,y,tmp.GetPixel(x,y));
