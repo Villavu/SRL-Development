@@ -62,7 +62,7 @@ begin
     for Y := Minimap.Center.Y - 25 * 4 to Minimap.Center.Y + 25 * 4 with 4 do
     begin
       Tile := Vec3(X, Y).RotateXY(Angle, Minimap.Center.X, Minimap.Center.Y);
-      TPA := Minimap.VecToMsRect(Tile, Angle).ToTPA().Connect();
+      TPA := Minimap.VecToMsRect(Tile, 1, 1, Angle).ToTPA().Connect();
 
       BMP.DrawTPA(TPA, $00FF00);
     end;
@@ -70,11 +70,11 @@ begin
   if Dots then
   begin
     //for Dot in Minimap.GetDots(ERSMinimapDot.NPC) do
-    //  BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], Angle), $00FFFF);
+    //  BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], 1, 1, Angle), $00FFFF);
     //for Dot in Minimap.GetDots(ERSMinimapDot.ITEM) do
-    //  BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], Angle), $0000FF);
+    //  BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], 1, 1, Angle), $0000FF);
     //for Dot in Minimap.GetDots(ERSMinimapDot.PLAYER) do
-    //  BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], Angle), $FFFFFF);
+    //  BMP.DrawRect(Minimap.VecToMSRect([Dot.X + 2, Dot.Y + 2], 1, 1, Angle), $FFFFFF);
   end;
 
   BMP.Show();
@@ -200,24 +200,43 @@ end;
 
 
 (*
-Minimap.VecToMsRect
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMinimap.VecToMsRect(Vec: Vector3; Roll:Single=$FFFF): TRectangle;
+Minimap.VecToMsRect()
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;
 
 Takes a single coordinate as a Vector3 on the minimap, and converts it to a rectangle / tile on the mainscreen.
 
+*WESize* is the size of the rectangle we want to get from west-to-east.
+*NSSize* is the size of the rectangle we want to get from north-to-south.
+
+By default this values are 1 which will return you one single tile.
+If you wanted to get the tiles of a runecrafting altar for example which is 3 by 3 tiles you would set both to 3.
+
 *ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
 *)
-function TRSMinimap.VecToMsRect(Vec: Vector3; Roll:Single=$FFFF): TRectangle;
+function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;
 var
-  arr: TPointArray;
+  Arr: TPointArray;
 begin
-  if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  Vec := Vec.RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+  if WESize <= 0 then WESize := 1;
+  if NSSize <= 0 then NSSize := 1;
 
-  Arr := MM2MS.Run([Vec3(Vec.x-2, Vec.y-2, Vec.z), Vec3(Vec.x+2, Vec.y-2, Vec.z), Vec3(Vec.x+2, Vec.y+2, Vec.z), Vec3(Vec.x-2, Vec.y+2, Vec.z)], Roll);
+  //tiles are roughly 4 pixels height and width in the minimap.
+  //so for our coordinate we will want to "expand" each tile 2 pixels north, south, east and west.
+  WESize := 2 * WESize;
+  NSSize := 2 * NSSize;
+
+  if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
+
+  Vec := Vec.RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+  Arr := MM2MS.Run([Vec3(Vec.X-WESize, Vec.Y-NSSize, Vec.z),
+                    Vec3(Vec.X+WESize, Vec.Y-NSSize, Vec.z),
+                    Vec3(Vec.X+WESize, Vec.Y+NSSize, Vec.z),
+                    Vec3(Vec.X-WESize, Vec.Y+NSSize, Vec.z)], Roll);
+
   Result := [Arr[0], Arr[1], Arr[2], Arr[3]];
 end;
+
 
 (*
 Minimap.PointToMsRect
@@ -293,7 +312,7 @@ var
 begin
   angle := Minimap.GetCompassAngle(False);
   with StaticMMPoint.Rotate(angle, Point(Minimap.Center.X, Minimap.Center.Y)) do
-    Result := Minimap.VecToMSRect(Vec3(X,Y, Height), angle);
+    Result := Minimap.VecToMSRect(Vec3(X,Y, Height), 1, 1, angle);
 end;
 
 (*
@@ -312,6 +331,51 @@ begin
     Result := Minimap.VecToMS(Vec3(X,Y, Height), angle);
 end;
 
+(*
+Minimap.GetZoomRectangle()
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Minimap.GetZoomRectangle(): TRectangle;
+
+This function returns an accurate rectangle of what's visible on the MainScreen on the Minimap.
+This can be used to know if it's possible to make something visible by adjusting the zoom level or rotating the camera.
+
+Example
+-------
+
+  Debug(Minimap.GetZoomRectangle());
+*)
+function Minimap.GetZoomRectangle(): TRectangle;
+begin
+  if MM2MS.ZoomLevel = -1 then
+    MM2MS.ZoomLevel := Options.GetZoomLevel();
+
+  Result := [
+    MainScreen.PointToMM([MainScreen.Bounds.X1, MainScreen.Bounds.Y1]).ToPoint(),
+    MainScreen.PointToMM([MainScreen.Bounds.X2, MainScreen.Bounds.Y1]).ToPoint(),
+    MainScreen.PointToMM([MainScreen.Bounds.X2, MainScreen.Bounds.Y2]).ToPoint(),
+    MainScreen.PointToMM([MainScreen.Bounds.X1, MainScreen.Bounds.Y2]).ToPoint()
+  ];
+
+  Result := Result.FixOrder;
+end;
+
+(*
+Minimap.PointInZoomRectangle()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function Minimap.PointInZoomRectangle(P: TPoint): Boolean;
+
+Check if a given point is within our zoom rectangle.
+
+Example
+-------
+
+  P := Minimap.GetDots(ERSMinimapDot.ITEM)[0]; //find an item dot and returns it's coodinates.
+  WriteLn Minimap.PointInZoomRadius(P);
+*)
+function Minimap.PointInZoomRectangle(P: TPoint): Boolean;
+begin
+  Result := P.InRect(Self.GetZoomRectangle);
+end;
 
 
 (*
@@ -488,7 +552,6 @@ function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean; ove
 var
   Angle: Double;
   CurrentAngle: Double;
-  Adjuster: Double;
 begin
   Angle := Self.PointToMM(P).ToPoint.AngleBetween(Minimap.Center);
   Angle += Random(-Randomness, Randomness);

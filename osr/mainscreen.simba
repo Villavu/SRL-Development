@@ -395,7 +395,7 @@ Example
 *)
 function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32 = 0; Accuracy:Double = 0.2): Vector3;
 begin
-  // Implemented in minimaptoms.simba
+  // Implemented in mm2ms.simba
 end;
 
 (*
