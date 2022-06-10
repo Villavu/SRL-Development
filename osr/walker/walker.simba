@@ -936,20 +936,21 @@ begin
   UnFreeze();
 end;
 
-function TRSWalker.GetTileMSEx(Me, Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+function TRSWalker.GetTileMSEx(Me, Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
 var
   angle: Double;
 begin
   Loc   := Minimap.Center + (Loc - Me);
   angle := Minimap.GetCompassAngle(False);
   Loc   := Loc.Rotate(angle, Minimap.Center);
-  Result := Minimap.VecToMSRect(Vec3(Loc.x - offx, Loc.y - offy, Height), angle);
+  Result := Minimap.VecToMSRect(Vec3(Loc.x - offx, Loc.y - offy, Height), 1, 1, angle);
 end;
 
-function TRSWalker.GetTileMS(Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+function TRSWalker.GetTileMS(Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
 begin
-  Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, Height, Offx, Offy);
+  Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, WESize, NESize, Height, Offx, Offy);
 end;
+
 
 function TRSWalker.MSToWorldEx(Me, Loc: TPoint; Height: Int32 = 0; Accuracy: Double = 0.2): TPoint;
 begin

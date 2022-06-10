@@ -200,14 +200,14 @@ end;
 
 
 (*
-Minimap.VecToMsRect()
-~~~~~~~~~~~~~~~~~~~~~
+Minimap.VecToMsRect
+~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;
 
 Takes a single coordinate as a Vector3 on the minimap, and converts it to a rectangle / tile on the mainscreen.
 
-*WESize* is the size of the rectangle we want to get from west-to-east.
-*NSSize* is the size of the rectangle we want to get from north-to-south.
+*WESize* is the size of the rectangle we want to get from west-to-east measured in RS tiles.
+*NSSize* is the size of the rectangle we want to get from north-to-south measured in RS tiles.
 
 By default this values are 1 which will return you one single tile.
 If you wanted to get the tiles of a runecrafting altar for example which is 3 by 3 tiles you would set both to 3.
@@ -237,7 +237,6 @@ begin
   Result := [Arr[0], Arr[1], Arr[2], Arr[3]];
 end;
 
-
 (*
 Minimap.PointToMsRect
 ~~~~~~~~~~~~~~~~~~~~~
@@ -245,57 +244,35 @@ Minimap.PointToMsRect
 
 Takes a single coordinate as a TPoint on the minimap, and converts it to a rectangle / tile on the mainscreen.
 
-*ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
-*)
-function TRSMinimap.PointToMsRect(PT: TPoint; Roll:Single=$FFFF): TRectangle;
-var
-  arr: TPointArray;
-begin
-  if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  pt := pt.Rotate(PI*2 - Roll, Point(Minimap.Center.X, Minimap.Center.Y));
-  
-  Arr := MM2MS.Run([Vec3(PT.x-2, PT.y-2), Vec3(PT.x+2, PT.y-2), Vec3(PT.x+2, PT.y+2), Vec3(PT.x-2, PT.y+2)], Roll);
-  Result := [Arr[0], Arr[1], Arr[2], Arr[3]];
-end;
+*WESize* is the size of the rectangle we want to get from west-to-east measured in RS tiles.
+*NSSize* is the size of the rectangle we want to get from north-to-south measured in RS tiles.
 
-(*
-Minimap.VecToMsBox
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMinimap.VecToMsBox(Vec: Vector3; Roll:Single=$FFFF): TBox;
-
-Takes a single coordinate as a Vector3 on the minimap, and converts it to a rough box on the mainscreen.
+By default this values are 1 which will return you one single tile.
+If you wanted to get the tiles of a runecrafting altar for example which is 3 by 3 tiles you would set both to 3.
 
 *ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
 *)
-function TRSMinimap.VecToMsBox(Vec: Vector3; Roll:Single=$FFFF): TBox;
+function TRSMinimap.PointToMsRect(PT: TPoint; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;
 var
-  arr: TPointArray;
+  Arr: TPointArray;
 begin
+  if WESize <= 0 then WESize := 1;
+  if NSSize <= 0 then NSSize := 1;
+
+  //tiles are roughly 4 pixels height and width in the minimap.
+  //so for our coordinate we will want to "expand" each tile 2 pixels north, south, east and west.
+  WESize := 2 * WESize;
+  NSSize := 2 * NSSize;
+
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  Vec := Vec.RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
 
-  Arr := MM2MS.Run([Vec3(Vec.x-2, Vec.y-2, Vec.z), Vec3(Vec.x+2, Vec.y-2, Vec.z), Vec3(Vec.x+2, Vec.y+2, Vec.z), Vec3(Vec.x-2, Vec.y+2, Vec.z)], Roll);
-  Result := GetTPABounds(arr);
-end;
-
-(*
-Minimap.VecToMsBox
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMinimap.PointToMsBox(PT: TPoint; Roll:Single=$FFFF): TBox;
-
-Takes a single coordinate as a TPoint on the minimap, and converts it to a rough box on the mainscreen.
-
-*ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
-*)
-function TRSMinimap.PointToMsBox(PT: TPoint; Roll:Single=$FFFF): TBox;
-var
-  arr: TPointArray;
-begin
-  if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
   PT := PT.Rotate(PI*2 - Roll, Point(Minimap.Center.X, Minimap.Center.Y));
-
-  Arr := MM2MS.Run([Vec3(PT.x-2, PT.y-2), Vec3(PT.x+2, PT.y-2), Vec3(PT.x+2, PT.y+2), Vec3(PT.x-2, PT.y+2)], Roll);
-  Result := GetTPABounds(arr);
+  
+  Arr := MM2MS.Run([Vec3(PT.x-WESize, PT.y-NSSize),
+                    Vec3(PT.x+WESize, PT.y-NSSize),
+                    Vec3(PT.x+WESize, PT.y+NSSize),
+                    Vec3(PT.x-WESize, PT.y+NSSize)], Roll);
+  Result := [Arr[0], Arr[1], Arr[2], Arr[3]];
 end;
 
 (*
@@ -305,14 +282,17 @@ Minimap.StaticToMsRect
 
 Takes static minimap coordinate, rotates it to compass angle, and returns a rectangle on the mainscreen
 The static point is therefor gathered at north, and it will rotate it as expected.
+
+*WESize* is the size of the rectangle we want to get from west-to-east measured in RS tiles.
+*NSSize* is the size of the rectangle we want to get from north-to-south measured in RS tiles.
 *)
-function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; Height:Int32=0): TRectangle;
+function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; WESize, NSSize: Double = 1; Height: Double = 0): TRectangle;
 var
-  angle: Double;
+  Angle: Double;
 begin
-  angle := Minimap.GetCompassAngle(False);
-  with StaticMMPoint.Rotate(angle, Point(Minimap.Center.X, Minimap.Center.Y)) do
-    Result := Minimap.VecToMSRect(Vec3(X,Y, Height), 1, 1, angle);
+  Angle  := Minimap.GetCompassAngle(False);
+  with StaticMMPoint.Rotate(Angle, Minimap.Center) do
+    Result := Minimap.VecToMSRect(Vec3(X, Y, Height), WESize, NSSize, Angle);
 end;
 
 (*
@@ -380,7 +360,7 @@ end;
 
 (*
 Mainscreen
--------------------------------------------------------
+----------
 Extend the mainscreen-functionality with MS2MM function
 *)
 
