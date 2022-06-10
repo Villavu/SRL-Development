@@ -936,20 +936,58 @@ begin
   UnFreeze();
 end;
 
-function TRSWalker.GetTileMSEx(Me, Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+(*
+TRSWalker.GetTileMSEx
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+
+Used to convert a coordinate in our map to a tile on the mainscreen relative to the position passed in to **Me**.
+This can be used to predict location of things before hand by passing in our future position or the current location by passing in TRSWalker.GetMyPos().
+
+Example
+-------
+
+  MyTile := [100, 100];
+  Debug(Walker.GetTileMSEx(Walker.GetMyPos(), MyTile));
+*)
+function TRSWalker.GetTileMSEx(Me, Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
 var
   angle: Double;
 begin
   Loc   := Minimap.Center + (Loc - Me);
+
+  //This prevents users running out of memory from fetching tiles too far away.
+  //Everything at the very edge of the minimap is also roughly the same limit of the render distance.
+  //So even though we could fetch tiles further that are visible they would be pitch black because they are not rendered and kind of pointless.
+  //So this just won't go further if the point is not on the minimap and prevents users from accidentally trying to get tiles that are truly too far.
+  if not Minimap.IsPointOn(Loc) then
+    Exit;
+
+
   angle := Minimap.GetCompassAngle(False);
   Loc   := Loc.Rotate(angle, Minimap.Center);
-  Result := Minimap.VecToMSRect(Vec3(Loc.x - offx, Loc.y - offy, Height), angle);
+  Result := Minimap.VecToMSRect(Vec3(Loc.x - offx, Loc.y - offy, Height), WESize, NESize, angle);
 end;
 
-function TRSWalker.GetTileMS(Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+(*
+TRSWalker.GetTileMS
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+
+Method to convert a coordinate in our map to a tile on the mainscreen without the need to pass in our position.
+This calls TRSWalker.GetTileMSEx internally with TRSWalker.GetMyPos() passed in.
+
+Example
+-------
+
+  MyTile := [100, 100];
+  Debug(Walker.GetTileMS(MyTile));
+*)
+function TRSWalker.GetTileMS(Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
 begin
-  Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, Height, Offx, Offy);
+  Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, WESize, NESize, Height, Offx, Offy);
 end;
+
 
 function TRSWalker.MSToWorldEx(Me, Loc: TPoint; Height: Int32 = 0; Accuracy: Double = 0.2): TPoint;
 begin
