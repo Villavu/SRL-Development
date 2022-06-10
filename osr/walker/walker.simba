@@ -943,6 +943,8 @@ TRSWalker.GetTileMSEx
 Used to convert a coordinate in our map to a tile on the mainscreen relative to the position passed in to **Me**.
 This can be used to predict location of things before hand by passing in our future position or the current location by passing in TRSWalker.GetMyPos().
 
+To achieve this it calls **Minimap.GetTileMS()** internally.
+
 TileVector is used to specify the size and height of the tile:
 **TileVector.X** is the size of the rectangle from west to east in game.
 **TileVector.Y** is the size of the rectangle from north to south in game.
@@ -957,21 +959,12 @@ Example
 *)
 function TRSWalker.GetTileMSEx(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
 var
-  angle: Double;
+  Angle: Double;
 begin
-  Loc   := Minimap.Center + (Loc - Me);
+  Angle := Minimap.GetCompassAngle(False);
+  Loc   := Self.WorldToMM(Me, Loc, Angle);
 
-  //This prevents users running out of memory from fetching tiles too far away.
-  //Everything at the very edge of the minimap is also roughly the same limit of the render distance.
-  //So even though we could fetch tiles further that are visible they would be pitch black because they are not rendered and kind of pointless.
-  //So this just won't go further if the point is not on the minimap and prevents users from accidentally trying to get tiles that are truly too far.
-  if not Minimap.IsPointOn(Loc) then
-    Exit;
-
-
-  angle := Minimap.GetCompassAngle(False);
-  Loc   := Loc.Rotate(angle, Minimap.Center);
-  Result := Minimap.VecToMSRect(Vec3(Loc.x - Offset.X, Loc.y - Offset.Y, TileVector.Z), TileVector.X, TileVector.Y, angle);
+  Result := Minimap.GetTileMS(Loc, TileVector, Offset, Angle);
 end;
 
 (*
