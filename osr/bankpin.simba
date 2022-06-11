@@ -109,9 +109,9 @@ begin
     
       if not Self.ClickDigit(Digit) then
       begin
-        if Chat.HasContinue() and Chat.ClickContinue() then   //When you enter the bankpin wrong which sometimes happens for whatever reason,
-          Self.IsOpen(3000);                               //the bankpin interface closes and displays a chatbox warning with a continue option.
-        Break;                                                //You need to click it and wait for the bankpin UI to open again.
+        if Chat.ClickContinue() then   //When you enter the bankpin wrong which sometimes happens for whatever reason,
+          Self.IsOpen(3000);           //the bankpin interface closes and displays a chatbox warning with a continue option.
+        Break;                         //You need to click it and wait for the bankpin UI to open again.
       end;
 
       Wait(1000, 2000, wdLeft);
