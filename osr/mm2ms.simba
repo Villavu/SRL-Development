@@ -386,7 +386,7 @@ Example
 *)
 function Minimap.PointInZoomRectangle(P: TPoint): Boolean;
 begin
-  Result := P.InRect(Self.GetZoomRectangle);
+  Result := P.InRect(Self.GetZoomRectangle());
 end;
 
 

@@ -324,6 +324,24 @@ begin
 end;
 
 (*
+Chat.HasContinue
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.HasContinue(): Boolean;
+
+Checks if we have a continue option in the chat.
+
+Example
+-------
+
+  WriteLn Chat.hasContinue();
+*)
+function TRSChat.HasContinue(): Boolean;
+begin
+  Result := Self.FindOption('Click here to continue', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]) or
+            Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]);
+end;
+
+(*
 Chat.ClickContinue
 ~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSChat.ClickContinue(UseKeyboard: Boolean = True): Boolean;
