@@ -100,6 +100,37 @@ begin
 end;
 
 (*
+Chat.GetDisplayNameBox
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox;
+.. pascal:: function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;
+
+Get the user name box. Useful for certain things like hiding the username for screenshots.
+
+Example
+-------
+
+  Debug(Chat.GetDisplayNameBox());
+*)
+function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]; out Color: Int32): TBox;
+var
+  TPA: TPointArray;
+begin
+  for Color in Colors do
+    if SRL.FindColors(TPA, Color, Self.GetLineBoxes()[CHAT_INPUT_LINE]) then
+      Break;
+
+  Result := TPA.Bounds();
+end;
+
+function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;
+var
+  Color: Int32;
+begin
+  Result := Self.GetDisplayNameBox(Colors, Color);
+end;
+
+(*
 Chat.GetDisplayName
 ~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
@@ -109,21 +140,18 @@ Get the user displayed name.
 Example
 -------
 
-  WriteLn('The user name is: ', Chat.GetDisplayName);
+  WriteLn('The user name is: ', Chat.GetDisplayName());
 *)
 function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): String;
 var
   Color: Int32;
 begin
-  for Color in Colors do
-  begin
-    Result := OCR.RecognizeStatic(Self.GetLineBoxes()[CHAT_INPUT_LINE], TOCRColorRule.Create([Color]), RS_FONT_PLAIN_12);
-    if Result <> '' then
-      Break;
-  end;
+  Result := OCR.RecognizeStatic(Self.GetDisplayNameBox(Colors, Color), TOCRColorRule.Create([Color]), RS_FONT_PLAIN_12);
 
-  if ':' in Result then
-    Result := Result.Before(':');
+  if ':' <> Result.Last then
+    Exit('');
+
+  Result := Result.Before(':');
 end;
 
 (*
@@ -207,10 +235,10 @@ Example
 
   WriteLn Chat.FindQuery('How many doses', 2000); //Example query of NMZ Potion Barrels.
 *)
-function TRSChat.FindQuery(Query: String; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+function TRSChat.FindQuery(Query: String; WaitTime: Int32 = 600; Interval: Int32 = -1): Boolean;
 begin
   if Interval = -1 then
-    Interval := SRL.TruncatedGauss(50, 1500);
+    Interval := SRL.TruncatedGauss(50, 200);
 
   Result := WaitUntil(Query in Self.GetQuery(), Interval, WaitTime);
 end;
@@ -321,6 +349,24 @@ begin
 
       Exit(True);
     end;
+end;
+
+(*
+Chat.HasContinue
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSChat.HasContinue(): Boolean;
+
+Checks if we have a continue option in the chat.
+
+Example
+-------
+
+  WriteLn Chat.hasContinue();
+*)
+function TRSChat.HasContinue(): Boolean;
+begin
+  Result := Self.FindOption('Click here to continue', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]) or
+            Self.FindOption('Please wait', [CHAT_COLOR_BLUE, CHAT_COLOR_WHITE]);
 end;
 
 (*

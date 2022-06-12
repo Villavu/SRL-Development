@@ -434,7 +434,6 @@ end;
 
 procedure TRSWalker.AdaptiveWalkCheck(Position: TPoint);
 var
-  me: TPoint;
   wasEnabled: Boolean;
 begin
   wasEnabled := Self.ScreenWalk;
@@ -939,10 +938,18 @@ end;
 (*
 TRSWalker.GetTileMSEx
 ~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
 
 Used to convert a coordinate in our map to a tile on the mainscreen relative to the position passed in to **Me**.
 This can be used to predict location of things before hand by passing in our future position or the current location by passing in TRSWalker.GetMyPos().
+
+To achieve this it calls **Minimap.GetTileMS()** internally.
+
+TileVector is used to specify the size and height of the tile:
+**TileVector.X** is the size of the rectangle from west to east in game.
+**TileVector.Y** is the size of the rectangle from north to south in game.
+**TileVector.Z** is the height of the rectangle in game. There's no way to accurately measure it but for a rough idea, a player's height is about 6 or 7.
+To accurately guessing the height you need you should use **Debug()** like the example below.
 
 Example
 -------
@@ -950,23 +957,14 @@ Example
   MyTile := [100, 100];
   Debug(Walker.GetTileMSEx(Walker.GetMyPos(), MyTile));
 *)
-function TRSWalker.GetTileMSEx(Me, Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+function TRSWalker.GetTileMSEx(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
 var
-  angle: Double;
+  Angle: Double;
 begin
-  Loc   := Minimap.Center + (Loc - Me);
+  Angle := Minimap.GetCompassAngle(False);
+  Loc   := Self.WorldToMM(Me, Loc, Angle);
 
-  //This prevents users running out of memory from fetching tiles too far away.
-  //Everything at the very edge of the minimap is also roughly the same limit of the render distance.
-  //So even though we could fetch tiles further that are visible they would be pitch black because they are not rendered and kind of pointless.
-  //So this just won't go further if the point is not on the minimap and prevents users from accidentally trying to get tiles that are truly too far.
-  if not Minimap.IsPointOn(Loc) then
-    Exit;
-
-
-  angle := Minimap.GetCompassAngle(False);
-  Loc   := Loc.Rotate(angle, Minimap.Center);
-  Result := Minimap.VecToMSRect(Vec3(Loc.x - offx, Loc.y - offy, Height), WESize, NESize, angle);
+  Result := Minimap.GetTileMS(Loc, TileVector, Offset, Angle);
 end;
 
 (*
@@ -977,15 +975,21 @@ TRSWalker.GetTileMS
 Method to convert a coordinate in our map to a tile on the mainscreen without the need to pass in our position.
 This calls TRSWalker.GetTileMSEx internally with TRSWalker.GetMyPos() passed in.
 
+TileVector is used to specify the size and height of the tile:
+**TileVector.X** is the size of the rectangle from west to east in game.
+**TileVector.Y** is the size of the rectangle from north to south in game.
+**TileVector.Z** is the height of the rectangle in game. There's no way to accurately measure it but for a rough idea, a player's height is about 6 or 7.
+To accurately guessing the height you need you should use **Debug()** like the example below.
+
 Example
 -------
 
   MyTile := [100, 100];
   Debug(Walker.GetTileMS(MyTile));
 *)
-function TRSWalker.GetTileMS(Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+function TRSWalker.GetTileMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
 begin
-  Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, WESize, NESize, Height, Offx, Offy);
+  Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, TileVector, Offset);
 end;
 
 

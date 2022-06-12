@@ -46,6 +46,21 @@ begin
   Result := Self.FindButtons([[56,56]]);
 end;
 
+
+function TRSBankPin.IsOpen: Boolean;
+begin
+  Result := Length(Self.GetButtons()) = 10;
+end;
+
+function TRSBankPin.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+begin
+  if (Interval = -1) then
+    Interval := SRL.TruncatedGauss(50, 1500);
+
+  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+end;
+
+
 function TRSBankPin.ClickDigit(Digit: Char): Boolean; overload;
 var
   Buttons: TRSButtonArray;
@@ -93,8 +108,12 @@ begin
         Break;
     
       if not Self.ClickDigit(Digit) then
-        Break;
-        
+      begin
+        if Chat.ClickContinue() then   //When you enter the bankpin wrong which sometimes happens for whatever reason,
+          Self.IsOpen(3000);           //the bankpin interface closes and displays a chatbox warning with a continue option.
+        Break;                         //You need to click it and wait for the bankpin UI to open again.
+      end;
+
       Wait(1000, 2000, wdLeft);
     end;
     
@@ -103,19 +122,6 @@ begin
   end;
 
   Result := Bank.IsOpen(3000); // wait 3 extra seconds before failing.
-end;
-
-function TRSBankPin.IsOpen: Boolean;
-begin
-  Result := Length(Self.GetButtons()) = 10;
-end;
-
-function TRSBankPin.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
-begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
-
-  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
 end;
 
 procedure TRSBankPin.Draw(Bitmap: TMufasaBitmap); override;

@@ -276,6 +276,38 @@ begin
 end;
 
 (*
+Minimap.GetTileMS
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.GetTileMS(Loc: TPoint; TileVector: Vector3; Offset: Vector2 = [0, 0]; Roll: Single = $FFFF): TRectangle;
+
+This is a more general usage version of the previous 2 functions. This one can take height into account throught the **TileVector**.
+
+TileVector is used to specify the size and height of the tile:
+**TileVector.X** is the size of the rectangle from west to east in game.
+**TileVector.Y** is the size of the rectangle from north to south in game.
+**TileVector.Z** is the height of the rectangle in game. There's no way to accurately measure it but for a rough idea, a player's height is about 6 or 7.
+
+*ROLL is the compass angle, by leaving it default it will gather the compass angle itself.*
+*)
+function TRSMinimap.GetTileMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]; Roll: Single = $FFFF): TRectangle;
+begin
+  if not Self.IsPointOn(Loc) then
+    Exit;
+
+  //This check above prevents users running out of memory from fetching tiles too far away.
+  //Everything at the very edge of the minimap is also roughly the same limit of the render distance.
+  //So even though we could fetch tiles further that are visible they would be pitch black because they are not rendered and kind of pointless.
+  //So this just won't go further if the point is not on the minimap and prevents users from accidentally trying to get tiles that are truly too far.
+
+  if (Roll = $FFFF) then
+    Roll := Self.GetCompassAngle(False);
+
+  Result := Self.VecToMSRect(
+                  Vec3(Loc.x - Offset.X, Loc.y - Offset.Y, TileVector.Z),
+                  TileVector.X, TileVector.Y, Roll);
+end;
+
+(*
 Minimap.StaticToMsRect
 ~~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; Height:Int32=0): TRectangle;
@@ -354,7 +386,7 @@ Example
 *)
 function Minimap.PointInZoomRectangle(P: TPoint): Boolean;
 begin
-  Result := P.InRect(Self.GetZoomRectangle);
+  Result := P.InRect(Self.GetZoomRectangle());
 end;
 
 
