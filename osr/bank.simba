@@ -456,7 +456,7 @@ var
   MaxLength, MinLength: Int32;
 begin
   ItemStr := ItemStr.Before('(');
-  ItemStr := ItemStr.Lower;
+  ItemStr := ItemStr.ToLower();
   MaxLength := ItemStr.Len;
   MinLength := MaxLength - Round(MaxLength/3);
 

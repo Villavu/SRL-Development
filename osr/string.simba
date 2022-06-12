@@ -1,0 +1,517 @@
+{$DEFINE SRL_STRING_INCLUDED}
+{$IFNDEF SRL_UTILS}
+  {$I SRL/utils.simba}
+{$ENDIF}
+
+(*
+String
+======
+String related methods
+*)
+
+const
+  STR_WHITESPACE = #9#10#11#12#13#32;
+  STR_NEW_LINE = #13#10;
+
+(*
+String.Len
+~~~~~~~~~~~~~~~
+.. pascal:: function String.Len(): Int32; constref;
+
+Returns the length of the string
+*)
+function String.Len: Int32; constref;
+begin
+  Result := Length(Self);
+end;
+
+(*
+String.Pos
+~~~~~~~~~~~~~~~
+.. pascal:: function String.Pos(SubStr: String): Int32; constref;
+
+Returns the position of the position of the first occurance of the substring
+*)
+function String.Pos(SubStr: String): Int32; constref;
+begin
+  Result := System.Pos(SubStr, self);
+end;
+
+(*
+String.PosR
+~~~~~~~~~~~~~~~
+.. pascal:: function String.PosR(SubStr: String): Int32; constref;
+
+Returns the position of the position of the last occurance of the substring
+*)
+function String.PosR(SubStr: String): Int32; constref; 
+var 
+  list:TIntegerArray;
+begin
+  list := System.PosMulti(SubStr, self);
+  if Length(list) > 0 then
+    Result := list[high(list)]
+  else
+    Result := 0;
+end;
+
+(*
+String.PosEx
+~~~~~~~~~~~~~~~~~
+.. pascal:: function String.PosEx(SubStr: String): TIntegerArray; constref;
+
+Returns the position of every occurance of the substring
+*)
+function String.PosEx(SubStr: String): TIntegerArray; constref;
+begin
+  Result := System.PosMulti(SubStr, self);
+end;
+
+(*
+String.Startswith
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Startswith(Prefix: String): Boolean; constref;
+
+Returns ``True`` if the string starts with the given string ``Prefix``
+*)
+function String.StartsWith(Prefix: String): Boolean; constref;
+begin
+  Result := Self.Pos(Prefix) = 1;
+end;
+
+(*
+String.Endswith
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Endswith(Suffix: String): Boolean; constref;
+
+Returns ``True`` if the string ends with the given string ``Suffix``
+*)
+function String.EndsWith(Suffix: String): Boolean; constref;
+var
+  i,l: Int32;
+begin
+  if Length(Suffix) > Length(Self) then
+    Exit(False);
+  Result := True;
+  l := Length(Self);
+  for i:=1 to Length(Suffix) do
+    if (Suffix[i] <> Self[l-Length(Suffix)+i]) then
+      Exit(False);
+end;
+
+(*
+String.Capitalize
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Capitalize(): String; constref;
+
+Returns the string with every word captalized
+*)
+function String.Capitalize(): String; constref;
+begin
+  Result := System.Capitalize(Self);
+end;
+
+(*
+String.Upper
+~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Upper(): String; constref;
+
+Returns the string with every character converted to uppercase
+*)
+function String.Upper(): String; constref;
+begin
+  Result := Uppercase(Self);
+end;
+
+(*
+String.Lower
+~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Lower(): String; constref;
+
+Returns the string with every character converted to lowercase
+*)
+function String.Lower(): String; constref;
+begin
+  Result := Lowercase(Self);
+end;
+
+(*
+String.After
+~~~~~~~~~~~~~~~~~
+.. pascal:: function String.After(SubStr: String): String; constref;
+
+Copy the string from after the first occurrence of SubStr
+*)
+function String.After(SubStr: String): String; constref;
+var
+  p: UInt32;
+begin
+  p := System.Pos(SubStr, Self);
+  if (p = 0) then Exit(Self);
+  Inc(p, Length(SubStr));
+  Result := Copy(Self, p, Length(Self) - p + 1);
+end;
+
+(*
+String.Before
+~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Before(SubStr: String): String; constref;
+
+Copy the string from before the first occurrence of SubStr
+*)
+function String.Before(SubStr: String): String; constref;
+var
+  p: UInt32;
+begin
+  p := System.Pos(SubStr, Self);
+  if (p = 0) then Exit(Self);
+  Result := Copy(Self, 1, p - 1);
+end;
+
+(*
+String.Count
+~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Count(Str: String): Int32; constref;
+
+Count the number of occurrences of the given string.
+*)
+function String.Count(Str: String): Int32;
+begin
+  Result := Length(Self.PosEx(Str));
+end;
+
+(*
+String.Replace
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Replace(SubStr, ReplaceStr: String; Flags: TReplaceFlags=[rfReplaceAll]): String; constref;
+
+Replace [all by default] occurrences of the given SubStr with with ReplaceStr
+*)
+function String.Replace(SubStr, ReplaceStr: String; Flags: TReplaceFlags=[rfReplaceAll]): String; constref;
+begin
+  Result := StringReplace(Self, SubStr, ReplaceStr, Flags);
+end;
+
+
+(*
+String.Explode
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Explode(Delimiter: String): TStringArray; constref;
+
+Blow up the string at each delimiter into smaller strings
+*)
+function String.Explode(Delimiter: String): TStringArray; constref;
+begin
+  Result := System.Explode(Delimiter, Self);
+end;
+
+{*
+String.Strip
+~~~~~~~~~~~~~~~~~
+.. pascal:: function String.Strip(Chars:String = STR_WHITESPACE): String; constref;
+
+Return a copy of the string with leading and trailing characters removed.
+*}
+function String.Strip(Chars:String = STR_WHITESPACE): String; constref;
+var Lo,Hi: UInt32 = 1;
+begin
+  Hi:=Length(Self);
+  while (Lo <= Hi) and (System.Pos(Self[Lo],Chars) <> 0) do Inc(Lo);
+  while (Hi >= 1)  and (System.Pos(Self[Hi],Chars) <> 0) do Dec(Hi);
+  Result := Copy(Self, Lo, Hi-Lo+1);
+end;
+
+
+{*
+String.StripL
+~~~~~~~~~~~~~~~~~
+.. pascal:: function String.StripL(Chars:String = STR_WHITESPACE): String; constref;
+
+Return a copy of the string with leading characters removed.
+*}
+function String.StripL(Chars:String = STR_WHITESPACE): String; constref;
+var Lo,Hi: UInt32 = 1;
+begin
+  Hi:=Length(Self);
+  while (Lo <= Hi) and (System.Pos(Self[Lo],Chars) <> 0) do Inc(Lo);
+  Result := Copy(Self, Lo, Hi-Lo+1);
+end;  
+
+
+{*
+String.StripR
+~~~~~~~~~~~~~~~~~
+.. pascal:: function String.StripR(Chars:String = STR_WHITESPACE): String; constref;
+
+Return a copy of the string with trailing characters removed.
+*}
+function String.StripR(Chars:String = STR_WHITESPACE): String; constref;
+var Lo,Hi: UInt32 = 1;
+begin
+  Hi:=Length(Self);
+  while (Hi >= 1) and (System.Pos(Self[Hi],Chars) <> 0) do Dec(Hi);
+  Result := Copy(Self, Lo, Hi-Lo+1);
+end; 
+
+(*
+String.IsAlphaNum
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.IsAlphaNum(): Boolean; constref;
+
+Test if a string only contains alpha numerical characters.
+*)
+function String.IsAlphaNum(): Boolean; constref;
+var ptr: PChar; hiptr:PtrUInt;
+begin
+  if Length(Self) = 0 then Exit(False);
+  ptr := PChar(Self);
+  hiptr := PtrUInt(PtrUInt(ptr) + Length(self));
+  while PtrUInt(ptr) < hiptr do
+    if not (ptr^ in ['0'..'9','a'..'z','A'..'Z']) then
+      Exit(False)
+    else
+      Inc(ptr);
+  Result := True;
+end;
+
+function Char.IsAlphaNum(): Boolean; constref;
+begin
+  Result := (Self in ['A'..'Z', 'a'..'z','0'..'9']);
+end;
+
+(*
+String.IsDigit
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.IsDigit(): Boolean; constref;
+
+Test if a sting is a digit
+*)
+function String.IsDigit(): Boolean; constref;
+var 
+  ptr: PChar;
+  hiptr:PtrUInt;
+begin
+  if Length(Self) = 0 then Exit(False);
+  ptr := PChar(Self);
+  hiptr := PtrUInt(PtrUInt(ptr) + Length(self));
+  while PtrUInt(ptr) < hiptr do
+    if not (ptr^ in ['0'..'9']) then
+      Exit(False)
+    else
+      Inc(ptr);
+  Result := True;
+end;
+
+function Char.IsDigit(): Boolean; constref;
+begin
+  Result := (Self in ['0'..'9']);
+end;
+
+(*
+String.IsFloat
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.IsFloat(): Boolean; constref;
+
+Test if a string is a floating point number
+*)
+function String.IsFloat(): Boolean; constref;
+var 
+  ptr: PChar; 
+  hiptr:PtrUInt; 
+  i:Int32; 
+  dotAdded:Boolean;
+begin
+  if Length(Self) = 0 then Exit(False);
+  ptr := PChar(Self);
+  i:=0;
+  hiptr := PtrUInt(PtrUInt(ptr) + Length(self));
+  while PtrUInt(ptr) < hiptr do
+    if not (ptr^ in ['0'..'9']) then
+      if (i >= 1) and (ptr^ = '.') and not(dotAdded) then
+      begin
+        Inc(ptr);
+        inc(i);
+        dotAdded:=True;
+      end else
+        Exit(False)
+    else begin
+      Inc(ptr);
+      inc(i);
+    end;
+  Result := True;
+end;
+
+function Char.IsFloat(): Boolean; constref;
+begin
+  Result := String(Self).IsFloat();
+end;
+
+(*
+String.IsAlpha
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.IsAlpha(): Boolean; constref;
+
+Test if a string only contains letters a-zA-Z
+*)
+function String.IsAlpha(): Boolean; constref;
+var 
+  ptr: PChar; 
+  hiptr:PtrUInt;
+begin
+  if Length(Self) = 0 then Exit(False);
+  ptr := PChar(Self);
+  hiptr := PtrUInt(PtrUInt(ptr) + Length(self));
+  while PtrUInt(ptr) < hiptr do
+    if not (ptr^ in ['A'..'Z', 'a'..'z']) then
+      Exit(False)
+    else
+      Inc(ptr);
+  Result := True;
+end;
+
+function Char.IsAlpha(): Boolean;
+begin
+  Result := (Self in ['A'..'Z', 'a'..'z']);
+end;
+
+function String.ExtractNumber(DefaultValue: Int64 = -1): Int64; constref;
+begin
+  Result := StrToIntDef(ExtractFromStr(Self, Numbers), DefaultValue);
+end;
+
+(*
+String.ExtractNumbers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.ExtractNumbers(): TExtendedArray; constref;
+
+Extract all the numbers found in the string, as there could be floating point numbers 
+as well it reutnrs a TExtendedArray.
+*)
+function String.ExtractNumbers(): TExtendedArray; constref;
+var
+  i,c,l:Int32;
+  Tmp: TStringArray;
+begin
+  L := Length(Self);
+  for i:=1 to Length(Self) do
+  begin
+    if Self[i].IsDigit() then
+    begin
+      Tmp += Self[i];
+      while (Inc(i) <= L) and (Self[i].IsDigit()) do Tmp[c] += Self[i];
+      if (i <= L) and (Self[i] = '.') then
+      begin
+        Tmp[c] += Self[i];
+        while (Inc(i) <= L) and (Self[i].IsDigit()) do Tmp[c] += Self[i];
+      end;
+      if (i > L) then Break;
+      Inc(c);
+    end;
+  end;
+
+  SetLength(Result, Length(tmp));
+  for i:=0 to High(Tmp) do
+    Result[i] := StrToFloat(Tmp[i]);
+end;
+
+(*
+String.ExtractNumbersEx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.ExtractNumbersEx(): TExtendedArray; constref;
+
+Extract all the numbers found in the string, this time every number 
+ends up in each their index. For example ``'1234'`` would return ``[1,2,3,4]``
+*)
+function String.ExtractNumbersEx(): TExtendedArray; constref;
+var
+  i, c: Int32;
+begin
+  SetLength(Result, 0);
+  c := 0;
+
+  for i := 1 to High(Self) do
+    if (Self[i] in ['0'..'9']) then
+    begin
+      SetLength(Result, c + 1);
+      Result[c] := StrToInt(Self[i]);
+      Inc(c);
+    end;
+end;
+
+(*
+String.FileExt
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.FileExt(): String; constref;
+
+Returns the file extension
+*)
+function String.FileExt(): String; constref;
+begin
+  Result := ExtractFileExt(Self);
+  Delete(Result,1,1);
+end;
+
+(*
+String.FileName
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function String.FileName(): String; constref;
+
+Returns the file name
+*)
+function String.FileName(): String; constref;
+begin
+  if Length(Self) <> 0 then
+    Result := Self.Explode('.')[0];
+end;
+
+//---| operator overloads bellow this |---------------------------------------\\
+(*
+string * int32
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: operator * (left:String; Right:Int32): String;
+
+Replicates the string the given amount of times. So ``'ho!' * 3`` would generate ``ho!ho!ho!``
+*)
+operator * (left: String; Right: Int32): String;
+var
+  i,H: Int32;
+begin
+  if Length(left) = 0 then 
+    Exit('');
+  Result := left;
+  H := Length(left);
+  SetLength(Result, H*Right);
+  for i:=1 to Right-1 do
+    MemMove(left[1], Result[1+H*i], H);
+end;
+
+operator * (left:Char; Right:Int32): String;
+begin
+  Result := String(Left) * Right;
+end;
+
+(*
+string in string
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: operator in (left:String; Right:String): Boolean;
+
+Returns ``True`` if the string exists in the other string. So ``'hell' in 'hello world'`` would be ``True`` 
+*)
+operator in (left:Char; Right:String): Boolean;
+begin
+  Result := System.Pos(left, Right) > 0;
+end;
+
+operator in (left:String; Right:String): Boolean;
+begin
+  Result := System.Pos(left, Right) > 0;
+end;
+
+operator in (Right: TStringArray; Left: String): Boolean;
+var
+  i: Int32;
+begin
+  for i := 0 to High(Right) do
+    if System.Pos(Right[i], Left) > 0 then
+      Exit(True);
+end;

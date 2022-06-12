@@ -87,7 +87,7 @@ type
 var
   ItemID: Int32;
 begin
-  if Item.IsDigit() then
+  if Item.IsInteger() then
     Result := Result + Item.ExtractNumber()
   else
   begin

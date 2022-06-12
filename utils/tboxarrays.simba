@@ -11,18 +11,18 @@ TBoxArray related methods
 
 function TBoxArray.Combine(Other: TBoxArray): TBoxArray; 
 begin
-  SetLength(Result, Length(Self) + Length(Other));
-  if Length(self) > 0 then
-    MemMove(self[0], result[0], Length(self)*SizeOf(self[0]));
-  if Length(Other) > 0 then
-    MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
+  Result.SetLength(Self.Length() + Other.Length());
+  if self.Length() > 0 then
+    MemMove(self[0], result[0], self.Length()*SizeOf(self[0]));
+  if Other.Length() > 0 then
+    MemMove(Other[0], result[Self.Length()], Other.Length()*SizeOf(Other[0]));
 end;
 
 function TBoxArray.Equals(Other:TBoxArray): Boolean; 
 begin
-  if (Length(Self) <> Length(Other)) then Exit(False);
-  if (Length(Self) = 0) then Exit(True);
-  Result := CompareMem(Self[0], Other[0], length(self)*SizeOf(self[0]));     
+  if (Self.Length() <> Other.Length()) then Exit(False);
+  if (Self.Length() = 0) then Exit(True);
+  Result := CompareMem(Self[0], Other[0], self.Length()*SizeOf(self[0]));
 end;
 
 procedure TBoxArray.SortFromMidPoint(From: TPoint);
@@ -31,11 +31,11 @@ var
   Mid: TPoint;
   weights: TIntegerArray;
 begin
-  L := High(Self);
+  L := Self.High();
   if (L <= 0) then
     Exit;
 
-  SetLength(weights, L + 1);
+  weights.SetLength(L + 1);
   for i := 0 To L do
   begin
     Mid := MiddleBox(Self[i]);
@@ -49,9 +49,9 @@ procedure TBoxArray.ModifySide(side:String='x1'; change:Int32=1);
 var i:Int32;
 begin
   side := LowerCase(side);
-  if Length(side) < 2 then Exit();
-  SetLength(side, 2);
-  for i:=0 to High(self) do
+  if side.Length() < 2 then Exit();
+  side.SetLength(2);
+  for i:=0 to self.High() do
     case Side of
       'x1': self[i].x1 += change;
       'y1': self[i].y1 += change;
@@ -63,9 +63,9 @@ end;
 function TBoxArray.Offset(pt:TPoint): TBoxArray;
 var i:Int32;
 begin
-  SetLength(Result, Length(Self));
+  Result.SetLength(Self.Length());
   
-  for i:=0 to High(self) do
+  for i:=0 to self.High() do
   begin
     Result[i].X1 := Self[I].X1 + pt.x;
     Result[i].Y1 := Self[I].Y1 + pt.y;
@@ -77,11 +77,11 @@ end;
 function TBoxArray.Merge(): TBox; 
 var i:Int32;
 begin
-  if Length(Self) = 0 then
+  if Self.Length() = 0 then
     Exit;
 
   Result := Self[0];
-  for i:=1 to High(self) do
+  for i:=1 to self.High() do
     Result := Result + Self[i];
 end;
 
@@ -90,11 +90,11 @@ var
   Weights: TIntegerArray;
   I: Int32;
 begin
-  if Length(Self) = 0 then
+  if Self.Length() = 0 then
     Exit;
 
-  SetLength(Weights, Length(Self));
-  for I := 0 to High(Weights) do
+  Weights.SetLength(Self.Length());
+  for I := 0 to Weights.High() do
     Weights[I] := Self[I].X1;
 
   Self.Sort(Weights, LowToHi);
@@ -105,11 +105,11 @@ var
   Weights: TIntegerArray;
   I: Int32;
 begin
-  if Length(Self) = 0 then
+  if Self.Length() = 0 then
     Exit;
 
-  SetLength(Weights, Length(Self));
-  for I := 0 to High(Weights) do
+  Weights.SetLength(Self.Length());
+  for I := 0 to Weights.High() do
     Weights[I] := Self[I].Y1;
 
   Self.Sort(Weights, LowToHi);
@@ -124,21 +124,21 @@ var
   Weights: TIntegerArray;
   Means: TPointArray;
 begin
-  if Length(Self) = 0 then
+  if Self.Length() = 0 then
     Exit;
   
-  SetLength(Weights, Length(Self)); 
-  SetLength(Means, Length(Self));
-  for I := 0 to High(Self) do
+  Weights.SetLength(Self.Length());
+  Means.SetLength(Self.Length());
+  for I := 0 to Self.High() do
     Means[I] := Self[I].Middle();
 
-  for I := 0 to High(Self) do
+  for I := 0 to Self.High() do
   begin
     Weights[I] := Means[I].X + (Means[I].Y * 1000);
     if Tolerance = 0 then
       Continue;
       
-    for J := 0 to High(Self) do
+    for J := 0 to Self.High() do
       if Abs(Means[I].Y - Means[J].Y) < Tolerance then
         Weights[I] := Means[I].X + (Means[J].Y * 1000);
   end;
@@ -150,8 +150,8 @@ function TBoxArray.Middles: TPointArray;
 var
   I: Int32;
 begin
-  SetLength(Result, Length(Self));
-  for I := 0 to High(Self) do
+  Result.SetLength(Self.Length);
+  for I := 0 to Self.High() do
     Result[I] := Self[I].Middle();
 end;
 
@@ -165,9 +165,9 @@ begin
   Spacing.X += Width;
   Spacing.Y += Height;
 
-  SetLength(Result, Columns * Rows);
+  Result.SetLength(Columns * Rows);
 
-  for I := 0 to High(Result) do
+  for I := 0 to Result.High() do
   begin
     Result[I].X1 := Start.X + I mod Columns * Spacing.X - Width div 2;
     Result[I].Y1 := Start.Y + I div Columns * Spacing.Y - Height div 2;
