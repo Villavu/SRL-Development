@@ -22,8 +22,8 @@ begin
   if (block*block<=1) or (block mod 2 = 0) then
     Exit;
 
-  SetLength(data, Length(self));
-  for y:=0 to High(self) do data[y] := Copy(Self[y]);
+  data.SetLength(self.Length());
+  for y:=0 to self.High() do data[y] := Self[y].Copy();
 
   wid := (data.Width - 1);
   hei := (data.Height - 1);

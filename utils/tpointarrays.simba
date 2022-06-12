@@ -672,7 +672,7 @@ function TPointArray.MinAreaCircle(): TCircle;
   begin
     x := (p0.x + p1.x) div 2;
     y := (p0.y + p1.y) div 2;
-    Result := [x,y, Ceil(Max(Hypot(x-p0.x,y-p0.y),Hypot(x-p1.x,y-p1.y)))];
+    Result := [x,y, Ceil(System.Max(Hypot(x-p0.x,y-p0.y),Hypot(x-p1.x,y-p1.y)))];
   end;
 
   function NewCircle3(p0, p1, p2: TPoint): TCircle;
@@ -683,8 +683,8 @@ function TPointArray.MinAreaCircle(): TCircle;
     ax := p0.x; ay := p0.y;
     bx := p1.x; by := p1.y;
     cx := p2.x; cy := p2.y;
-    ox := (Min(Min(ax, bx), cx) + Max(Max(ax, bx), cx)) div 2;
-    oy := (Min(Min(ay, by), cy) + Max(Max(ay, by), cy)) div 2;
+    ox := (System.Min(System.Min(ax, bx), cx) + System.Max(System.Max(ax, bx), cx)) div 2;
+    oy := (System.Min(System.Min(ay, by), cy) + System.Max(System.Max(ay, by), cy)) div 2;
     ax -= ox; ay -= oy;
     bx -= ox; by -= oy;
     cx -= ox; cy -= oy;
@@ -696,7 +696,7 @@ function TPointArray.MinAreaCircle(): TCircle;
     ra := Ceil(Hypot(x-p0.x, y-p0.y));
     rb := Ceil(Hypot(x-p1.x, y-p1.y));
     rc := Ceil(Hypot(x-p2.x, y-p2.y));
-    Result := [x,y, Max(Max(ra, rb), rc)];
+    Result := [x,y, System.Max(System.Max(ra, rb), rc)];
   end;
 
   // Two boundary points known
@@ -743,7 +743,7 @@ function TPointArray.MinAreaCircle(): TCircle;
     q:TPoint;
   begin
     Result := [p.x, p.y, 0];
-    for i:=0 to High(Points) do
+    for i:=0 to Points.High() do
     begin
       q := points[i];
       if (not Result.Contains(q)) then
@@ -751,7 +751,7 @@ function TPointArray.MinAreaCircle(): TCircle;
         if (Result.Radius = 0) then
           Result := NewCircle2(p, q)
         else
-          Result := makeCircleTwoPoints(Copy(points, 0, i + 1), p, q);
+          Result := makeCircleTwoPoints(points.Copy(0, i + 1), p, q);
       end;
     end;
   end;
@@ -761,20 +761,20 @@ var
   i: Int32;
   p: TPoint;
 begin
-  if Length(Self) = 0 then Exit();
-  if Length(Self) = 1 then Exit(TCircle([Self[0].x, Self[0].y, 0]));
+  if Self.Length() = 0 then Exit();
+  if Self.Length() = 1 then Exit(TCircle([Self[0].x, Self[0].y, 0]));
 
   // Copy the list and shuffle
-  TPA := Copy(Self);
-  for i := High(TPA) downto 0 do
-    Swap(TPA[i], TPA[Random(0,i)]);
+  TPA := Self.Copy();
+  for i := TPA.High() downto 0 do
+    TPA.Swap(i, Random(0,i));
   
   // Add points to circle one by one, and if needed recompute circle
-  for i:=0 to High(TPA) do
+  for i:=0 to TPA.High() do
   begin
     p := TPA[i];
     if (Result.Radius = 0) or (not Result.Contains(p)) then
-      Result := makeCircleOnePoint(Copy(TPA, 0, i + 1), p);
+      Result := makeCircleOnePoint(TPA.Copy(0, i + 1), p);
   end;
 end;
 
@@ -791,12 +791,12 @@ function TPointArray.Density: Double;
 var
   Area: Int32;
 begin
-  if Length(Self) = 0 then
+  if Self.Length() = 0 then
     Exit;
 
   Area := Self.MinAreaRect().Expand(1).Area;
   if (Area > 0) then
-    Result := Length(Self) / Area;
+    Result := Self.Length() / Area;
 end;
 
 
@@ -916,29 +916,37 @@ begin
   Result := System.PointsInRangeOf(Self, Other, MinDistX, MinDistY, MaxDistX, MaxDistY);
 end;
 
-function TPointArray.Frameness: Single;
+(*
+TPointArray.Frameness
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal::
+  function TPointArray.Frameness(): Single;
+
+Idk what this is
+*)
+function TPointArray.Frameness(): Single;
 var
   Edge: TPointArray := EdgeFromBox(Self.Bounds());
 begin
-  Result := (Length(Edge.PointsInRangeOf(Self, 0, 1)) / Length(Edge)) * 100;
+  Result := (Edge.PointsInRangeOf(Self, 0, 1).Length() / Edge.Length()) * 100;
 end;
 
 function T2DPointArray.Combine(Other: T2DPointArray): T2DPointArray; 
 begin
-  SetLength(Result, Length(Self) + Length(Other));
-  if Length(self) > 0 then
-    MemMove(self[0], result[0], Length(self)*SizeOf(self[0]));
-  if Length(Other) > 0 then
-    MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
+  Result.SetLength(Self.Length() + Other.Length());
+  if self.Length() > 0 then
+    MemMove(self[0], result[0], self.Length()*SizeOf(self[0]));
+  if Other.Length() > 0 then
+    MemMove(Other[0], result[Self.Length()], Other.Length()*SizeOf(Other[0]));
 end;
 
 function T2DPointArray.Equals(Other:T2DPointArray): Boolean;
 var i:Int32;
 begin
-  if (Length(Self) <> Length(Other)) then Exit(False);
-  if (Length(Self) = 0) then Exit(True);
+  if (Self.Length() <> Other.Length()) then Exit(False);
+  if (Self.Length() = 0) then Exit(True);
 
-  for i:=0 to High(self) do
+  for i:=0 to self.High() do
     if not self[i].Equals(Other[i]) then
       Exit(False);
   Result := True;
@@ -956,10 +964,10 @@ var
 begin
   for TPA in Self do
     case KeepIf of
-      __LT__: if Length(TPA) < MinLen then tmp += TPA;
-      __GT__: if Length(TPA) > MinLen then tmp += TPA;
-      __EQ__: if Length(TPA) = MinLen then tmp += TPA;
-      __NE__: if Length(TPA)<> MinLen then tmp += TPA;
+      __LT__: if TPA.Length() < MinLen then tmp += TPA;
+      __GT__: if TPA.Length() > MinLen then tmp += TPA;
+      __EQ__: if TPA.Length() = MinLen then tmp += TPA;
+      __NE__: if TPA.Length()<> MinLen then tmp += TPA;
     end;
   self := tmp;
 end;
@@ -970,7 +978,7 @@ var
   TPA:TPointArray;
 begin
   for TPA in Self do
-    if InRange(Length(TPA), MinLen, MaxLen) then
+    if InRange(TPA.Length(), MinLen, MaxLen) then
       tmp += TPA;
   self := tmp;
 end;
@@ -997,11 +1005,11 @@ var
   i: Int32;
   weights: TIntegerArray;
 begin
-  if (Length(self) <= 1) then Exit;
-  SetLength(weights, Length(self));
-  for i:=0 to High(self) do
+  if (self.Length() <= 1) then Exit;
+  weights.SetLength(self.Length());
+  for i:=0 to self.High() do
   begin
-    if Length(Self[i]) = 0 then continue;
+    if Self[i].Length() = 0 then continue;
     weights[i] := Round(Sqr(From.x - self[i][Index].x) + Sqr(From.y - self[i][Index].y));
   end;
   Self.Sort(weights, True);
@@ -1017,11 +1025,11 @@ var
   i: Int32;
   weights: TIntegerArray;
 begin
-  if (Length(self) <= 1) then Exit;
-  SetLength(weights, Length(self));
-  for i:=0 to High(self) do
+  if (self.Length() <= 1) then Exit;
+  weights.SetLength(self.Length());
+  for i:=0 to self.High() do
   begin
-    if Length(Self[i]) = 0 then
+    if Self[i].Length() = 0 then
       Continue;
     weights[i] := Self[i].MinAreaRect.Area;
   end;
@@ -1033,11 +1041,11 @@ var
   i, Long, Short: Int32;
   weights: TIntegerArray;
 begin
-  if (Length(self) <= 1) then Exit;
-  SetLength(weights, Length(self));
-  for i:=0 to High(self) do
+  if (self.Length() <= 1) then Exit;
+  weights.SetLength(self.Length());
+  for i:=0 to self.High() do
   begin
-    if Length(Self[i]) = 0 then
+    if Self[i].Length() = 0 then
       Continue;
     Self[i].MinAreaRectEx(Long, Short);
     weights[i] := Long;
@@ -1050,11 +1058,11 @@ var
   i: Int32;
   weights: TIntegerArray;
 begin
-  if (Length(self) <= 1) then Exit;
-  SetLength(weights, Length(self));
-  for i:=0 to High(self) do
+  if (self.Length() <= 1) then Exit;
+  weights.SetLength(self.Length());
+  for i:=0 to self.High() do
   begin
-    if Length(Self[i]) = 0 then
+    if Self[i].Length() = 0 then
       Continue;
 
     weights[i] := Round(Self[i].Density * 100);
@@ -1067,11 +1075,11 @@ var
   Weights: TIntegerArray;
   I: Int32;
 begin
-  if Length(Self) = 0 then
+  if Self.Length() = 0 then
     Exit;
 
-  SetLength(Weights, Length(Self));
-  for I := 0 to High(Weights) do
+  Weights.SetLength(Self.Length());
+  for I := 0 to Weights.High() do
     Weights[I] := Self[I].Bounds.X1;
 
   Self.Sort(weights, LowToHi);
@@ -1082,11 +1090,11 @@ var
   Weights: TIntegerArray;
   I: Int32;
 begin
-  if Length(Self) = 0 then
+  if Self.Length() = 0 then
     Exit;
 
-  SetLength(Weights, Length(Self));
-  for I := 0 to High(Weights) do
+  Weights.SetLength(Self.Length());
+  for I := 0 to Weights.High() do
     Weights[I] := Self[I].Bounds.Y1;
 
   Self.Sort(weights, LowToHi);
@@ -1095,16 +1103,16 @@ end;
 function T2DPointArray.Means(): TPointArray; 
 var i:Int32;
 begin
-  SetLength(Result, Length(self));
-  for i:=0 to High(Self) do
+  Result.SetLength(self.Length());
+  for i:=0 to Self.High() do
     Result[i] := MiddleTPA(Self[i]);
 end;
 
 function T2DPointArray.ToTBA(): TBoxArray; 
 var i:Int32;
 begin
-  SetLength(Result, Length(self));
-  for i:=0 to High(Self) do
+  Result.SetLength(self.Length());
+  for i:=0 to Self.High() do
     Result[i] := GetTPABounds(Self[i]);
 end;
 
@@ -1113,7 +1121,7 @@ var
   TPA: TPointArray;
 begin
   for TPA in Self do
-    if (Length(TPA) < Length(Result)) then
+    if (TPA.Length() < Result.Length()) then
       Result := TPA;
 end;
 
@@ -1122,6 +1130,6 @@ var
   TPA: TPointArray;
 begin
   for TPA in Self do
-    if (Length(TPA) > Length(Result)) then
+    if (TPA.Length() > Result.Length()) then
       Result := TPA;
 end;
