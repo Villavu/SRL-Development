@@ -11,36 +11,36 @@ TExtendedArray related methods
 
 function TExtendedArray.Combine(Other: TExtendedArray): TExtendedArray; 
 begin
-  SetLength(Result, Length(Self) + Length(Other));
-  if Length(self) > 0 then
-    MemMove(self[0], result[0], Length(self)*SizeOf(self[0]));
-  if Length(Other) > 0 then
-    MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
+  Result.SetLength(Self.Length() + Other.Length());
+  if self.Length() > 0 then
+    MemMove(self[0], result[0], self.Length()*SizeOf(self[0]));
+  if Other.Length() > 0 then
+    MemMove(Other[0], result[Self.Length()], Other.Length()*SizeOf(Other[0]));
 end; 
 
 function TExtendedArray.Equals(Other:TExtendedArray): Boolean; 
 begin
-  if (Length(Self) <> Length(Other)) then Exit(False);
-  if (Length(Self) = 0) then Exit(True);
-  Result := CompareMem(Self[0], Other[0], length(self)*SizeOf(self[0]));     
+  if (Self.Length() <> Other.Length()) then Exit(False);
+  if (Self.Length() = 0) then Exit(True);
+  Result := CompareMem(Self[0], Other[0], self.Length()*SizeOf(self[0]));
 end;
 
 function T2DExtendedArray.Combine(Other: T2DExtendedArray): T2DExtendedArray; 
 begin
-  SetLength(Result, Length(Self) + Length(Other));
-  if Length(self) > 0 then
-    MemMove(self[0], result[0], Length(self)*SizeOf(self[0]));
-  if Length(Other) > 0 then
-    MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
+  Result.SetLength(Self.Length() + Other.Length());
+  if self.Length() > 0 then
+    MemMove(self[0], result[0], self.Length()*SizeOf(self[0]));
+  if Other.Length() > 0 then
+    MemMove(Other[0], result[Self.Length()], Other.Length()*SizeOf(Other[0]));
 end;
 
 function T2DExtendedArray.Equals(Other:T2DExtendedArray): Boolean;
 var i:Int32;
 begin
-  if (Length(Self) <> Length(Other)) then Exit(False);
-  if (Length(Self) = 0) then Exit(True);
+  if (Self.Length() <> Other.Length()) then Exit(False);
+  if (Self.Length() = 0) then Exit(True);
 
-  for i:=0 to High(self) do
+  for i:=0 to self.High() do
     if not self[i].Equals(Other[i]) then
       Exit(False);
   Result := True;
@@ -49,6 +49,6 @@ end;
 function T2DExtendedArray.Merge(): TExtendedArray;
 var i:Int32;
 begin
-  for i:=0 to High(self) do
+  for i:=0 to self.High() do
     Result.Extend(self[i]);
 end;

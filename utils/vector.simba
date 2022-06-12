@@ -328,8 +328,8 @@ procedure Vector3Array.FromTPA(TPA: TPointArray);
 var
   i: Int32;
 begin
-  SetLength(Self, Length(TPA));
-  for i:=0 to High(TPA) do
+  Self.SetLength(TPA.Length());
+  for i:=0 to TPA.High() do
   begin
     Self[i].x := TPA[i].x;
     Self[i].y := TPA[i].y;
@@ -345,8 +345,8 @@ function Vector3Array.ToTPA(): TPointArray;
 var
   i: Int32;
 begin
-  SetLength(Result, Length(Self));
-  for i:=0 to High(Self) do
+  Result.SetLength(Self.Length());
+  for i:=0 to Self.High() do
   begin
     Result[i].x := Round(Self[i].x);
     Result[i].y := Round(Self[i].y);
@@ -357,9 +357,9 @@ function Vector3Array.Offset(Vec: Vector3): Vector3Array;
 var
   i: Int32;
 begin
-  SetLength(Result, Length(Self));
+  Result.SetLength(Self.Length());
   
-  for i:=0 to High(Self) do
+  for i:=0 to Self.High() do
   begin
     Result[i].x := Self[i].x + Vec.x;
     Result[i].y := Self[i].y + Vec.y;
@@ -371,15 +371,15 @@ function Vector3Array.Mean: Vector3; overload;
 var
   i: Int32;
 begin
-  for i:=0 to High(Self) do
+  for i:=0 to Self.High() do
   begin
     Result.x += Self[i].x;
     Result.y += Self[i].y;
     Result.z += Self[i].z;
   end;
-  Result.x := Result.x / Length(Self);
-  Result.y := Result.y / Length(Self);
-  Result.z := Result.z / Length(Self);
+  Result.x := Result.x / Self.Length();
+  Result.y := Result.y / Self.Length();
+  Result.z := Result.z / Self.Length();
 end;
 
 

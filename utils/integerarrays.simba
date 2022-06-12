@@ -11,18 +11,18 @@ TIntegerArray related methods
 
 function TIntegerArray.Combine(Other: TIntegerArray): TIntegerArray; 
 begin
-  SetLength(Result, Length(Self) + Length(Other));
-  if Length(self) > 0 then
-    MemMove(self[0], result[0], Length(self)*SizeOf(self[0]));
-  if Length(Other) > 0 then
-    MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
+  Result.SetLength(Self.Length() + Other.Length());
+  if self.Length() > 0 then
+    MemMove(self[0], result[0], self.Length()*SizeOf(self[0]));
+  if Other.Length() > 0 then
+    MemMove(Other[0], result[Self.Length()], Other.Length()*SizeOf(Other[0]));
 end;
 
 function TIntegerArray.Equals(Other:TIntegerArray): Boolean; 
 begin
-  if (Length(Self) <> Length(Other)) then Exit(False);
-  if (Length(Self) = 0) then Exit(True);
-  Result := CompareMem(Self[0], Other[0], Length(Self)*SizeOf(self[0]));
+  if (Self.Length() <> Other.Length()) then Exit(False);
+  if (Self.Length() = 0) then Exit(True);
+  Result := CompareMem(Self[0], Other[0], self.Length()*SizeOf(self[0]));
 end;
 
 procedure TIntegerArray.SortFrom(X: Int32);
@@ -30,9 +30,9 @@ var
   I, L: Int32;
   Weights: TIntegerArray;
 begin
-  L := High(Self);
+  L := Self.High();
   if (L <= 0) then Exit;
-  SetLength(Weights, L + 1);
+  Weights.SetLength(L + 1);
   for i := 0 To L do Weights[i] := Round(Abs(X - Self[i]));
   Self.Sort(Weights, True);
 end;
@@ -41,9 +41,9 @@ function TIntegerArray.UniqueCount: Int32;
 var
   Arr: TIntegerArray;
 begin
-  Arr := Copy(Self);
+  Arr := Self.Copy();
   ClearSameIntegers(Arr);
-  Result := Length(Arr);
+  Result := Arr.Length();
 end;
 
 procedure TIntegerArray.ClearDuplicates;
@@ -71,20 +71,20 @@ end;
 
 function T2DIntegerArray.Combine(Other: T2DIntegerArray): T2DIntegerArray; 
 begin
-  SetLength(Result, Length(Self) + Length(Other));
-  if Length(self) > 0 then
-    MemMove(self[0], result[0], Length(self)*SizeOf(self[0]));
-  if Length(Other) > 0 then
-    MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
+  Result.SetLength(Self.Length() + Other.Length());
+  if self.Length() > 0 then
+    MemMove(self[0], result[0], self.Length()*SizeOf(self[0]));
+  if Other.Length() > 0 then
+    MemMove(Other[0], result[Self.Length()], Other.Length()*SizeOf(Other[0]));
 end;
 
 function T2DIntegerArray.Equals(Other:T2DIntegerArray): Boolean;
 var i:Int32;
 begin
-  if (Length(Self) <> Length(Other)) then Exit(False);
-  if (Length(Self) = 0) then Exit(True);
+  if (Self.Length() <> Other.Length()) then Exit(False);
+  if (Self.Length() = 0) then Exit(True);
 
-  for i:=0 to High(self) do
+  for i:=0 to self.High() do
     if not self[i].Equals(Other[i]) then
       Exit(False);
   Result := True;
@@ -93,6 +93,6 @@ end;
 function T2DIntegerArray.Merge(): TIntegerArray; 
 var i:Int32;
 begin
-  for i:=0 to High(self) do
+  for i:=0 to self.High() do
     Result.Extend(self[i]);
 end;

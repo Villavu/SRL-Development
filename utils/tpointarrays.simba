@@ -11,19 +11,19 @@ TPointArray related methods
 
 function TPointArray.Combine(Other: TPointArray): TPointArray; 
 begin
-  SetLength(Result, Length(Self) + Length(Other));
-  if Length(self) > 0 then
-    MemMove(self[0], result[0], Length(self)*SizeOf(self[0]));
-  if Length(Other) > 0 then
-    MemMove(Other[0], result[Length(Self)], Length(Other)*SizeOf(Other[0]));
-end;  
+  Result.SetLength(Self.Length() + Other.Length());
+  if self.Length() > 0 then
+    MemMove(self[0], result[0], self.Length()*SizeOf(self[0]));
+  if Other.Length() > 0 then
+    MemMove(Other[0], result[Self.Length()], Other.Length()*SizeOf(Other[0]));
+end;
 
 
 function TPointArray.Equals(Other:TPointArray): Boolean; 
 begin
-  if (Length(Self) <> Length(Other)) then Exit(False);
-  if (Length(Self) = 0) then Exit(True);
-  Result := CompareMem(Self[0], Other[0], length(self)*SizeOf(self[0]));     
+  if (Self.Length() <> Other.Length()) then Exit(False);
+  if (Self.Length() = 0) then Exit(True);
+  Result := CompareMem(Self[0], Other[0], self.Length()*SizeOf(self[0]));
 end;
 
 //--| Type helpers (extended) |------------------------------------------------>
@@ -56,13 +56,13 @@ function TPointArray.MeanEx(): Vector2;
 var
   i,x,y: Int64;
 begin
-  for i:=0 to High(Self) do
+  for i:=0 to Self.High() do
   begin
     Inc(x, Self[i].x);
     Inc(y, Self[i].y);
   end;
-  Result.x := x / Length(Self);
-  Result.y := y / Length(Self);
+  Result.x := x / Self.Length();
+  Result.y := y / Self.Length();
 end;
 
 function TPointArray.Median: TPoint; overload;
@@ -95,7 +95,7 @@ Wraps Simba's `SortTPAFrom`, produces a sorted copy.
 *)
 function TPointArray.Sorted(From:TPoint=[0,0]): TPointArray; overload;
 begin
-  Result := Copy(Self);
+  Result := Self.Copy();
   SortTPAFrom(Result, From);
 end;
 
@@ -143,11 +143,11 @@ var
   Weights: TIntegerArray;
   area : TBox;
 begin
-  Hi := High(self);
+  Hi := self.High();
   if Hi <= 1 then Exit;
   area := GetTPABounds(self);
   w := Area.X2 - Area.X1 + 1;
-  SetLength(Weights, hi+1);
+  Weights.SetLength(hi+1);
   for i:=0 to Hi do
     Weights[i] := self[i].y * W + self[i].x;
   Self.Sort(Weights, not reverse);
@@ -169,11 +169,11 @@ var
   Weights: TIntegerArray;
   area: TBox;
 begin
-  Hi := High(self);
+  Hi := self.High();
   if Hi <= 1 then Exit;
   Area := GetTPABounds(self);
   H := Area.Y2 - Area.Y1 + 1;
-  SetLength(Weights, Hi+1);
+  Weights.SetLength(Hi+1);
   for i := 0 to Hi do
     Weights[i] := self[i].x * H + self[i].y;
   Self.Sort(Weights, not reverse);
@@ -193,9 +193,9 @@ var
   i,hi: Int32;
   Weights: TIntegerArray;
 begin
-  Hi := High(self);
+  Hi := self.High();
   if Hi <= 1 then Exit;
-  SetLength(Weights, hi+1);
+  Weights.SetLength(hi+1);
   for i:=0 to Hi do
     Weights[i] := Ceil(srl.DistToLine(self[i],p,q));
   Self.Sort(Weights, not reverse);
@@ -212,7 +212,7 @@ Wraps Simba's GetTPABounds
 *)
 function TPointArray.Bounds(): TBox; 
 begin
-  if Length(Self) = 1 then
+  if Self.Length() = 1 then
     Exit(TBox([Self[0].x, Self[0].y, Self[0].x, Self[0].y]));
 
   Result := GetTPABounds(Self);
@@ -246,7 +246,7 @@ Smart wrapper of Simba's `ClusterTPA` and `ClusterTPAEx` (fall backs to `SplitTP
 *)
 function TPointArray.Cluster(dist: Int32): T2DPointArray; 
 begin
-  if (Length(Self) < 700) then
+  if (Self.Length() < 700) then
     Result := SplitTPA(Self, dist)
   else
     Result := ClusterTPA(Self, dist);
@@ -254,7 +254,7 @@ end;
 
 function TPointArray.Cluster(distX,distY: Int32): T2DPointArray;  overload;
 begin
-  if (Length(Self) < 1200) then
+  if (Self.Length() < 1200) then
     Result := SplitTPAEx(Self, distX, distY)
   else 
     Result := ClusterTPAEx(Self, distX, distY);
@@ -312,7 +312,7 @@ Wraps Simba's `OffsetTPA`
 *)
 function TPointArray.Offset(X, Y: Int32): TPointArray;  overload;
 begin
-  Result := Copy(Self);
+  Result := Self.Copy();
 
   OffsetTPA(Result, [X, Y]);
 end;
@@ -351,7 +351,7 @@ Same as Simba's `FilterPointsBox`
 *)
 function TPointArray.FilterBox(Box: TBox): TPointArray; 
 begin
-  Result := Copy(Self);
+  Result := Self.Copy();
   FilterPointsBox(Result, Box.X1, Box.Y1, Box.X2, Box.Y2);
 end;
 
@@ -367,7 +367,7 @@ Same as Simba's `FilterPointsDist`
 *)
 function TPointArray.FilterDist(MinDist,MaxDist: Double; Mx,My: Int32): TPointArray; 
 begin
-  Result := Copy(Self);
+  Result := Self.Copy();
   FilterPointsDist(Result, MinDist, MaxDist, Mx,My);
 end;
 
@@ -383,7 +383,7 @@ Returns a copy where all duplicate points are removed.
 *)
 function TPointArray.FilterDuplicates(): TPointArray;
 begin
-  Result := Copy(Self);
+  Result := Self.Copy();
   ClearSamePoints(Result);
 end;
 
@@ -440,10 +440,10 @@ var
   TPA,tmp:TPointArray;
   i,ii,j,n,s,h,l:Int32 = 0;
 begin
-  TPA := Copy(self);
+  TPA := Self.Copy();
   SortTPAByY(TPA,True);
-  SetLength(Result, Length(TPA));
-  l := Length(TPA);
+  Result.SetLength(TPA.Length());
+  l := TPA.Length();
   while j < l do
   begin
     s := 0;
@@ -453,19 +453,19 @@ begin
 
     if j-i > 1 then
     begin
-      tmp := Copy(TPA,i,j-i);
+      tmp := TPA.Copy(i,j-i);
       SortTPAByX(tmp,True);
-      h := High(tmp);
+      h := tmp.High();
       for ii:=1 to h do
         if (tmp[ii].x-tmp[ii-1].x > dist) or (ii = h) then
         begin
-          Result[Inc(n)-1] := Copy(tmp, s, ii-s+(ord(ii = h) and 1));
+          Result[Inc(n)-1] := tmp.Copy(s, ii-s+(ord(ii = h) and 1));
           s := ii;
         end;
     end else if j-i = 1 then
       Result[Inc(n)-1] := [TPA[i]];
   end;
-  SetLength(Result, n);
+  Result.SetLength(n);
 end;
 
 
@@ -490,14 +490,14 @@ Example:
 function TPointArray.Connect(): TPointArray; 
 var line:TPointArray; i:Int32;
 begin
-  if Length(self) = 0 then Exit;
+  if self.Length() = 0 then Exit;
   
-  for i:=0 to High(self)-1 do
+  for i:=0 to self.High()-1 do
   begin
     line := TPAFromLine(self[i].x, self[i].y, self[i+1].x, self[i+1].y);
     Result := Result.Combine(line);
   end;
-  line := TPAFromLine(self[High(self)].x, self[High(self)].y, self[0].x, self[0].y);
+  line := TPAFromLine(self[self.High()].x, self[self.High()].y, self[0].x, self[0].y);
   Result := Result.Combine(line);
 end;
 
@@ -527,12 +527,12 @@ var
   pts: TPointArray;
   h,i,k,u: Int32;
 begin
-  if High(self) <= 2 then Exit(self);
-  pts := Copy(self);
+  if self.High() <= 2 then Exit(self);
+  pts := self.Copy();
   SortTPAByX(pts,True);
 
-  H := High(pts);
-  SetLength(result, 2 * (h+1));
+  H := pts.High();
+  result.SetLength(2 * (h+1));
 
   for i:=0 to h do
   begin
@@ -550,7 +550,7 @@ begin
     result[k] := pts[i];
     Inc(k);
   end;
-  SetLength(result, k-1);
+  result.SetLength(k-1);
 end;
 
 (*
@@ -589,15 +589,15 @@ var
 const
   HALF_PI := PI / 2;
 begin
-  if Length(Self) <= 1 then Exit;
+  if Self.Length() <= 1 then Exit;
   TPA := Self.ConvexHull();
-  L := High(TPA);
-  SetLength(angles, L);
+  L := TPA.High();
+  angles.SetLength(L);
   
   j := 0;
   for i:=0 to (L-1) do
   begin
-    angles[j] := High(Int32);
+    angles[j] := System.High(Int32);
     added := False;
     angle := Abs(Modulo(ArcTan2(TPA[i+1].y-TPA[i].y, TPA[i+1].x-TPA[i].x), HALF_PI));
     for c:=0 to j do
@@ -608,8 +608,8 @@ begin
       angles[Inc(j)-1] := angle;
   end;
 
-  SetLength(best, 2);
-  best[1] := High(Int32);
+  best.SetLength(2);
+  best[1] := System.High(Int32);
   for i:=0 to j-1 do
   begin
     CosA  := Cos(Angles[i]);
