@@ -936,12 +936,13 @@ begin
 end;
 
 (*
-TRSWalker.GetTileMSEx
-~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
+TRSWalker.GetTileMS
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.GetTileMS(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
+.. pascal:: function TRSWalker.GetTileMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle; overload;
 
 Used to convert a coordinate in our map to a tile on the mainscreen relative to the position passed in to **Me**.
-This can be used to predict location of things before hand by passing in our future position or the current location by passing in TRSWalker.GetMyPos().
+This can be used to predict location of things before hand by passing in our future position or the current location by passing in TRSWalker.GetMyPos() as the **Me** parameter.
 
 To achieve this it calls **Minimap.GetTileMS()** internally.
 
@@ -955,9 +956,9 @@ Example
 -------
 
   MyTile := [100, 100];
-  Debug(Walker.GetTileMSEx(Walker.GetMyPos(), MyTile));
+  Debug(Walker.GetTileMS(MyTile));
 *)
-function TRSWalker.GetTileMSEx(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
+function TRSWalker.GetTileMS(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
 var
   Angle: Double;
 begin
@@ -967,29 +968,79 @@ begin
   Result := Minimap.GetTileMS(Loc, TileVector, Offset, Angle);
 end;
 
+function TRSWalker.GetTileMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle; overload;
+begin
+  Result := Self.GetTileMS(Self.GetMyPos(), Loc, TileVector, Offset);
+end;
+
+
 (*
-TRSWalker.GetTileMS
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; WESize, NESize: Double = 1; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+TRSWalker.GetPolygonMS
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.GetPolygonMS(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 4]; Offset: Vector2 = [0, 0]): TPointArray;
+.. pascal:: function TRSWalker.GetPolygonMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 4]; Offset: Vector2 = [0, 0]): TPointArray; overload;
 
-Method to convert a coordinate in our map to a tile on the mainscreen without the need to pass in our position.
-This calls TRSWalker.GetTileMSEx internally with TRSWalker.GetMyPos() passed in.
+To understand what this does, you should read about **TRSMinimap.GetTileMS()** and **TPointArray.ConvexHull()** and understand what they do.
+This calls **TRSMinimap.GetPolygonMS()** internally which in turn will use both methods above.
 
-TileVector is used to specify the size and height of the tile:
-**TileVector.X** is the size of the rectangle from west to east in game.
-**TileVector.Y** is the size of the rectangle from north to south in game.
-**TileVector.Z** is the height of the rectangle in game. There's no way to accurately measure it but for a rough idea, a player's height is about 6 or 7.
-To accurately guessing the height you need you should use **Debug()** like the example below.
+To put it simply, this will will first calculate a floor rectangle with **TileVector.Z**, or **height** if you prefer
+of 0 and then calculate the top rectangle of the **TileVector.Z** you specified.
+
+After this 2 rectangles are calculated a polygon is then made out of the two, resulting in a ConvexHull which is returned.
+
+This is perfect to to get an accurate bounding polygon of objects and NPCs which you can use to accurately color search after.
+
+The example below will show you how it could be used to retrieve an accurate player bounding polygon:
+
+Example
+-------
+  Debug(RSW.GetPolygonMS([100, 100], [1, 1, 4], Offset));     //This will draw a polygon around the coordinate [100, 100].
+*)
+function TRSWalker.GetPolygonMS(Me, Loc: TPoint; TileVector: Vector3 = [1, 1, 4]; Offset: Vector2 = [0, 0]): TPointArray;
+var
+  Angle: Double;
+begin
+  Angle := Minimap.GetCompassAngle(False);
+  Loc   := Self.WorldToMM(Me, Loc, Angle);
+
+  Result := Minimap.GetPolygonMS(Loc, TileVector, Offset, Angle);
+end;
+
+function TRSWalker.GetPolygonMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 4]; Offset: Vector2 = [0, 0]): TPointArray; overload;
+begin
+  Result := Self.GetPolygonMS(Self.GetMyPos(), Loc, TileVector, Offset);
+end;
+
+(*
+Minimap.GetPolygonArrayMS
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.GetPolygonArrayMS(Me: TPoint; LocArray: TPointArray; TileVector: Vector3 = [1, 1, 4]; Offset: Vector2 = [0, 0]): T2DPointArray;
+.. pascal:: function TRSWalker.GetPolygonArrayMS(LocArray: TPointArray; TileVector: Vector3 = [1, 1, 4]; Offset: Vector2 = [0, 0]): T2DPointArray;
+
+Gives you an array of mainscreen polygons. Read **Minimap.GetPolygonMS** for more information.
 
 Example
 -------
 
-  MyTile := [100, 100];
-  Debug(Walker.GetTileMS(MyTile));
+  TPA := Minimap.GetDots(ERSMinimapDot.Player);   //find all player dots and returns their coodinates.
+  Debug(Minimap.GetPolygonArrayMS(TPA, [2, 3, 5], [2, 2])); //This will draw a polygon that is 2 by 3 tiles and height 5 in the mainscreen where each NPC is.
 *)
-function TRSWalker.GetTileMS(Loc: TPoint; TileVector: Vector3 = [1, 1, 0]; Offset: Vector2 = [0, 0]): TRectangle;
+function TRSWalker.GetPolygonArrayMS(Me: TPoint; LocArray: TPointArray; TileVector: Vector3 = [1, 1, 4]; Offset: Vector2 = [0, 0]): T2DPointArray;
+var
+  Angle: Double;
+  i: Int32;
 begin
-  Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, TileVector, Offset);
+  Angle := Minimap.GetCompassAngle(False);
+
+  for i := 0 to High(LocArray) do
+    LocArray[i] := Self.WorldToMM(Me, LocArray[i], Angle);
+
+  Result := Minimap.GetPolygonArrayMS(LocArray, TileVector, Offset, Angle);
+end;
+
+function TRSWalker.GetPolygonArrayMS(LocArray: TPointArray; TileVector: Vector3 = [1, 1, 4]; Offset: Vector2 = [0, 0]): T2DPointArray; overload;
+begin
+  Result := Self.GetPolygonArrayMS(Self.GetMyPos(), LocArray, TileVector, Offset);
 end;
 
 
