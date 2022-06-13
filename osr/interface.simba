@@ -233,13 +233,13 @@ begin
 
   for TPA in ATPA do
   begin
-    if Length(TPA) < 50 then
+    if TPA.Length() < 50 then
       Continue;
       
     B := TPA.Bounds();
     B.GetDimensions(W, H);
 
-    for I := 0 to High(Dimensions) do
+    for I := 0 to Dimensions.High() do
     begin
       if ((W = Dimensions[I].Width) or (Dimensions[I].Width = 0)) and
          ((H = Dimensions[I].Height) or (Dimensions[I].Height = 0)) and 
@@ -254,8 +254,8 @@ begin
   
   Boxes.SortByXY(10);
   
-  SetLength(Result, Length(Boxes));
-  for I := 0 to High(Boxes) do
+  SetLength(Result, Boxes.Length());
+  for I := 0 to Boxes.High() do
   begin
     Result[I].Index := I;
     Result[I].Bounds := Boxes[I];
@@ -286,7 +286,7 @@ begin
   
   for TPA in ATPA do
   begin
-    if Length(TPA) < 50 then
+    if TPA.Length() < 50 then
       Continue;
       
     B := TPA.Bounds();
@@ -307,8 +307,8 @@ begin
   
   Boxes.SortByXY(10);
   
-  SetLength(Result, Length(Boxes));
-  for I := 0 to High(Boxes) do
+  Result.SetLength(Boxes.Length());
+  for I := 0 to Boxes.High() do
   begin
     Result[I].Index := I;
     Result[I].Bounds := Boxes[I];
@@ -321,8 +321,8 @@ function TRSButtonArray.ToBoxes: TBoxArray;
 var
   I: Int32;
 begin
-  SetLength(Result, Length(Self));
-  for I := 0 to High(Result) do
+  Result.SetLength(Self.Length());
+  for I := 0 to Result.High() do
     Result[I] := Self[I].Bounds;
 end;
 
@@ -374,7 +374,7 @@ function TRSButton.FindText(Text: TStringArray; constref Font: TFontSet; out Fou
 var
   I: Int32;
 begin
-  for I := 0 to High(Text) do
+  for I := 0 to Text.High() do
     if Self.FindText(Text[I], Font) then
     begin
       Found := Text[I];
@@ -444,7 +444,7 @@ begin
   end;
 end;
 
-function TRSInterface.CanScroll: Boolean;
+function TRSInterface.CanScroll(): Boolean;
 var
   ScrollBar: TRSScrollBar := Self.GetScrollBar();
 begin
