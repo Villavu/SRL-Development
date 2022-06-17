@@ -169,7 +169,7 @@ begin
   Self.Scaling := Scaling;
   Self.ClickRandomness := 4;
 
-  case Map.Lower() of
+  case Map.ToLower() of
     'world': Self.WebGraph := WorldWeb;
     'zeah':  Self.WebGraph := ZeahWeb;
   end;
