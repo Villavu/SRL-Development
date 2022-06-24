@@ -148,10 +148,8 @@ var
 begin
   Result := OCR.RecognizeStatic(Self.GetDisplayNameBox(Colors, Color), TOCRColorRule.Create([Color]), RS_FONT_PLAIN_12);
 
-  if ':' <> Result.Last then
-    Exit('');
-
-  Result := Result.Before(':');
+  if ':' in Result then
+    Result.Before(':');
 end;
 
 (*
