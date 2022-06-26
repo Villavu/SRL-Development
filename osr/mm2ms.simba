@@ -54,7 +54,7 @@ var
   Dot: TPoint;
 begin
   if Angle = -1 then
-    Angle := MInimap.GetCompassAngle(False);
+    Angle := Minimap.GetCompassAngle(False);
 
   BMP := TMufasaBitmap.CreateFromClient();
 
@@ -142,7 +142,7 @@ var
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
   for i:=0 to High(Arr) do
-    Arr[i] := Arr[i].RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+    Arr[i] := Arr[i].RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
   
   Result := MM2MS.Run(Arr, Roll);
 end;
@@ -159,7 +159,7 @@ begin
   begin
     VecArr[i].x := Arr[i].x;
     VecArr[i].y := Arr[i].y;
-    VecArr[i] := VecArr[i].RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+    VecArr[i] := VecArr[i].RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
   end;
   Result := MM2MS.Run(VecArr, Roll);
 end;
@@ -176,7 +176,7 @@ Takes a single coordinate as a Vector3 on the minimap, and converts it to a poin
 function TRSMinimap.VecToMs(Vec: Vector3; Roll:Single=$FFFF): TPoint;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  Vec := Vec.RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+  Vec := Vec.RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
   
   Result := MM2MS.Run([Vec], Roll)[0];
 end;
@@ -193,7 +193,7 @@ Takes a single coordinate as a TPoint on the minimap, and converts it to a point
 function TRSMinimap.PointToMs(PT: TPoint; Roll:Single=$FFFF): TPoint;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  pt := pt.Rotate(PI*2 - Roll, Point(Minimap.Center.X, Minimap.Center.Y));
+  pt := pt.Rotate(PI*2 - Roll, Self.Center);
   
   Result := MM2MS.Run([Vec3(PT.x, PT.y)], Roll)[0];
 end;
@@ -228,7 +228,7 @@ begin
 
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
 
-  Vec := Vec.RotateXY(PI*2 - Roll, Minimap.Center.X, Minimap.Center.Y);
+  Vec := Vec.RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
   Arr := MM2MS.Run([Vec3(Vec.X-WESize, Vec.Y-NSSize, Vec.z),
                     Vec3(Vec.X+WESize, Vec.Y-NSSize, Vec.z),
                     Vec3(Vec.X+WESize, Vec.Y+NSSize, Vec.z),
@@ -266,7 +266,7 @@ begin
 
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
 
-  PT := PT.Rotate(PI*2 - Roll, Point(Minimap.Center.X, Minimap.Center.Y));
+  PT := PT.Rotate(PI*2 - Roll, Self.Center);
   
   Arr := MM2MS.Run([Vec3(PT.x-WESize, PT.y-NSSize),
                     Vec3(PT.x+WESize, PT.y-NSSize),
@@ -322,9 +322,9 @@ function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; WESize, NSSize: Double
 var
   Angle: Double;
 begin
-  Angle  := Minimap.GetCompassAngle(False);
-  with StaticMMPoint.Rotate(Angle, Minimap.Center) do
-    Result := Minimap.VecToMSRect(Vec3(X, Y, Height), WESize, NSSize, Angle);
+  Angle  := Self.GetCompassAngle(False);
+  with StaticMMPoint.Rotate(Angle, Self.Center) do
+    Result := Self.VecToMSRect(Vec3(X, Y, Height), WESize, NSSize, Angle);
 end;
 
 (*
@@ -338,15 +338,15 @@ function TRSMinimap.StaticToMs(StaticMMPoint: TPoint; Height:Int32=0): TPoint;
 var
   angle: Double;
 begin
-  angle := Minimap.GetCompassAngle(False);
-  with StaticMMPoint.Rotate(angle, Point(Minimap.Center.X, Minimap.Center.Y)) do
-    Result := Minimap.VecToMS(Vec3(X,Y, Height), angle);
+  angle := Self.GetCompassAngle(False);
+  with StaticMMPoint.Rotate(angle, Self.Center) do
+    Result := Self.VecToMS(Vec3(X,Y, Height), angle);
 end;
 
 (*
-Minimap.GetZoomRectangle()
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function Minimap.GetZoomRectangle(): TRectangle;
+Minimap.GetZoomRectangle
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.GetZoomRectangle(): TRectangle;
 
 This function returns an accurate rectangle of what's visible on the MainScreen on the Minimap.
 This can be used to know if it's possible to make something visible by adjusting the zoom level or rotating the camera.
@@ -356,7 +356,7 @@ Example
 
   Debug(Minimap.GetZoomRectangle());
 *)
-function Minimap.GetZoomRectangle(): TRectangle;
+function TRSMinimap.GetZoomRectangle(): TRectangle;
 begin
   if MM2MS.ZoomLevel = -1 then
     MM2MS.ZoomLevel := Options.GetZoomLevel();
@@ -376,7 +376,7 @@ Minimap.PointInZoomRectangle()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. pascal:: function Minimap.PointInZoomRectangle(P: TPoint): Boolean;
 
-Check if a given point is within our zoom rectangle.
+Check if a given point is within our zoom rectangle, in other words, in visible in the Mainscreen.
 
 Example
 -------
@@ -384,9 +384,9 @@ Example
   P := Minimap.GetDots(ERSMinimapDot.ITEM)[0]; //find an item dot and returns it's coodinates.
   WriteLn Minimap.PointInZoomRadius(P);
 *)
-function Minimap.PointInZoomRectangle(P: TPoint): Boolean;
+function TRSMinimap.PointInZoomRectangle(P: TPoint): Boolean;
 begin
-  Result := P.InRect(Self.GetZoomRectangle());
+  Result := Self.IsPointOn(P) and MainScreen.IsVisible(Self.PointToMs(P));
 end;
 
 
