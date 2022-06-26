@@ -146,10 +146,13 @@ The first method takes a vector3 array as input, so we can pass height as well, 
 function TRSMinimap.ArrToMs(Arr: Vector3Array; Roll:Single=$FFFF): TPointArray; overload;
 var
   i: Int32;
+  c: TPoint;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
+  c := Self.Center();
+
   for i:=0 to High(Arr) do
-    Arr[i] := Arr[i].RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
+    Arr[i] := Arr[i].RotateXY(PI*2 - Roll, c.X, c.Y);
   
   Result := MM2MS.Run(Arr, Roll);
 end;
@@ -158,15 +161,16 @@ function TRSMinimap.ArrToMs(Arr: TPointArray; Roll:Single=$FFFF): TPointArray; o
 var
   VecArr: Vector3Array;
   i: Int32;
+  c: TPoint;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  
+  c := Self.Center();
   SetLength(VecArr, Length(Arr));
   for i:=0 to High(Arr) do
   begin
     VecArr[i].x := Arr[i].x;
     VecArr[i].y := Arr[i].y;
-    VecArr[i] := VecArr[i].RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
+    VecArr[i] := VecArr[i].RotateXY(PI*2 - Roll,  c.X, c.Y);
   end;
   Result := MM2MS.Run(VecArr, Roll);
 end;
@@ -200,7 +204,7 @@ Takes a single coordinate as a TPoint on the minimap, and converts it to a point
 function TRSMinimap.PointToMs(PT: TPoint; Roll:Single=$FFFF): TPoint;
 begin
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
-  pt := pt.Rotate(PI*2 - Roll, Self.Center);
+  pt := pt.Rotate(PI*2 - Roll, Self.Center());
   
   Result := MM2MS.Run([Vec3(PT.x, PT.y)], Roll)[0];
 end;
@@ -235,7 +239,7 @@ begin
 
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
 
-  Vec := Vec.RotateXY(PI*2 - Roll, Self.Center.X, Self.Center.Y);
+  Vec := Vec.RotateXY(PI*2 - Roll, Self.Center().X, Self.Center().Y);
   Arr := MM2MS.Run([Vec3(Vec.X-WESize, Vec.Y-NSSize, Vec.z),
                     Vec3(Vec.X+WESize, Vec.Y-NSSize, Vec.z),
                     Vec3(Vec.X+WESize, Vec.Y+NSSize, Vec.z),
@@ -273,7 +277,7 @@ begin
 
   if (Roll = $FFFF) then Roll := Self.GetCompassAngle(False);
 
-  PT := PT.Rotate(PI*2 - Roll, Self.Center);
+  PT := PT.Rotate(PI*2 - Roll, Self.Center());
   
   Arr := MM2MS.Run([Vec3(PT.x-WESize, PT.y-NSSize),
                     Vec3(PT.x+WESize, PT.y-NSSize),
@@ -330,7 +334,7 @@ var
   Angle: Double;
 begin
   Angle  := Self.GetCompassAngle(False);
-  with StaticMMPoint.Rotate(Angle, Self.Center) do
+  with StaticMMPoint.Rotate(Angle, Self.Center()) do
     Result := Self.VecToMSRect(Vec3(X, Y, Height), WESize, NSSize, Angle);
 end;
 
@@ -346,7 +350,7 @@ var
   angle: Double;
 begin
   angle := Self.GetCompassAngle(False);
-  with StaticMMPoint.Rotate(angle, Self.Center) do
+  with StaticMMPoint.Rotate(angle, Self.Center()) do
     Result := Self.VecToMS(Vec3(X,Y, Height), angle);
 end;
 
@@ -489,6 +493,7 @@ function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): In
 var
   Projector: TMM2MSProjector;
   Base: TPoint;
+  c: TPoint;
 
   function SearchUp(Value: Single; Target: Single; Inc: Single): Single;
   var
@@ -535,8 +540,9 @@ begin
 
   mean := lo + ((hi - lo) / 2);
 
-  Result := Distance(Minimap.VecToMs([Minimap.Center.X, Minimap.Center.Y], 0),
-                     Minimap.VecToMs([Minimap.Center.X + mean, Minimap.Center.Y], 0));
+  c := Minimap.Center();
+  Result := Distance(Minimap.VecToMs([c.X, c.Y], 0),
+                     Minimap.VecToMs([c.X + mean, c.Y], 0));
 
   if Result < 1 then
     Result := 1;
@@ -552,7 +558,7 @@ Returns a box surrounding our player. Works at any zoom level.
 function TRSMainScreen.GetPlayerBox: TBox; override;
 var
   A: Double := Minimap.GetCompassAngle(False);
-  Center: TPoint := Minimap.Center;
+  Center: TPoint := Minimap.Center();
   TPA: TPointArray;
 begin
   TPA := [Minimap.VecToMS(Vec3(Center.X - 2, Center.Y, 10), A),
@@ -573,7 +579,7 @@ var
   Angle: Double;
   CurrentAngle: Double;
 begin
-  Angle := Self.PointToMM(P).ToPoint.AngleBetween(Minimap.Center);
+  Angle := Self.PointToMM(P).ToPoint.AngleBetween(Minimap.Center());
   Angle += Random(-Randomness, Randomness);
 
   CurrentAngle := Minimap.GetCompassAngle;
