@@ -146,12 +146,10 @@ function TRSChat.GetDisplayName(Colors: TIntegerArray = [$FFFFFF, $000000]): Str
 var
   Color: Int32;
 begin
-  Result := OCR.RecognizeStatic(Self.GetDisplayNameBox(Colors, Color), TOCRColorRule.Create([Color]), RS_FONT_PLAIN_12);
+  Result := OCR.RecognizeStatic(Self.GetDisplayNameBox(Colors, Color).Expand(0, 2), TOCRColorRule.Create([Color]), RS_FONT_PLAIN_12);
 
-  if ':' <> Result.Last then
-    Exit('');
-
-  Result := Result.Before(':');
+  if Result.Contains(':') then
+    Result.Before(':');
 end;
 
 (*
