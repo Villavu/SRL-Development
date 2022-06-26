@@ -60,7 +60,7 @@ var
 begin
   with Self do
   begin
-    if not Calculated then
+    if not Self.Calculated then
     begin
       Zoom := ZoomLevelToRSZoom[Self.ZoomLevel];
       ScaleMin := Self.SCALE_MIN * MainScreen.Height / 503; // fixed client height
@@ -72,7 +72,7 @@ begin
       WorldMatrix := TMatrix4.RotationYawPitchRoll(Rotation.Y, Rotation.X, Rotation.Z) * Matrix_Identity;
       TransMatrix := WorldMatrix * ViewMatrix * ProjMatrix;
 
-      Calculated := True;
+      Self.Calculated := True;
     end;
 
     SetLength(Result, Length(Coords));

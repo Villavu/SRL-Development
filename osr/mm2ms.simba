@@ -32,6 +32,7 @@ The comments explains it. This is the datastructure MM2MS uses.
 type
   TMM2MS = record(TSRLBaseRecord)
     ZoomLevel: Int32;
+    Projector: TMM2MSProjector;
   end;
 
 (*
@@ -85,7 +86,7 @@ function TMM2MS.Run(Arr: Vector3Array; Roll:Single=$FFFF): TPointArray;
 var
   i: Int32;
   P: TPoint;
-  Projector: TMM2MSProjector;
+
 begin
   if (Self.ZoomLevel = -1) then
   begin
@@ -94,24 +95,30 @@ begin
     Self.DebugLn('Current zoom level: ' + ToString(Self.ZoomLevel));
   end;
 
-  case RSClient.Mode of
-    ERSClientMode.FIXED:
-      Projector := MM2MS_PROJECTOR_FIXED;
+  // only set it up once.
+  if (Self.Projector.Y_LOOK = 0) and (Self.Projector.ScaleMax = 0) and (Self.Projector.ScaleMin = 0) then
+    case RSClient.Mode of
+      ERSClientMode.FIXED:
+        Self.Projector := MM2MS_PROJECTOR_FIXED;
 
-    ERSClientMode.RESIZABLE_MODERN,
-    ERSClientMode.RESIZABLE_CLASSIC:
-      Projector := MM2MS_PROJECTOR_RESIZABLE;
+      ERSClientMode.RESIZABLE_MODERN,
+      ERSClientMode.RESIZABLE_CLASSIC:
+        Self.Projector := MM2MS_PROJECTOR_RESIZABLE;
+    end;
+
+  Self.Projector.MainScreen := MainScreen.Bounds;
+  Self.Projector.Minimap := Minimap.Bounds;
+  if Self.ZoomLevel <> Self.Projector.ZoomLevel then
+  begin
+    Self.Projector.ZoomLevel := Self.ZoomLevel;
+    Self.Projector.Calculated := False;
   end;
-
-  Projector.MainScreen := MainScreen.Bounds;
-  Projector.Minimap := Minimap.Bounds;
-  Projector.ZoomLevel := Self.ZoomLevel;
-
+  
   P := Minimap.Center;
   for i := 0 to High(Arr) do
     Arr[i] := [Arr[i].X - P.X, P.Y - Arr[i].Y, Arr[i].Z];
 
-  Result := Projector.Run(Arr, Vec3(0, 0, PI*2 - Roll));
+  Result := Self.Projector.Run(Arr, Vec3(0, 0, PI*2 - Roll));
 end;
 
 procedure TMM2MS.Setup;
@@ -386,6 +393,7 @@ Example
 *)
 function TRSMinimap.PointInZoomRectangle(P: TPoint): Boolean;
 begin
+  //Result := P.InRect(Self.GetZoomRectangle());
   Result := Self.IsPointOn(P) and MainScreen.IsVisible(Self.PointToMs(P));
 end;
 
