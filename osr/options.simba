@@ -25,25 +25,14 @@ type
     LEAVE
   );
 
-  TRSSlider = record
-    Bounds: TBox;
-    Color: TCTS0Color;
-  end;
-
-  TRSOptions = record(TRSInterface)
-    BrightnessSlider: TRSSlider;
-    ZoomSlider: TRSSlider;
-  end;
-
+  TRSOptions = type TRSInterface;
+  
 procedure TRSOptions.Setup; override;
 begin
   inherited;
 
   Self.Name := 'Options';
   Self.ButtonColors += CTS1(2369440, 5);
-
-  Self.BrightnessSlider.Color := CTS0(2040359);
-  Self.ZoomSlider.Color := CTS0(2106152);
 end;
 
 procedure TRSOptions.SetupAlignment(Mode: ERSClientMode); override;
@@ -54,16 +43,79 @@ begin
   Self.Alignment.Right := [@GameTab.X2];
   Self.Alignment.Top := [@GameTab.Y1];
   Self.Alignment.Bottom := [@GameTab.Y2];
+end;
 
-  Self.BrightnessSlider.Bounds.X1 := Self.X1 + 50;
-  Self.BrightnessSlider.Bounds.Y1 := Self.Y1 + 76;
-  Self.BrightnessSlider.Bounds.X2 := Self.BrightnessSlider.Bounds.X1 + 110;
-  Self.BrightnessSlider.Bounds.Y2 := Self.BrightnessSlider.Bounds.Y1 + 9;
+function TRSOptions.GetBrightnessSliderBounds: TBox;
+begin
+  Result.X1 := Self.X1 + 57;
+  Result.Y1 := Self.Y1 + 72;
+  Result.X2 := Result.X1 + 96;
+  Result.Y2 := Result.Y1 + 9;
+end;
 
-  Self.ZoomSlider.Bounds.X1 := Self.X1 + 57;
-  Self.ZoomSlider.Bounds.Y1 := Self.Y1 + 109;
-  Self.ZoomSlider.Bounds.X2 := Self.ZoomSlider.Bounds.X1 + 96;
-  Self.ZoomSlider.Bounds.Y2 := Self.ZoomSlider.Bounds.Y1 + 9;
+function TRSOptions.GetZoomSliderBounds: TBox;
+begin
+  Result.X1 := Self.X1 + 57;
+  Result.Y1 := Self.Y1 + 109;
+  Result.X2 := Result.X1 + 96;
+  Result.Y2 := Result.Y1 + 9;
+end;
+
+function TRSOptions.GetSliderLevel(SliderBounds: TBox; SliderColor: Integer): Integer;
+var
+  TPA: TPointArray;
+begin
+  Result := -1;
+  if Self.Open() and Self.OpenTab(ERSOptionsTab.DISPLAY) then
+  begin
+    if SRL.FindColors(TPA, SliderColor, SliderBounds.Expand(10)) > 0 then
+      Result := Round((TPA.Mean.X - SliderBounds.X1) * 100 / (SliderBounds.Width() - 1));
+  end;
+end;
+
+function TRSOptions.GetZoomLevel: Integer;
+begin
+  Result := Self.GetSliderLevel(Self.GetZoomSliderBounds(), 2106152);
+end;
+
+function TRSOptions.SetZoomLevel(Level: Integer): Boolean;
+var
+  CurrentLevel: Integer;
+  SliderBounds: TBox;
+begin
+  CurrentLevel := Self.GetZoomLevel();
+  if (CurrentLevel = Level) then
+    Exit(True);
+    
+  // Move slider away so we can click the level
+  if (Abs(CurrentLevel - Level) <= 20) then
+  begin
+    if (CurrentLevel + 40 < 100) then
+      Self.SetZoomLevel(CurrentLevel + Random(20, 40))
+    else
+      Self.SetZoomLevel(CurrentLevel - Random(20, 40));
+  end;
+  
+  SliderBounds := Self.GetZoomSliderBounds();
+  Mouse.Click(
+    SliderBounds.X1 + Round((Level * (SliderBounds.Width() - 1) / 100)) + 1,
+    SliderBounds.Y1 + Random(SliderBounds.Y2 - SliderBounds.Y1),
+    MOUSE_LEFT
+  );
+
+  Result := WaitUntil(Self.GetZoomLevel() = Level, SRL.TruncatedGauss(50, 1500), 3000);
+end;
+
+function TRSOptions.GetBrightnessLevel: Integer;
+begin
+  Result := Self.GetSliderLevel(Self.GetBrightnessSliderBounds(), 2040359);
+end;
+
+function TRSOptions.SetMaxBrightness: Boolean;
+begin
+  if Result := Self.OpenTab(ERSOptionsTab.DISPLAY) then
+    with Self.GetBrightnessSliderBounds() do
+      Mouse.Click(X2 + Random(3, 5), Random(Y1, Y2), MOUSE_LEFT); 
 end;
 
 function TRSOptions.IsOpen: Boolean;
@@ -131,88 +183,6 @@ begin
   Result := WaitUntil(not Self.IsHouseOptionsOpen, SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
-
-function TRSOptions.FindSlider(var P: TPoint; Slider: TRSSlider): Boolean;
-var
-  TPA: TPointArray;
-begin
-  Result := SRL.FindColors(TPA, Slider.Color, Slider.Bounds.Expand(10)) > 0;
-  if Result then
-    P := TPA.Mean;
-end;
-
-function TRSOptions.GetSliderLevel(Slider: TRSSlider): Int32;
-var
-  B: TBox;
-  P: TPoint;
-begin
-  Result := -1;
-  B := Slider.Bounds;
-  if B = Self.BrightnessSlider.Bounds then
-  begin
-    B.X1 += 7;
-    B.X2 -= 7;
-  end;
-
-  if Self.Open and
-     Self.OpenTab(ERSOptionsTab.DISPLAY) and
-     Self.FindSlider(P, Slider) then
-    Result := Round((P.X - B.X1) * 100 / (B.Width - 1));
-end;
-
-function TRSOptions.SetSliderLevel(Level: Int32; Slider: TRSSlider): Boolean;
-var
-  CurrentLevel: Int32;
-  P: TPoint;
-  Destination: TPoint;
-begin
-  CurrentLevel := Self.GetSliderLevel(Slider);
-  if (CurrentLevel = Level) then
-    Exit(True);
-
-  if Self.FindSlider(P, Slider) then
-  begin
-    Destination.X := Slider.Bounds.X1 + Round((Level * (Slider.Bounds.Width - 1) / 100)) + 1;
-    Destination.Y := Random(Slider.Bounds.Y1, Slider.Bounds.Y2);
-
-    // Move slider away so we can click on destination
-    if Distance(P, Destination) <= 12 then
-    begin
-      if CurrentLevel+20 < 100 then
-        Self.SetSliderLevel(CurrentLevel + Random(20,40), Slider)
-      else
-        Self.SetSliderLevel(CurrentLevel - Random(20,40), Slider);
-    end;
-
-    Mouse.Click(Destination, MOUSE_LEFT);
-  end;
-
-  Result := WaitUntil(Self.GetSliderLevel(Slider) = Level, SRL.TruncatedGauss(50, 1500), 3000);
-end;
-
-
-function TRSOptions.GetBrightnessLevel: Int32;
-begin
-  Result := Self.GetSliderLevel(Self.BrightnessSlider);
-end;
-
-function TRSOptions.SetBrightnessLevel(Level: Int32): Boolean;
-begin
-  Result := Self.SetSliderLevel(Level, Self.BrightnessSlider);
-end;
-
-function TRSOptions.GetZoomLevel: Int32;
-begin
-  Result := Self.GetSliderLevel(Self.ZoomSlider);
-end;
-
-function TRSOptions.SetZoomLevel(Level: Int32): Boolean;
-begin
-  Result := Self.SetSliderLevel(Level, Self.ZoomSlider);
-end;
-
-
-
 function TRSOptions.GetTabs: TBoxArray;
 begin
   Result := Grid(3, 1, 55, 24, [9], [Self.X1, Self.Y1 + 5]);
@@ -251,19 +221,19 @@ begin
 
   inherited;
 
-  if Self.IsHouseOptionsOpen then
+  if Self.IsHouseOptionsOpen() then
     Bitmap.DrawButtons(Self.GetHouseOptionsButtons)
   else
   begin
-    Bitmap.DrawBoxArray(Self.GetTabs, False, $00FFFF);
-    if Self.GetCurrentTab = ERSOptionsTab.DISPLAY then
+    Bitmap.DrawBoxArray(Self.GetTabs(), False, $00FFFF);
+    if (Self.GetCurrentTab = ERSOptionsTab.DISPLAY) then
     begin
-      Bitmap.DrawBox(Self.BrightnessSlider.Bounds, $00FFFF);
-      Bitmap.DrawBox(Self.ZoomSlider.Bounds, $00FFFF);
+      Bitmap.DrawBox(Self.GetBrightnessSliderBounds(), $00FFFF);
+      Bitmap.DrawBox(Self.GetZoomSliderBounds(), $00FFFF);
     end;
   end;
 
-  Bitmap.DrawButtons(Self.GetButtons);
+  Bitmap.DrawButtons(Self.GetButtons());
 end;
 
 var
