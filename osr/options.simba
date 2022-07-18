@@ -429,7 +429,7 @@ begin
     Result := ERSGameTab.OPTIONS;
 end;
 
-procedure TRSClient.ClientModeChanged;() override;
+procedure TRSClient.ClientModeChanged(); override;
 begin
   inherited;
 
