@@ -6,21 +6,21 @@ Welcome to SRL documentation!
 
 	:caption: OSR
 
-   mainscreen
-   misc
-   inventory
-   keybindings
-   prayer
    bank
-   combat
-   login
-   chat
-   grandexchange
-   rsclient
-   antiban
+   keybindings
    mm2ms
+   login
+   misc
+   grandexchange
+   mainscreen
+   rsclient
+   prayer
+   antiban
+   inventory
+   chat
    magic
    depositbox
+   combat
 
 -----------
 
@@ -49,25 +49,25 @@ Welcome to SRL documentation!
 
 	:caption: UTILS
 
-   drawing
-   integerarrays
-   wrappers
-   keyboard
    extendedarrays
-   tcircle
    color
-   string
+   tpoint
+   drawing
+   tboxarrays
+   tpointarrays
+   trectangle
+   tbox
    math
    pixelshift
-   tpoint
-   random
-   matrix
-   mouse
-   trectangle
+   tcircle
    time
-   tbox
-   tpointarrays
-   tboxarrays
+   matrix
+   random
+   keyboard
+   string
+   wrappers
+   mouse
+   integerarrays
 
 -----------
 
