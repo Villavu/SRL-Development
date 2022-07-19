@@ -30,7 +30,7 @@ begin
   
     Self.EIOS := EIOS_PairClient(Self.PID);
     if (Self.EIOS <> nil) then
-      SetEIOSTarget({$libpath ../plugins/libremoteinput}, ToString(Self.PID));
+      SetEIOSTarget({$MACRO LIBPATH(../plugins/libremoteinput)}, ToString(Self.PID));
   except
     Self.Fatal(GetExceptionMessage());
   end;
