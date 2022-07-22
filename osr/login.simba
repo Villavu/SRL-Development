@@ -30,6 +30,7 @@ type
     Pin: String; 
     Worlds: TIntegerArray;
     Active: Boolean;
+    BioHash: Double;
   end;
 
   TRSLogin = record(TRSInterface)
@@ -399,8 +400,35 @@ function TRSLogin.GetPlayerPin: String;
 begin
   Result := Self.GetPlayer.Pin;
   if (Length(Result) <> 4) or (not Result.IsInteger()) then
-    Self.Fatal('Invalid bank pin'); 
+    Self.Fatal('Invalid bank pin');
 end;
+
+
+function TRSLogin.GetPlayerBioHash(): Double;
+var
+  h, i: UInt32;
+  k: String;
+begin
+  if Self.Players = [] then
+    Self.Fatal('No players declared');
+  if not InRange(Self.PlayerIndex, Low(Self.Players), High(Self.Players)) then
+    Self.Fatal('Player is out of range');
+
+  if Self.Players[Self.PlayerIndex].BioHash = 1 then
+    Self.Players[Self.PlayerIndex].BioHash := 0.9999999999999999
+  else if Self.Players[Self.PlayerIndex].BioHash = 0 then
+  begin
+    k := Self.Players[Self.PlayerIndex].User;
+    h := $811C9DC5;
+    for i:=1 to Length(k) do
+      h := (h * $1000193) xor Ord(k[i]);
+
+    Self.Players[Self.PlayerIndex].BioHash := h / $FFFFFFFF;
+  end;
+
+  Result := Self.Players[Self.PlayerIndex].BioHash;
+end;
+
 
 procedure TRSLogin.Draw(Bitmap: TMufasaBitmap); override;
 begin
