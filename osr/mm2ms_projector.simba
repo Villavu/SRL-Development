@@ -72,7 +72,7 @@ begin
     SetLength(Result, Length(Coords));
 
     for I := 0 to High(Coords) do
-      with Self.Transform(Coords[I], Self.TransMatrix) do
+      with Self.Transform(Coords[I], TransMatrix) do
       begin
         Result[I].X := Round(X);
         Result[I].Y := Round(Y);
