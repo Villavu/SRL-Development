@@ -487,7 +487,7 @@ begin
   Result := Length(Slots) > 0;
 end;
 
-function TRSInventory.FindItems(Items: TRSItemArray): Boolean; overload;
+function TRSInventory.ContainsAny(Items: TRSItemArray): Boolean;
 var
   Slots: TIntegerArray;
 begin
@@ -518,11 +518,21 @@ begin
 end;
 
 //for use without having to pass extra parameters.
-function TRSInventory.FindItem(Item: TRSItem): Boolean; overload;
+function TRSInventory.ContainsItem(Item: TRSItem): Boolean;
 var
   Slots: TIntegerArray;
 begin
   Result := Self.FindItems([Item], Slots);
+end;
+
+function TRSInventory.ContainsAll(items: TRSItemArray): Boolean;
+var
+  item: TRSItem;
+begin
+  Result := True;
+  for item in items do
+    if not Self.ContainsItem(item) then
+      Exit(False);
 end;
 
 function TRSInventory.CountItem(Item: TRSItem): Int32;
