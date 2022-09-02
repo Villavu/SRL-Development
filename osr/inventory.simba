@@ -518,7 +518,7 @@ begin
 end;
 
 //for use without having to pass extra parameters.
-function TRSInventory.ContainsItem(Item: TRSItem): Boolean; overload;
+function TRSInventory.ContainsItem(Item: TRSItem): Boolean;
 var
   Slots: TIntegerArray;
 begin
