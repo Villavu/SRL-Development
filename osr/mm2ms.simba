@@ -109,10 +109,7 @@ begin
   Self.Projector.MainScreen := MainScreen.Bounds;
   Self.Projector.Minimap := Minimap.Bounds;
   if Self.ZoomLevel <> Self.Projector.ZoomLevel then
-  begin
     Self.Projector.ZoomLevel := Self.ZoomLevel;
-    Self.Projector.Calculated := False;
-  end;
   
   P := Minimap.Center;
   for i := 0 to High(Arr) do
