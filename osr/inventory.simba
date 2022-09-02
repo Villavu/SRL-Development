@@ -525,6 +525,17 @@ begin
   Result := Self.FindItems([Item], Slots);
 end;
 
+function TRSInventory.ContainsAll(items: TRSItemArray): Boolean;
+var
+  item: TRSItem;
+begin
+  Result := True;
+
+  for item in items do
+    if not Self.ContainsItem(item) then
+      Exit(False);
+end;
+
 function TRSInventory.CountItem(Item: TRSItem): Int32;
 var
   Slots: TIntegerArray;
