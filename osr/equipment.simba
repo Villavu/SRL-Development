@@ -92,6 +92,16 @@ begin
   Result := Self.FindItem(Item, B);
 end;
 
+function TRSEquipment.ContainsAny(items: TRSItemArray): Boolean;
+var
+  item: TRSItem;
+begin
+  for item in items do
+    if Self.ContainsItem(item) then
+      Exit(True);
+end;
+
+
 function TRSEquipment.HoverItem(Item: TRSItem): Boolean;
 var
   B: TBox;

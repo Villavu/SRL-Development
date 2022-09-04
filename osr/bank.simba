@@ -219,16 +219,16 @@ end;
 
 
 //should look for the query instead of interface title. Check the comment below for more info.
-function TRSBank.IsSearchOpen(WaitTime: Int32): Boolean;
+function TRSBank.IsSearchOpen(WaitTime: Int32 = 0): Boolean;
 begin
   Result := Chat.FindQuery('Show items', WaitTime);
 end;
 
 //Click instead of enable becuse the button can be enabled without search being "open".
 //if you search an item and press enter the button stays enabled while the query is closed.
-function TRSBank.OpenSearch(WaitTime: Int32): Boolean;
+function TRSBank.OpenSearch(WaitTime: Int32 = 0): Boolean;
 begin
-  Result := Self.GetButton(ERSBankButton.SEARCH).Click;
+  Result := Self.GetButton(ERSBankButton.SEARCH).Click() and Self.IsSearchOpen(WaitTime);
 end;
 
 function TRSBank.ClearSearch: Boolean;
@@ -831,8 +831,7 @@ begin
     Bounds := Boxes[Indices[0]];
 end;
 
-//overload to not require passing a TBox.
-function TRSBank.FindItem(Item: TRSItem): Boolean; overload;
+function TRSBank.ContainsItem(Item: TRSItem): Boolean;
 var
   B: TBox;
 begin
