@@ -51,21 +51,71 @@ begin
   Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
+(*
+Inventory.IsOpen
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.IsOpen(): Boolean;
+
+Returns true if the inventory gametab is open, false if it's not.
+
+Example
+-------
+
+  WriteLn Inventory.IsOpen();
+*)
 function TRSInventory.IsOpen(): Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY);
 end;
 
+(*
+Inventory.Open
+~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.Open(): Boolean;
+
+Attempts to open the inventory, returns true if it succeeds.
+
+Example
+-------
+
+  WriteLn Inventory.Open();
+*)
 function TRSInventory.Open(): Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.INVENTORY);
 end;
 
+(*
+Inventory.GetSlotBoxes
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.GetSlotBoxes(): TBoxArray;
+
+Mainly used internally by TRSInventory methods.
+This function is used to return a TBoxArray of the inventory slots.
+
+Example
+-------
+
+  Debug(Inventory.GetSlotBoxes());
+*)
 function TRSInventory.GetSlotBoxes(): TBoxArray;
 begin
   Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
 end;
 
+(*
+Inventory.GetSlotBox
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.GetSlotBox(): TBox;
+
+Mainly used internally by TRSInventory methods.
+This function is used to return a TBox of the specified inventory slot.
+
+Example
+-------
+
+  Debug(Inventory.GetSlotBox(5));
+*)
 function TRSInventory.GetSlotBox(Slot: Int32): TBox;
 begin
   Result := Self.GetSlotBoxes()[Slot];
@@ -96,6 +146,7 @@ var
   I: Int32;
   Slots: TBoxArray;
 begin
+
   Slots := Self.GetSlotBoxes();
   for I := 0 to High(Slots) do
     if Slots[I].Contains(P) then
@@ -158,6 +209,7 @@ begin
   end;
 end;
 
+
 function TRSInventory.IsSlotUsed(B: TBox): Boolean; overload;
 begin
   // black with tolerance for when item is transparent
@@ -168,6 +220,7 @@ function TRSInventory.IsSlotUsed(Slot: Int32): Boolean; overload;
 begin
   Result := Self.Open() and Self.IsSlotUsed(Self.GetSlotBox(Slot));
 end;
+
 
 (*
 Inventory.IsSlotSelected
@@ -193,20 +246,6 @@ begin
   B.Y1 += 8; // Skip item text
 
   Result := SRL.CountColor($FFFFFF, B) > 0;
-end;
-
-function TRSInventory.IsFull(): Boolean;
-var
-  B: TBox;
-begin
-  if not Self.Open() then
-    Exit(False);
-
-  for B in Self.GetSlotBoxes() do
-    if not Self.IsSlotUsed(B) then
-      Exit(False);
-  
-  Result := True;
 end;
 
 (*
@@ -462,7 +501,11 @@ var
   tpa: TPointArray;
   atpa: T2DPointArray;
 begin
-  if SRL.FindColors(tpa, CTS1(1118740, 35), Self.Bounds().Expand(-5)) = 0 then
+  if not Self.Open() then
+    Exit;
+
+  // black with tolerance for when item is transparent
+  if SRL.FindColors(tpa, CTS1(1118740, 35), [Self.X1 + 13, Self.Y1 + 9]) = 0 then
     Exit;
 
   atpa := tpa.Cluster(2);
@@ -471,6 +514,24 @@ begin
 
   Result := atpa.Length();
 end;
+
+(*
+Inventory.IsFull
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.IsFull(): Boolean;
+
+Returns true if the inventory is full.
+
+Example
+-------
+
+  WriteLn Inventory.IsFull();
+*)
+function TRSInventory.IsFull(): Boolean;
+begin
+  Result := Self.Count() = 28;
+end;
+
 
 (*
 Inventory.WaitCount
@@ -788,14 +849,14 @@ end;
 var
   Inventory: TRSInventory;
 
-procedure TRSClient.ClientModeChanged; override;
+procedure TRSClient.ClientModeChanged(); override;
 begin
   inherited;
 
   Inventory.SetupAlignment(Self.Mode);
 end;
 
-procedure TSRL.Setup; override;
+procedure TSRL.Setup(); override;
 begin
   Inventory.Setup();
 
