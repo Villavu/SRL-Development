@@ -31,7 +31,7 @@ type
     HIGH_SLOT: Int32;
   end;
 
-procedure TRSInventory.Setup; override;
+procedure TRSInventory.Setup(); override;
 begin
   inherited;
 
@@ -51,17 +51,17 @@ begin
   Self.Alignment.Bottom := [@GameTab.Y2];
 end;
 
-function TRSInventory.IsOpen: Boolean;
+function TRSInventory.IsOpen(): Boolean;
 begin
   Result := (GameTabs.GetCurrentTab() = ERSGameTab.INVENTORY);
 end;
 
-function TRSInventory.Open: Boolean;
+function TRSInventory.Open(): Boolean;
 begin
   Result := GameTabs.Open(ERSGameTab.INVENTORY);
 end;
 
-function TRSInventory.GetSlotBoxes: TBoxArray;
+function TRSInventory.GetSlotBoxes(): TBoxArray;
 begin
   Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
 end;
@@ -195,7 +195,7 @@ begin
   Result := SRL.CountColor($FFFFFF, B) > 0;
 end;
 
-function TRSInventory.IsFull: Boolean;
+function TRSInventory.IsFull(): Boolean;
 var
   B: TBox;
 begin
@@ -222,7 +222,7 @@ Example
 
   WriteLn(Inventory.GetSelectedSlot());
 *)
-function TRSInventory.GetSelectedSlot: Int32;
+function TRSInventory.GetSelectedSlot(): Int32;
 var
   I: Int32;
 begin
@@ -291,8 +291,19 @@ begin
   Mouse.Click(B, MOUSE_LEFT);
 end;
 
+(*
+Inventory.RandomPattern
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.RandomPattern(): TIntegerArray;
 
-function TRSInventory.RandomPattern: TIntegerArray;
+Returns a random inventory pattern.
+
+Example
+-------
+
+  Inventory.ShiftDrop(Inventory.RandomPattern());
+*)
+function TRSInventory.RandomPattern(): TIntegerArray;
 var
   Patterns: T2DIntegerArray;
 begin
@@ -306,6 +317,18 @@ begin
   Result := Patterns[Random(0, High(Patterns))];
 end;
 
+(*
+Inventory.ErrorPattern
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
+
+Returns the passed in pattern slightly modified.
+
+Example
+-------
+
+  Inventory.ShiftDrop(Iventory.ErrorPattern(Inventory.RandomPattern()));
+*)
 function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
 var i,j,h,k,tmp: Int32;
 begin
@@ -337,6 +360,18 @@ begin
   end;
 end;
 
+(*
+Inventory.ShiftDrop
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.ShiftDrop(Slots: TIntegerArray): Boolean;
+
+Shift drops the inventory items in the pattern specified.
+
+Example
+-------
+
+  Inventory.ShiftDrop(DROP_PATTERN_REGULAR);
+*)
 function TRSInventory.ShiftDrop(Slots: TIntegerArray): Boolean;
 var
   Boxes: TBoxArray;
@@ -410,7 +445,19 @@ begin
   Bitmap.DrawBoxArray(Self.GetSlotBoxes(), False, $00FFFF);
 end;
 
-function TRSInventory.Count: Int32; 
+(*
+Inventory.Count
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.Count(): Int32;
+
+Counts how many items are in the inventory right now.
+
+Example
+-------
+
+  WriteLn Inventory.Count();
+*)
+function TRSInventory.Count(): Int32;
 var
   I: Int32;
 begin
@@ -419,6 +466,18 @@ begin
       Inc(Result);
 end;
 
+(*
+Inventory.WaitCount
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+
+Wait **WaitTime** until the Inventory.Count() matches **Count**.
+
+Example
+-------
+
+  Inventory.WaitCount(28, 5000); //Wait up to 5 seconds to have 28 items in the inventory.
+*)
 function TRSInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
 begin
   if (Interval = -1) then
@@ -460,6 +519,23 @@ begin
 end;
 
 
+(*
+Inventory.FindItems
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): Boolean;
+
+Attempts to find the items passed in **Items**. The function returns true if any item is found and
+the slots of the found items will be returned in **Slots**.
+
+Example
+-------
+  var
+    slots: TIntegerArray;
+  begin
+    if Inventory.FindItems(['Shark', 'Lobster'], slots) then
+      WriteLn('The slots that have sharks and lobsters are: ', slots);
+  end;
+*)
 function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): Boolean;
 var
   Item: TRSItem;
@@ -525,6 +601,18 @@ begin
   Result := Self.FindItems([Item], Slots);
 end;
 
+(*
+Inventory.ContainsAll
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.ContainsAll(items: TRSItemArray): Boolean;
+
+Returns true if the inventory contains all items passed in **items**.
+
+Example
+-------
+
+  WriteLn Inventory.ContainsAll('Shark');
+*)
 function TRSInventory.ContainsAll(items: TRSItemArray): Boolean;
 var
   item: TRSItem;
