@@ -459,11 +459,17 @@ Example
 *)
 function TRSInventory.Count(): Int32;
 var
-  I: Int32;
+  tpa: TPointArray;
+  atpa: T2DPointArray;
 begin
-  for I := Self.LOW_SLOT to Self.HIGH_SLOT do
-    if Self.IsSlotUsed(I) then
-      Inc(Result);
+  if SRL.FindColors(tpa, CTS1(1118740, 35), Self.Bounds().Expand(-5)) = 0 then
+    Exit;
+
+  atpa := tpa.Cluster(2);
+  atpa.FilterSize(5, __GT__);
+  Debug(atpa);
+
+  Result := atpa.Length();
 end;
 
 (*
@@ -563,42 +569,108 @@ begin
   Result := Length(Slots) > 0;
 end;
 
-function TRSInventory.ContainsAny(Items: TRSItemArray): Boolean; overload;
-var
-  Slots: TIntegerArray;
-begin
-  Result := Self.FindItems(Items, Slots);
-end;
+(*
+Inventory.FindItem
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.FindItem(Item: TRSItem; out Slots: TIntegerArray): Boolean;
+.. pascal:: function TRSInventory.FindItem(item: TRSItem; out slot: Int32): Boolean; overload;
 
+Attempts to find the item passed in **Item**. The function returns true if the item was found can be
+used to return a single slot or all slots containing the item.
 
+Example
+-------
+  var
+    slots: TIntegerArray;
+    slot: Int32;
+  begin
+    if Inventory.FindItem('Shark', slots) then
+      WriteLn('The slots that have sharks are: ', slots);
+
+    if Inventory.FindItem('Shark', slot) then
+      WriteLn('The first slot that has a shark is: ', slot);
+  end;
+*)
 function TRSInventory.FindItem(Item: TRSItem; out Slots: TIntegerArray): Boolean;
 begin
   Result := Self.FindItems([Item], Slots);
 end;
 
-function TRSInventory.FindItem(Item: TRSItem; out Slot: Int32): Boolean; overload;
+function TRSInventory.FindItem(item: TRSItem; out slot: Int32): Boolean; overload;
 var
-  Slots: TIntegerArray;
+  i: Int32;
+  tmp, tba: TBoxArray;
+  slots: TIntegerArray;
 begin
   if not Self.Open() then
     Exit;
 
-  Slots := ItemFinder.Find(Item, Self.GetSlotBoxes(), 1);
-  
-  if Length(Slots) > 0 then
+  tba := Self.GetSlotBoxes();
+  for i:=0 to High(tba) do
+    if Self.IsSlotUsed(tba[i]) then
+      tmp += tba[i];
+
+  slots := ItemFinder.Find(item, tmp, 1);
+
+  if Length(slots) > 0 then
   begin
-    Slot := Slots[0];
-    
+    slot := slots[0];
+
     Result := True;
   end;
 end;
 
-//for use without having to pass extra parameters.
-function TRSInventory.ContainsItem(Item: TRSItem): Boolean;
+
+(*
+Inventory.ContainsAny
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.ContainsAny(items: TRSItemArray): Boolean;
+
+Returns true if the inventory contains any of the items passed in **items**.
+It's the same as TRSInventory.FindItems() but without requiring a **Slots** parameter.
+
+Example
+-------
+
+  WriteLn Inventory.ContainsAny(['Shark', 'Lobster']);
+*)
+function TRSInventory.ContainsAny(items: TRSItemArray): Boolean;
 var
-  Slots: TIntegerArray;
+  item: TRSItem;
+  i: Int32;
+  tba, tmp: TBoxArray;
 begin
-  Result := Self.FindItems([Item], Slots);
+  if not Self.Open() then
+    Exit;
+
+  tba := Self.GetSlotBoxes();
+  for i:=0 to High(tba) do
+    if Self.IsSlotUsed(tba[i]) then
+      tmp += tba[i];
+
+  for item in items do
+    if ItemFinder.Find(item, tmp, 1) <> [] then  //we don't use TRSInventory.FindItems() because of this, we only need to find 1.
+      Exit(True);
+end;
+
+(*
+Inventory.ContainsItem
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.ContainsItem(item: TRSItem): Boolean;
+
+Returns true if the inventory contains the item passed in **item**.
+Same as TRSInventory.FindItem() but without requiring **Slots** or **slot** parameter.
+
+Example
+-------
+
+  WriteLn Inventory.ContainsItem('Shark');
+*)
+function TRSInventory.ContainsItem(item: TRSItem): Boolean;
+var
+  slot: Int32;
+begin
+  Result := Self.FindItem(item, slot);
 end;
 
 (*
@@ -616,13 +688,24 @@ Example
 function TRSInventory.ContainsAll(items: TRSItemArray): Boolean;
 var
   item: TRSItem;
+  i: Int32;
+  tba, tmp: TBoxArray;
 begin
+  if not Self.Open() then
+    Exit;
+
+  tba := Self.GetSlotBoxes();
+  for i:=0 to High(tba) do
+    if Self.IsSlotUsed(tba[i]) then
+      tmp += tba[i];
+
   Result := True;
 
   for item in items do
-    if not Self.ContainsItem(item) then
+    if ItemFinder.Find(item, tmp, 1) = [] then
       Exit(False);
 end;
+
 
 function TRSInventory.CountItem(Item: TRSItem): Int32;
 var
