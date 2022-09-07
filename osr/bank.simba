@@ -231,7 +231,7 @@ begin
   Result := Self.GetButton(ERSBankButton.SEARCH).Click;
 end;
 
-function TRSBank.ClearSearch: Boolean;
+function TRSBank.ClearSearch(): Boolean;
 begin
   Result := not Self.IsTitle('Showing items:') or Self.GetButton(ERSBankButton.SEARCH).Click();
 end;
@@ -359,7 +359,7 @@ begin
   end;
 end;
 
-function TRSBank._FindFaladorEast: T2DPointArray;
+function TRSBank._FindFaladorEast(): T2DPointArray;
 var
   Finder: TRSObjectFinder;
 begin
@@ -377,7 +377,7 @@ begin
   Result.SortByMiddle(Result.Merge.Mean());
 end;
 
-function TRSBank._FindCastleWars: T2DPointArray;
+function TRSBank._FindCastleWars(): T2DPointArray;
 var
   TPA, ChestTPA: TPointArray;
   ATPA: T2DPointArray;
@@ -400,7 +400,7 @@ begin
   end;
 end;
 
-function TRSBank._FindFerox: T2DPointArray;
+function TRSBank._FindFerox(): T2DPointArray;
 var
   Finder: TRSObjectFinder;
 begin
@@ -411,7 +411,7 @@ begin
   Result := MainScreen.FindObject(Finder);
 end;
 
-function TRSBank._FindWintertodt: T2DPointArray;
+function TRSBank._FindWintertodt(): T2DPointArray;
 var
   Finder: TRSObjectFinder;
 begin
@@ -750,7 +750,7 @@ Example
 
   WriteLn Bank.CountTabs;
 *)
-function TRSBank.CountTabs: Int32;
+function TRSBank.CountTabs(): Int32;
 var
   i: Integer;
   TPA: TPointArray;
@@ -774,7 +774,7 @@ Example
 
   WriteLn Bank.GetCurrentTab;
 *)
-function TRSBank.GetCurrentTab: Int32;
+function TRSBank.GetCurrentTab(): Int32;
 var
   Tabs: TBoxArray := Self.GetTabBoxes;
   Tab: TBox;
@@ -791,7 +791,7 @@ end;
 
 (*
 Bank.OpenTab
-~~~~~~~~~~~
+~~~~~~~~~~~~
 .. pascal:: function TRSBank.OpenTab(Tab: Int32): Boolean;
 
 Open the specified bank tab.
@@ -819,7 +819,24 @@ begin
   end;
 end;
 
+(*
+Bank.FindItem
+~~~~~~~~~~~~~
+.. pascal:: function TRSBank.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
 
+Attempts to find an item in the bank interface.
+If found the function will return true and the item bounds are returned in **Bounds**.
+
+Example
+-------
+
+  var
+    b: TBox;
+  begin
+    if Bank.FindItem('Fire rune', b) then
+      Debug(b);
+  end;
+*)
 function TRSBank.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
 var
   Boxes: TBoxArray;
@@ -834,14 +851,47 @@ begin
     Bounds := Boxes[Indices[0]];
 end;
 
-//overload to not require passing a TBox.
-function TRSBank.FindItem(Item: TRSItem): Boolean; overload;
+
+(*
+Bank.ContainsItem
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBank.ContainsItem(Item: TRSItem): Boolean;
+
+Return true if the specified item is found in the bank interface.
+This is the same as TRSBank.FindItem() without the need of a **Bounds** parameter.
+
+Example
+-------
+
+  WriteLn Bank.ContainsItem('Fire rune', b);
+*)
+function TRSBank.ContainsItem(item: TRSItem): Boolean;
 var
-  B: TBox;
+  b: TBox;
 begin
-  Result := Self.FindItem(Item, B);
+  Result := Self.FindItem(item, b);
 end;
 
+(*
+Bank.ContainsAny
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSBank.ContainsAny(items: TRSItemArray): Boolean;
+
+Return true if any of the specified items is found in the bank interface.
+
+Example
+-------
+
+  WriteLn Bank.ContainsItem('Fire rune', b);
+*)
+function TRSBank.ContainsAny(items: TRSItemArray): Boolean;
+var
+  item: TRSItem;
+begin
+  for item in items do
+    if Self.ContainsItem(item) then
+      Exit(True);
+end;
 
 function TRSBank.CountItem(Item: TRSItem): Int32;
 begin
