@@ -498,6 +498,7 @@ Example
 *)
 function TRSInventory.Count(): Int32;
 var
+  b: TBox;
   tpa: TPointArray;
   atpa: T2DPointArray;
 begin
@@ -660,6 +661,7 @@ end;
 function TRSInventory.FindItem(item: TRSItem; out slot: Int32): Boolean; overload;
 var
   i: Int32;
+  b: TBox;
   tmp, tba: TBoxArray;
   slots: TIntegerArray;
 begin
@@ -668,8 +670,13 @@ begin
 
   tba := Self.GetSlotBoxes();
   for i:=0 to High(tba) do
+  begin
+    b := []
     if Self.IsSlotUsed(tba[i]) then
-      tmp += tba[i];
+      b := tba[i];
+
+    tmp += b;
+  end;
 
   slots := ItemFinder.Find(item, tmp, 1);
 
