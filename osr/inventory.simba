@@ -505,12 +505,12 @@ begin
     Exit;
 
   // black with tolerance for when item is transparent
-  if SRL.FindColors(tpa, CTS1(1118740, 35), [Self.X1 + 13, Self.Y1 + 9]) = 0 then
+  if SRL.FindColors(tpa, CTS1(1118740, 35), Self.Bounds().Expand(-5)) = 0 then
     Exit;
 
-  atpa := tpa.Cluster(2);
+  atpa := tpa.Cluster(3);
+
   atpa.FilterSize(5, __GT__);
-  Debug(atpa);
 
   Result := atpa.Length();
 end;
@@ -529,7 +529,7 @@ Example
 *)
 function TRSInventory.IsFull(): Boolean;
 begin
-  Result := Self.Count() = 28;
+  Result := Self.Count() >= 28;
 end;
 
 
