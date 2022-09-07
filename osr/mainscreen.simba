@@ -612,7 +612,7 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
   end;
 
 begin
-  Result := Find($0000C0, True) + Find($FF4040, False); // red, blue
+  Result := Find($0009C4, True) + Find($FF4040, False); // red, blue
 end;
 
 (*
