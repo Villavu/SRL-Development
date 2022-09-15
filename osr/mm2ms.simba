@@ -588,17 +588,20 @@ begin
 end;
 
 (*
-Options.SetZoomLevel
+Options.GetZoomLevel
 ~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSOptions.SetZoomLevel(Level: Int32): Boolean; override;
+.. pascal:: function TRSOptions.GetZoomLevel(): Int32; override;
 
 Override to automatically update MM2MS.ZoomLevel.
+
+TRSOptions.GetZoomLevel() is called when setting the result for TRSOptions.SetZoomLevel() so this should always
+keep MM2MS.ZoomLevel up to date.
 *)
-function TRSOptions.SetZoomLevel(Level: Int32): Boolean; override;
+function TRSOptions.GetZoomLevel(): Int32; override;
 begin
   Result := inherited();
-  if Result then
-    MM2MS.ZoomLevel := Level;
+  if Result > -1 then          //Only set MM2MS.ZoomLevel if we managed to read it.
+    MM2MS.ZoomLevel := Result;
 end;
 
 begin
