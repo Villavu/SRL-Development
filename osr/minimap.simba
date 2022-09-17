@@ -427,7 +427,7 @@ begin
     begin
       SetColorToleranceSpeed(2);
       SetToleranceSpeed2Modifiers(0.001, 0.001);
-      Result += FindDots(Blacks, $FFFFFF, 30);
+      Result += FindDots(Blacks, $FFFFFF, 25);
     end;
 
     if ERSMinimapDot.NPC in Dots then
