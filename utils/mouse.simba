@@ -633,7 +633,7 @@ begin
     Self.DebugClicks.SetSize(W,H);
 
   p := Self.Position();
-  //if InRange(p.x,0,W-1) and InRange(p.y,0,H-1) then
+  if InRange(p.x,0,W-1) and InRange(p.y,0,H-1) then // just make sure the mouse is actually within the client bounds
     Self.DebugClicks[p.y,p.x] += 1;
   {$ENDIF}
 end;
