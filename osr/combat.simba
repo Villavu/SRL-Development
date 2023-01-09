@@ -60,7 +60,7 @@ Initializes **Combat** variables.
 procedure TRSCombat.Setup; override;
 begin
   inherited;
-
+  Self.ButtonEnabledColors := [CTS1(1711479, 21)];
   Self.Name := 'Combat';
 end;
 
