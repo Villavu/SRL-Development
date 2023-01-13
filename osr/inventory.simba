@@ -371,7 +371,7 @@ begin
           if not IsKeyDown(VK_SHIFT) then
           begin
             KeyDown(VK_SHIFT);
-            Wait(50,100,wdLeft); //Wait for SHIFT to be registered before the click (important).
+            Wait(95,170,wdLeft); //Wait for SHIFT to be registered before the click (important).
           end; 
 
           Mouse.Click(Self.GetSlotBox(Slots[I]), MOUSE_LEFT);
