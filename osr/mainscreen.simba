@@ -167,17 +167,17 @@ Setups the mainscreen.
 
 .. note:: This is automatically called on the **MainScreen** variable.
 *)
-procedure TRSMainScreen.Setup; override;
+procedure TRSMainScreen.Setup(); override;
 var
   Bitmap: Int32;
 begin
   inherited;
-  
+
   Self.Name := 'MainScreen';
 
   Self.UpTextFilter := TOCRAnyColorRule.Create(85, 60);
-  Self.UpTextFilter.MinCharacterMatch := '-'; 
-  
+  Self.UpTextFilter.MinCharacterMatch := '-';
+
   Self.YellowClicks := [
     BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCRBxrGZiugqXO3H5lLqISNuJ9BGRoUR8yJMUm0SmEABZMScY'),
     BitmapFromString(14, 14, 'meJxjZGBgBKP/DP+xIkaYAiCCiGFVjCwLZ2MqxpTCqhiXCWjieCxCU4xHGVbF+AOEDAOJcSQeHxEZSsSHPEmxSWQKAQAWmB8k'),
@@ -226,7 +226,7 @@ end;
 (*
 MainScreen.GetUpText
 ~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMainScreen.GetUpText: String;
+.. pascal:: function TRSMainScreen.GetUpText(): String;
 
 Returns the current uptext.
 Uptext is the top left which appears when moving the mouse over a object.
@@ -236,7 +236,7 @@ Example
 
   WriteLn(MainScreen.GetUpText());
 *)
-function TRSMainScreen.GetUpText: String;
+function TRSMainScreen.GetUpText(): String;
 begin
   Result := OCR.RecognizeStatic(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
 
@@ -311,7 +311,7 @@ end;
 (*
 MainScreen.SetHighestPitch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSMainScreen.SetHighestPitch;
+.. pascal:: procedure TRSMainScreen.SetHighestPitch();
 
 Moves the camera to the highest pitch.
 There is no way to detect the camera pitch reliably using color, this is why SRL only provides this method.
@@ -335,23 +335,24 @@ begin
 end;
 
 (*
-MainScreen.ConvertDistance
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
+MainScreen.NormalizeDistance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMainScreen.NormalizeDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
 
-Converts a distance acquired from the **fixed client** and **default zoom(50)** to the
+Converts a distance acquired from the **fixed client* and **default zoom** to the
 current mainscreen.
 
 Example
 -------
 
-  // 20 pixels on the fixed client and default zoom(50) is currently x pixels on the mainscreen.
+  // 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom & client size.
   WriteLn(MainScreen.TranslateDistance(20));
 *)
-function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
+function TRSMainScreen.NormalizeDistance(Dist: Int32; Accuracy: Single = 1.05): Int32;
 begin
   // Implemented in minimaptoms.simba
 end;
+
 
 (*
 MainScreen.GetPlayerBox
@@ -360,7 +361,7 @@ MainScreen.GetPlayerBox
 
 Returns a box surrounding our player. Works at any zoom level.
 *)
-function TRSMainScreen.GetPlayerBox: TBox;
+function TRSMainScreen.GetPlayerBox(): TBox;
 begin
   // Implemented in minimaptoms.simba
 end;
@@ -434,18 +435,18 @@ begin
   Area.LimitTo(Self.Bounds());
 
   // Translate distances
-  Finder.ClusterDistance := Self.ConvertDistance(Finder.ClusterDistance);
-  Finder.Erode := Self.ConvertDistance(Finder.Erode);
-  Finder.Grow := Self.ConvertDistance(Finder.Grow);
+  Finder.ClusterDistance := Self.NormalizeDistance(Finder.ClusterDistance);
+  Finder.Erode := Self.NormalizeDistance(Finder.Erode);
+  Finder.Grow := Self.NormalizeDistance(Finder.Grow);
 
   Finder.ColorClusters := Copy(Finder.ColorClusters); // Make a copy!
   for I := 0 to High(Finder.ColorClusters) do
-    Finder.ColorClusters[I].Distance := Self.ConvertDistance(Finder.ColorClusters[I].Distance);
+    Finder.ColorClusters[I].Distance := Self.NormalizeDistance(Finder.ColorClusters[I].Distance);
 
-  Finder.MinLongSide  := Self.ConvertDistance(Finder.MinLongSide);
-  Finder.MaxLongSide  := Self.ConvertDistance(Finder.MaxLongSide);
-  Finder.MinShortSide := Self.ConvertDistance(Finder.MinShortSide);
-  Finder.MaxShortSide := Self.ConvertDistance(Finder.MaxShortSide);
+  Finder.MinLongSide  := Self.NormalizeDistance(Finder.MinLongSide);
+  Finder.MaxLongSide  := Self.NormalizeDistance(Finder.MaxLongSide);
+  Finder.MinShortSide := Self.NormalizeDistance(Finder.MinShortSide);
+  Finder.MaxShortSide := Self.NormalizeDistance(Finder.MaxShortSide);
 
   if (Finder.MaxLongSide = 0) then
     Finder.MaxLongSide := $FFFFFF;
@@ -606,7 +607,7 @@ function TRSMainScreen.FindHitsplats(Area: TBox): TRSHitsplatArray;
       if (B.Width >= 10) and (B.Height >= 10) then
       begin
         Hit := OCR.RecognizeNumber(B.Expand(5, Area), TOCRColorRule.Create([$FFFFFF]), RS_FONT_PLAIN_11);
-        
+
         Result += [B.Middle(), Hit, Red];
       end;
   end;
@@ -788,8 +789,8 @@ end;
 
 type
   ERSClickType = (
-    NONE, 
-    RED, 
+    NONE,
+    RED,
     YELLOW
   );
 
