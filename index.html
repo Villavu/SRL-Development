@@ -205,6 +205,10 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-isopen">Inventory.IsOpen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-open">Inventory.Open</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-getslotboxes">Inventory.GetSlotBoxes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-getslotbox">Inventory.GetSlotBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-pointtoslot">Inventory.PointToSlot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-hoverslot">Inventory.HoverSlot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-clickslot">Inventory.ClickSlot</a></li>
@@ -212,8 +216,24 @@
 <li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-getselectedslot">Inventory.GetSelectedSlot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-setselectedslot">Inventory.SetSelectedSlot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-use">Inventory.Use</a></li>
-<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-randomslotnearby">Inventory.RandomSlotNearby</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-randompattern">Inventory.RandomPattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-errorpattern">Inventory.ErrorPattern</a></li>
 <li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-shiftdrop">Inventory.ShiftDrop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-count">Inventory.Count</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-isfull">Inventory.IsFull</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-waitcount">Inventory.WaitCount</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-randomslotnearby">Inventory.RandomSlotNearby</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-finditems">Inventory.FindItems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-finditem">Inventory.FindItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-containsany">Inventory.ContainsAny</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-containsitem">Inventory.ContainsItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-containsall">Inventory.ContainsAll</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-countitem">Inventory.CountItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-countitemstack">Inventory.CountItemStack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-hoveritem">Inventory.HoverItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#inventory-clickitem">Inventory.ClickItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#id27">Inventory.Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inventory.html#id29">Inventory.ShiftDrop</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="combat.html">Combat</a><ul>
@@ -246,7 +266,7 @@
 <li class="toctree-l2"><a class="reference internal" href="mainscreen.html#mainscreen-isuptext">MainScreen.IsUpText</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mainscreen.html#id2">MainScreen.IsUpText</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mainscreen.html#mainscreen-sethighestpitch">MainScreen.SetHighestPitch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mainscreen.html#mainscreen-convertdistance">MainScreen.ConvertDistance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mainscreen.html#mainscreen-normalizedistance">MainScreen.NormalizeDistance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mainscreen.html#mainscreen-getplayerbox">MainScreen.GetPlayerBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mainscreen.html#mainscreen-facepoint">MainScreen.FacePoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mainscreen.html#mainscreen-pointtomm">Mainscreen.PointToMM</a></li>
@@ -272,12 +292,13 @@
 <li class="toctree-l2"><a class="reference internal" href="mm2ms.html#minimap-pointtoms">Minimap.PointToMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mm2ms.html#minimap-vectomsrect">Minimap.VecToMsRect</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mm2ms.html#minimap-pointtomsrect">Minimap.PointToMsRect</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mm2ms.html#minimap-vectomsbox">Minimap.VecToMsBox</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mm2ms.html#id1">Minimap.VecToMsBox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mm2ms.html#minimap-gettilems">Minimap.GetTileMS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mm2ms.html#minimap-statictomsrect">Minimap.StaticToMsRect</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mm2ms.html#minimap-statictoms">Minimap.StaticToMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mm2ms.html#minimap-getzoomrectangle">Minimap.GetZoomRectangle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mm2ms.html#minimap-pointinzoomrectangle">Minimap.PointInZoomRectangle()</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mm2ms.html#mainscreen-pointtomm">Mainscreen.PointToMM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mm2ms.html#mainscreen-convertdistance">MainScreen.ConvertDistance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mm2ms.html#mainscreen-normalizedistance">MainScreen.NormalizeDistance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mm2ms.html#mainscreen-getplayerbox">MainScreen.GetPlayerBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mm2ms.html#mainscreen-facepoint">MainScreen.FacePoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mm2ms.html#options-setzoomlevel">Options.SetZoomLevel</a></li>
@@ -322,6 +343,7 @@
 <li class="toctree-l2"><a class="reference internal" href="chat.html#chat-setup">Chat.Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chat.html#chat-setupalignment">Chat.SetupAlignment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chat.html#chat-getlineboxes">Chat.GetLineBoxes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chat.html#chat-getdisplaynamebox">Chat.GetDisplayNameBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chat.html#chat-getdisplayname">Chat.GetDisplayName</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chat.html#chat-istransparent">Chat.IsTransparent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chat.html#chat-isopen">Chat.IsOpen</a></li>

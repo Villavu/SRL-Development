@@ -98,7 +98,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-isuptext">MainScreen.IsUpText</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id2">MainScreen.IsUpText</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-sethighestpitch">MainScreen.SetHighestPitch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mainscreen-convertdistance">MainScreen.ConvertDistance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mainscreen-normalizedistance">MainScreen.NormalizeDistance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-getplayerbox">MainScreen.GetPlayerBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-facepoint">MainScreen.FacePoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-pointtomm">Mainscreen.PointToMM</a></li>
@@ -365,7 +365,7 @@ The bounding rectangle is used which has a <strong>long</strong> and a <strong>s
 <hr class="docutils" />
 <section id="mainscreen-getuptext">
 <h2>MainScreen.GetUpText<a class="headerlink" href="#mainscreen-getuptext" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">GetUpText</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">GetUpText</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Returns the current uptext.
@@ -408,7 +408,7 @@ Uptext is the top left which appears when moving the mouse over a object.</p>
 <hr class="docutils" />
 <section id="mainscreen-sethighestpitch">
 <h2>MainScreen.SetHighestPitch<a class="headerlink" href="#mainscreen-sethighestpitch" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">SetHighestPitch</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">SetHighestPitch</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Moves the camera to the highest pitch.
@@ -421,16 +421,16 @@ There is no way to detect the camera pitch reliably using color, this is why SRL
 </section>
 </section>
 <hr class="docutils" />
-<section id="mainscreen-convertdistance">
-<h2>MainScreen.ConvertDistance<a class="headerlink" href="#mainscreen-convertdistance" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">ConvertDistance</span><span class="p">(</span><span class="n">Dist</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">Accuracy</span><span class="o">:</span><span class="w"> </span><span class="kt">Single</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.05</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+<section id="mainscreen-normalizedistance">
+<h2>MainScreen.NormalizeDistance<a class="headerlink" href="#mainscreen-normalizedistance" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">NormalizeDistance</span><span class="p">(</span><span class="n">Dist</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">Accuracy</span><span class="o">:</span><span class="w"> </span><span class="kt">Single</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.05</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
-<p>Converts a distance acquired from the <strong>fixed client</strong> and <strong>default zoom(50)</strong> to the
+<p>Converts a distance acquired from the <strong>fixed client* and **default zoom</strong> to the
 current mainscreen.</p>
 <section id="id5">
 <h3>Example<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// 20 pixels on the fixed client and default zoom(50) is currently x pixels on the mainscreen.</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom &amp; client size.</span>
 <span class="nb">WriteLn</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">TranslateDistance</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span><span class="o">;</span>
 </pre></div>
 </div>

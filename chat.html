@@ -101,6 +101,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#chat-setup">Chat.Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#chat-setupalignment">Chat.SetupAlignment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#chat-getlineboxes">Chat.GetLineBoxes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#chat-getdisplaynamebox">Chat.GetDisplayNameBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#chat-getdisplayname">Chat.GetDisplayName</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#chat-istransparent">Chat.IsTransparent</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#chat-isopen">Chat.IsOpen</a></li>
@@ -258,6 +259,17 @@
 </pre></div>
 </div>
 <p>Internal function that returns the bounds of the chat lines.</p>
+</section>
+<hr class="docutils" />
+<section id="chat-getdisplaynamebox">
+<h2>Chat.GetDisplayNameBox<a class="headerlink" href="#chat-getdisplaynamebox" title="Permalink to this heading">¶</a></h2>
+<p>function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox;
+function TRSChat.GetDisplayNameBox(Colors: TIntegerArray = [$FFFFFF, $000000]): TBox; overload;</p>
+<p>Get the user name box. Useful for certain things like hiding the username for screenshots.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">Chat</span><span class="o">.</span><span class="n">GetDisplayNameBox</span><span class="p">());</span>
+</pre></div>
+</div>
 </section>
 <hr class="docutils" />
 <section id="chat-getdisplayname">

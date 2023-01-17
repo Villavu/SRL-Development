@@ -6,6 +6,76 @@ Methods to interact with the inventory.
 
 ------------
 
+Inventory.IsOpen
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.IsOpen(): Boolean;
+
+Returns true if the inventory gametab is open, false if it's not.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.IsOpen();
+
+
+------------
+
+Inventory.Open
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.Open(): Boolean;
+
+Attempts to open the inventory, returns true if it succeeds.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.Open();
+
+
+------------
+
+Inventory.GetSlotBoxes
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.GetSlotBoxes(): TBoxArray;
+
+Mainly used internally by TRSInventory methods.
+This function is used to return a TBoxArray of the inventory slots.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Debug(Inventory.GetSlotBoxes());
+
+
+------------
+
+Inventory.GetSlotBox
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.GetSlotBox(): TBox;
+
+Mainly used internally by TRSInventory methods.
+This function is used to return a TBox of the specified inventory slot.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Debug(Inventory.GetSlotBox(5));
+
+
+------------
+
 Inventory.PointToSlot
 ~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -143,6 +213,108 @@ Example
 
 ------------
 
+Inventory.RandomPattern
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.RandomPattern(): TIntegerArray;
+
+Returns a random inventory pattern.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Inventory.ShiftDrop(Inventory.RandomPattern());
+
+
+------------
+
+Inventory.ErrorPattern
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.ErrorPattern(Pattern: TIntegerArray=DROP_PATTERN_REGULAR; ErrorChance:Int32=5): TIntegerArray;
+
+Returns the passed in pattern slightly modified.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Inventory.ShiftDrop(Iventory.ErrorPattern(Inventory.RandomPattern()));
+
+
+------------
+
+Inventory.ShiftDrop
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.ShiftDrop(Slots: TIntegerArray): Boolean;
+
+Shift drops the inventory items in the pattern specified.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Inventory.ShiftDrop(DROP_PATTERN_REGULAR);
+
+
+------------
+
+Inventory.Count
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.Count(): Int32;
+
+Counts how many items are in the inventory right now.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.Count();
+
+
+------------
+
+Inventory.IsFull
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.IsFull(): Boolean;
+
+Returns true if the inventory is full.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.IsFull();
+
+
+------------
+
+Inventory.WaitCount
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.WaitCount(Count: Int32; WaitTime: Int32; Interval: Int32 = -1): Boolean;
+
+Wait **WaitTime** until the Inventory.Count() matches **Count**.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Inventory.WaitCount(28, 5000); //Wait up to 5 seconds to have 28 items in the inventory.
+
+
+------------
+
 Inventory.RandomSlotNearby
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
@@ -160,6 +332,200 @@ Example
   Slot := Inventory.RandomSlotNearby(0, [0..27]);
   WriteLn('This slot is likely nearby slot 0');
   WriteLn(Slot);
+
+
+------------
+
+Inventory.FindItems
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.FindItems(Items: TRSItemArray; out Slots: TIntegerArray): Boolean;
+
+Attempts to find the items passed in **Items**. The function returns true if any item is found and
+the slots of the found items will be returned in **Slots**.
+
+Example
+-------
+.. code-block:: pascal  
+  var
+    slots: TIntegerArray;
+  begin
+    if Inventory.FindItems(['Shark', 'Lobster'], slots) then
+      WriteLn('The slots that have sharks and lobsters are: ', slots);
+  end;
+
+
+------------
+
+Inventory.FindItem
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.FindItem(Item: TRSItem; out Slots: TIntegerArray): Boolean;
+.. code-block:: pascal
+
+ function TRSInventory.FindItem(item: TRSItem; out slot: Int32): Boolean; overload;
+
+Attempts to find the item passed in **Item**. The function returns true if the item was found can be
+used to return a single slot or all slots containing the item.
+
+Example
+-------
+.. code-block:: pascal  
+  var
+    slots: TIntegerArray;
+    slot: Int32;
+  begin
+    if Inventory.FindItem('Shark', slots) then
+      WriteLn('The slots that have sharks are: ', slots);
+
+    if Inventory.FindItem('Shark', slot) then
+      WriteLn('The first slot that has a shark is: ', slot);
+  end;
+
+
+------------
+
+Inventory.ContainsAny
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.ContainsAny(items: TRSItemArray): Boolean;
+
+Returns true if the inventory contains any of the items passed in **items**.
+It's the same as TRSInventory.FindItems() but without requiring a **Slots** parameter.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.ContainsAny(['Shark', 'Lobster']);
+
+
+------------
+
+Inventory.ContainsItem
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.ContainsItem(item: TRSItem): Boolean;
+
+Returns true if the inventory contains the item passed in **item**.
+Same as TRSInventory.FindItem() but without requiring **Slots** or **slot** parameter.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.ContainsItem('Shark');
+
+
+------------
+
+Inventory.ContainsAll
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.ContainsAll(items: TRSItemArray): Boolean;
+
+Returns true if the inventory contains all items passed in **items**.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.ContainsAll('Shark');
+
+
+------------
+
+Inventory.CountItem
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.CountItem(Item: TRSItem): Int32;
+
+Returns the amount of **Item** in the inventory.
+Keep in mind this does not count a stack number, but every single item that occupies an inventory slot.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.CountItem('Shark');
+
+
+------------
+
+Inventory.CountItemStack
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.CountItemStack(Item: TRSItem): Int32;
+
+Returns the stack amount of **Item** in the inventory.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.CountItemStack('Bronze arrows'); //will print the stack amount
+  WriteLn Inventory.CountItemStack('Shark'); //will print 0 because sharks are not stackable.
+
+
+------------
+
+Inventory.HoverItem
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.HoverItem(Item: TRSItem): Boolean;
+
+Hover **Item** in the inventory.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if Inventory.HoverItem('Bronze arrows') then
+    ChooseOption.Select('Drop');
+
+
+------------
+
+Inventory.ClickItem
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
+
+Clicks **Item** in the inventory. If **Option** is specified that option will be
+selected with right click if it exists.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.ClickItem('Attack potion(3)');
+  WriteLn Inventory.ClickItem('Ashes', 'Drop');
+
+
+------------
+
+Inventory.Use
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.Use(Item, OtherItem: TRSItem): Boolean; overload;
+
+Use one item on another
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.Use('Knife', 'Oak logs');
 
 
 ------------

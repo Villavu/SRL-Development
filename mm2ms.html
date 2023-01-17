@@ -100,12 +100,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#minimap-pointtoms">Minimap.PointToMs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimap-vectomsrect">Minimap.VecToMsRect</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimap-pointtomsrect">Minimap.PointToMsRect</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#minimap-vectomsbox">Minimap.VecToMsBox</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Minimap.VecToMsBox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#minimap-gettilems">Minimap.GetTileMS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimap-statictomsrect">Minimap.StaticToMsRect</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#minimap-statictoms">Minimap.StaticToMs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#minimap-getzoomrectangle">Minimap.GetZoomRectangle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#minimap-pointinzoomrectangle">Minimap.PointInZoomRectangle()</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-pointtomm">Mainscreen.PointToMM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#mainscreen-convertdistance">MainScreen.ConvertDistance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mainscreen-normalizedistance">MainScreen.NormalizeDistance</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-getplayerbox">MainScreen.GetPlayerBox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mainscreen-facepoint">MainScreen.FacePoint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#options-setzoomlevel">Options.SetZoomLevel</a></li>
@@ -228,25 +229,29 @@ functionality to convert coordinates to &amp; from the minimap to the mainscreen
 <hr class="docutils" />
 <section id="type-tmm2ms">
 <h2>type TMM2MS<a class="headerlink" href="#type-tmm2ms" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">type</span>
-<span class="w">  </span><span class="n">TMM2MS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">record</span>
-<span class="w">    </span><span class="n">BASE_W</span><span class="o">,</span><span class="w"> </span><span class="n">BASE_H</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w">        </span><span class="c1">// the size of the area we project to (mainscreen size)</span>
-<span class="w">    </span><span class="n">MainScreen</span><span class="o">.</span><span class="n">Middle</span><span class="o">.</span><span class="n">X</span><span class="o">,</span><span class="w"> </span><span class="n">MainScreen</span><span class="o">.</span><span class="n">Middle</span><span class="o">.</span><span class="n">Y</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w">            </span><span class="c1">// the center of the area we project to (mainscreen center)</span>
-<span class="w">    </span><span class="n">MMCX</span><span class="o">,</span><span class="w"> </span><span class="n">MMCY</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w">            </span><span class="c1">// the center of the area we project from (minimap center)</span>
-<span class="w">    </span><span class="n">SCALE_MIN</span><span class="o">,</span><span class="w"> </span><span class="n">SCALE_MAX</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="o">;</span><span class="w"> </span><span class="c1">// direct zoom (relates to BASE)</span>
-<span class="w">    </span><span class="n">ZOOM</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="o">;</span><span class="w">                 </span><span class="c1">// current zoom</span>
-<span class="w">    </span><span class="n">YSHIFT</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="o">;</span><span class="w">               </span><span class="c1">// zooming may cause mid-Y to shift</span>
-<span class="w">  </span><span class="k">end</span><span class="o">;</span>
-</pre></div>
-</div>
+<blockquote>
+<div><dl>
+<dt>type</dt><dd><dl class="simple">
+<dt>TMM2MS = record</dt><dd><p>BASE_W, BASE_H: Int32;        // the size of the area we project to (mainscreen size)
+MainScreen.Middle.X, MainScreen.Middle.Y: Int32;            // the center of the area we project to (mainscreen center)
+MMCX, MMCY: Int32;            // the center of the area we project from (minimap center)
+SCALE_MIN, SCALE_MAX: Double; // direct zoom (relates to BASE)
+ZOOM: Double;                 // current zoom
+YSHIFT: Double;               // zooming may cause mid-Y to shift</p>
+</dd>
+</dl>
+<p>end;</p>
+</dd>
+</dl>
+</div></blockquote>
 <p>The comments explains it. This is the datastructure MM2MS uses.</p>
 </section>
 <hr class="docutils" />
 <section id="var-mm2ms">
 <h2>var MM2MS<a class="headerlink" href="#var-mm2ms" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span><span class="w"> </span><span class="n">MM2MS</span><span class="o">:</span><span class="w"> </span><span class="n">TMM2MS</span><span class="o">;</span>
-</pre></div>
-</div>
+<blockquote>
+<div><p>var MM2MS: TMM2MS;</p>
+</div></blockquote>
 <p>The global variable which you would refer to.</p>
 <hr class="docutils" />
 <section id="minimap">
@@ -257,83 +262,96 @@ functionality to convert coordinates to &amp; from the minimap to the mainscreen
 <hr class="docutils" />
 <section id="minimap-arrtoms">
 <h2>Minimap.ArrToMs<a class="headerlink" href="#minimap-arrtoms" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">ArrToMs</span><span class="p">(</span><span class="n">Arr</span><span class="o">:</span><span class="w"> </span><span class="n">Vector3Array</span><span class="o">;</span><span class="w"> </span><span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
-<span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">ArrToMs</span><span class="p">(</span><span class="n">Arr</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span><span class="w"> </span><span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
-</pre></div>
-</div>
+<blockquote>
+<div><p>function TRSMinimap.ArrToMs(Arr: Vector3Array; Roll:Single=$FFFF): TPointArray; overload;
+function TRSMinimap.ArrToMs(Arr: TPointArray; Roll:Single=$FFFF): TPointArray; overload;</p>
+</div></blockquote>
 <p>Takes array of points on the minimap, returns mainscreen projected array of points.
 The first method takes a vector3 array as input, so we can pass height as well, and more detailed coordinates to scale.</p>
 </section>
 <hr class="docutils" />
 <section id="minimap-vectoms">
 <h2>Minimap.VecToMs<a class="headerlink" href="#minimap-vectoms" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">VecToMs</span><span class="p">(</span><span class="n">Vec</span><span class="o">:</span><span class="w"> </span><span class="n">Vector3</span><span class="o">;</span><span class="w"> </span><span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
-</pre></div>
-</div>
+<p>function TRSMinimap.VecToMs(Vec: Vector3; Roll:Single=$FFFF): TPoint;</p>
 <p>Takes a single coordinate as a Vector3 on the minimap, and converts it to a point on the mainscreen.</p>
 <p><em>ROLL is the compass angle, by leaving it default it will gather the compass angle itself.</em></p>
 </section>
 <hr class="docutils" />
 <section id="minimap-pointtoms">
 <h2>Minimap.PointToMs<a class="headerlink" href="#minimap-pointtoms" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">PointToMs</span><span class="p">(</span><span class="n">PT</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
-</pre></div>
-</div>
+<p>function TRSMinimap.PointToMs(PT: TPoint; Roll:Single=$FFFF): TPoint;</p>
 <p>Takes a single coordinate as a TPoint on the minimap, and converts it to a point on the mainscreen.</p>
 <p><em>ROLL is the compass angle, by leaving it default it will gather the compass angle itself.</em></p>
 </section>
 <hr class="docutils" />
 <section id="minimap-vectomsrect">
 <h2>Minimap.VecToMsRect<a class="headerlink" href="#minimap-vectomsrect" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">VecToMsRect</span><span class="p">(</span><span class="n">Vec</span><span class="o">:</span><span class="w"> </span><span class="n">Vector3</span><span class="o">;</span><span class="w"> </span><span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TRectangle</span><span class="o">;</span>
-</pre></div>
-</div>
+<p>function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;</p>
 <p>Takes a single coordinate as a Vector3 on the minimap, and converts it to a rectangle / tile on the mainscreen.</p>
+<p><em>WESize</em> is the size of the rectangle we want to get from west-to-east measured in RS tiles.
+<em>NSSize</em> is the size of the rectangle we want to get from north-to-south measured in RS tiles.</p>
+<p>By default this values are 1 which will return you one single tile.
+If you wanted to get the tiles of a runecrafting altar for example which is 3 by 3 tiles you would set both to 3.</p>
 <p><em>ROLL is the compass angle, by leaving it default it will gather the compass angle itself.</em></p>
 </section>
 <hr class="docutils" />
 <section id="minimap-pointtomsrect">
 <h2>Minimap.PointToMsRect<a class="headerlink" href="#minimap-pointtomsrect" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">PointToMsRect</span><span class="p">(</span><span class="n">PT</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TRectangle</span><span class="o">;</span>
-</pre></div>
-</div>
+<p>function TRSMinimap.PointToMsRect(PT: TPoint; Roll:Single=$FFFF): TRectangle;</p>
 <p>Takes a single coordinate as a TPoint on the minimap, and converts it to a rectangle / tile on the mainscreen.</p>
+<p><em>WESize</em> is the size of the rectangle we want to get from west-to-east measured in RS tiles.
+<em>NSSize</em> is the size of the rectangle we want to get from north-to-south measured in RS tiles.</p>
+<p>By default this values are 1 which will return you one single tile.
+If you wanted to get the tiles of a runecrafting altar for example which is 3 by 3 tiles you would set both to 3.</p>
 <p><em>ROLL is the compass angle, by leaving it default it will gather the compass angle itself.</em></p>
 </section>
 <hr class="docutils" />
-<section id="minimap-vectomsbox">
-<h2>Minimap.VecToMsBox<a class="headerlink" href="#minimap-vectomsbox" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">VecToMsBox</span><span class="p">(</span><span class="n">Vec</span><span class="o">:</span><span class="w"> </span><span class="n">Vector3</span><span class="o">;</span><span class="w"> </span><span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TBox</span><span class="o">;</span>
-</pre></div>
-</div>
-<p>Takes a single coordinate as a Vector3 on the minimap, and converts it to a rough box on the mainscreen.</p>
-<p><em>ROLL is the compass angle, by leaving it default it will gather the compass angle itself.</em></p>
-</section>
-<hr class="docutils" />
-<section id="id1">
-<h2>Minimap.VecToMsBox<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">PointToMsBox</span><span class="p">(</span><span class="n">PT</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Roll</span><span class="o">:</span><span class="kt">Single</span><span class="o">=</span><span class="mh">$FFFF</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TBox</span><span class="o">;</span>
-</pre></div>
-</div>
-<p>Takes a single coordinate as a TPoint on the minimap, and converts it to a rough box on the mainscreen.</p>
+<section id="minimap-gettilems">
+<h2>Minimap.GetTileMS<a class="headerlink" href="#minimap-gettilems" title="Permalink to this heading">¶</a></h2>
+<p>function TRSMinimap.GetTileMS(Loc: TPoint; TileVector: Vector3; Offset: Vector2 = [0, 0]; Roll: Single = $FFFF): TRectangle;</p>
+<p>This is a more general usage version of the previous 2 functions. This one can take height into account throught the <strong>TileVector</strong>.</p>
+<p>TileVector is used to specify the size and height of the tile:
+<strong>TileVector.X</strong> is the size of the rectangle from west to east in game.
+<strong>TileVector.Y</strong> is the size of the rectangle from north to south in game.
+<strong>TileVector.Z</strong> is the height of the rectangle in game. There’s no way to accurately measure it but for a rough idea, a player’s height is about 6 or 7.</p>
 <p><em>ROLL is the compass angle, by leaving it default it will gather the compass angle itself.</em></p>
 </section>
 <hr class="docutils" />
 <section id="minimap-statictomsrect">
 <h2>Minimap.StaticToMsRect<a class="headerlink" href="#minimap-statictomsrect" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">StaticToMsRect</span><span class="p">(</span><span class="n">StaticMMPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Height</span><span class="o">:</span><span class="n">Int32</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TRectangle</span><span class="o">;</span>
-</pre></div>
-</div>
+<p>function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; Height:Int32=0): TRectangle;</p>
 <p>Takes static minimap coordinate, rotates it to compass angle, and returns a rectangle on the mainscreen
 The static point is therefor gathered at north, and it will rotate it as expected.</p>
+<p><em>WESize</em> is the size of the rectangle we want to get from west-to-east measured in RS tiles.
+<em>NSSize</em> is the size of the rectangle we want to get from north-to-south measured in RS tiles.</p>
 </section>
 <hr class="docutils" />
 <section id="minimap-statictoms">
 <h2>Minimap.StaticToMs<a class="headerlink" href="#minimap-statictoms" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMinimap</span><span class="o">.</span><span class="nf">StaticToMs</span><span class="p">(</span><span class="n">StaticMMPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Height</span><span class="o">:</span><span class="n">Int32</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
+<p>function TRSMinimap.StaticToMs(StaticMMPoint: TPoint; Height:Int32=0): TPoint;</p>
+<p>This is the same as the above, only that it returns a single point on the mainscreen.</p>
+</section>
+<hr class="docutils" />
+<section id="minimap-getzoomrectangle">
+<h2>Minimap.GetZoomRectangle<a class="headerlink" href="#minimap-getzoomrectangle" title="Permalink to this heading">¶</a></h2>
+<p>function TRSMinimap.GetZoomRectangle(): TRectangle;</p>
+<p>This function returns an accurate rectangle of what’s visible on the MainScreen on the Minimap.
+This can be used to know if it’s possible to make something visible by adjusting the zoom level or rotating the camera.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">Minimap</span><span class="o">.</span><span class="n">GetZoomRectangle</span><span class="p">());</span>
 </pre></div>
 </div>
-<p>This is the same as the above, only that it returns a single point on the mainscreen.</p>
+</section>
+<hr class="docutils" />
+<section id="minimap-pointinzoomrectangle">
+<h2>Minimap.PointInZoomRectangle()<a class="headerlink" href="#minimap-pointinzoomrectangle" title="Permalink to this heading">¶</a></h2>
+<p>function Minimap.PointInZoomRectangle(P: TPoint): Boolean;</p>
+<p>Check if a given point is within our zoom rectangle, in other words, in visible in the Mainscreen.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P</span> <span class="o">:=</span> <span class="n">Minimap</span><span class="o">.</span><span class="n">GetDots</span><span class="p">(</span><span class="n">ERSMinimapDot</span><span class="o">.</span><span class="n">ITEM</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span> <span class="o">//</span><span class="n">find</span> <span class="n">an</span> <span class="n">item</span> <span class="n">dot</span> <span class="ow">and</span> <span class="n">returns</span> <span class="n">it</span><span class="s1">&#39;s coodinates.</span>
+<span class="n">WriteLn</span> <span class="n">Minimap</span><span class="o">.</span><span class="n">PointInZoomRadius</span><span class="p">(</span><span class="n">P</span><span class="p">);</span>
+</pre></div>
+</div>
 <hr class="docutils" />
 <section id="mainscreen">
 <h3>Mainscreen<a class="headerlink" href="#mainscreen" title="Permalink to this heading">¶</a></h3>
@@ -343,30 +361,26 @@ The static point is therefor gathered at north, and it will rotate it as expecte
 <hr class="docutils" />
 <section id="mainscreen-pointtomm">
 <h2>Mainscreen.PointToMM<a class="headerlink" href="#mainscreen-pointtomm" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">PointToMM</span><span class="p">(</span><span class="n">MS</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Height</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="w"> </span><span class="n">Accuracy</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Vector3</span><span class="o">;</span>
-</pre></div>
-</div>
+<p>function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3;</p>
 <p>Takes a mainscreen point and converts it to a point on the minimap.</p>
 <p>Returns a Vector3 which includes input height. Conversion to a TPoint if that’s what you need is simply
 done by calling <cite>.ToPoint</cite> on the result.</p>
-<section id="example">
-<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="o">,</span><span class="mi">140</span><span class="p">)</span><span class="o">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="o">;</span>
-<span class="nb">WriteLn</span><span class="w"> </span><span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="o">,</span><span class="mi">140</span><span class="p">)</span><span class="o">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">ToPoint</span><span class="p">()</span><span class="o">;</span><span class="w"> </span><span class="c1">// as a TPoint (lost accuracy)</span>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">WriteLn</span> <span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span><span class="mi">140</span><span class="p">),</span> <span class="mi">2</span><span class="p">);</span>
+<span class="n">WriteLn</span> <span class="n">Mainscreen</span><span class="o">.</span><span class="n">PointToMM</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span><span class="mi">140</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">ToPoint</span><span class="p">();</span> <span class="o">//</span> <span class="k">as</span> <span class="n">a</span> <span class="n">TPoint</span> <span class="p">(</span><span class="n">lost</span> <span class="n">accuracy</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-</section>
 <hr class="docutils" />
-<section id="mainscreen-convertdistance">
-<h2>MainScreen.ConvertDistance<a class="headerlink" href="#mainscreen-convertdistance" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">ConvertDistance</span><span class="p">(</span><span class="n">Dist</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">Accuracy</span><span class="o">:</span><span class="w"> </span><span class="kt">Single</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.05</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+<section id="mainscreen-normalizedistance">
+<h2>MainScreen.NormalizeDistance<a class="headerlink" href="#mainscreen-normalizedistance" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">NormalizeDistance</span><span class="p">(</span><span class="n">Dist</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">Accuracy</span><span class="o">:</span><span class="w"> </span><span class="kt">Single</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.05</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Converts a distance acquired from the <strong>fixed client* and **default zoom</strong> to the
 current mainscreen.</p>
-<section id="id2">
-<h3>Example<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom &amp; client size.</span>
 <span class="nb">WriteLn</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">TranslateDistance</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span><span class="o">;</span>
 </pre></div>
@@ -376,25 +390,19 @@ current mainscreen.</p>
 <hr class="docutils" />
 <section id="mainscreen-getplayerbox">
 <h2>MainScreen.GetPlayerBox<a class="headerlink" href="#mainscreen-getplayerbox" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">GetPlayerBox</span><span class="o">:</span><span class="w"> </span><span class="n">TBox</span><span class="o">;</span>
-</pre></div>
-</div>
+<p>function TRSMainScreen.GetPlayerBox: TBox;</p>
 <p>Returns a box surrounding our player. Works at any zoom level.</p>
 </section>
 <hr class="docutils" />
 <section id="mainscreen-facepoint">
 <h2>MainScreen.FacePoint<a class="headerlink" href="#mainscreen-facepoint" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">FacePoint</span><span class="p">(</span><span class="n">P</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Randomness</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
-</pre></div>
-</div>
+<p>function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;</p>
 <p>Rotates the camera to face point <cite>P</cite>.</p>
 </section>
 <hr class="docutils" />
 <section id="options-setzoomlevel">
 <h2>Options.SetZoomLevel<a class="headerlink" href="#options-setzoomlevel" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSOptions</span><span class="o">.</span><span class="nf">SetZoomLevel</span><span class="p">(</span><span class="n">Level</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
-</pre></div>
-</div>
+<p>function TRSOptions.SetZoomLevel(Level: Int32): Boolean; override;</p>
 <p>Override to automatically update MM2MS.ZoomLevel.</p>
 <hr class="docutils" />
 </section>
