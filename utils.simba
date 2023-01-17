@@ -5,6 +5,9 @@ type
     IsSetup: Boolean;
   end;
 
+const
+  DATAPATH = AppPath + 'Data' + DirectorySeparator; //missing this const and walker1500 needs it.
+
 var
   SRL: TSRL;
 

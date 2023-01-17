@@ -9,6 +9,9 @@ Drawing
 Extends TMufasaBitmap with mostly drawing functions.
 *)
 
+type
+  TMufasaBitmapArray = array of TMufasaBitmap;
+
 const
   clBlack      = Int32($000000);
   clMaroon     = Int32($000080);

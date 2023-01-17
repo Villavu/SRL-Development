@@ -338,3 +338,96 @@ begin
     Result[I].Y2 := Result[I].Y1 + Height;
   end;
 end;
+
+function TBoxArray.Pack: TBoxArray;
+type
+  TBlock = record X,Y,W,H: Integer; Index: Integer; end;
+  TBlockArray = array of TBlock;
+
+  function Block(X,Y,W,H: Integer; Index: Integer = -1): TBlock;
+  begin
+    Result.X := X;
+    Result.Y := Y;
+    Result.W := W;
+    Result.H := H;
+    Result.Index := Index;
+  end;
+var
+  weights: TIntegerArray;
+  I, J: Integer;
+  StartWidth, Area, MaxWidth: Integer;
+  Width, Height: Integer;
+  Blocks, Spaces: TBlockArray;
+  Len: Integer;
+begin
+  Len := Length(Self);
+  if (Len = 0) then
+    Exit(Default(TBoxArray));
+
+  Area := 0;
+  MaxWidth := 0;
+
+  SetLength(Result, Len);
+  SetLength(Blocks, Len);
+  SetLength(Weights, Len);
+
+  for I := 0 to Len - 1 do
+  begin
+    Blocks[I] := Block(0, 0, Self[I].Width - 1, Self[I].Height - 1, I);
+    Weights[I] := Blocks[I].H;
+
+    Area += Blocks[I].W * Blocks[I].H;
+    MaxWidth := Max(MaxWidth, Blocks[I].W);
+  end;
+
+  Blocks := Sorted(Blocks, Weights, False);
+
+  StartWidth := Max(Ceil(Sqrt(Area / 0.95)), MaxWidth);
+  Spaces := [Block(0, 0, StartWidth, $FFFFFF)];
+
+  Width := 0;
+  Height := 0;
+
+  for I := 0 to Len - 1 do
+    for J := High(Spaces) downto 0 do
+    begin
+      if (Blocks[I].W > Spaces[J].W) or (Blocks[I].H > Spaces[J].H) then
+        Continue;
+
+      Blocks[I].X := Spaces[J].X;
+      Blocks[I].Y := Spaces[J].Y;
+
+      Width  := Max(Width, Blocks[I].X + Blocks[I].W);
+      Height := Max(Height, Blocks[I].Y + Blocks[I].H);
+
+      if (Blocks[I].W = Spaces[J].W) and (Blocks[I].H = Spaces[J].H) then
+        Delete(Spaces, J, 1)
+      else
+      if (Blocks[I].H = Spaces[J].H) then
+      begin
+        Spaces[J].X += Blocks[I].W;
+        Spaces[J].W -= Blocks[I].W;
+      end else
+      if (Blocks[I].W = Spaces[J].W) then
+      begin
+        Spaces[J].Y += Blocks[I].H;
+        Spaces[J].H -= Blocks[I].H;
+      end else
+      begin
+        Spaces += [Block(
+          Spaces[J].X + Blocks[I].W,
+          Spaces[J].Y,
+          Spaces[J].W - Blocks[I].W,
+          Blocks[I].H
+        )];
+        Spaces[J].Y += Blocks[I].H;
+        Spaces[J].H -= Blocks[I].H;
+      end;
+
+      Break;
+    end;
+
+  for I := 0 to Len - 1 do
+    Result[Blocks[I].Index] := Box(Blocks[I].X, Blocks[I].Y, Blocks[I].X + Blocks[I].W, Blocks[I].Y + Blocks[I].H);
+end;
+

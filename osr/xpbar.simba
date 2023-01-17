@@ -1,77 +1,38 @@
+(*
+XPBar
+=====
+Methods to interact with the XP bar.
+*)
 {$DEFINE SRL_XPBAR_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
 
 type
-  ERSXPBarLocation = (LEFT, MIDDLE, RIGHT);
-  ERSXPBarSize = (SMALL, MEDIUM, LARGE);
-
   TRSXPBar = record(TRSInterface)
-    Alignments: array[ERSXPBarLocation] of array[ERSXPBarSize] of TRSInterfaceAlignment;
+    Alignments: array of TRSInterfaceAlignment;
     Font: TFontSet;
+    IsSetup: Boolean;
   end;
 
-procedure TRSXPBar.Setup; override;
+(*
+XPBar.Setup
+~~~~~~~~~~~
+.. pascal:: procedure TRSXPBar.Setup(); override;
+
+Initializes **XPBar** variables.
+
+.. note:: This is automatically called on the **XPBar** variable.
+*)
+procedure TRSXPBar.Setup(); override;
 begin
   inherited;
 
   Self.Name := 'XPBar';
 
-  // Small Text
-  with Self.Alignments[ERSXPBarLocation.LEFT][ERSXPBarSize.SMALL] do
-  begin
-    Left := [@InterfaceArea.X1, 2];
-    Right := [@InterfaceArea.X1, 120];
-    Top := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-  end;
+  SetLength(Self.Alignments, 3);
 
-  with Self.Alignments[ERSXPBarLocation.MIDDLE][ERSXPBarSize.SMALL] do
-  begin
-    Left   := [@InterfaceArea.X1];
-    Right  := [@InterfaceArea.X2];
-    Top    := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-    Center.MaxWidth := 119;
-  end;
-
-  with Self.Alignments[ERSXPBarLocation.RIGHT][ERSXPBarSize.SMALL] do
-  begin
-    Left := [@InterfaceArea.X2, -120];
-    Right := [@InterfaceArea.X2, -2];
-    Top := [@InterfaceArea.Y1, 0];
-    Bottom := [@InterfaceArea.Y1, 28];
-  end;
-
-  // Medium Text
-  with Self.Alignments[ERSXPBarLocation.LEFT][ERSXPBarSize.MEDIUM] do
-  begin
-    Left := [@InterfaceArea.X1, 2];
-    Right := [@InterfaceArea.X1, 130];
-    Top := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-  end;
-
-  with Self.Alignments[ERSXPBarLocation.MIDDLE][ERSXPBarSize.MEDIUM] do
-  begin
-    Left   := [@InterfaceArea.X1];
-    Right  := [@InterfaceArea.X2];
-    Top    := [@InterfaceArea.Y1, 23];
-    Bottom := [@InterfaceArea.Y1, 51];
-    Center.MaxWidth := 129;
-  end;
-
-  with Self.Alignments[ERSXPBarLocation.RIGHT][ERSXPBarSize.MEDIUM] do
-  begin
-    Left := [@InterfaceArea.X2, -130];
-    Right := [@InterfaceArea.X2, -2];
-    Top := [@InterfaceArea.Y1, 0];
-    Bottom := [@InterfaceArea.Y1, 28];
-  end;
-
-  // Large Text
-  with Self.Alignments[ERSXPBarLocation.LEFT][ERSXPBarSize.LARGE] do
+  with Self.Alignments[0] do
   begin
     Left := [@InterfaceArea.X1, 2];
     Right := [@InterfaceArea.X1, 141];
@@ -79,7 +40,7 @@ begin
     Bottom := [@InterfaceArea.Y1, 51];
   end;
 
-  with Self.Alignments[ERSXPBarLocation.MIDDLE][ERSXPBarSize.LARGE] do
+  with Self.Alignments[1] do
   begin
     Left   := [@InterfaceArea.X1];
     Right  := [@InterfaceArea.X2];
@@ -88,7 +49,7 @@ begin
     Center.MaxWidth := 140;
   end;
 
-  with Self.Alignments[ERSXPBarLocation.RIGHT][ERSXPBarSize.LARGE] do
+  with Self.Alignments[2] do
   begin
     Left := [@InterfaceArea.X2, -141];
     Right := [@InterfaceArea.X2, -2];
@@ -97,59 +58,158 @@ begin
   end;
 end;
 
-procedure TRSXPBar.SetupAlignment(Mode: ERSClientMode); override;
-begin
-  inherited;
+(*
+XPBar.IsEnabled
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSXPBar.IsEnabled(): Boolean;
 
-  // Default location & size
-  Self.Alignment := Self.Alignments[ERSXPBarLocation.RIGHT][ERSXPBarSize.SMALL];
-  Self.Font := RS_FONT_PLAIN_11;
+Checks if the XPBar circle is enabled.
+
+Example
+-------
+
+  WriteLn XPBar.IsEnabled();
+*)
+function TRSXPBar.IsEnabled(): Boolean;
+var
+  TPA: TPointArray;
+begin
+  if FindColors(TPA, 11592943, Minimap.GetXPCircle.Bounds) then
+    Result := Length(Minimap.GetXPCircle().Filter(TPA)) > 50;
 end;
 
-function TRSXPBar.IsOpen: Boolean;
+(*
+XPBar.Enable
+~~~~~~~~~~~~
+.. pascal:: function TRSXPBar.Enable(): Boolean;
 
-  function FindBorder: Boolean;
-  const
-    COLOR_BORDER = $233038;
-  begin
-    Result := SRL.CountColor(COLOR_BORDER, Self.Bounds) = (Self.Width*2 + Self.Height*2) - 4;
-  end;
+Enables the XPBar by clicking the XPBar circle.
 
-  function UpdateLocation: Boolean;
-  var
-    Location: ERSXPBarLocation;
-    Size: ERSXPBarSize;
-  begin
-    for Location in ERSXPBarLocation do
-      for Size in ERSXPBarSize do
-      begin
-        Self.Cache := [];
-        Self.Alignment := Self.Alignments[Location][Size];
-        if FindBorder() then
-        begin
-          case Size of
-            ERSXPBarSize.SMALL:  Self.Font := RS_FONT_PLAIN_11;
-            ERSXPBarSize.MEDIUM: Self.Font := RS_FONT_PLAIN_12;
-            ERSXPBarSize.LARGE:  Self.Font := RS_FONT_BOLD_12;
-          end;
+Example
+-------
 
-          Exit(True);
-        end;
-      end;
-  end;
-
+  if not XPBar.IsEnabled() then
+    WriteLn XPBar.Enable();
+*)
+function TRSXPBar.Enable(): Boolean;
 begin
-  Result := FindBorder() or UpdateLocation();
-end;
-
-function TRSXPBar.Open: Boolean;
-begin
-  if Self.IsOpen then
+  if Self.IsEnabled() then
     Exit(True);
 
   Mouse.Click(Minimap.GetXPCircle(), MOUSE_LEFT);
 
+  Result := WaitUntil(Self.IsEnabled(), SRL.TruncatedGauss(100, 1000), 3000);
+end;
+
+(*
+XPBar._Setup
+~~~~~~~~~~~~
+.. pascal:: procedure TRSXPBar._Setup();
+
+Internal method automatically called by SRL once when attempting to read the XPBar.
+*)
+procedure TRSXPBar._Setup();
+var
+  tpa: TPointArray;
+  b: TBox;
+begin
+  if not Self.Enable() then
+    Exit;
+
+  for Self.Alignment in Self.Alignments do
+  begin
+    if SRL.FindColors(tpa, $FFFFFF, Self.Bounds()) > 0 then
+      Break;
+    Self.Cache := [];
+  end;
+
+  if tpa = [] then
+  begin
+    Self.Alignment := [];
+    Self.Cache := [];
+    Self.Font := [];
+    Exit;
+  end;
+
+  case tpa.Bounds().Height() of
+    8:  Self.Font := RS_FONT_PLAIN_11;
+    11: Self.Font := RS_FONT_PLAIN_12;
+    10: Self.Font := RS_FONT_BOLD_12; //it's actually less tall lol.
+    else
+    begin
+      Self.Alignment := [];
+      Self.Cache := [];
+      Self.Font := [];
+      Exit;
+    end;
+  end;
+
+  Self.IsSetup := True;
+end;
+
+(*
+XPBar.Read
+~~~~~~~~~~
+.. pascal:: function TRSXPBar.Read(): Int32;
+
+Reads the XP in the XPBar.
+
+Example
+-------
+
+  WriteLn XPBar.Read();
+*)
+function TRSXPBar.Read(): Int32;
+begin
+  if not Self.IsSetup then
+    Self._Setup();
+
+  //Self._Setup() already checks Self.IsEnabled() but it's only called once.
+  if not Self.IsSetup or not Self.Enable() then
+    Exit;
+
+  Result := OCR.RecognizeNumber(Self.Bounds(), TOCRColorRule.Create([$FFFFFF]), Self.Font);
+end;
+
+(*
+XPBar.IsOpen
+~~~~~~~~~~~~
+.. pascal:: function TRSXPBar.IsOpen(): Boolean;
+
+Checks if the XPBar is open.
+Keep in mind interfaces and things that cover the xp bar, might make this return false.
+
+Example
+-------
+
+  WriteLn XPBar.IsOpen();
+*)
+function TRSXPBar.IsOpen(): Boolean;
+begin
+  Result := Self.Read() > 0;
+end;
+
+(*
+XPBar.Open
+~~~~~~~~~~
+.. pascal:: function TRSXPBar.Open(): Boolean;
+
+Attempts to open the XPBar if it's not open.
+
+Example
+-------
+  if not XPBar.IsOpen() then
+    WriteLn XPBar.Open();
+*)
+function TRSXPBar.Open(): Boolean;
+begin
+  if Self.IsOpen() then
+    Exit(True);
+
   Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(100, 1000), 3000);
+
+  if not Result then
+    Self.DebugLn('Something is wrong with your XPBar.');
 end;
 
 procedure TRSXPBar.Draw(Bitmap: TMufasaBitmap); override;
@@ -160,25 +220,22 @@ begin
   inherited;
 end;
 
-function TRSXPBar.Read: Int32;
-begin
-  Result := -1;
-
-  if Self.IsOpen() then
-    Result := OCR.RecognizeNumber(Self.Bounds, TOCRColorRule.Create([$FFFFFF]), Self.Font);
-end;
-
+(*
+var XPBar
+~~~~~~~~~
+  Global XPBar variable.
+*)
 var
   XPBar: TRSXPBar;
 
-procedure TRSClient.ClientModeChanged; override;
+procedure TRSClient.ClientModeChanged(); override;
 begin
   inherited;
 
   XPBar.SetupAlignment(Self.Mode);
 end;
 
-procedure TSRL.Setup; override;
+procedure TSRL.Setup(); override;
 begin
   inherited;
 
