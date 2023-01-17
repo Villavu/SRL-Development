@@ -81,7 +81,7 @@ Example
     rsw.OnWalkingEvent := @WalkerTasks;
   end;
 *)
-  TRSWalker_OnWalkEvent = procedure(Walker: PRSWalker; var Position: TPoint; var Destination: TPoint);
+  TRSWalker_OnWalkEvent = procedure(Walker: PRSWalker; Position: TPoint; Destination: TPoint);
 (*
 type TRSWalker_OnWalkEventEx
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,7 +103,7 @@ Example
     rsw.OnWalkingEventEx := @rsw.WalkerTasks;
   end;
 *)
-  TRSWalker_OnWalkEventEx = procedure(Walker: PRSWalker; var Position: TPoint; var Destination: TPoint) of object;
+  TRSWalker_OnWalkEventEx = procedure(Walker: PRSWalker; Position: TPoint; Destination: TPoint) of object;
 
 (*
 type TRSWalker
