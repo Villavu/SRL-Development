@@ -1,0 +1,147 @@
+
+WalkerMap
+=========
+This file contains internal methods used by walker.
+
+
+------------
+
+RSWalkerRegions
+~~~~~~~~~~~~~~~
+Collection of pre-made boxes that can be used in TRSWalker.Setup();
+
+
+------------
+
+RSWalkerLocations
+~~~~~~~~~~~~~~~~~
+Collection of pre-made coordinates that can be used in TRSWalker;
+
+
+------------
+
+type TRSWalkerMap
+~~~~~~~~~~~~~~~~~
+TRSWalkerMap is the record responsible for handling map loading for TRSWalker and keep track of regions if there's any.
+
+
+------------
+
+TRSWalkerMap.FindMap
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSWalkerMap.FindMap(Map: String): String; static;
+
+Internal function responsible for finding our map.
+If the **Map** is a path and it exists the function exits.
+Otherwise, it looks for a .png and .bmp file with the map name in Simba/Includes/osr/walker/maps and returns the file path.
+You probably will never need to use this directly but if you want to debug things consider the following example.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn TRSWalkerMap.FindMap('world');
+
+
+------------
+
+TRSWalkerMap.InternalLoadMap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSWalkerMap.InternalLoadMap(FileName: String; Region: TBox = []): TMufasaBitmap; static;
+
+Internal function responsible for loading our map.
+If a "Region" is specified, that region is cropped from the the image file and returned, otherwise the whole file is returned as a TMufasaBitmap.
+You probably will never need to use this directly, but consider the following example for debugging purposes.
+
+Example
+-------
+.. code-block:: pascal  
+
+  TRSWalkerMap.InternalLoadMap('world', RSWalkerRegions.GRAND_EXCHANGE).Debug();
+
+
+------------
+
+TRSWalkerMap.Free
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSWalkerMap.Free();
+
+Internal function responsible for releasing TRSWalkerMap from memory.
+You probably will never need to use this directly. It's automatically called on script termination.
+
+
+------------
+
+TRSWalkerMap.Load
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSWalkerMap.Load(FileName: String; Scaling: Integer); overload;
+.. code-block:: pascal
+
+ procedure TRSWalkerMap.Load(FileName: String; ARegions: TBoxArray; Scaling: Integer; Padding: Integer = 50); overload;
+
+Internal function responsible for setting up TRSWalkerMap.
+This is where we load our bitmaps and store them in a TRSWalkerMap variable.
+It's also where we downsample our map for faster searches.
+TRSWalkerMap.Map contains the full sized map image while TRSWalkerMap.ScaledMap contains the downsampled map.
+You probably will never need to use this directly but consider the following example for debugging purposes.
+
+Example
+-------
+.. code-block:: pascal  
+  var
+    map: TRSWalkerMap;
+  begin
+    map.Load('world', 8);
+    map.Map.Debug();
+    Wait(4000);
+    map.ScaledMap.Debug();
+  end;
+
+
+------------
+
+TRSWalkerMap.RegionIndexFromPoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSWalkerMap.RegionIndexFromPoint(P: TPoint): Integer;
+
+Internal TRSWalkerMap function used to return the region **p** belongs to.
+You probably don't need to ever call this but can be useful for debugging.
+
+
+------------
+
+TRSWalkerMap.RegionToGlobal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSWalkerMap.RegionToGlobal(p: TPoint): TPoint;
+
+Internal TRSWalkerMap function used to convert a region point **p** to a global point.
+This is responsible for converting WalkerMap region point to the coordinates of that same point in the original map file the regions were cropped from.
+You probably don't need to ever call this but can be useful for debugging.
+
+
+------------
+
+TRSWalkerMap.GlobalToRegion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSWalkerMap.GlobalToRegion(RegionIndex: Integer; P: TPoint): TPoint;
+
+Internal TRSWalkerMap function used to convert a global point **p** to a region point.
+This is literally the inverse of TRSWalkerMap.RegionToGlobal().
+You probably don't need to ever call this but can be useful for debugging.
+
+
+------------

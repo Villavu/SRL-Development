@@ -39,6 +39,7 @@ Welcome to SRL documentation!
 
 	:caption: OSR -> WALKER
 
+   walker_map
    webber
    walker
    webgraph

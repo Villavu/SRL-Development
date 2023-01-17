@@ -111,13 +111,38 @@
 <li class="toctree-l1"><a class="reference internal" href="itemfinder.html">Item Finder</a></li>
 </ul>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="walker_map.html">WalkerMap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Walker</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#trswalker-setup">TRSWalker.Setup</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#trswalker-getmypos">TRSWalker.GetMyPos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-it-work">How does it work?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#type-prswalker">type PRSWalker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#type-trswalker-onwalkevent">type TRSWalker_OnWalkEvent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#type-trswalker-onwalkeventex">type TRSWalker_OnWalkEventEx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#type-trswalker">type TRSWalker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-internalsetup">Walker.InternalSetup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-free">Walker.Free</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-setup">Walker.Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-cleanminimap">Walker.CleanMinimap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-getcleanminimap">Walker.GetCleanMinimap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-scaleminimap">Walker.ScaleMinimap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-scaledsearch">Walker.ScaledSearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-fullsearch">Walker.FullSearch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-getmypos">Walker.GetMyPos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-worldtomm">Walker.WorldToMM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-checkrunenergy">Walker.CheckRunEnergy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-adaptivewalkcheck">Walker.AdaptiveWalkCheck</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-domouseahead">Walker.DoMouseAhead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-waitmoving">Walker.WaitMoving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-click">Walker.Click</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-walkfinalstep">Walker.WalkFinalStep</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-walkstep">Walker.WalkStep</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#walker-iswalkable">Walker.IsWalkable</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#trswalker-walkpath">TRSWalker.WalkPath</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#trswalker-walkblind">TRSWalker.WalkBlind</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#trswalker-webwalk">TRSWalker.WebWalk</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trswalker-debugposition">TRSWalker.DebugPosition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trswalker-gettilems">TRSWalker.GetTileMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trswalker-mstoworld">TRSWalker.MSToWorld</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
@@ -211,78 +236,391 @@
             
   <section id="walker">
 <h1>Walker<a class="headerlink" href="#walker" title="Permalink to this heading">¶</a></h1>
-<hr class="docutils" />
-<section id="trswalker-setup">
-<h2>TRSWalker.Setup<a class="headerlink" href="#trswalker-setup" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Setup</span><span class="p">(</span><span class="n">Map</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">Manage</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="o">;</span><span class="w"> </span><span class="n">Scaling</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span><span class="o">;</span>
-</pre></div>
-</div>
-<p>Setup a RSWalker variable.
-This only needs calling once per variable so it’s suggested to use a global variable.
-This method is to be called before using the walking functionality.</p>
-<p>Other parameters that you can set up after are:
-* RSW.ScreenWalk := True;</p>
+<p>Walker, also commonly refered to as RSWalker and RSW is the go to tool for walking and accurate positioning.</p>
+<section id="how-does-it-work">
+<h2>How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this heading">¶</a></h2>
+<p>The details are quite complex but to put it simply, the way it works is:
+- A large image of the game map is loaded. This image has to include the region you are on or things won’t work as expected.
+- A screenshot of your minimap is taken and, rotated north and cleaned (player, npc and item dots are removed).
+- This minimap screenshot is then searched on our loaded map image, the closest match is then returned as our position.
+- Once we have an accurate position, we can do all sort of things:</p>
 <blockquote>
-<div><p>If this is set to True, RSW will walk on the mainscreen.</p>
+<div><ul class="simple">
+<li><p>Accurately get the position of a tile</p></li>
+<li><p>Accurately hover any visible tile with the help of mm2ms</p></li>
+<li><p>Color search a tile</p></li>
+</ul>
+</div></blockquote>
+<p>Things to keep in mind with TRSWalker:
+- Coordinates are relative to the map loaded. They are literally your pixel position in the map image.</p>
+<blockquote>
+<div><p>If you load map A and B and map B contains map A somewhere that is not it’s top-left corner,
+their coordinates will not match even if you are standing in the same tile.
+So if you get your position and it tells you are at X = 300 and Y = 500 it means you are in the pixel X = 300 and Y = 500 of your map image.</p>
 </div></blockquote>
 <ul class="simple">
-<li><dl class="simple">
-<dt>RSW.AdaptiveWalk := True;</dt><dd><p>If this is set to True, RSW will try to mix minimap walking with mainscreen walking, so first and last clicks will usually happen on the mainscreen.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>RSW.FancyMouse := True;</dt><dd><p>If this is set to True, RSW will attempt to make the mousemovement a little more human.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>RSW.NearZoomMode := True;</dt><dd><p>Use this is you are zoomed in a lot, and still wanna do mainscreen walking. It will bypass some random meassures in order to walk with fewer errors.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>RSW.ClickRandomness := 5;</dt><dd><p>This is by default 4, it’s the radius of the area we click in the path to make the path more random.</p>
-</dd>
-</dl>
-</li>
+<li><p>Because we search our minimap inside our map to find our position, smaller maps are much faster.
+It’s not exactly porportional but almost, so if you have a map that has a total of 1000 pixels and it takes 50ms to get your position,
+a map with 2000 pixels will take almost exactly 100ms.</p></li>
+<li><p>A map image cannot be smaller than the minimap and should not even be anywhere close to it’s size.
+Any area you think you might be standing on on your script should have at the very minimum a 75 extra pixels of “padding”
+because that’s the maximum visible distance of the minimap and even then, slightly more is recommended.</p></li>
 </ul>
-<section id="parameters">
-<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h3>
-<dl class="simple">
-<dt>Map</dt><dd><p>File path to an image or a map name found in <em>SRL/osr/walker/maps</em>.</p>
-</dd>
-<dt>Manage</dt><dd><p>Automatically free walker at the end of the script. Only works if the TRSWalker variable is global. (Default: True)</p>
-</dd>
-<dt>Scaling</dt><dd><p>Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 9)</p>
-</dd>
-</dl>
+<p>Variables for users to tweak:
+- ScreenWalk: When set to true, walker will use only the mainscreen to walk instead of the minimap.
+- AdaptiveWalk: When set to true, will enable and disable ScreenWalk depending on your distance to the target,</p>
+<blockquote>
+<div><p>making walking use a mix of minimap and mainscreen walking. The closer your are to the target
+the more likely it is to use the mainscreen and the further you are the less likely.
+You can also play with RSW_ADAPTIVE_SCREEN_TOGGLE_DISTANCES values to customize the behavior.</p>
+</div></blockquote>
 </section>
+<hr class="docutils" />
+<section id="type-prswalker">
+<h2>type PRSWalker<a class="headerlink" href="#type-prswalker" title="Permalink to this heading">¶</a></h2>
+<p>TRSWalker pointer.</p>
+</section>
+<hr class="docutils" />
+<section id="type-trswalker-onwalkevent">
+<h2>type TRSWalker_OnWalkEvent<a class="headerlink" href="#type-trswalker-onwalkevent" title="Permalink to this heading">¶</a></h2>
+<p>Callback method to use while walking. This can be used to perform custom tasks while walking.</p>
 <section id="example">
 <h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span><span class="w"> </span><span class="n">Walker</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nf">WalkerTasks</span><span class="p">(</span><span class="n">Walker</span><span class="o">:</span><span class="w"> </span><span class="n">PRSWalker</span><span class="o">;</span><span class="w"> </span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Destination</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
+<span class="k">begin</span>
+<span class="w">  </span><span class="n">Antiban</span><span class="o">.</span><span class="n">RandomTab</span><span class="p">()</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
 
-<span class="n">Walker</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="c1">// Setup using the world map found in the maps directory</span>
+<span class="k">var</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
+
+<span class="k">begin</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">)</span><span class="o">;</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">OnWalkingEvent</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">@</span><span class="n">WalkerTasks</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>
 </section>
 <hr class="docutils" />
-<section id="trswalker-getmypos">
-<h2>TRSWalker.GetMyPos<a class="headerlink" href="#trswalker-getmypos" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">GetMyPos</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
-</pre></div>
-</div>
-<p>Returns the players current position on the loaded map.</p>
+<section id="type-trswalker-onwalkeventex">
+<h2>type TRSWalker_OnWalkEventEx<a class="headerlink" href="#type-trswalker-onwalkeventex" title="Permalink to this heading">¶</a></h2>
+<p>Callback object method to use while walking. This can be used to perform custom tasks while walking.</p>
 <section id="id1">
 <h3>Example<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="p">(</span><span class="n">Walker</span><span class="o">.</span><span class="n">GetMyPos</span><span class="p">())</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkerTasks</span><span class="p">(</span><span class="n">Walker</span><span class="o">:</span><span class="w"> </span><span class="n">PRSWalker</span><span class="o">;</span><span class="w"> </span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Destination</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
+<span class="k">begin</span>
+<span class="w">  </span><span class="n">Antiban</span><span class="o">.</span><span class="n">RandomTab</span><span class="p">()</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
 
-<span class="c1">// Check to see the match percentage if needed</span>
-<span class="nb">WriteLn</span><span class="p">(</span><span class="n">Walker</span><span class="o">.</span><span class="n">Similarity</span><span class="p">)</span><span class="o">;</span>
+<span class="k">var</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
+
+<span class="k">begin</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">)</span><span class="o">;</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">OnWalkingEventEx</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="o">@</span><span class="n">rsw</span><span class="o">.</span><span class="n">WalkerTasks</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>
+</section>
+<hr class="docutils" />
+<section id="type-trswalker">
+<h2>type TRSWalker<a class="headerlink" href="#type-trswalker" title="Permalink to this heading">¶</a></h2>
+<p>TRSWalker is the record responsbile for walking and position.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-internalsetup">
+<h2>Walker.InternalSetup<a class="headerlink" href="#walker-internalsetup" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">InternalSetup</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal walker method automatically called by Walker.Setup().
+You probably will never need to call this directly.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-free">
+<h2>Walker.Free<a class="headerlink" href="#walker-free" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Free</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal walker method automatically called on script termination.
+You probably will never need to call this directly. If you do, you won’t be able to use your walker until you set it up again.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-setup">
+<h2>Walker.Setup<a class="headerlink" href="#walker-setup" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Setup</span><span class="p">(</span><span class="n">Map</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">Scaling</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Setup</span><span class="p">(</span><span class="n">Map</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">Regions</span><span class="o">:</span><span class="w"> </span><span class="n">TBoxArray</span><span class="o">;</span><span class="w"> </span><span class="n">Scaling</span><span class="o">:</span><span class="w"> </span><span class="kt">Integer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Setup</span><span class="p">(</span><span class="n">Regions</span><span class="o">:</span><span class="w"> </span><span class="n">TBoxArray</span><span class="o">;</span><span class="w"> </span><span class="n">Scaling</span><span class="o">:</span><span class="w"> </span><span class="kt">Integer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Setup method to be called in scripts.
+There’s 4 versions of the method you can call depending on the parameters you pass in.
+All of them have a scaling parameter in common that defaults to 8.
+This is used to adjust the downscaling of the map used, lower downscaling makes walker more accurate at the cost of speed.
+The speed difference is more or less porportional to the scaling, higher being faster. Unless you have issues with wrong positions you should probably not touch it.</p>
+<p>Map is the map name you want to load. The file is assumed to be in the walker maps directory: Simba/Includes/SRL/osr/walker/maps
+If the map is not there, an error will be thrown.
+You can optionally load only certain regions of the map. This is useful if there’s a map that has the area you want but it’s too slow due to it’s size.
+The regions are specified as a TBoxArray and they are cropped from the map you specify on setup and joined into a single map image. This type of setup retains the coordinates of the original map image.
+You can also optionally omit the Map name to make walker use the default SRL map which you can find in: Simba/Includes/SRL/osr/walker/map.png</p>
+<section id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">//The following are several setup examples. Keep in mind that if the file doesn&#39;t exist in the maps folder, Walker will throw an error.</span>
+<span class="k">var</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
+
+<span class="k">begin</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">)</span><span class="o">;</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world.png&#39;</span><span class="p">)</span><span class="o">;</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="o">,</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span><span class="o">;</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">Setup</span><span class="p">()</span><span class="o">;</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">Setup</span><span class="p">([[</span><span class="mi">4460</span><span class="o">,</span><span class="w"> </span><span class="mi">1900</span><span class="o">,</span><span class="w"> </span><span class="mi">4800</span><span class="o">,</span><span class="w"> </span><span class="mi">2250</span><span class="p">]</span><span class="o">,</span><span class="w"> </span><span class="p">[</span><span class="mi">75</span><span class="o">,</span><span class="w"> </span><span class="mi">75</span><span class="o">,</span><span class="w"> </span><span class="mi">1000</span><span class="o">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">]])</span><span class="o">;</span><span class="w"> </span><span class="c1">//loads GE and lunar isle.</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="walker-cleanminimap">
+<h2>Walker.CleanMinimap<a class="headerlink" href="#walker-cleanminimap" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">CleanMinimap</span><span class="p">(</span><span class="n">Bitmap</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal walker method used to clear minimap dots from the minimap.
+You probably don’t need to use this.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-getcleanminimap">
+<h2>Walker.GetCleanMinimap<a class="headerlink" href="#walker-getcleanminimap" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">GetCleanMinimap</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal walker method used to “screenshot” the minimap and clean it with Walker.CleanMinimap().
+You probably don’t need to use this directly but you can see what it does in the following example.</p>
+<section id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
+
+<span class="k">begin</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">GetCleanMinimap</span><span class="p">()</span><span class="o">.</span><span class="n">Debug</span><span class="p">()</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="walker-scaleminimap">
+<h2>Walker.ScaleMinimap<a class="headerlink" href="#walker-scaleminimap" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">ScaleMinimap</span><span class="p">(</span><span class="n">Bitmap</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span><span class="w"> </span><span class="n">Scaling</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal walker method used to scale down the minimap to whatever TRSWalker.Scaling is.
+You probably don’t need to use this directly but you can see what it does in the following example.</p>
+<section id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
+
+<span class="k">begin</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">ScaleMinimap</span><span class="p">(</span><span class="n">rsw</span><span class="o">.</span><span class="n">GetCleanMinimap</span><span class="p">()</span><span class="o">,</span><span class="w"> </span><span class="n">rsw</span><span class="o">.</span><span class="n">Scaling</span><span class="p">)</span><span class="o">.</span><span class="n">Debug</span><span class="p">()</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="walker-scaledsearch">
+<h2>Walker.ScaledSearch<a class="headerlink" href="#walker-scaledsearch" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">ScaledSearch</span><span class="p">(</span><span class="n">Bitmap</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span><span class="w"> </span><span class="n">Samples</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal walker method used to get an initial TPointArray of possible positions.
+This is performed in a scaled down map with a scaled down minimap. This is very innacurate by itself but by ruling down most of the map
+in a scaled search before doing a full sized search speed has a dramatic boost.
+You probably won’t ever need to call this directly.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-fullsearch">
+<h2>Walker.FullSearch<a class="headerlink" href="#walker-fullsearch" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">FullSearch</span><span class="p">(</span><span class="n">Templ</span><span class="o">,</span><span class="w"> </span><span class="n">World</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span><span class="w"> </span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">Match</span><span class="o">:</span><span class="w"> </span><span class="kt">Single</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal walker method used to get the player position.
+This is used by TRSWalker.GetMyPos() to determine how likely is the <strong>Position</strong> passed in, our actual position.
+This likelyhood is returned with <strong>Match</strong> which ranges from 0 to 1.
+You probably won’t ever need to call this directly.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-getmypos">
+<h2>Walker.GetMyPos<a class="headerlink" href="#walker-getmypos" title="Permalink to this heading">¶</a></h2>
+<p>function TRSWalker.GetMyPos: TPoint;</p>
+<p>Returns the players current position on the loaded map.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">WriteLn</span><span class="p">(</span><span class="n">Walker</span><span class="o">.</span><span class="n">GetMyPos</span><span class="p">());</span>
+
+<span class="o">//</span> <span class="n">Check</span> <span class="n">to</span> <span class="n">see</span> <span class="n">the</span> <span class="n">match</span> <span class="n">percentage</span> <span class="k">if</span> <span class="n">needed</span>
+<span class="n">WriteLn</span><span class="p">(</span><span class="n">Walker</span><span class="o">.</span><span class="n">Similarity</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="walker-worldtomm">
+<h2>Walker.WorldToMM<a class="headerlink" href="#walker-worldtomm" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WorldToMM</span><span class="p">(</span><span class="n">PlayerPoint</span><span class="o">,</span><span class="w"> </span><span class="n">WorldPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Radians</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WorldToMM</span><span class="p">(</span><span class="n">WorldPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Converts a walker coordinate to a point in the minimap.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>var
+  rsw: TRSWalker;
+  p: TPoint;
+  bitmap: TMufasaBitmap;
+
+begin
+  rsw.Setup([RSWalkerRegions.GRAND_EXCHANGE]); //Make sure you are in GE for this example.
+  p := rsw.WorldToMM([4620, 2100]);            //This is just a random point in the ge with SRL map.
+
+  bitmap.FromClient();
+  bitmap.DrawCross(p, 4, $FFFFFF);
+  bitmap.Free();
+end;
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="walker-checkrunenergy">
+<h2>Walker.CheckRunEnergy<a class="headerlink" href="#walker-checkrunenergy" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">CheckRunEnergy</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used to check and enable the player run.
+You will probably never need to call this directly.</p>
+<p>The values used are hardcoded and if you don’t like them, it’s recommended you override the method.
+The following example shows how one could override the function to enable run at 50% energy everytime, keep in mind though, you shouldn’t do this, you should add randomness to it!</p>
+<section id="id5">
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">CheckRunEnergy</span><span class="p">()</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
+<span class="k">begin</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsRunEnabled</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="p">(</span><span class="n">Minimap</span><span class="o">.</span><span class="n">GetRunEnergy</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="k">Exit</span><span class="o">;</span>
+<span class="w">  </span><span class="n">Minimap</span><span class="o">.</span><span class="n">EnableRun</span><span class="p">()</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="walker-adaptivewalkcheck">
+<h2>Walker.AdaptiveWalkCheck<a class="headerlink" href="#walker-adaptivewalkcheck" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">AdaptiveWalkCheck</span><span class="p">(</span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used to check if adaptive walk should toggle and toggle TRSWalker.ScreenWalk.
+You will probably never need to call this directly.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-domouseahead">
+<h2>Walker.DoMouseAhead<a class="headerlink" href="#walker-domouseahead" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">DoMouseAhead</span><span class="p">(</span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Forced</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used to pre-hover the next walking step.
+You will probably never need to call this directly.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-waitmoving">
+<h2>Walker.WaitMoving<a class="headerlink" href="#walker-waitmoving" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WaitMoving</span><span class="p">(</span><span class="n">Destination</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">WaitUntilDistance</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used to wait while we are moving using walker.
+You will probably never need to call this directly.</p>
+<p>This is where TRSWalker.OnWalkingEvent are called.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-click">
+<h2>Walker.Click<a class="headerlink" href="#walker-click" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Click</span><span class="p">(</span><span class="n">MinimapPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Randomness</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used by walker to handle clicking while walking.
+You will probably never need to call this directly.</p>
+<p>If you wish to modify certain walker behaviors, it’s a good approach to override this function.
+For example, if you are screenwalking and you don’t like it right clicking &gt; walk here when it hovers a tree you could use the following example.</p>
+<section id="id6">
+<h3>Example<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Click</span><span class="p">(</span><span class="n">MinimapPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Randomness</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
+<span class="k">var</span>
+<span class="w">  </span><span class="n">P</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
+<span class="k">begin</span>
+<span class="w">  </span><span class="bp">Result</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">True</span><span class="o">;</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="k">Self</span><span class="o">.</span><span class="n">ScreenWalk</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">Mouse</span><span class="o">.</span><span class="n">Move</span><span class="p">(</span><span class="n">Minimap</span><span class="o">.</span><span class="n">PointToMsRect</span><span class="p">(</span><span class="n">MinimapPoint</span><span class="p">)</span><span class="o">.</span><span class="n">Mean</span><span class="p">())</span><span class="o">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="n">MainScreen</span><span class="o">.</span><span class="n">IsUpText</span><span class="p">([</span><span class="s">&#39;Walk here&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;Tree&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;tree&#39;</span><span class="p">])</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="k">Exit</span><span class="p">(</span><span class="n">ChooseOption</span><span class="o">.</span><span class="n">Select</span><span class="p">(</span><span class="s">&#39;Walk here&#39;</span><span class="p">))</span><span class="o">;</span>
+<span class="w">  </span><span class="k">end</span><span class="w"> </span><span class="k">else</span>
+<span class="w">  </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">P</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">MinimapPoint</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="o">-</span><span class="n">Randomness</span><span class="o">,</span><span class="w"> </span><span class="n">Randomness</span><span class="p">)</span><span class="o">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsPointOn</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+<span class="w">      </span><span class="n">P</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">MinimapPoint</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="o">-</span><span class="n">Randomness</span><span class="o">,</span><span class="w"> </span><span class="n">Randomness</span><span class="p">)</span><span class="o">;</span>
+
+<span class="w">    </span><span class="n">Mouse</span><span class="o">.</span><span class="n">Move</span><span class="p">(</span><span class="n">P</span><span class="p">)</span><span class="o">;</span>
+<span class="w">  </span><span class="k">end</span><span class="o">;</span>
+
+<span class="w">  </span><span class="n">Mouse</span><span class="o">.</span><span class="n">Click</span><span class="p">(</span><span class="n">MOUSE_LEFT</span><span class="p">)</span><span class="o">;</span>
+
+<span class="w">  </span><span class="c1">// 15% chance of spam clicking</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">Randomness</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="p">(</span><span class="nb">Random</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0.15</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="nb">Random</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">begin</span>
+<span class="w">      </span><span class="n">Mouse</span><span class="o">.</span><span class="n">Click</span><span class="p">(</span><span class="n">Mouse</span><span class="o">.</span><span class="n">Position</span><span class="p">()</span><span class="o">,</span><span class="w"> </span><span class="n">MOUSE_LEFT</span><span class="p">)</span><span class="o">;</span>
+
+<span class="w">      </span><span class="n">Wait</span><span class="p">(</span><span class="mi">0</span><span class="o">,</span><span class="w"> </span><span class="mi">150</span><span class="o">,</span><span class="w"> </span><span class="n">wdLeft</span><span class="p">)</span><span class="o">;</span>
+<span class="w">    </span><span class="k">end</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="walker-walkfinalstep">
+<h2>Walker.WalkFinalStep<a class="headerlink" href="#walker-walkfinalstep" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkFinalStep</span><span class="p">(</span><span class="n">PlayerPoint</span><span class="o">,</span><span class="w"> </span><span class="n">WorldPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">WaitUntilDistance</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used by walker when finishing walking a path.
+You will probably never need to call this directly but it can be used to take a single step.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-walkstep">
+<h2>Walker.WalkStep<a class="headerlink" href="#walker-walkstep" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkStep</span><span class="p">(</span><span class="n">PlayerPoint</span><span class="o">,</span><span class="w"> </span><span class="n">WorldPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used by walker while walking a path.
+You will probably never need to call this directly.</p>
+</section>
+<hr class="docutils" />
+<section id="walker-iswalkable">
+<h2>Walker.IsWalkable<a class="headerlink" href="#walker-iswalkable" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">IsWalkable</span><span class="p">(</span><span class="n">WorldPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">PlayerPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Angle</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used by walker to decide if the destination point is within 1 click reach.
+You will probably never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="trswalker-walkpath">
@@ -291,8 +629,8 @@ This method is to be called before using the walking functionality.</p>
 </pre></div>
 </div>
 <p>Walks a path of points taken from the loaded map. We advice that WaitUntilDistance is not 0.</p>
-<section id="id2">
-<h3>Parameters<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h3>
 <dl>
 <dt>Path</dt><dd><p>Array of points taken from the loaded map to walk. Must be ordered from start to finish.</p>
 </dd>
@@ -304,8 +642,8 @@ This method is to be called before using the walking functionality.</p>
 </dd>
 </dl>
 </section>
-<section id="id3">
-<h3>Example<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<section id="id7">
+<h3>Example<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Walker</span><span class="o">.</span><span class="n">WalkPath</span><span class="p">([[</span><span class="mi">100</span><span class="o">,</span><span class="mi">100</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">120</span><span class="o">,</span><span class="mi">120</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">140</span><span class="o">,</span><span class="mi">140</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">160</span><span class="o">,</span><span class="mi">160</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">180</span><span class="o">,</span><span class="mi">180</span><span class="p">]])</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -319,8 +657,8 @@ This method is to be called before using the walking functionality.</p>
 </div>
 <p>“Blindly” walks to a point taken from the loaded map.
 A straight line is generated between the player’s position and destination which is then walked.</p>
-<section id="id4">
-<h3>Parameters<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<section id="id8">
+<h3>Parameters<a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h3>
 <dl>
 <dt>Destination</dt><dd><p>Destination point taken from the loaded map.</p>
 </dd>
@@ -332,8 +670,8 @@ A straight line is generated between the player’s position and destination whi
 </dd>
 </dl>
 </section>
-<section id="id5">
-<h3>Example<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<section id="id9">
+<h3>Example<a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Walker</span><span class="o">.</span><span class="n">WalkBlind</span><span class="p">([</span><span class="mi">300</span><span class="o">,</span><span class="w"> </span><span class="mi">300</span><span class="p">])</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -348,8 +686,8 @@ A straight line is generated between the player’s position and destination whi
 <p>Web walks to the destination point on the loaded map. Does <strong>not</strong> handle any obstacles.
 Please run <code class="docutils literal notranslate"><span class="pre">webber.simba</span></code> to see how webgraphs are built.</p>
 <p>Pre built webgraphs are available for “World” and “Zeah” when used.</p>
-<section id="id6">
-<h3>Parameters<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<section id="id10">
+<h3>Parameters<a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h3>
 <dl>
 <dt>Destination</dt><dd><p>Destination point taken from the loaded map.</p>
 </dd>
@@ -363,8 +701,8 @@ Please run <code class="docutils literal notranslate"><span class="pre">webber.s
 </dd>
 </dl>
 </section>
-<section id="id7">
-<h3>Example<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
+<section id="id11">
+<h3>Example<a class="headerlink" href="#id11" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span><span class="w"> </span><span class="n">Walker</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
 
 <span class="n">Walker</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">)</span><span class="o">;</span>
@@ -374,8 +712,56 @@ Please run <code class="docutils literal notranslate"><span class="pre">webber.s
 <span class="n">Walker</span><span class="o">.</span><span class="n">WebWalk</span><span class="p">(</span><span class="n">WorldWeb</span><span class="o">.</span><span class="n">LOCATION_LUMBRIDGE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
-<hr class="docutils" />
 </section>
+</section>
+<hr class="docutils" />
+<section id="trswalker-debugposition">
+<h2>TRSWalker.DebugPosition<a class="headerlink" href="#trswalker-debugposition" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">DebugPosition</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Debugs the player position in the currently loaded map.</p>
+<section id="id12">
+<h3>Example<a class="headerlink" href="#id12" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
+<span class="k">begin</span>
+<span class="w">  </span><span class="n">rsw</span><span class="o">.</span><span class="n">Setup</span><span class="p">()</span><span class="o">;</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="k">True</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="n">rsw</span><span class="o">.</span><span class="n">DebugPosition</span><span class="p">()</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="trswalker-gettilems">
+<h2>TRSWalker.GetTileMS<a class="headerlink" href="#trswalker-gettilems" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">GetTileMSEx</span><span class="p">(</span><span class="n">Me</span><span class="o">,</span><span class="w"> </span><span class="n">Loc</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Height</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="w"> </span><span class="n">Offx</span><span class="o">,</span><span class="n">Offy</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TRectangle</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">GetTileMS</span><span class="p">(</span><span class="n">Loc</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Height</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="w"> </span><span class="n">Offx</span><span class="o">,</span><span class="n">Offy</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TRectangle</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns a tile on the mainscreen with the help of walker and mm2ms.</p>
+<section id="id13">
+<h3>Example<a class="headerlink" href="#id13" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">rsw</span><span class="o">.</span><span class="n">GetTileMS</span><span class="p">(</span><span class="n">rsw</span><span class="o">.</span><span class="n">GetMypos</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="o">,</span><span class="w"> </span><span class="mi">10</span><span class="p">]))</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="trswalker-mstoworld">
+<h2>TRSWalker.MSToWorld<a class="headerlink" href="#trswalker-mstoworld" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">MSToWorldEx</span><span class="p">(</span><span class="n">Me</span><span class="o">,</span><span class="w"> </span><span class="n">Loc</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Height</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="o">;</span><span class="w"> </span><span class="n">Accuracy</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.2</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">MSToWorld</span><span class="p">(</span><span class="n">Loc</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Height</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="w"> </span><span class="n">Accuracy</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Converts a point on the mainscreen to a walker point.</p>
+<hr class="docutils" />
 </section>
 </section>
 
