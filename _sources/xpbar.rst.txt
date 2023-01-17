@@ -1,0 +1,125 @@
+
+XPBar
+=====
+Methods to interact with the XP bar.
+
+
+------------
+
+XPBar.Setup
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSXPBar.Setup(); override;
+
+Initializes **XPBar** variables.
+
+.. note:: This is automatically called on the **XPBar** variable.
+
+
+------------
+
+XPBar.IsEnabled
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSXPBar.IsEnabled(): Boolean;
+
+Checks if the XPBar circle is enabled.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn XPBar.IsEnabled();
+
+
+------------
+
+XPBar.Enable
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSXPBar.Enable(): Boolean;
+
+Enables the XPBar by clicking the XPBar circle.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if not XPBar.IsEnabled() then
+    WriteLn XPBar.Enable();
+
+
+------------
+
+XPBar._Setup
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSXPBar._Setup();
+
+Internal method automatically called by SRL once when attempting to read the XPBar.
+
+
+------------
+
+XPBar.Read
+~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSXPBar.Read(): Int32;
+
+Reads the XP in the XPBar.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn XPBar.Read();
+
+
+------------
+
+XPBar.IsOpen
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSXPBar.IsOpen(): Boolean;
+
+Checks if the XPBar is open.
+Keep in mind interfaces and things that cover the xp bar, might make this return false.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn XPBar.IsOpen();
+
+
+------------
+
+XPBar.Open
+~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSXPBar.Open(): Boolean;
+
+Attempts to open the XPBar if it's not open.
+
+Example
+-------
+.. code-block:: pascal  
+  if not XPBar.IsOpen() then
+    WriteLn XPBar.Open();
+
+
+------------
+
+var XPBar
+~~~~~~~~~
+  Global XPBar variable.
+
+
+------------
