@@ -353,6 +353,11 @@ begin
   // Implemented in minimaptoms.simba
 end;
 
+function TRSMainScreen.ConvertDistance(Dist: Int32; Accuracy: Single = 1.05): Int32; deprecated 'Use TRSMainScreen.NormalizeDistance()';
+begin
+  Result := Self.NormalizeDistance(Dist, Accuracy);
+end;
+
 
 (*
 MainScreen.GetPlayerBox
