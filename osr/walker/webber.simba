@@ -19,10 +19,9 @@ type
 
 var
   Webber: TWebberForm;
-
 begin
   // Change the map here
-  Webber.Map := TRSWalker.FindMap('world');
+  Webber.Map := TRSWalkerMap.FindMap('world');
 
   // Comment out for a new graph ...
   Webber.Graph := WorldWeb;
