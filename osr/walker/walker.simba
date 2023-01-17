@@ -1,15 +1,48 @@
 (*
 Walker
 ======
+
+Walker, also commonly refered to as RSWalker and RSW is the go to tool for walking and accurate positioning.
+
+How does it work?
+~~~~~~~~~~~~~~~~~
+The details are quite complex but to put it simply, the way it works is:
+- A large image of the game map is loaded. This image has to include the region you are on or things won't work as expected.
+- A screenshot of your minimap is taken and, rotated north and cleaned (player, npc and item dots are removed).
+- This minimap screenshot is then searched on our loaded map image, the closest match is then returned as our position.
+- Once we have an accurate position, we can do all sort of things:
+  - Accurately get the position of a tile
+  - Accurately hover any visible tile with the help of mm2ms
+  - Color search a tile
+
+Things to keep in mind with TRSWalker:
+- Coordinates are relative to the map loaded. They are literally your pixel position in the map image.
+  If you load map A and B and map B contains map A somewhere that is not it's top-left corner,
+  their coordinates will not match even if you are standing in the same tile.
+  So if you get your position and it tells you are at X = 300 and Y = 500 it means you are in the pixel X = 300 and Y = 500 of your map image.
+- Because we search our minimap inside our map to find our position, smaller maps are much faster.
+  It's not exactly porportional but almost, so if you have a map that has a total of 1000 pixels and it takes 50ms to get your position,
+  a map with 2000 pixels will take almost exactly 100ms.
+- A map image cannot be smaller than the minimap and should not even be anywhere close to it's size.
+  Any area you think you might be standing on on your script should have at the very minimum a 75 extra pixels of "padding"
+  because that's the maximum visible distance of the minimap and even then, slightly more is recommended.
+
+Variables for users to tweak:
+- ScreenWalk: When set to true, walker will use only the mainscreen to walk instead of the minimap.
+- AdaptiveWalk: When set to true, will enable and disable ScreenWalk depending on your distance to the target,
+                making walking use a mix of minimap and mainscreen walking. The closer your are to the target
+                the more likely it is to use the mainscreen and the further you are the less likely.
+                You can also play with RSW_ADAPTIVE_SCREEN_TOGGLE_DISTANCES values to customize the behavior.
 *)
 
-{.$DEFINE SRL_DEBUG_WALKER}
-
 {$DEFINE SRL_WALKER_INCLUDED}
-
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
+
+const
+  SRL_WALKER_DIR = {$MACRO CURRENT_DIRECTORY};
+  SRL_WALKER_MAP = {$MACRO CURRENT_DIRECTORY} + 'map.png';
 
 {$I webgraph.simba}
 {$I world.graph}
@@ -20,15 +53,69 @@ var
   RSW_ADAPTIVE_SCREEN_TOGGLE_DISTANCES: TPoint = [25,110];
 
 type
+(*
+type PRSWalker
+~~~~~~~~~~~~~~
+TRSWalker pointer.
+*)
   PRSWalker = ^TRSWalker;
 
+(*
+type TRSWalker_OnWalkEvent
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Callback method to use while walking. This can be used to perform custom tasks while walking.
+
+Example
+-------
+
+  procedure WalkerTasks(Walker: PRSWalker; Position: TPoint; Destination: TPoint);
+  begin
+    Antiban.RandomTab();
+  end;
+
+  var
+    rsw: TRSWalker;
+
+  begin
+    rsw.Setup('world');
+    rsw.OnWalkingEvent := @WalkerTasks;
+  end;
+*)
   TRSWalker_OnWalkEvent = procedure(Walker: PRSWalker; Position: TPoint; Destination: TPoint);
+(*
+type TRSWalker_OnWalkEventEx
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Callback object method to use while walking. This can be used to perform custom tasks while walking.
+
+Example
+-------
+
+  procedure TRSWalker.WalkerTasks(Walker: PRSWalker; Position: TPoint; Destination: TPoint);
+  begin
+    Antiban.RandomTab();
+  end;
+
+  var
+    rsw: TRSWalker;
+
+  begin
+    rsw.Setup('world');
+    rsw.OnWalkingEventEx := @rsw.WalkerTasks;
+  end;
+*)
   TRSWalker_OnWalkEventEx = procedure(Walker: PRSWalker; Position: TPoint; Destination: TPoint) of object;
 
+(*
+type TRSWalker
+~~~~~~~~~~~~~~
+TRSWalker is the record responsbile for walking and position.
+*)
   TRSWalker = record(TSRLBaseRecord)
-    Cache: TMatchTemplateRGBCache;
+    Region: TBox;
+    RegionIndex: Integer;
 
-    World: TMufasaBitmap;
+    Map: TRSWalkerMap;
+    Cache: TMatchTemplateRGBCache;
 
     WebGraph: TWebGraph;
 
@@ -39,7 +126,7 @@ type
     ScreenWalk: Boolean;
     AdaptiveWalk: Boolean;
     NearZoomMode: Boolean;
-    
+
     ClickRandomness: Int32;
     AdaptiveToggleDistances: TPoint;
 
@@ -57,146 +144,117 @@ type
     OnWalkingEvent: TRSWalker_OnWalkEvent;
   end;
 
-function TRSWalker.FindMap(Map: String): String; static;
+(*
+Walker.InternalSetup
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.InternalSetup();
+
+Internal walker method automatically called by Walker.Setup().
+You probably will never need to call this directly.
+*)
+procedure TRSWalker.InternalSetup();
 var
-  Mask: String = '.png;.bmp;';
-  Files: TStringArray;
+  MinimapImage, MinimapSample: TMufasaBitmap;
 begin
-  if FileExists(Map) then
-    Exit(ExpandFileName(Map));
+  Self.Name := 'Walker';
 
-  Mask := StringReplace(Mask, '.', Map + '.', [rfReplaceAll]);
+  MinimapImage := Self.GetCleanMinimap();
+  MinimapSample := Self.ScaleMinimap(MinimapImage, Self.Scaling);
 
-  Files := FindFile(ExtractFileDir(Map), Mask, False, False) +
-           FindFile({$MACRO CURRENT_DIRECTORY}, Mask, True, False);
+  Self.Cache := TMatchTemplateRGBCache.Create(Self.Map.ScaledMap.ToMatrix(), MinimapSample.ToMatrix());
 
-  if Length(Files) > 0 then
-    Result := Files[0];
-end;
-
-function TRSWalker.LoadMap(Path: String): TMufasaBitmap; static;
-const
-  MAPS = {$MACRO CURRENT_DIRECTORY} + DirectorySeparator + 'maps' + DirectorySeparator;
-var
-  Cache: String;
-begin
-  Result.Init(Client.GetMBitmaps());
-
-  if ExtractFileExt(Path) <> '.bmp' then
-  begin
-    Cache := MAPS + SHA1File(Path) + '.bmp';
-
-    // Save as bitmap for much faster loading
-    if not FileExists(Cache) then
-    begin
-      Result.LoadFromFile(Path);
-      Result.SaveToFile(Cache);
-    end;
-
-    if FileExists(Cache) then
-      Path := Cache;
-  end;
-
-  Result.LoadFromFile(Path);
-end;
-
-procedure TRSWalker.Free;
-begin
-  if Self.World <> nil then
-  begin
-    Self.World.Free();
-    Self.World := nil;
-  end;
+  MinimapSample.Free();
+  MinimapImage.Free();
 end;
 
 (*
-TRSWalker.Setup
-~~~~~~~~~~~~~~~
-.. pascal:: procedure TRSWalker.Setup(Map: String; Manage: Boolean = True; Scaling: Int32 = 10);
+Walker.Free
+~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.Free;
 
-Setup a RSWalker variable.
-This only needs calling once per variable so it's suggested to use a global variable.
-This method is to be called before using the walking functionality.
+Internal walker method automatically called on script termination.
+You probably will never need to call this directly. If you do, you won't be able to use your walker until you set it up again.
+*)
+procedure TRSWalker.Free;
+begin
+  if Assigned(Self.Map) then
+    Self.Map.Free();
+end;
 
-Other parameters that you can set up after are:
-* RSW.ScreenWalk := True;
-	If this is set to True, RSW will walk on the mainscreen.
+(*
+Walker.Setup
+~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 8);
+.. pascal:: procedure TRSWalker.Setup(Map: String; Regions: TBoxArray; Scaling: Integer = 8); overload;
+.. pascal:: procedure TRSWalker.Setup(Regions: TBoxArray; Scaling: Integer = 8); overload;
 
-* RSW.AdaptiveWalk := True;
-	If this is set to True, RSW will try to mix minimap walking with mainscreen walking, so first and last clicks will usually happen on the mainscreen.
+Setup method to be called in scripts.
+There's 4 versions of the method you can call depending on the parameters you pass in.
+All of them have a scaling parameter in common that defaults to 8.
+This is used to adjust the downscaling of the map used, lower downscaling makes walker more accurate at the cost of speed.
+The speed difference is more or less porportional to the scaling, higher being faster. Unless you have issues with wrong positions you should probably not touch it.
 
-* RSW.FancyMouse := True;
-	If this is set to True, RSW will attempt to make the mousemovement a little more human.
-
-* RSW.NearZoomMode := True;
-	Use this is you are zoomed in a lot, and still wanna do mainscreen walking. It will bypass some random meassures in order to walk with fewer errors.
-
-* RSW.ClickRandomness := 5;
-	This is by default 4, it's the radius of the area we click in the path to make the path more random.
-
-
-Parameters
-----------
-
-Map
-	File path to an image or a map name found in *SRL/osr/walker/maps*.
-
-Manage
-  Automatically free walker at the end of the script. Only works if the TRSWalker variable is global. (Default: True)
-
-Scaling
-	Multipler to downscale the map. Lower will bring more accuracy at the cost of speed. (Default: 9)
+Map is the map name you want to load. The file is assumed to be in the walker maps directory: Simba/Includes/SRL/osr/walker/maps
+If the map is not there, an error will be thrown.
+You can optionally load only certain regions of the map. This is useful if there's a map that has the area you want but it's too slow due to it's size.
+The regions are specified as a TBoxArray and they are cropped from the map you specify on setup and joined into a single map image. This type of setup retains the coordinates of the original map image.
+You can also optionally omit the Map name to make walker use the default SRL map which you can find in: Simba/Includes/SRL/osr/walker/map.png
 
 Example
 -------
 
-  var Walker: TRSWalker;
+  //The following are several setup examples. Keep in mind that if the file doesn't exist in the maps folder, Walker will throw an error.
+  var
+    rsw: TRSWalker;
 
-  Walker.Setup('world'); // Setup using the world map found in the maps directory
-*)
-procedure TRSWalker.Setup(Map: String; Manage: Boolean = True; Scaling: Int32 = 9);
-var
-  Path: String;
-  Bitmap, Mask, Sample: TMufasaBitmap;
-  X, Y: Int32;
-begin
-  Self.Name := 'Walker';
-
-  Path := Self.FindMap(Map);
-  if (Path = '') then
-    Self.Fatal('Unable to find map: ' + Map);
-
-  Self.Scaling := Scaling;
-  Self.ClickRandomness := 4;
-
-  case Map.Lower() of
-    'world': Self.WebGraph := WorldWeb;
-    'zeah':  Self.WebGraph := ZeahWeb;
+  begin
+    rsw.Setup('world');
+    rsw.Setup('world.png');
+    rsw.Setup('world', 6);
+    rsw.Setup();
+    rsw.Setup([[4460, 1900, 4800, 2250], [75, 75, 1000, 1000]]); //loads GE and lunar isle.
   end;
+*)
+procedure TRSWalker.Setup(Scaling: Integer = 8);
+begin
+  Self.Scaling := Scaling;
+  Self.Map.Load(SRL_WALKER_MAP, Scaling);
 
-  Self.World := Self.LoadMap(Path);
-  if Manage then
-    AddOnTerminate(@Self.Free);
-
-  //Self.HighlightFeatures(Self.World);
-
-  // Fixed or resizable, doesn't matter.
-  Sample := Self.World.Downsample(Self.Scaling);
-  Bitmap := Self.GetCleanMinimap();
-  Mask := Self.ScaleMinimap(Bitmap, Self.Scaling);
-
-  for X := 0 to Mask.getWidth() - 1 do
-    for Y := 0 to Mask.getHeight() - 1 do
-      if (Mask.GetPixel(X, Y) <> 0) then
-        Mask.SetPixel(X, Y, $FFFFFF);
-
-  Self.Cache := TMatchTemplateRGBCache.Create(Sample.ToMatrix(), Mask.ToMatrix());
-
-  Sample.Free();
-  Bitmap.Free();
-  Mask.Free();
+  Self.InternalSetup();
 end;
 
+procedure TRSWalker.Setup(Map: String; Scaling: Int32 = 8); overload;
+begin
+  Self.Scaling := Scaling;
+  Self.Map.Load(Map, Scaling);
+
+  Self.InternalSetup();
+end;
+
+procedure TRSWalker.Setup(Map: String; Regions: TBoxArray; Scaling: Integer = 8); overload;
+begin
+  Self.Scaling := Scaling;
+  Self.Map.Load(Map, Regions, Scaling);
+
+  Self.InternalSetup();
+end;
+
+procedure TRSWalker.Setup(Regions: TBoxArray; Scaling: Integer = 8); overload;
+begin
+  Self.Scaling := Scaling;
+  Self.Map.Load(SRL_WALKER_MAP, Regions, Scaling);
+
+  Self.InternalSetup();
+end;
+
+(*
+Walker.CleanMinimap
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.CleanMinimap(Bitmap: TMufasaBitmap);
+
+Internal walker method used to clear minimap dots from the minimap.
+You probably don't need to use this.
+*)
 procedure TRSWalker.CleanMinimap(Bitmap: TMufasaBitmap);
 
   procedure Find(P: TPoint);
@@ -259,7 +317,25 @@ begin
   Bitmap.Pad(10);
 end;
 
-function TRSWalker.GetCleanMinimap: TMufasaBitmap;
+(*
+Walker.GetCleanMinimap
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.GetCleanMinimap(): TMufasaBitmap;
+
+Internal walker method used to "screenshot" the minimap and clean it with Walker.CleanMinimap().
+You probably don't need to use this directly but you can see what it does in the following example.
+
+Example
+-------
+
+  var
+    rsw: TRSWalker;
+
+  begin
+    rsw.GetCleanMinimap().Debug();
+  end;
+*)
+function TRSWalker.GetCleanMinimap(): TMufasaBitmap;
 var
   Bitmap: TMufasaBitmap;
 begin
@@ -274,6 +350,24 @@ begin
   Bitmap.Free();
 end;
 
+(*
+Walker.ScaleMinimap
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.ScaleMinimap(Bitmap: TMufasaBitmap; Scaling: Int32): TMufasaBitmap;
+
+Internal walker method used to scale down the minimap to whatever TRSWalker.Scaling is.
+You probably don't need to use this directly but you can see what it does in the following example.
+
+Example
+-------
+
+  var
+    rsw: TRSWalker;
+
+  begin
+    rsw.ScaleMinimap(rsw.GetCleanMinimap(), rsw.Scaling).Debug();
+  end;
+*)
 function TRSWalker.ScaleMinimap(Bitmap: TMufasaBitmap; Scaling: Int32): TMufasaBitmap;
 var
   RADIUS = 67;
@@ -302,14 +396,23 @@ begin
   Temp.Free();
 end;
 
+(*
+Walker.ScaledSearch
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.ScaledSearch(Bitmap: TMufasaBitmap; Samples: Int32): TPointArray;
+
+Internal walker method used to get an initial TPointArray of possible positions.
+This is performed in a scaled down map with a scaled down minimap. This is very innacurate by itself but by ruling down most of the map
+in a scaled search before doing a full sized search speed has a dramatic boost.
+You probably won't ever need to call this directly.
+*)
 function TRSWalker.ScaledSearch(Bitmap: TMufasaBitmap; Samples: Int32): TPointArray;
 var
   Sample: TMufasaBitmap;
   Matrix: TSingleMatrix;
 begin
   Sample := Self.ScaleMinimap(Bitmap, Self.Scaling);
-
-  Matrix := MatchTemplateMask(Cache, Sample.ToMatrix, TM_CCOEFF_NORMED);
+  Matrix := MatchTemplateMask(Self.Cache, Sample.ToMatrix, TM_CCOEFF_NORMED);
 
   while Length(Result) < Samples do
     with Matrix.ArgMax() do
@@ -323,6 +426,16 @@ begin
   Sample.Free();
 end;
 
+(*
+Walker.FullSearch
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.FullSearch(Templ, World: TMufasaBitmap; Position: TPoint; out Match: Single): TPoint;
+
+Internal walker method used to get the player position.
+This is used by TRSWalker.GetMyPos() to determine how likely is the **Position** passed in, our actual position.
+This likelyhood is returned with **Match** which ranges from 0 to 1.
+You probably won't ever need to call this directly.
+*)
 function TRSWalker.FullSearch(Templ, World: TMufasaBitmap; Position: TPoint; out Match: Single): TPoint;
 const
   TEMPL_SIZE = 25;
@@ -348,7 +461,6 @@ begin
     TemplScaled.Crop(X - TEMPL_SIZE, Y - TEMPL_SIZE, X + TEMPL_SIZE, Y + TEMPL_SIZE);
 
   Matrix := SliceScaled.MatchTemplate(TemplScaled, TM_CCOEFF_NORMED);
-
   with Matrix.ArgMax() do
   begin
     Match := Matrix[Y, X];
@@ -362,22 +474,22 @@ begin
   Slice.Free();
 end;
 
+
 (*
-TRSWalker.GetMyPos
-~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSWalker.GetMyPos: TPoint;
+Walker.GetMyPos
+~~~~~~~~~~~~~~~
+function TRSWalker.GetMyPos: TPoint;
 
 Returns the players current position on the loaded map.
 
-Example
--------
+Example::
 
   WriteLn(Walker.GetMyPos());
 
   // Check to see the match percentage if needed
   WriteLn(Walker.Similarity);
 *)
-function TRSWalker.GetMyPos: TPoint;
+function TRSWalker.GetMyPos(): TPoint;
 const
   SAMPLES = 3;
 var
@@ -387,14 +499,16 @@ var
   Hit: TPoint;
   Match: Single;
 begin
+  Self.RegionIndex := -1;
+  Self.Region := [];
   Self.Similarity := 0;
 
-  Bitmap := GetCleanMinimap();
+  Bitmap := Self.GetCleanMinimap();
 
   TPA := Self.ScaledSearch(Bitmap, SAMPLES);
   for I := 0 to High(TPA) do
   begin
-    Hit := FullSearch(Bitmap, Self.World, TPA[I], Match);
+    Hit := Self.FullSearch(Bitmap, Self.Map.Map, TPA[I], Match);
 
     if Match > Self.Similarity then
     begin
@@ -404,10 +518,42 @@ begin
     end;
   end;
 
+  Self.RegionIndex := Self.Map.RegionIndexFromPoint(Result);
+  if Self.RegionIndex > -1 then
+  begin
+    Self.Region := Self.Map.Regions[Self.RegionIndex];
+
+    Result := Self.Map.RegionToGlobal(Result);
+  end;
+
   Bitmap.Free();
 end;
 
-function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint; overload;
+(*
+Walker.WorldToMM
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint;
+.. pascal:: function TRSWalker.WorldToMM(WorldPoint: TPoint): TPoint; overload;
+
+Converts a walker coordinate to a point in the minimap.
+
+Example::
+
+  var
+    rsw: TRSWalker;
+    p: TPoint;
+    bitmap: TMufasaBitmap;
+
+  begin
+    rsw.Setup([RSWalkerRegions.GRAND_EXCHANGE]); //Make sure you are in GE for this example.
+    p := rsw.WorldToMM([4620, 2100]);            //This is just a random point in the ge with SRL map.
+
+    bitmap.FromClient();
+    bitmap.DrawCross(p, 4, $FFFFFF);
+    bitmap.Free();
+  end;
+*)
+function TRSWalker.WorldToMM(PlayerPoint, WorldPoint: TPoint; Radians: Double): TPoint;
 begin
   Result := WorldPoint - PlayerPoint + Minimap.Center;
   Result := Result.Rotate(Radians, Minimap.Center);
@@ -418,7 +564,28 @@ begin
   Result := Self.WorldToMM(Self.GetMyPos(), WorldPoint, Minimap.GetCompassAngle(False));
 end;
 
-procedure TRSWalker.CheckRunEnergy;
+(*
+Walker.CheckRunEnergy
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.CheckRunEnergy();
+
+Internal method used to check and enable the player run.
+You will probably never need to call this directly.
+
+The values used are hardcoded and if you don't like them, it's recommended you override the method.
+The following example shows how one could override the function to enable run at 50% energy everytime, keep in mind though, you shouldn't do this, you should add randomness to it!
+
+Example
+-------
+
+  procedure TRSWalker.CheckRunEnergy(); override;
+  begin
+    if Minimap.IsRunEnabled() or (Minimap.GetRunEnergy() < 50) then
+      Exit;
+    Minimap.EnableRun();
+  end;
+*)
+procedure TRSWalker.CheckRunEnergy();
 begin
   if Minimap.IsRunEnabled() or (Minimap.GetRunEnergy() < Self.EnableRunAtEnergy) then
     Exit;
@@ -428,9 +595,16 @@ begin
   Minimap.EnableRun();
 end;
 
+(*
+Walker.AdaptiveWalkCheck
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.AdaptiveWalkCheck(Position: TPoint);
+
+Internal method used to check if adaptive walk should toggle and toggle TRSWalker.ScreenWalk.
+You will probably never need to call this directly.
+*)
 procedure TRSWalker.AdaptiveWalkCheck(Position: TPoint);
 var
-  me: TPoint;
   wasEnabled: Boolean;
 begin
   wasEnabled := Self.ScreenWalk;
@@ -439,15 +613,22 @@ begin
       (Position.DistanceTo(Self.Path[High(Self.Path)]) < Self.AdaptiveToggleDistances.Y)) and
      (Random() > 0.05) then
     Self.ScreenWalk := True
-  
+
   else if Random() < 0.02 then
     Self.ScreenWalk := True;
-  
+
   if (not wasEnabled) and (Self.ScreenWalk) and (Self.FancyMouse) and (Random() < 0.75) and (Minimap.IsPointOn(Mouse.Position)) then
     Self.DoMouseAhead(Position, True);
 end;
 
+(*
+Walker.DoMouseAhead
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.DoMouseAhead(Position: TPoint; Forced: Boolean = False);
 
+Internal method used to pre-hover the next walking step.
+You will probably never need to call this directly.
+*)
 procedure TRSWalker.DoMouseAhead(Position: TPoint; Forced: Boolean = False);
 var
   flag: TPoint;
@@ -467,8 +648,8 @@ var
 
     if (Idx = High(Self.Path)) and (Random(10) > 2) then Exit();
 
-    mmPos := Path[idx] - myPos + minimap.Center;
-    mmPos := RotatePoint(mmPos, angle, Minimap.Center.X, Minimap.Center.Y);
+    mmPos := Self.Path[idx] - myPos + minimap.Center;
+    mmPos := mmPos.Rotate(angle, Minimap.Center);
 
     if Self.ScreenWalk then
       mmPos := Minimap.PointToMsRect(mmPos).Mean();
@@ -485,34 +666,43 @@ begin
     if (GetTimeRunning() < Self.MouseAheadTimer) or (not Minimap.FindFlag(Flag)) then
       Exit();
 
-  dist := Trunc(flag.DistanceTo(Minimap.Bounds.Middle()));
+  dist := Trunc(flag.DistanceTo(Minimap.Center()));
   if InRange(dist, Random(5,10), Random(60,70)) then
     MouseToNextPoint(Position);
 
-  Self.MouseAheadTimer := GetTimeRunning() + srl.SkewedRand(0,50,500);
+  Self.MouseAheadTimer := GetTimeRunning() + SRL.SkewedRand(0,50,500);
   if Self.ScreenWalk then
-    Self.MouseAheadTimer += srl.SkewedRand(0,50,500);
+    Self.MouseAheadTimer += SRL.SkewedRand(0,50,500);
 end;
 
+(*
+Walker.WaitMoving
+~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.WaitMoving(Destination: TPoint; WaitUntilDistance: Int32);
 
+Internal method used to wait while we are moving using walker.
+You will probably never need to call this directly.
+
+This is where TRSWalker.OnWalkingEvent are called.
+*)
 procedure TRSWalker.WaitMoving(Destination: TPoint; WaitUntilDistance: Int32);
 var
   Timeout, Countdown: TCountDown;
   Position: record
     Current, Previous: TPoint;
   end;
-  awct: Int64; 
+  awct: Int64;
 begin
   Timeout.Init(Round(SRL.TruncatedGauss(20000, 25000)));
 
   Countdown.Init(Round(SRL.TruncatedGauss(500, 1500)));
-  
+
   // initial timeout needs to be longer, as we might not have started walking yet.
   Countdown.Timeout := GetTickCount() + Round(SRL.TruncatedGauss(2500, 3500));
 
   Position.Previous := Self.GetMyPos();
   Position.Current := Position.Previous;
-  
+
   // Break from the loop if:
   // - Haven't moved in 500ms
   // - Been walking for over 20 seconds
@@ -525,15 +715,15 @@ begin
     if Position.Current <> Position.Previous then
       Countdown.Restart();
 
-    if (@OnWalkingEvent <> nil) then
-      OnWalkingEvent(@Self, Position.Current, Destination);
-    
+    if (@Self.OnWalkingEvent <> nil) then
+      Self.OnWalkingEvent(@Self, Position.Current, Destination);
+
     if (Self.AdaptiveWalk) and (GetTickCount() > awct) then
     begin
       Self.AdaptiveWalkCheck(Position.Current);
       awct := GetTickCount() + 1000;
     end;
-    
+
     if Self.FancyMouse then
       Self.DoMouseAhead(Position.Current);
 
@@ -544,6 +734,54 @@ begin
   until Timeout.IsFinished() or Countdown.IsFinished() or (Position.Current.DistanceTo(Destination) <= WaitUntilDistance);
 end;
 
+(*
+Walker.Click
+~~~~~~~~~~~~
+.. pascal:: function TRSWalker.Click(MinimapPoint: TPoint; Randomness: Int32): Boolean;
+
+Internal method used by walker to handle clicking while walking.
+You will probably never need to call this directly.
+
+If you wish to modify certain walker behaviors, it's a good approach to override this function.
+For example, if you are screenwalking and you don't like it right clicking > walk here when it hovers a tree you could use the following example.
+
+Example
+-------
+
+  function TRSWalker.Click(MinimapPoint: TPoint; Randomness: Int32): Boolean; override;
+  var
+    P: TPoint;
+  begin
+    Result := True;
+
+    if Self.ScreenWalk then
+    begin
+      Mouse.Move(Minimap.PointToMsRect(MinimapPoint).Mean());
+
+      if not MainScreen.IsUpText(['Walk here', 'Tree', 'tree']) then
+        Exit(ChooseOption.Select('Walk here'));
+    end else
+    begin
+      P := MinimapPoint.Random(-Randomness, Randomness);
+      while not Minimap.IsPointOn(P) do
+        P := MinimapPoint.Random(-Randomness, Randomness);
+
+      Mouse.Move(P);
+    end;
+
+    Mouse.Click(MOUSE_LEFT);
+
+    // 15% chance of spam clicking
+    if (Randomness > 0) and (Random() < 0.15) then
+      for 0 to Random(3) do
+      begin
+        Mouse.Click(Mouse.Position(), MOUSE_LEFT);
+
+        Wait(0, 150, wdLeft);
+      end;
+  end;
+
+*)
 function TRSWalker.Click(MinimapPoint: TPoint; Randomness: Int32): Boolean;
 var
   P: TPoint;
@@ -552,7 +790,7 @@ begin
 
   if Self.ScreenWalk then
   begin
-    Mouse.Move(Minimap.PointToMsRect(MinimapPoint).Mean);
+    Mouse.Move(Minimap.PointToMsRect(MinimapPoint).Mean());
 
     if not MainScreen.IsUpText('Walk here') then
       Exit(ChooseOption.Select('Walk here'));
@@ -577,7 +815,14 @@ begin
     end;
 end;
 
-// Walks to the final point in the path
+(*
+Walker.WalkFinalStep
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.WalkFinalStep(PlayerPoint, WorldPoint: TPoint; WaitUntilDistance: Int32): Boolean;
+
+Internal method used by walker when finishing walking a path.
+You will probably never need to call this directly but it can be used to take a single step.
+*)
 function TRSWalker.WalkFinalStep(PlayerPoint, WorldPoint: TPoint; WaitUntilDistance: Int32): Boolean;
 var
   MinimapPoint: TPoint;
@@ -601,7 +846,14 @@ begin
     Self.WaitMoving(WorldPoint, WaitUntilDistance);
 end;
 
-// Walks to a (non final) point in the path
+(*
+Walker.WalkStep
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.WalkStep(PlayerPoint, WorldPoint: TPoint): Boolean;
+
+Internal method used by walker while walking a path.
+You will probably never need to call this directly.
+*)
 function TRSWalker.WalkStep(PlayerPoint, WorldPoint: TPoint): Boolean;
 var
   MinimapPoint: TPoint;
@@ -634,6 +886,14 @@ begin
   end
 end;
 
+(*
+Walker.IsWalkable
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.IsWalkable(WorldPoint: TPoint; PlayerPoint: TPoint; Angle: Double): Boolean;
+
+Internal method used by walker to decide if the destination point is within 1 click reach.
+You will probably never need to call this directly.
+*)
 function TRSWalker.IsWalkable(WorldPoint: TPoint; PlayerPoint: TPoint; Angle: Double): Boolean;
 var
   MinimapPoint: TPoint;
@@ -644,7 +904,7 @@ begin
   case Self.ScreenWalk of
     True:
       begin
-        B := Minimap.PointToMSRect(MinimapPoint, Angle).Bounds;
+        B := Minimap.PointToMSRect(MinimapPoint, 1, 1, Angle).Bounds();
         if MainScreen.IsVisible(B.Middle) then
           Result := CountColor($000000, B.Expand(0, MainScreen.Bounds())) = 0; // Client doesn't always render everything when zoomed out
       end;
@@ -691,12 +951,12 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
     for I := 1 to High(TPA) do
     begin
       Line := TPAFromLine(TPA[I-1], TPA[I]);
-      
+
       J := 0;
       while J < High(Line) do
       begin
         Result += Line[J];
-        
+
         // keep the steps low, as mainscreen walking might just have a few tiles visible when NearZoomMode is set True
         if (Self.NearZoomMode) and ((Self.ScreenWalk) or (Self.AdaptiveWalk)) then
           Inc(J, Random(1, 4))
@@ -723,12 +983,12 @@ function TRSWalker.WalkPath(Path: TPointArray; WaitUntilDistance: Int32 = 0): Bo
     Furthest := Nearest;
     while (Furthest < High(Self.Path)) and Self.IsWalkable(Self.Path[Furthest+1], PlayerPoint, Angle) do
       Inc(Furthest);
-    
+
     Index := Furthest;
-    
+
     // do the result check before randomness to avoid false error
     Result := (Index > Previous);
-    
+
     // 15% chance of randomness else furthest
     if Random() < 0.15 then
       Index := Random(Nearest, Furthest);
@@ -764,7 +1024,7 @@ begin
         Wait(300);
         Continue;
       end else begin
-        // screen walking struggles, so disable it  
+        // screen walking struggles, so disable it
         if Self.AdaptiveWalk then
           Self.ScreenWalk := False
         else if (Fails = 5) then
@@ -773,7 +1033,7 @@ begin
             False: Minimap.SetCompassAngle(Minimap.GetCompassAngle() + SRL.TruncatedGauss(30, 360, 3));
           end;
       end;
-      
+
       if (Fails mod 2 = 0) then
         Minimap.WaitFlag();
     end;
@@ -817,7 +1077,7 @@ Example
 *)
 function TRSWalker.WalkBlind(Destination: TPoint; WaitUntilDistance: Int32 = 0): Boolean;
 begin
-  Result := WalkPath([Destination], WaitUntilDistance);
+  Result := Self.WalkPath([Destination], WaitUntilDistance);
 end;
 
 (*
@@ -867,7 +1127,25 @@ begin
   Result := Self.WalkPath(Path, WaitUntilDistance);
 end;
 
-procedure TRSWalker.DebugPosition;
+(*
+TRSWalker.DebugPosition
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalker.DebugPosition();
+
+Debugs the player position in the currently loaded map.
+
+Example
+-------
+
+  var
+    rsw: TRSWalker;
+  begin
+    rsw.Setup();
+    while True do
+      rsw.DebugPosition();
+  end;
+*)
+procedure TRSWalker.DebugPosition();
 var
   X1, Y1, X2, Y2, X, Y: Int32;
   P: TPoint;
@@ -882,44 +1160,48 @@ begin
   Position := Self.GetMyPos();
   Time := PerformanceTimer() - Time;
 
+  if Self.RegionIndex > -1 then
+    Position := Self.Map.GlobalToRegion(Self.RegionIndex, Position);
+
   X1 := Max(0, Position.X - 200);
   Y1 := Max(0, Position.Y - 200);
-  X2 := Min(X1 + 400, Self.World.GetWidth()  - 1);
-  Y2 := Min(Y1 + 400, Self.World.GetHeight() - 1);
+  X2 := Min(X1 + 400, Self.Map.Map.GetWidth()  - 1);
+  Y2 := Min(Y1 + 400, Self.Map.Map.GetHeight() - 1);
 
   X := Position.X - X1;
   Y := Position.Y - Y1;
 
-  WorldBitmap := Self.World.Copy(X1, Y1, X2, Y2);
+  WorldBitmap := Self.Map.Map.Copy(X1, Y1, X2, Y2);
   WorldBitmap.LineTo(Point(0, Y), Point(X2 - X1, Y), $00FF00);
   WorldBitmap.LineTo(Point(X, 0), Point(X, Y2 - Y1), $00FF00);
   WorldBitmap.DrawBox([X - 2, Y - 2, X + 2, Y + 2], $FFFFFF);
 
-  MinimapBitmap := ScaleMinimap(GetCleanMinimap(), 1);
+  MinimapBitmap := Self.ScaleMinimap(Self.GetCleanMinimap(), 1);
 
   P := MinimapBitmap.GetCenter();
   if RSClient.Mode = ERSClientMode.FIXED then
     P := P.Offset(0, 8).Rotate(-Minimap.GetCompassAngle(False), P);
 
   MinimapBitmap.DrawBoxFilled([P.X - 1, P.Y - 1, P.X + 1, P.Y + 1], False, $FFFFFF);
-  MinimapBitmap.SetTransparentColor(0);
-
-  Bitmap.Init();
-  Bitmap.SetSize(400 + MinimapBitmap.GetWidth() + 30, 420);
-  Bitmap.DrawClear($403027);
 
   Lines := [
-    '('      + ToStr(Position.X, ', ', Position.Y) + ')',
-    'Acc: '  + ToStr(Round(Self.Similarity, 3)),
-    'Time: ' + ToStr(Round(Time)) + ' ms'
+    'Region: ' + ToStr(Self.RegionIndex),
+    'Acc: '    + ToStr(Round(Self.Similarity, 3)),
+    'Time: '   + ToStr(Round(Time)) + ' ms'
   ];
+
+  Bitmap.Init();
+  Bitmap.SetSize(430 + MinimapBitmap.GetWidth(), 420);
+  Bitmap.DrawClear($403027);
 
   Bitmap.SetFontName('Consolas');
   Bitmap.SetFontSize(18);
   Bitmap.SetFontAntialiasing(True);
 
-  Bitmap.DrawText(Lines[0], [420, 20 + MinimapBitmap.GetHeight()], $FFFFFF);
-  Bitmap.DrawText(Lines[1] + LineEnding + Lines[2], [420, 370], $FFFFFF);
+  Bitmap.DrawText(Format('(%d, %d)', [Position.X - Self.Region.X1, Position.Y - Self.Region.Y1]), [420, 20 + MinimapBitmap.GetHeight()], $FFFFFF);
+  Bitmap.DrawText(Lines[0], [420, 350], $FFFFFF);
+  Bitmap.DrawText(Lines[1], [420, 370], $FFFFFF);
+  Bitmap.DrawText(Lines[2], [420, 390], $FFFFFF);
 
   WorldBitmap.DrawTransparent(10, 10, Bitmap);
   WorldBitmap.Free();
@@ -934,6 +1216,19 @@ begin
   UnFreeze();
 end;
 
+(*
+TRSWalker.GetTileMS
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.GetTileMSEx(Me, Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+.. pascal:: function TRSWalker.GetTileMS(Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
+
+Returns a tile on the mainscreen with the help of walker and mm2ms.
+
+Example
+-------
+
+  Debug(rsw.GetTileMS(rsw.GetMypos() + [10, 10]));
+*)
 function TRSWalker.GetTileMSEx(Me, Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
 var
   angle: Double;
@@ -941,14 +1236,23 @@ begin
   Loc   := Minimap.Center + (Loc - Me);
   angle := Minimap.GetCompassAngle(False);
   Loc   := Loc.Rotate(angle, Minimap.Center);
-  Result := Minimap.VecToMSRect(Vec3(Loc.x - offx, Loc.y - offy, Height), angle);
+
+  Result := Minimap.VecToMSRect(Vec3(Loc.x - offx, Loc.y - offy, Height), 1, 1, angle);
 end;
 
 function TRSWalker.GetTileMS(Loc: TPoint; Height:Double=0; Offx,Offy:Double=0): TRectangle;
 begin
-  Result := GetTileMSEx(Self.GetMyPos(), Loc, Height, Offx, Offy);
+  Result := Self.GetTileMSEx(Self.GetMyPos(), Loc, Height, Offx, Offy);
 end;
 
+(*
+TRSWalker.MSToWorld
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalker.MSToWorldEx(Me, Loc: TPoint; Height: Int32 = 0; Accuracy: Double = 0.2): TPoint;
+.. pascal:: function TRSWalker.MSToWorld(Loc: TPoint; Height: Int32=0; Accuracy:Double=0.2): TPoint;
+
+Converts a point on the mainscreen to a walker point.
+*)
 function TRSWalker.MSToWorldEx(Me, Loc: TPoint; Height: Int32 = 0; Accuracy: Double = 0.2): TPoint;
 begin
   Result := Me + (MainScreen.PointToMM(Loc, Height, Accuracy).ToPoint() - Minimap.Center);

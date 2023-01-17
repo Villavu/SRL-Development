@@ -1,0 +1,321 @@
+(*
+WalkerMap
+=========
+This file contains internal methods used by walker.
+*)
+
+{$DEFINE SRL_WALKER_MAP_INCLUDED}
+{$IFNDEF SRL_OSR}
+  {$I SRL/osr.simba}
+{$ENDIF}
+
+
+type
+(*
+RSWalkerRegions
+~~~~~~~~~~~~~~~
+Collection of pre-made boxes that can be used in TRSWalker.Setup();
+*)
+  TRSWalkerRegions = record
+    WORLD:          TBox;
+    ZEAH:           TBox;
+    EDGEVILLE:      TBox;
+    VARROCK:        TBox;
+    GRAND_EXCHANGE: TBox;
+    LUNAR_ISLE:     TBox;
+    LUMBRIDGE:      TBox;
+    ISLE_OF_SOULS:  TBox;
+  end;
+
+type
+(*
+RSWalkerLocations
+~~~~~~~~~~~~~~~~~
+Collection of pre-made coordinates that can be used in TRSWalker;
+*)
+  TRSWalkerLocations = record
+    GRAND_EXCHANGE: TPoint;
+    EDGE_BANKERS:   TPoint;
+  end;
+
+var
+  RSWalkerRegions: TRSWalkerRegions;
+  RSWalkerLocations: TRSWalkerLocations;
+
+type
+(*
+type TRSWalkerMap
+~~~~~~~~~~~~~~~~~
+TRSWalkerMap is the record responsible for handling map loading for TRSWalker and keep track of regions if there's any.
+*)
+  TRSWalkerMap = record
+    Map: TMufasaBitmap;
+    ScaledMap: TMufasaBitmap;
+    Regions: TBoxArray;
+    RegionOffsets: TPointArray;
+  end;
+
+function TRSWalkerMap.InternalCacheMap(FileName: String): String; static;
+var
+  Bitmap: TMufasaBitmap;
+begin
+  if ExtractFileExt(FileName) <> '.bmp' then
+  begin
+    Result := DATAPATH + 'RSWalker' + DirectorySeparator + 'map_' + SHA1File(FileName) + '.bmp';
+    if not FileExists(Result) then
+    begin
+      WriteLn('Caching ' + ExtractFileName(FileName) + ' this can take ~10 seconds.');
+
+      Bitmap.Init();
+      Bitmap.LoadFromFile(FileName);
+      Bitmap.SaveToFile(Result);
+      Bitmap.Free();
+    end;
+  end else
+    Result := FileName;
+end;
+
+(*
+TRSWalkerMap.FindMap
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalkerMap.FindMap(Map: String): String; static;
+
+Internal function responsible for finding our map.
+If the **Map** is a path and it exists the function exits.
+Otherwise, it looks for a .png and .bmp file with the map name in Simba/Includes/osr/walker/maps and returns the file path.
+You probably will never need to use this directly but if you want to debug things consider the following example.
+
+Example
+-------
+
+  WriteLn TRSWalkerMap.FindMap('world');
+*)
+function TRSWalkerMap.FindMap(Map: String): String; static;
+var
+  Mask: String = '.png;.bmp;';
+  Files: TStringArray;
+begin
+  if FileExists(Map) then
+    Exit(ExpandFileName(Map));
+
+  Mask := StringReplace(Mask, '.', Map + '.', [rfReplaceAll]);
+
+  Files := FindFile(ExtractFileDir(Map), Mask, False, False) +
+           FindFile({$MACRO CURRENT_DIRECTORY} + 'maps' + DirectorySeparator, Mask, True, False);
+
+  if Length(Files) > 0 then
+    Result := Files[0];
+end;
+
+(*
+TRSWalkerMap.InternalLoadMap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalkerMap.InternalLoadMap(FileName: String; Region: TBox = []): TMufasaBitmap; static;
+
+Internal function responsible for loading our map.
+If a "Region" is specified, that region is cropped from the the image file and returned, otherwise the whole file is returned as a TMufasaBitmap.
+You probably will never need to use this directly, but consider the following example for debugging purposes.
+
+Example
+-------
+
+  TRSWalkerMap.InternalLoadMap('world', RSWalkerRegions.GRAND_EXCHANGE).Debug();
+*)
+function TRSWalkerMap.InternalLoadMap(FileName: String; Region: TBox = []): TMufasaBitmap; static;
+var
+  CacheFileName: String;
+begin
+  if ExtractFileExt(FileName) <> '.bmp' then
+  begin
+    CacheFileName := DataPath + 'map_' + SHA1String(FileName) + '.bmp';
+    if not FileExists(CacheFileName) then
+    begin
+      WriteLn('Caching ' + ExtractFileName(FileName) + ' this can take ~10 seconds.');
+
+      Result.Init();
+      Result.LoadFromFile(TRSWalkerMap.FindMap(FileName));
+      Result.SaveToFile(CacheFileName);
+      if (Region <> []) then
+        Result.Crop(Region.X1, Region.Y1, Region.X2, Region.Y2);
+
+      Exit;
+    end;
+
+    FileName := CacheFileName;
+  end;
+
+  Result.Init();
+
+  if (Region <> []) then
+  begin
+    Result.LoadFromFile(FileName);
+    Result.Crop(Region.X1, Region.Y1, Region.X2, Region.Y2);
+  end else
+    Result.LoadFromFile(FileName);
+end;
+
+(*
+TRSWalkerMap.Free
+~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalkerMap.Free();
+
+Internal function responsible for releasing TRSWalkerMap from memory.
+You probably will never need to use this directly. It's automatically called on script termination.
+*)
+procedure TRSWalkerMap.Free();
+begin
+  if Assigned(Self.Map) then
+  begin
+    Self.Map.Free();
+    Self.Map := nil;
+  end;
+
+  if Assigned(Self.ScaledMap) then
+  begin
+    Self.ScaledMap.Free();
+    Self.ScaledMap := nil;
+  end;
+end;
+
+(*
+TRSWalkerMap.Load
+~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSWalkerMap.Load(FileName: String; Scaling: Integer); overload;
+.. pascal:: procedure TRSWalkerMap.Load(FileName: String; ARegions: TBoxArray; Scaling: Integer; Padding: Integer = 50); overload;
+
+Internal function responsible for setting up TRSWalkerMap.
+This is where we load our bitmaps and store them in a TRSWalkerMap variable.
+It's also where we downsample our map for faster searches.
+TRSWalkerMap.Map contains the full sized map image while TRSWalkerMap.ScaledMap contains the downsampled map.
+You probably will never need to use this directly but consider the following example for debugging purposes.
+
+Example
+-------
+  var
+    map: TRSWalkerMap;
+  begin
+    map.Load('world', 8);
+    map.Map.Debug();
+    Wait(4000);
+    map.ScaledMap.Debug();
+  end;
+*)
+procedure TRSWalkerMap.Load(FileName: String; Scaling: Integer);
+begin
+  Self.Map := Self.InternalLoadMap(FileName);
+  Self.ScaledMap.Init();
+  AddOnTerminate(@Self.Free);
+  Self.Map.Downsample(Scaling, Self.ScaledMap);
+end;
+
+procedure TRSWalkerMap.Load(FileName: String; ARegions: TBoxArray; Scaling: Integer; Padding: Integer = 50); overload;
+var
+  Bitmaps: TMufasaBitmapArray;
+  I: Integer;
+begin
+  SetLength(Self.Regions, Length(ARegions));
+  SetLength(Self.RegionOffsets, Length(ARegions));
+
+  SetLength(Bitmaps, Length(Self.Regions));
+  for I := 0 to High(Bitmaps) do
+  begin
+    Self.RegionOffsets[I] := Point(ARegions[I].X1, ARegions[I].Y1);
+
+    Bitmaps[I] := Self.InternalLoadMap(FileName, ARegions[I]);
+    if (ARegions[I] <> RSWalkerRegions.WORLD) then
+    begin
+      Self.RegionOffsets[I].X -= Padding;
+      Self.RegionOffsets[I].Y -= Padding;
+
+      Bitmaps[I].Pad(Padding);
+    end;
+
+    Self.Regions[I] := Box(0, 0, Bitmaps[I].GetWidth(), Bitmaps[I].GetHeight());
+  end;
+
+  Self.Regions := Self.Regions.Pack();
+  Self.Map.Init();
+  Self.Map.SetSize(Self.Regions.Merge.Width(), Self.Regions.Merge.Height());
+
+  for I := 0 to High(Self.Regions) do
+    Self.Map.DrawBitmap(Bitmaps[I], Point(Self.Regions[I].X1, Self.Regions[I].Y1));
+
+  Self.ScaledMap.Init();
+  AddOnTerminate(@Self.Free);
+  Self.Map.Downsample(Scaling, Self.ScaledMap);
+
+  for I := 0 to High(Bitmaps) do
+    Bitmaps[I].Free();
+end;
+
+(*
+TRSWalkerMap.RegionIndexFromPoint
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalkerMap.RegionIndexFromPoint(P: TPoint): Integer;
+
+Internal TRSWalkerMap function used to return the region **p** belongs to.
+You probably don't need to ever call this but can be useful for debugging.
+*)
+function TRSWalkerMap.RegionIndexFromPoint(p: TPoint): Int32;
+var
+  i: Int32;
+begin
+  Result := -1;
+
+  for i := 0 to High(Self.Regions) do
+    if p.InBox(Self.Regions[i]) then
+      Exit(i);
+end;
+
+(*
+TRSWalkerMap.RegionToGlobal
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalkerMap.RegionToGlobal(p: TPoint): TPoint;
+
+Internal TRSWalkerMap function used to convert a region point **p** to a global point.
+This is responsible for converting WalkerMap region point to the coordinates of that same point in the original map file the regions were cropped from.
+You probably don't need to ever call this but can be useful for debugging.
+*)
+function TRSWalkerMap.RegionToGlobal(p: TPoint): TPoint;
+var
+  i: Integer;
+begin
+  Result := p;
+  for i := 0 to High(Self.Regions) do
+    if p.InBox(Self.Regions[i]) then
+    begin
+      Result += Self.RegionOffsets[i] - [Self.Regions[I].X1, Self.Regions[I].Y1];
+      Exit(Result);
+    end;
+end;
+
+(*
+TRSWalkerMap.GlobalToRegion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSWalkerMap.GlobalToRegion(RegionIndex: Integer; P: TPoint): TPoint;
+
+Internal TRSWalkerMap function used to convert a global point **p** to a region point.
+This is literally the inverse of TRSWalkerMap.RegionToGlobal().
+You probably don't need to ever call this but can be useful for debugging.
+*)
+function TRSWalkerMap.GlobalToRegion(RegionIndex: Integer; P: TPoint): TPoint;
+begin
+  Result := P;
+  if (RegionIndex > -1) then
+    Result := Result - Self.RegionOffsets[RegionIndex];
+end;
+
+
+begin
+  RSWalkerRegions.WORLD          := [0, 0, 7500, 5645];
+  RSWalkerRegions.ZEAH           := [0, 5600, 3170, 8630];
+  RSWalkerRegions.EDGEVILLE      := [4209, 1918, 4487, 2180];
+  RSWalkerRegions.VARROCK        := [4690, 2190, 4935, 2425];
+  RSWalkerRegions.GRAND_EXCHANGE := [4460, 1900, 4800, 2250];
+  RSWalkerRegions.LUNAR_ISLE     := [75, 75, 1000, 1000];
+  RSWalkerRegions.LUMBRIDGE      := [4693, 2990, 5031, 3302];
+  RSWalkerRegions.ISLE_OF_SOULS  := [180, 3910, 1500, 4990];
+
+  RSWalkerLocations.GRAND_EXCHANGE  := [4628, 2061];
+  RSWalkerLocations.EDGE_BANKERS    := [4358, 2047];
+end;
