@@ -773,14 +773,16 @@ begin
 end;
 
 
-function TRSInventory.FindItems(Items: TRSItemArray): Boolean; overload; deprecated 'Use TRSInventory.ContainsAll()';
+//DEPRECATED! AVOID USING THIS
+function TRSInventory.FindItems(Items: TRSItemArray): Boolean; overload;
 var
   Slots: TIntegerArray;
 begin
   Result := Self.FindItems(Items, Slots);
 end;
 
-function TRSInventory.FindItem(Item: TRSItem): Boolean; overload; deprecated 'Use TRSInventory.ContainsItem()';
+//DEPRECATED! AVOID USING THIS
+function TRSInventory.FindItem(Item: TRSItem): Boolean; overload;
 var
   Slots: TIntegerArray;
 begin
@@ -788,19 +790,7 @@ begin
 end;
 
 
-(*
-Inventory.CountItem
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.CountItem(Item: TRSItem): Int32;
 
-Returns the amount of **Item** in the inventory.
-Keep in mind this does not count a stack number, but every single item that occupies an inventory slot.
-
-Example
--------
-
-  WriteLn Inventory.CountItem('Shark');
-*)
 function TRSInventory.CountItem(Item: TRSItem): Int32;
 var
   Slots: TIntegerArray;
@@ -809,19 +799,6 @@ begin
     Result := Length(Slots);
 end;
 
-(*
-Inventory.CountItemStack
-~~~~~~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.CountItemStack(Item: TRSItem): Int32;
-
-Returns the stack amount of **Item** in the inventory.
-
-Example
--------
-
-  WriteLn Inventory.CountItemStack('Bronze arrows'); //will print the stack amount
-  WriteLn Inventory.CountItemStack('Shark'); //will print 0 because sharks are not stackable.
-*)
 function TRSInventory.CountItemStack(Item: TRSItem): Int32;
 var
   Slot: Int32;
@@ -830,20 +807,6 @@ begin
     Result := SRL.GetItemAmount(Self.GetSlotBox(Slot));
 end;
 
-
-(*
-Inventory.HoverItem
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.HoverItem(Item: TRSItem): Boolean;
-
-Hover **Item** in the inventory.
-
-Example
--------
-
-  if Inventory.HoverItem('Bronze arrows') then
-    ChooseOption.Select('Drop');
-*)
 function TRSInventory.HoverItem(Item: TRSItem): Boolean;
 var
   Slot: Int32;
@@ -853,20 +816,6 @@ begin
     Mouse.Move(Self.GetSlotBox(Slot));
 end;
 
-(*
-Inventory.ClickItem
-~~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
-
-Clicks **Item** in the inventory. If **Option** is specified that option will be
-selected with right click if it exists.
-
-Example
--------
-
-  WriteLn Inventory.ClickItem('Attack potion(3)');
-  WriteLn Inventory.ClickItem('Ashes', 'Drop');
-*)
 function TRSInventory.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
 begin
   if Self.HoverItem(Item) then
@@ -882,18 +831,6 @@ begin
   end;
 end;
 
-(*
-Inventory.Use
-~~~~~~~~~~~~~
-.. pascal:: function TRSInventory.Use(Item, OtherItem: TRSItem): Boolean; overload;
-
-Use one item on another
-
-Example
--------
-
-  WriteLn Inventory.Use('Knife', 'Oak logs');
-*)
 function TRSInventory.Use(Item, OtherItem: TRSItem): Boolean; overload;
 var
   Slots, OtherSlots: TIntegerArray;
