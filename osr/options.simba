@@ -103,7 +103,7 @@ begin
     MOUSE_LEFT
   );
 
-  Result := WaitUntil(Self.GetZoomLevel() = Level, SRL.TruncatedGauss(50, 1500), 3000);
+  Result := WaitUntil(InRange(Self.GetZoomLevel(), Level-1, Level+1), SRL.TruncatedGauss(50, 1500), 3000);
 end;
 
 function TRSOptions.GetBrightnessLevel: Integer;

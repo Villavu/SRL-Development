@@ -55,6 +55,7 @@ type
     MinZoom, MaxZoom: Int32;
 
     OnStartSleep: procedure(Task: PSleepTask);
+    OnSleeping: procedure(Task: PSleepTask; var Countdown: TCountdown);
     OnFinishSleep: procedure(Task: PSleepTask);
 
     OnStartBreak: procedure(Task: PBreakTask);
@@ -184,6 +185,9 @@ begin
   while not Countdown.IsFinished() do
   begin
     Self.DebugLn('Sleep time remaining: ' + SRL.MsToTime(Countdown.TimeRemaining(), TIME_FORMAL));
+
+    if (@Self.OnSleeping <> nil) then
+      Self.OnSleeping(@Task, Countdown);
 
     Wait(Min(Countdown.TimeRemaining(), 60000 * 5));
   end;

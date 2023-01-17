@@ -118,8 +118,9 @@ var
   Buttons: TRSButtonArray;
 begin
   Buttons := Self.GetItemButtons();
-  
-  Result := Self.SelectHelper(Buttons[Index], Quantity, UseKeyboard);
+
+  if Index <= High(Buttons) then
+    Result := Self.SelectHelper(Buttons[Index], Quantity, UseKeyboard);
 end;
 
 function TRSMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
