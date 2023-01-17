@@ -113,7 +113,7 @@ begin
     P := Minimap.VecToMS([X, Y]);
 
   // Size of GE center at fixed client & default(50) zoom.
-  Size := MainScreen.ConvertDistance(110);
+  Size := MainScreen.NormalizeDistance(110);
   
   // Center G.E on the mainscreen
   B := [P.X, P.Y, P.X, P.Y];
