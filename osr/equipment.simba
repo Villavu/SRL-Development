@@ -65,6 +65,7 @@ begin
     Result := Buttons[Button];
 end;
 
+
 function TRSEquipment.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
 var
   Boxes: TBoxArray;
@@ -85,12 +86,31 @@ begin
 end;
 
 //for use without having to pass extra parameters
+function TRSEquipment.ContainsItem(Item: TRSItem): Boolean;
+var
+  B: TBox;
+begin
+  Result := Self.FindItem(Item, B);
+end;
+
+//DEPRECATED! AVOID USING THIS
 function TRSEquipment.FindItem(Item: TRSItem): Boolean; overload;
 var
   B: TBox;
 begin
   Result := Self.FindItem(Item, B);
 end;
+
+
+function TRSEquipment.ContainsAny(items: TRSItemArray): Boolean;
+var
+  item: TRSItem;
+begin
+  for item in items do
+    if Self.ContainsItem(item) then
+      Exit(True);
+end;
+
 
 function TRSEquipment.HoverItem(Item: TRSItem): Boolean;
 var
