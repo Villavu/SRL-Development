@@ -856,6 +856,7 @@ begin
   Wait(50,100,wdLeft); //Wait for Click to be registered before moving the mouse (important).
   Self.Move(X, Y);
   Self.Release(Button);
+  Wait(50,100,wdLeft);
 end;
 
 (*
