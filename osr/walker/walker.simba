@@ -826,11 +826,19 @@ You will probably never need to call this directly but it can be used to take a 
 function TRSWalker.WalkFinalStep(PlayerPoint, WorldPoint: TPoint; WaitUntilDistance: Int32): Boolean;
 var
   MinimapPoint: TPoint;
+  event_time: Int64;
 begin
+  event_time := GetTickCount();
+  
+  // run events
   if (@Self.OnWalkEvent <> nil) then
     Self.OnWalkEvent(@Self, PlayerPoint, WorldPoint);
   if (@Self.OnWalkEventEx <> nil) then
     Self.OnWalkEventEx(@Self, PlayerPoint, WorldPoint);
+  
+  // in case the events used a bit of time, while our character was moving towards a point, we have to update the current position.
+  if GetTickCount() - event_time > 100 then
+    PlayerPoint := Self.GetMyPos();
 
   if not Self.Enabled then
     Exit(True);
@@ -858,11 +866,19 @@ function TRSWalker.WalkStep(PlayerPoint, WorldPoint: TPoint): Boolean;
 var
   MinimapPoint: TPoint;
   WaitUntilDistance: Int32;
+  event_time: Int64;
 begin
+  event_time := GetTickCount();
+  
+  // run events
   if (@Self.OnWalkEvent <> nil) then
     Self.OnWalkEvent(@Self, PlayerPoint, WorldPoint);
   if (@Self.OnWalkEventEx <> nil) then
     Self.OnWalkEventEx(@Self, PlayerPoint, WorldPoint);
+
+  // in case the events used a bit of time, while our character was moving towards a point, we have to update the current position.
+  if GetTickCount() - event_time > 100 then
+    PlayerPoint := Self.GetMyPos();
 
   if not Self.Enabled then
     Exit(True);
