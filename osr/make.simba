@@ -1,19 +1,45 @@
+(*
+Make
+====
+The "Make" menu is the chatbox menu that pops up when you attempt to craft certain items in OldSchool RuneScape.
+TRSMake is the record SRL has to handle it.
+*)
+
 {$DEFINE SRL_MAKE_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
 {$ENDIF}
 
 const
+(*
+const MAKE_QUANTITY_ALL
+~~~~~~~~~~~~~~~~~~~~~~~
+-1 is the value we reserve for the "All" quantity.
+This constant simply exists so we have a human readable version that makes sense.
+
+When using TRSMake methods you can use either -1 or MAKE_QUANTITY_ALL for the "All" quantity.
+*)
   MAKE_QUANTITY_ALL = -1;
 
 type
-  TRSMake = record(TRSInterface)
-    Items: array of record 
+  TRSMakeItem = record
       Item: String;
       Index: Int32;
+      Quantity: Int32;
     end;
+
+  TRSMake = record(TRSInterface)
+    Items: array of TRSMakeItem;
   end;
-  
+
+(*
+Make.Setup
+~~~~~~~~~~
+.. pascal:: procedure TRSMake.Setup; override;
+
+Internal setup method automatically called by SRL on startup.
+You will probably never need to use this directly.
+*)
 procedure TRSMake.Setup; override;
 begin
   inherited;
@@ -21,6 +47,14 @@ begin
   Self.Name := 'Make';
 end;
 
+(*
+Make.SetupAlignment
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSMake.SetupAlignment(Mode: ERSClientMode); override;
+
+Internal method automatically called by SRL on startup used to setup the interface coordinates.
+You will probably never need to use this directly.
+*)
 procedure TRSMake.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -31,7 +65,22 @@ begin
   Self.Alignment.Bottom := [@Chat.Y2];
 end;
 
-function TRSMake.GetItemButtons: TRSButtonArray;
+
+(*
+Make.GetItemButtons
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMake.GetItemButtons: TRSButtonArray;
+
+Internal method used to get the interface buttons.
+This is used by all other methods that interact with buttons.
+You will probably never need to call this directly.
+
+Example
+-------
+
+  Debug(Make.GetItemButtons());
+*)
+function TRSMake.GetItemButtons(): TRSButtonArray;
 var
   Button: TRSButton;
   i: Int32;
@@ -44,12 +93,41 @@ begin
     Result[i].Index := i;
 end;
 
-function TRSMake.GetQuantityButtons: TRSButtonArray;
+(*
+Make.GetQuantityButtons
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMake.GetQuantityButtons(): TRSButtonArray;
+
+Internal method used to get the interface quantity buttons.
+This is used by all other methods that interact with the quantity buttons.
+You will probably never need to call this directly.
+
+Example
+-------
+
+  Debug(Make.GetQuantityButtons());
+*)
+function TRSMake.GetQuantityButtons(): TRSButtonArray;
 begin
   Result := Self.FindButtons([[35,30], [30,30]]);
 end;
 
-function TRSMake.IsOpen: Boolean;
+
+(*
+Make.IsOpen
+~~~~~~~~~~~
+.. pascal:: function TRSMake.IsOpen(): Boolean;
+.. pascal:: function TRSMake.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+
+Checks if the make interface is open.
+You can optionally specify a **WaitTime** to wait for it to open.
+
+Example
+-------
+
+  WriteLn Make.IsOpen();
+*)
+function TRSMake.IsOpen(): Boolean;
 begin
   Result := Self.GetItemButtons() <> [];
 end;
@@ -63,41 +141,156 @@ begin
 end;
 
 
+(*
+Make.FindHint
+~~~~~~~~~~~~~
+.. pascal:: function TRSMake.FindHint(): TPointArray;
+
+Returns the hint tooltip has a TPointArray
+
+Example
+-------
+
+  Debug(Make.FindHint());
+*)
+function TRSMake.FindHint(): TPointArray;
+const
+  HINT_COLOR = $A0FFFF;
+begin
+  FindColors(Result, HINT_COLOR, Self.Bounds());
+end;
+
+(*
+Make.GetFreeSpace
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMake.GetFreeSpace(): TPointArray;
+
+Get a TPointArray of the chatbox that does not have a single point in any of the make item buttons.
+
+Example
+-------
+
+  Debug(Make.GetFreeSpace());
+*)
+function TRSMake.GetFreeSpace(): TPointArray;
+var
+  b: TBox;
+  tmp: TPointArray;
+begin
+  Result := Self.Bounds().ToRectangle().ToTPA().Connect();
+  Result.Fill();
+
+  for b in Self.GetItemButtons().ToBoxes() do
+    tmp += Result.FilterBox(b.Expand(1));
+
+  Result := ClearTPAFromTPA(Result, tmp);
+end;
+
+(*
+Make.SetQuantity
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMake.SetQuantity(Amount: Int32): Boolean;
+
+Attempts to set a quantity.
+
+Example
+-------
+
+  WriteLn Make.SetQuantity(MAKE_QUANTITY_ALL);
+*)
 function TRSMake.SetQuantity(Amount: Int32): Boolean;
 const
   ENABLED_COLOR = $FFFFFF;
   DISABLED_COLOR = $203040;
 var
+  bounds: TBox;
+  p: TPoint;
+  hintPoint: TPoint;
+  hint: TBox;
+  freeSpace: TPointArray;
   Text: String;
   Button: TRSButton;
   Buttons: TRSButtonArray;
 begin
+  bounds := Self.Bounds();
+  hint := Self.FindHint().Bounds().Expand(1); //Expand(1) because of the border
+  p := [bounds.X2 - 193, bounds.Y1 + 44];
+
+  hintPoint := [hint.X2, hint.Y1];
+  if (hintPoint.X > p.X) and (hintPoint.Y < p.Y) then
+  begin
+    freeSpace := Self.GetFreeSpace();
+    p := freeSpace[Random(0, High(freeSpace))];
+    Mouse.Move(p);
+    WaitUntil(Self.FindHint() = [], 100, 2000);
+  end;
+
   if Amount = MAKE_QUANTITY_ALL then
     Text := 'All'
   else
     Text := ToString(Amount);
 
-  Buttons := GetQuantityButtons();
+  Buttons := Self.GetQuantityButtons();
 
   for Button in Buttons do
   begin
     // Already selected
     if Button.FindText(Text, RS_FONT_PLAIN_11, ENABLED_COLOR) then
       Exit(True);
+
     // Select
     if Button.FindText(Text, RS_FONT_PLAIN_11, DISABLED_COLOR) then
       Exit(Button.Click());
   end;
-      
+
   for Button in Buttons do
     if Button.FindText('X', RS_FONT_PLAIN_11, DISABLED_COLOR) then
       Exit(Button.Click() and Chat.AnswerQuery('Enter amount', ToString(Amount), 3000));
 end;
 
+
+(*
+Make.SelectHelper
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMake.SelectHelper(var Item: TRSMakeItem; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
+.. pascal:: function TRSMake.SelectHelper(Button: TRSButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+
+Internal helper method that handles selecting a button and quantity with or without the keyboard.
+You probably will never need to use this directly.
+*)
+function TRSMake.SelectHelper(var Item: TRSMakeItem; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
+var
+  buttons: TRSButtonArray;
+begin
+  if (Item.Quantity = 0) or (Item.Quantity <> Quantity) then
+  begin
+    if not Self.SetQuantity(Quantity) then
+      Exit;
+    Item.Quantity := Quantity;
+  end;
+
+  buttons := Self.GetItemButtons();
+  Result := High(buttons) >= Item.Index;
+
+  if not Result then
+    Exit;
+
+  if UseKeyboard then
+  begin
+    buttons[Item.Index].Bounds.Y2 += 15;
+
+    if buttons[Item.Index].FindText('Space', RS_FONT_PLAIN_11) then
+      Keyboard.PressKey(VK_SPACE)
+    else
+      Keyboard.PressKey(VK_1 + buttons[Item.Index].Index);
+  end else
+    Mouse.Click(buttons[Item.Index].Bounds, MOUSE_LEFT);
+end;
+
 function TRSMake.SelectHelper(Button: TRSButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
 begin
   Result := Self.SetQuantity(Quantity);
-  
+
   if Result then
   begin
     if UseKeyboard then
@@ -113,7 +306,21 @@ begin
   end;
 end;
 
-function TRSMake.Select(Index: Int32; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+
+(*
+Make.Select
+~~~~~~~~~~~
+.. pascal:: function TRSMake.Select(Index: Int32; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
+.. pascal:: function TRSMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+
+Select a **Index** of the available buttons or the button with **Item** text on it when hovered.
+
+Example
+-------
+
+  WriteLn Make.Select('Maple longbow', MAKE_QUANTITY_ALL, True);
+*)
+function TRSMake.Select(Index: Int32; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
 var
   Buttons: TRSButtonArray;
 begin
@@ -124,51 +331,68 @@ begin
 end;
 
 function TRSMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
-const
-  HINT_COLOR = $A0FFFF;
 var
   Buttons: TRSButtonArray;
   TPA: TPointArray;
   I: Int32;
 begin
   Buttons := Self.GetItemButtons();
-  
+
   for I := 0 to High(Self.Items) do
+  begin
     if (Self.Items[I].Item = Item) then
     begin
-      Result := Self.SelectHelper(Buttons[Self.Items[I].Index], Quantity, UseKeyboard);
+      Result := Self.SelectHelper(Buttons[Items[I].Index], Quantity, UseKeyboard);
       Exit;
     end;
- 
+  end;
+
   for I := 0 to High(Buttons) do
   begin
     Mouse.Move(Buttons[I].Bounds);
-    
-    if WaitUntil(FindColors(TPA, HINT_COLOR, Self.Bounds()), SRL.TruncatedGauss(50, 1500), 4000) then
-      if SameText(OCR.Recognize(TPA.Bounds(), TOCRColorRule.Create([0]), RS_FONT_PLAIN_12), Item) then
-       begin
-         Self.Items += [Item, Buttons[I].Index];
-         
-         Result := Self.SelectHelper(Buttons[I], Quantity, UseKeyboard);
-         Exit;
-       end;
-    
+    if not WaitUntil((TPA := Self.FindHint()) <> [], SRL.TruncatedGauss(50, 1500), 4000) then
+      Continue;
+
+    if SameText(OCR.Recognize(TPA.Bounds(), TOCRColorRule.Create([0]), RS_FONT_PLAIN_12), Item) then
+    begin
+      Self.Items += [Item, Buttons[I].Index , 0];
+
+      Exit(Self.SelectHelper(Self.Items[High(Self.Items)], Quantity, UseKeyboard));
+    end;
+
     Wait(0, 1000, wdLeft);
   end;
 end;
 
+(*
+Make.Draw
+~~~~~~~~~
+.. pascal:: procedure TRSMake.Draw(Bitmap: TMufasaBitmap); override; overload;
+
+Internal debug method. Used by SRL.Debug().
+
+Example
+-------
+
+  SRL.Debug();
+*)
 procedure TRSMake.Draw(Bitmap: TMufasaBitmap); override;
 begin
-  if not Self.IsOpen then
+  if not Self.IsOpen() then
     Exit;
 
   inherited;
 
-  Bitmap.DrawButtons(Self.GetItemButtons);
-  Bitmap.DrawButtons(Self.GetQuantityButtons);
+  Bitmap.DrawButtons(Self.GetItemButtons());
+  Bitmap.DrawButtons(Self.GetQuantityButtons());
 end;
 
 
+(*
+var Make
+~~~~~~~~
+Global Make variable.
+*)
 var
   Make: TRSMake;
 
