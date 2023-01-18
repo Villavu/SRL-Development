@@ -1,0 +1,211 @@
+
+Make
+====
+The "Make" menu is the chatbox menu that pops up when you attempt to craft certain items in OldSchool RuneScape.
+TRSMake is the record SRL has to handle it.
+
+
+------------
+
+const MAKE_QUANTITY_ALL
+~~~~~~~~~~~~~~~~~~~~~~~
+-1 is the value we reserve for the "All" quantity.
+This constant simply exists so we have a human readable version that makes sense.
+
+When using TRSMake methods you can use either -1 or MAKE_QUANTITY_ALL for the "All" quantity.
+
+
+------------
+
+Make.Setup
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMake.Setup; override;
+
+Internal setup method automatically called by SRL on startup.
+You will probably never need to use this directly.
+
+
+------------
+
+Make.SetupAlignment
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMake.SetupAlignment(Mode: ERSClientMode); override;
+
+Internal method automatically called by SRL on startup used to setup the interface coordinates.
+You will probably never need to use this directly.
+
+
+------------
+
+Make.GetItemButtons
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMake.GetItemButtons: TRSButtonArray;
+
+Internal method used to get the interface buttons.
+This is used by all other methods that interact with buttons.
+You will probably never need to call this directly.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Debug(Make.GetItemButtons());
+
+
+------------
+
+Make.GetQuantityButtons
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMake.GetQuantityButtons(): TRSButtonArray;
+
+Internal method used to get the interface quantity buttons.
+This is used by all other methods that interact with the quantity buttons.
+You will probably never need to call this directly.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Debug(Make.GetQuantityButtons());
+
+
+------------
+
+Make.IsOpen
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMake.IsOpen(): Boolean;
+.. code-block:: pascal
+
+ function TRSMake.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+
+Checks if the make interface is open.
+You can optionally specify a **WaitTime** to wait for it to open.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Make.IsOpen();
+
+
+------------
+
+Make.FindHint
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMake.FindHint(): TPointArray;
+
+Returns the hint tooltip has a TPointArray
+
+Example
+-------
+.. code-block:: pascal  
+
+  Debug(Make.FindHint());
+
+
+------------
+
+Make.GetFreeSpace
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMake.GetFreeSpace(): TPointArray;
+
+Get a TPointArray of the chatbox that does not have a single point in any of the make item buttons.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Debug(Make.GetFreeSpace());
+
+
+------------
+
+Make.SetQuantity
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMake.SetQuantity(Amount: Int32): Boolean;
+
+Attempts to set a quantity.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Make.SetQuantity(MAKE_QUANTITY_ALL);
+
+
+------------
+
+Make.SelectHelper
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMake.SelectHelper(var Item: TRSMakeItem; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
+.. code-block:: pascal
+
+ function TRSMake.SelectHelper(Button: TRSButton; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+
+Internal helper method that handles selecting a button and quantity with or without the keyboard.
+You probably will never need to use this directly.
+
+
+------------
+
+Make.Select
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSMake.Select(Index: Int32; Quantity: Int32; UseKeyboard: Boolean = True): Boolean;
+.. code-block:: pascal
+
+ function TRSMake.Select(Item: String; Quantity: Int32; UseKeyboard: Boolean = True): Boolean; overload;
+
+Select a **Index** of the available buttons or the button with **Item** text on it when hovered.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Make.Select('Maple longbow', MAKE_QUANTITY_ALL, True);
+
+
+------------
+
+Make.Draw
+~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSMake.Draw(Bitmap: TMufasaBitmap); override; overload;
+
+Internal debug method. Used by SRL.Debug().
+
+Example
+-------
+.. code-block:: pascal  
+
+  SRL.Debug();
+
+
+------------
+
+var Make
+~~~~~~~~
+Global Make variable.
+
+
+------------

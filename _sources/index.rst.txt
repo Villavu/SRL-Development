@@ -6,6 +6,7 @@ Welcome to SRL documentation!
 
 	:caption: OSR
 
+   make
    inventory
    combat
    mainscreen

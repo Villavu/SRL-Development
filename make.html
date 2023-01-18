@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Make &mdash; SRL  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Inventory" href="inventory.html" />
+    <link rel="prev" title="Welcome to SRL documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SRL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Make</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#const-make-quantity-all">const MAKE_QUANTITY_ALL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-setup">Make.Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-setupalignment">Make.SetupAlignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-getitembuttons">Make.GetItemButtons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-getquantitybuttons">Make.GetQuantityButtons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-isopen">Make.IsOpen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-findhint">Make.FindHint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-getfreespace">Make.GetFreeSpace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-setquantity">Make.SetQuantity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-selecthelper">Make.SelectHelper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-select">Make.Select</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-draw">Make.Draw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#var-make">var Make</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="inventory.html">Inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combat.html">Combat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combat.html#minimap">Minimap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mainscreen.html">MainScreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mm2ms.html">Minimap to Mainscreen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="antiban.html">Antiban</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xpbar.html">XPBar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grandexchange.html">BankScreen.Open</a></li>
+<li class="toctree-l1"><a class="reference internal" href="magic.html">Magic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chat.html">Chat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keybindings.html">Keybindings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="login.html">Login</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bank.html">Bank</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prayer.html">Prayer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prayer.html#minimap">Minimap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="depositbox.html">GameTabs.GetCurrentTab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rsclient.html">RSClient</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="itemfinder.html">Item Finder</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="walker_map.html">WalkerMap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webber.html">Webber</a></li>
+<li class="toctree-l1"><a class="reference internal" href="walker.html">Walker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="webgraph.html">Web Graph</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="extendedarrays.html">TExtendedArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="time.html">Time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tboxarrays.html">TBoxArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tbox.html">TBox</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcircle.html">TCircle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="string.html">String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse.html">Mouse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math.html">Math</a></li>
+<li class="toctree-l1"><a class="reference internal" href="drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="matrix.html">Mouse.Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wrappers.html">Wrappers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpoint.html">TPoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tpointarrays.html">TPointArray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pixelshift.html">Pixelshift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyboard.html">Keyboard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trectangle.html">TRectangle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="random.html">Random</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SRL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Make</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/make.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="make">
+<h1>Make<a class="headerlink" href="#make" title="Permalink to this heading">¶</a></h1>
+<p>The “Make” menu is the chatbox menu that pops up when you attempt to craft certain items in OldSchool RuneScape.
+TRSMake is the record SRL has to handle it.</p>
+<hr class="docutils" />
+<section id="const-make-quantity-all">
+<h2>const MAKE_QUANTITY_ALL<a class="headerlink" href="#const-make-quantity-all" title="Permalink to this heading">¶</a></h2>
+<p>-1 is the value we reserve for the “All” quantity.
+This constant simply exists so we have a human readable version that makes sense.</p>
+<p>When using TRSMake methods you can use either -1 or MAKE_QUANTITY_ALL for the “All” quantity.</p>
+</section>
+<hr class="docutils" />
+<section id="make-setup">
+<h2>Make.Setup<a class="headerlink" href="#make-setup" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">Setup</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal setup method automatically called by SRL on startup.
+You will probably never need to use this directly.</p>
+</section>
+<hr class="docutils" />
+<section id="make-setupalignment">
+<h2>Make.SetupAlignment<a class="headerlink" href="#make-setupalignment" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">SetupAlignment</span><span class="p">(</span><span class="n">Mode</span><span class="o">:</span><span class="w"> </span><span class="n">ERSClientMode</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method automatically called by SRL on startup used to setup the interface coordinates.
+You will probably never need to use this directly.</p>
+</section>
+<hr class="docutils" />
+<section id="make-getitembuttons">
+<h2>Make.GetItemButtons<a class="headerlink" href="#make-getitembuttons" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">GetItemButtons</span><span class="o">:</span><span class="w"> </span><span class="n">TRSButtonArray</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used to get the interface buttons.
+This is used by all other methods that interact with buttons.
+You will probably never need to call this directly.</p>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">Make</span><span class="o">.</span><span class="n">GetItemButtons</span><span class="p">())</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="make-getquantitybuttons">
+<h2>Make.GetQuantityButtons<a class="headerlink" href="#make-getquantitybuttons" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">GetQuantityButtons</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TRSButtonArray</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal method used to get the interface quantity buttons.
+This is used by all other methods that interact with the quantity buttons.
+You will probably never need to call this directly.</p>
+<section id="id1">
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">Make</span><span class="o">.</span><span class="n">GetQuantityButtons</span><span class="p">())</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="make-isopen">
+<h2>Make.IsOpen<a class="headerlink" href="#make-isopen" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">IsOpen</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">IsOpen</span><span class="p">(</span><span class="n">WaitTime</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">Interval</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Checks if the make interface is open.
+You can optionally specify a <strong>WaitTime</strong> to wait for it to open.</p>
+<section id="id2">
+<h3>Example<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Make</span><span class="o">.</span><span class="n">IsOpen</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="make-findhint">
+<h2>Make.FindHint<a class="headerlink" href="#make-findhint" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">FindHint</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns the hint tooltip has a TPointArray</p>
+<section id="id3">
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">Make</span><span class="o">.</span><span class="n">FindHint</span><span class="p">())</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="make-getfreespace">
+<h2>Make.GetFreeSpace<a class="headerlink" href="#make-getfreespace" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">GetFreeSpace</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Get a TPointArray of the chatbox that does not have a single point in any of the make item buttons.</p>
+<section id="id4">
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">Make</span><span class="o">.</span><span class="n">GetFreeSpace</span><span class="p">())</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="make-setquantity">
+<h2>Make.SetQuantity<a class="headerlink" href="#make-setquantity" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">SetQuantity</span><span class="p">(</span><span class="n">Amount</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Attempts to set a quantity.</p>
+<section id="id5">
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Make</span><span class="o">.</span><span class="n">SetQuantity</span><span class="p">(</span><span class="n">MAKE_QUANTITY_ALL</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="make-selecthelper">
+<h2>Make.SelectHelper<a class="headerlink" href="#make-selecthelper" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">SelectHelper</span><span class="p">(</span><span class="k">var</span><span class="w"> </span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSMakeItem</span><span class="o">;</span><span class="w"> </span><span class="n">Quantity</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">UseKeyboard</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">SelectHelper</span><span class="p">(</span><span class="n">Button</span><span class="o">:</span><span class="w"> </span><span class="n">TRSButton</span><span class="o">;</span><span class="w"> </span><span class="n">Quantity</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">UseKeyboard</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal helper method that handles selecting a button and quantity with or without the keyboard.
+You probably will never need to use this directly.</p>
+</section>
+<hr class="docutils" />
+<section id="make-select">
+<h2>Make.Select<a class="headerlink" href="#make-select" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">Select</span><span class="p">(</span><span class="kp">Index</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">Quantity</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">UseKeyboard</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">Select</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">Quantity</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">UseKeyboard</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Select a <strong>Index</strong> of the available buttons or the button with <strong>Item</strong> text on it when hovered.</p>
+<section id="id6">
+<h3>Example<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Make</span><span class="o">.</span><span class="n">Select</span><span class="p">(</span><span class="s">&#39;Maple longbow&#39;</span><span class="o">,</span><span class="w"> </span><span class="n">MAKE_QUANTITY_ALL</span><span class="o">,</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="make-draw">
+<h2>Make.Draw<a class="headerlink" href="#make-draw" title="Permalink to this heading">¶</a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSMake</span><span class="o">.</span><span class="nf">Draw</span><span class="p">(</span><span class="n">Bitmap</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Internal debug method. Used by SRL.Debug().</p>
+<section id="id7">
+<h3>Example<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">SRL</span><span class="o">.</span><span class="n">Debug</span><span class="p">()</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="var-make">
+<h2>var Make<a class="headerlink" href="#var-make" title="Permalink to this heading">¶</a></h2>
+<p>Global Make variable.</p>
+<hr class="docutils" />
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="inventory.html" class="btn btn-neutral float-right" title="Inventory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to SRL documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, SRL Group.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    
+
+  <style>
+         .wy-nav-content { max-width: none; }
+  </style>
+
+
+
+</body>
+</html>
