@@ -4,7 +4,7 @@ Login
 
 Handles logging in players.
 
-Summary: 
+Summary:
 
 - Add players with `Login.AddPlayer`
 - Login the current player with `Login.LoginPlayer`
@@ -24,22 +24,63 @@ Example
 {$ENDIF}
 
 type
+(*
+type TRSLoginPlayer
+~~~~~~~~~~~~~~~~~~~
+Type responsible for managing player data.
+You usually don't use this directly but instead use TRSLogin methods to interact with TRSLoginPlayers stored in TRSLogin.Players array.
+The **Active** variable decides wether the player is inteded to be skipped or not by TRSLogin.
+
+This is the structure of TRSLoginPlayer:
+.. pascal::
   TRSLoginPlayer = record
     User: String;
     Password: String;
-    Pin: String; 
+    Pin: String;
     Worlds: TIntegerArray;
     Active: Boolean;
+    BioHash: Double;
+  end;
+*)
+  TRSLoginPlayer = record
+    User: String;
+    Password: String;
+    Pin: String;
+    Worlds: TIntegerArray;
+    Active: Boolean;
+    BioHash: Double;
   end;
 
+(*
+type TRSLogin
+~~~~~~~~~~~~~
+Type responsible for handling login and managing cached TRSLoginPlayers.
+
+This is the structure of TRSLogin:
+.. pascal::
   TRSLogin = record(TRSInterface)
     Players: array of TRSLoginPlayer;
     PlayerIndex: Int32;
-    
+
+    AllowDangerousWorlds: Boolean;
+  end;
+*)
+  TRSLogin = record(TRSInterface)
+    Players: array of TRSLoginPlayer;
+    PlayerIndex: Int32;
+
     AllowDangerousWorlds: Boolean;
   end;
 
 const
+(*
+LOGIN_MESSAGES
+~~~~~~~~~~~~~~
+Global constants for most if not all login messages.
+
+Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
+
+.. pascal::
   LOGIN_MESSAGE_NONE = '';
   LOGIN_MESSAGE_CONNECTING = 'Connecting to server';
   LOGIN_MESSAGE_INVALID_CREDENTIALS = 'Invalid credentials';
@@ -53,6 +94,25 @@ const
   LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED = 'Login limit exceeded';
   LOGIN_MESSAGE_WORLD_FULL = 'This world is full';
   LOGIN_MESSAGE_ACCOUNT_DISABLED = 'Your account has been disabled';
+  LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER = 'Your account has been involved';
+  LOGIN_MESSAGE_MEMBERS = 'You need a members account';
+  LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
+  LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
+*)
+  LOGIN_MESSAGE_NONE = '';
+  LOGIN_MESSAGE_CONNECTING = 'Connecting to server';
+  LOGIN_MESSAGE_INVALID_CREDENTIALS = 'Invalid credentials';
+  LOGIN_MESSAGE_NEED_SKILL_TOTAL = 'You need a skill total of';
+  LOGIN_MESSAGE_INVALID_USER_PASS = 'Please enter your username/email address.';
+  LOGIN_MESSAGE_ERROR_CONNECTING = 'Error connecting to server';
+  LOGIN_MESSAGE_ACCOUNT_NOT_LOGGED_OUT = 'Your account has not logged out';
+  LOGIN_MESSAGE_LOGIN_SERVER_OFFLINE = 'Login server offline';
+  LOGIN_MESSAGE_ERROR_LOADING_PROFILE = 'Error loading your profile';
+  LOGIN_MESSAGE_CONNECTION_TIMED_OUT = 'Connection timed out';
+  LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED = 'Login limit exceeded';
+  LOGIN_MESSAGE_WORLD_FULL = 'This world is full';
+  LOGIN_MESSAGE_ACCOUNT_DISABLED = 'Your account has been disabled';
+  LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER = 'Your account has been involved';
   LOGIN_MESSAGE_MEMBERS = 'You need a members account';
   LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
   LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
@@ -70,26 +130,37 @@ const
     LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED,
     LOGIN_MESSAGE_WORLD_FULL,
     LOGIN_MESSAGE_ACCOUNT_DISABLED,
+    LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER,
     LOGIN_MESSAGE_MEMBERS,
     LOGIN_MESSAGE_IN_MEMBERS_AREA
   ];
-  
+
   LOGIN_DIALOG_OK = 'Ok';
   LOGIN_DIALOG_TRY_AGAIN = 'Try again';
   LOGIN_DIALOG_EXISTING_USER = 'Existing User';
   LOGIN_DIALOG_CONTINUE = 'Continue';
-  
+
   LOGIN_DIALOGS = [
     LOGIN_DIALOG_OK,
     LOGIN_DIALOG_TRY_AGAIN,
     LOGIN_DIALOG_EXISTING_USER
   ];
-  
+
   LOGIN_DIALOGS_DANGEROUS = [
     LOGIN_DIALOG_CONTINUE
   ];
 
-function TRSLogin.FindText(Text: String; out B: TBox): Boolean; overload;
+
+(*
+Login.FindText
+~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.FindText(Text: String; out B: TBox): Boolean;
+.. pascal:: function TRSLogin.FindText(Text: String): Boolean; overload;
+
+Internal TRSLogin method used to find a message on the TRSLogin interface.
+You probably will never to use this directly.
+*)
+function TRSLogin.FindText(Text: String; out B: TBox): Boolean;
 begin
   Result := (OCR.LocateText(Self.Bounds, Text, RS_FONT_BOLD_12,  TOCRColorRule.Create([$FFFFFF]), B) = 1) or
             (OCR.LocateText(Self.Bounds, Text, RS_FONT_BOLD_12,  TOCRColorRule.Create([$00FFFF]), B) = 1) or
@@ -102,24 +173,41 @@ var
   _: TBox;
 begin
   Result := FindText(Text, _);
-end;  
+end;
 
+
+(*
+Login.ClickText
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.ClickText(Text: String): Boolean;
+
+Internal TRSLogin method used to find the specified **Text** on the TRSLogin interface and click it.
+You probably will never to use this directly.
+*)
 function TRSLogin.ClickText(Text: String): Boolean;
 var
   B: TBox;
 begin
   Result := FindText(Text, B);
-  if Result then 
+  if Result then
     Mouse.Click(B, MOUSE_LEFT);
 end;
 
+(*
+Login.ClickWorld
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.ClickWorld(World: Int32): Boolean;
+
+Internal TRSLogin method used to click a world on the login interface.
+You probably will never to use this directly.
+*)
 function TRSLogin.ClickWorld(World: Int32): Boolean;
 var
   B: TBox;
 begin
   Result := OCR.LocateText(Self.Bounds, ToString(World), RS_FONT_BOLD_12, TOCRColorRule.Create([$000000]), B) = 1;
-  
-  if Result then 
+
+  if Result then
   begin
     if (not Self.AllowDangerousWorlds) then
     begin
@@ -128,43 +216,117 @@ begin
          (SRL.CountColor(CTS1(8421504, 25), B) = 0) then
         Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(World) + ')');
     end;
-    
+
     Mouse.Click(B, MOUSE_LEFT);
   end;
 end;
 
-function TRSLogin.IsOpen: Boolean;
+(*
+Login.IsOpen
+~~~~~~~~~~~~
+.. pascal:: function TRSLogin.IsOpen(): Boolean;
+
+TRSLogin method used to check if we are on the login screen.
+
+Example
+-------
+
+  WriteLn Login.IsOpen();
+*)
+function TRSLogin.IsOpen(): Boolean;
 begin
   Result := Self.FindText('Click to switch');
 end;
 
-function TRSLogin.IsWorldSwitcherOpen: Boolean;
+(*
+Login.IsWorldSwitcherOpen
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.IsWorldSwitcherOpen(): Boolean;
+
+TRSLogin method used to check if the login world switcher is open.
+
+Example
+-------
+
+  WriteLn Login.IsWorldSwitcherOpen();
+*)
+function TRSLogin.IsWorldSwitcherOpen(): Boolean;
 begin
   Result := Self.FindText('Cancel');
 end;
 
-function TRSLogin.OpenWorldSwitcher: Boolean;
+(*
+Login.OpenWorldSwitcher
+~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.OpenWorldSwitcher(): Boolean;
+
+TRSLogin method used to open the login screen world switcher.
+
+Example
+-------
+
+  if not Login.IsWorldSwitcherOpen() then
+    WriteLn Login.OpenWorldSwitcher();
+*)
+function TRSLogin.OpenWorldSwitcher(): Boolean;
 begin
-  Result := ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000); 
+  Result := ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000);
 end;
 
-function TRSLogin.CloseWorldSwitcher: Boolean;
+(*
+Login.CloseWorldSwitcher
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.CloseWorldSwitcher(): Boolean;
+
+TRSLogin method used to close the login screen world switcher.
+
+Example
+-------
+
+  if Login.IsWorldSwitcherOpen() then
+    WriteLn Login.CloseWorldSwitcher();
+*)
+function TRSLogin.CloseWorldSwitcher(): Boolean;
 begin
   Result := Self.IsOpen() or (Self.ClickText('Cancel') and WaitUntil(Self.IsOpen(), 100, 1000));
 end;
 
-function TRSLogin.GetCurrentWorld: Int32;
+(*
+Login.GetCurrentWorld
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.GetCurrentWorld(): Int32;
+
+Returns the currently selected world.
+
+Example
+-------
+
+  WriteLn Login.GetCurrentWorld();
+*)
+function TRSLogin.GetCurrentWorld(): Int32;
 var
   B: TBox;
 begin
   if Self.CloseWorldSwitcher() and Self.FindText('Click to switch', B) then
   begin
     B.Y1 -= 25;
-    
+
     Result := OCR.RecognizeNumber(B, TOCRColorRule.Create([$FFFFFF]), RS_FONT_BOLD_12);
   end;
 end;
 
+(*
+Login.SwitchToWorld
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.SwitchToWorld(World: Int32): Boolean;
+
+Attempts to switch the current world to the **World** specified.
+
+Example
+-------
+
+  WriteLn Login.SwitchToWorld(303);
+*)
 function TRSLogin.SwitchToWorld(World: Int32): Boolean;
 begin
   if Self.GetCurrentWorld() = World then
@@ -179,41 +341,63 @@ begin
         Result := Self.GetCurrentWorld() = World;
         Exit;
       end;
-      
+
       Keyboard.PressKey(VK_RIGHT);
-      
+
       Wait(500, 5000, wdLeft);
     end;
   end;
 end;
 
-function TRSLogin.HandleDialogs: Boolean;
+(*
+Login.HandleDialogs
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.HandleDialogs(): Boolean;
+
+Internal TRSLogin method used to handle the dialog messages.
+You probably will never need to call this directly.
+*)
+function TRSLogin.HandleDialogs(): Boolean;
 var
   Dialog: String;
 begin
   for Dialog in LOGIN_DIALOGS do
     if Self.ClickText(' ' + Dialog + ' ') then
       Exit(True);
-    
+
   for Dialog in LOGIN_DIALOGS_DANGEROUS do
     case Self.AllowDangerousWorlds of
       True:
         if Self.ClickText(' ' + Dialog + ' ') then
           Exit(True);
-          
-      False: 
+
+      False:
         if Self.FindText(' ' + Dialog + ' ') then
-          Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(Self.GetCurrentWorld()) + ')');  
+          Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(Self.GetCurrentWorld()) + ')');
     end;
 end;
 
+(*
+Login.EnterField
+~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.EnterField(Field, Details: String): Boolean;
+
+Used to enter player details in the login screen.
+This is not an internal method but you probably will never need to call this directly.
+
+Example
+-------
+
+  WriteLn Login.EnterField('Login:', 'my user name') and
+          Login.EnterField('Password:', 'my password');
+*)
 function TRSLogin.EnterField(Field, Details: String): Boolean;
 var
   B: TBox;
 begin
   if Self.FindText(Details + ' ') then
     Exit(True);
-  
+
   if Self.FindText(Field, B) then
   begin
     B.X1 := B.X2;
@@ -222,24 +406,37 @@ begin
     // Move caret
     while not WaitUntil(SRL.CountColor($00FFFF, B) > 15, 100, SRL.TruncatedGauss(800, 1600)) do
     begin
-      if not Self.IsOpen() then 
+      if not Self.IsOpen() then
         Exit(False);
-      
+
       Keyboard.PressKey(VK_TAB);
     end;
-  
+
     // Erase field
     while SRL.CountColor($FFFFFF, B) > 0 do
       Keyboard.PressKey(VK_BACK);
     Keyboard.Send(Details);
-    
+
     Wait(0, 1000, wdLeft);
-    
+
     Result := True;
   end;
 end;
 
-function TRSLogin.GetLoginMessage: String;
+(*
+Login.GetLoginMessage
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.GetLoginMessage(): String;
+
+Returns the login message that matches any of the messages stored in the constant **LOGIN_MESSAGES**.
+This is not an internal method but you probably will never need to call this directly.
+
+Example
+-------
+
+  WriteLn Login.GetLoginMessage();
+*)
+function TRSLogin.GetLoginMessage(): String;
 var
   I: Int32;
 begin
@@ -249,11 +446,24 @@ begin
     if Self.FindText(LOGIN_MESSAGES[I]) then
     begin
       Result := LOGIN_MESSAGES[I];
-      
+
       Exit;
     end;
 end;
 
+(*
+Login.HandleMessage
+~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.HandleMessage(Message: String): Boolean;
+
+Attempts to handle the currently displayed login message.
+This is not an internal method but you probably will never need to call this directly.
+
+Example
+-------
+
+  WriteLn Login.HandleMessage(Login.GetLoginMessage());
+*)
 function TRSLogin.HandleMessage(Message: String): Boolean;
 begin
   Self.DebugLn('Handling login message: ' + Message);
@@ -264,6 +474,7 @@ begin
     LOGIN_MESSAGE_IN_MEMBERS_AREA,
     LOGIN_MESSAGE_NEED_SKILL_TOTAL,
     LOGIN_MESSAGE_ACCOUNT_DISABLED,
+    LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER,
     LOGIN_MESSAGE_AUTHENTICATOR:
       Result := False;
 
@@ -292,7 +503,23 @@ begin
   end;
 end;
 
-function TRSLogin.EnterGame: Boolean;
+(*
+Login.EnterGame
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.EnterGame(): Boolean;
+
+Attempts to login into the game.
+This is not an internal method but you probably will never need to call this directly.
+This assumes that the player username and password are already filled in.
+
+Example
+-------
+
+  if Login.EnterField('Login:', 'my user name') and
+     Login.EnterField('Password:', 'my password') then
+    WriteLn Login.EnterGame();
+*)
+function TRSLogin.EnterGame(): Boolean;
 var
   T: UInt64;
 begin
@@ -301,14 +528,28 @@ begin
   begin
     if Self.ClickText('CLICK HERE TO PLAY') then
       Break;
-      
+
     Wait(100);
   end;
-  
+
   Result := RSClient.IsLoggedIn(5000);
 end;
 
-function TRSLogin.GetPlayer: TRSLoginPlayer;
+(*
+Login.GetPlayer
+~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.GetPlayer(): TRSLoginPlayer;
+
+Returns the currently selected TRSLoginPlayer.
+The currently selected TRSLoginPlayer is decided by TRSLogin.PlayerIndex which
+is an index of the TRSLogin.Players array.
+
+Example
+-------
+
+    WriteLn Login.GetPlayer().Username;
+*)
+function TRSLogin.GetPlayer(): TRSLoginPlayer;
 begin
   if Self.Players = [] then
     Self.Fatal('No players declared');
@@ -318,90 +559,203 @@ begin
   Result := Self.Players[Self.PlayerIndex];
 end;
 
-function TRSLogin.LoginPlayer: Boolean;
+(*
+Login.LoginPlayer
+~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.LoginPlayer(): Boolean;
+
+Attempts to login the current selected player into the game.
+The currently selected player is decided by TRSLogin.PlayerIndex which is an
+index of the TRSLogin.Players array.
+
+Example
+-------
+
+  WriteLn Login.LoginPlayer();
+*)
+function TRSLogin.LoginPlayer(): Boolean;
 var
-  Message: String;
-  Attempts, World: Int32;
-  Player: TRSLoginPlayer;
+  message: String;
+  attempts, World: Int32;
+  player: TRSLoginPlayer;
 begin
   Self.DebugLn('Logging in player');
 
-  Player := Self.GetPlayer();
-  if (Player.User = '') or (Player.Password = '') then
+  player := Self.GetPlayer();
+  if (player.User = '') or (player.Password = '') then
     Self.Fatal('Player has no username or password');
 
-  while Self.IsOpen() and (Attempts < 10) do
+  while Self.IsOpen() and (attempts < 10) do
   begin
-    Self.DebugLn('Attempt ' + ToString(Attempts + 1));
-    
-    if (Player.Worlds <> []) and (not (Self.GetCurrentWorld() in Player.Worlds)) then
+    Self.DebugLn('Attempt ' + ToString(attempts + 1));
+
+    if (player.Worlds <> []) and (not (Self.GetCurrentWorld() in player.Worlds)) then
     begin
       World := Player.Worlds[Random(Length(Player.Worlds))];
       if (not Self.SwitchToWorld(World)) then
         Exit;
     end;
-    
+
     if Self.HandleDialogs() then
       Wait(500);
 
-    if Self.EnterField('Login:', Player.User) and
-       Self.EnterField('Password:', Player.Password) then
+    if Self.EnterField('Login:', player.User) and
+       Self.EnterField('Password:', player.Password) then
     begin
       Keyboard.PressKey(VK_ENTER);
-  
-      while Self.IsOpen() and (Self.GetLoginMessage() in [LOGIN_MESSAGE_CONNECTING, LOGIN_MESSAGE_NONE]) do
+
+      while Self.IsOpen() do
+      begin
+        message := Self.GetLoginMessage();
+        if (message <> LOGIN_MESSAGE_CONNECTING) and
+           (message <> LOGIN_MESSAGE_NONE) then
+          Break;
+
         Wait(500);
-  
+      end;
+
       if Self.IsOpen() then
       begin
-        Message := Self.GetLoginMessage();
-        if not Self.HandleMessage(Message) then
+        if not Self.HandleMessage(message) then
           Exit(False);
       end;
     end;
-    
-    Inc(Attempts);
+
+    Inc(attempts);
   end;
 
   Result := Self.EnterGame();
 end;
 
+(*
+Login.AddPlayer
+~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSLogin.AddPlayer(User, Pass: String; Pin: String = ''; Worlds: TIntegerArray = []);
+
+Adds a TRSLoginPlayer to the TRSLogin.Players array.
+
+Example
+-------
+
+  Login.AddPlayer('my username', 'my password', '0000'); //Adds a player to TRSLogin.Players
+  Login.PlayerIndex := High(Login.Players);              //Our added TRSLoginPlayer will be the last in the array.
+  Login.LoginPlayer();                                   //Login Login.Players[Login.PlayerIndex]
+*)
 procedure TRSLogin.AddPlayer(User, Pass: String; Pin: String = ''; Worlds: TIntegerArray = []);
 begin
   Self.Players += [User, Pass, Pin, Worlds, True];
 end;
 
+(*
+Login.NextPlayer
+~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSLogin.NextPlayer(DisableCurrentPlayer: Boolean);
+
+This basically increments TRSLogin.PlayerIndex to the next TRSLoginPlayer that has the **Active** variable set to true.
+If TRSLogin.PlayerIndex is already set to our last TRSLoginPlayer, then it's reset to 0 and set to the first **Active** player.
+
+Example
+-------
+
+  WriteLn Login.PlayerIndex;
+  Login.NextPlayer(True);        //Make sure you have a couple of players to run this example properly.
+  WriteLn Login.PlayerIndex;
+*)
 procedure TRSLogin.NextPlayer(DisableCurrentPlayer: Boolean);
-  
+
   function Next: Int32;
   var
     I: Int32;
   begin
     Result := -1;
-    
+
     for I := Self.PlayerIndex + 1 to High(Self.Players) do
       if Self.Players[I].Active then
         Exit(I);
     for I := 0 to Self.PlayerIndex - 1 do // wrap around
       if Self.Players[I].Active then
-        Exit(I);    
+        Exit(I);
   end;
-  
+
 begin
   Self.Players[Self.PlayerIndex].Active := not DisableCurrentPlayer;
-  
+
   Self.PlayerIndex := Next();
   if (Self.PlayerIndex = -1) then
     Self.Fatal('No other active players to switch to');
 end;
 
-function TRSLogin.GetPlayerPin: String;
+
+(*
+Login.GetPlayerPin
+~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.GetPlayerPin(): String;
+
+Get the current player bank pin.
+
+Example
+-------
+
+  if BankPin.IsOpen() then
+    BankPin.Enter(Login.GetPlayerPin());
+*)
+function TRSLogin.GetPlayerPin(): String;
 begin
   Result := Self.GetPlayer.Pin;
   if (Length(Result) <> 4) or (not Result.IsDigit()) then
-    Self.Fatal('Invalid bank pin'); 
+    Self.Fatal('Invalid bank pin');
 end;
 
+(*
+Login.GetPlayerBioHash
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSLogin.GetPlayerBioHash(): Double;
+
+Get the current player BioHash.
+
+Example
+-------
+
+  WriteLn Login.GetPlayerBioHash();
+*)
+function TRSLogin.GetPlayerBioHash(): Double;
+var
+  h, i: UInt32;
+  k: String;
+begin
+  if Self.Players = [] then
+    Self.Fatal('No players declared');
+  if not InRange(Self.PlayerIndex, Low(Self.Players), High(Self.Players)) then
+    Self.Fatal('Player is out of range');
+
+  if (Self.Players[Self.PlayerIndex].BioHash = 0) then
+  begin
+    k := Self.Players[Self.PlayerIndex].User;
+    h := $811C9DC5;
+    for i:=1 to Length(k) do
+      h := (h * $1000193) xor Ord(k[i]);
+
+    Self.Players[Self.PlayerIndex].BioHash := h / $FFFFFFFF;
+  end;
+
+  Result := Self.Players[Self.PlayerIndex].BioHash;
+end;
+
+
+(*
+Login.Draw
+~~~~~~~~~~
+.. pascal:: procedure TRSLogin.Draw(Bitmap: TMufasaBitmap); override;
+
+Internal TRSLogin method used for debugging.
+You probably will never need to call this directly but can be useful for debugging.
+This is automatically called with **SRL.Debug()**.
+
+Example
+-------
+
+  SRL.Debug();
+*)
 procedure TRSLogin.Draw(Bitmap: TMufasaBitmap); override;
 begin
   if not Self.IsOpen() then
@@ -410,13 +764,31 @@ begin
   inherited;
 end;
 
-procedure TRSLogin.Setup; override;
+(*
+Login.Setup
+~~~~~~~~~~~
+.. pascal:: procedure TRSLogin.Setup(); override;
+
+Internal TRSLogin setup method. This is automatically called by SRL and you
+probably will never need to call this directly.
+*)
+procedure TRSLogin.Setup(); override;
 begin
   inherited;
 
   Self.Name := 'Login';
 end;
 
+(*
+Login.SetupAlignment
+~~~~~~~~~~~~~~~~~~~~
+.. pascal:: procedure TRSLogin.SetupAlignment(Mode: ERSClientMode); override;
+
+Internal TRSLogin aligment method. This is automatically called by SRL and you
+probably will never need to call this directly.
+
+This is responsible for setting up the TRSLogin interface coordinates.
+*)
 procedure TRSLogin.SetupAlignment(Mode: ERSClientMode); override;
 begin
   inherited;
@@ -428,6 +800,11 @@ begin
   Self.Alignment.Center := [764, 0];
 end;
 
+(*
+var Login
+~~~~~~~~~
+Global TRSLogin variable.
+*)
 var
   Login: TRSLogin;
 
