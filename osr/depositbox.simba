@@ -1,3 +1,9 @@
+(*
+DepositBox
+==========
+Methods to interact with the deposit box interface.
+*)
+
 {$DEFINE SRL_DEPOSITBOX_INCLUDED}
 {$IFNDEF SRL_OSR}
   {$I SRL/osr.simba}
@@ -10,7 +16,7 @@ type
     QUANTITY_10,
     QUANTITY_CUSTOM,
     QUANTITY_ALL,
-    
+
     DEPOSIT_INVENTORY,
     DEPOSIT_WORN,
     DEPOSIT_LOOT
@@ -18,7 +24,7 @@ type
 
   TRSDepositBox = type TRSTitledInteface;
 
-procedure TRSDepositBox.Setup; override;
+procedure TRSDepositBox.Setup(); override;
 begin
   inherited;
 
@@ -52,7 +58,7 @@ begin
   end;
 end;
 
-function TRSDepositBox.GetButtons: TRSButtonArray;
+function TRSDepositBox.GetButtons(): TRSButtonArray;
 begin
   Result := Self.FindButtons([[34,34]]);
 end;
@@ -65,12 +71,12 @@ begin
     Result := Buttons[Button];
 end;
 
-function TRSDepositBox.GetSlotBoxes: TBoxArray; 
+function TRSDepositBox.GetSlotBoxes(): TBoxArray;
 begin
   Result := Grid(7, 4, 31, 31, [25, 17], [Self.X1 + 38, Self.Y1 + 42]);
 end;
 
-function TRSDepositBox.IsOpen: Boolean; overload;
+function TRSDepositBox.IsOpen(): Boolean; overload;
 begin
   Result := Self.GetButton(ERSDepositButton.QUANTITY_1).Visible();
 end;
@@ -80,7 +86,7 @@ begin
   Result := WaitUntil(Self.IsOpen(), SRL.TruncatedGauss(50, 1500), WaitTime);
 end;
 
-function TRSDepositBox.Close(PressEscape: Boolean = False): Boolean; 
+function TRSDepositBox.Close(PressEscape: Boolean = False): Boolean;
 begin
   if not Self.IsOpen() then
     Exit(True);
