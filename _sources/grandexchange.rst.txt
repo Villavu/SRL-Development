@@ -1,11 +1,18 @@
 
-BankScreen.Open
-~~~~~~~~~~~~~~~
+GrandExchange
+=============
+Methods to interact with the grand exchange.
+
+
+------------
+
+Bank.Open
+~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBankScreen.Open(Location: ERSBankLocation): Boolean; override;
+ function TRSBank.Open(Location: ERSBankLocation): Boolean; override;
 
-Overrides **BankScreen.Open** to support opening the grand exchange.
+Overrides **Bank.Open** to support opening the grand exchange.
 
 
 ------------

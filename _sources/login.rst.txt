@@ -4,7 +4,7 @@ Login
 
 Handles logging in players.
 
-Summary: 
+Summary:
 
 - Add players with `Login.AddPlayer`
 - Login the current player with `Login.LoginPlayer`
@@ -17,6 +17,471 @@ Example
   Login.AddPlayer('myusername', 'mypassword');
   if not Login.LoginPlayer() then
     TerminateScript('Failed to login!');
+
+
+------------
+
+type TRSLoginPlayer
+~~~~~~~~~~~~~~~~~~~
+Type responsible for managing player data.
+You usually don't use this directly but instead use TRSLogin methods to interact with TRSLoginPlayers stored in TRSLogin.Players array.
+The **Active** variable decides wether the player is inteded to be skipped or not by TRSLogin.
+
+This is the structure of TRSLoginPlayer:
+.. code-block:: pascal
+
+
+  TRSLoginPlayer = record
+    User: String;
+    Password: String;
+    Pin: String;
+    Worlds: TIntegerArray;
+    Active: Boolean;
+    BioHash: Double;
+  end;
+
+
+------------
+
+type TRSLogin
+~~~~~~~~~~~~~
+Type responsible for handling login and managing cached TRSLoginPlayers.
+
+This is the structure of TRSLogin:
+.. code-block:: pascal
+
+
+  TRSLogin = record(TRSInterface)
+    Players: array of TRSLoginPlayer;
+    PlayerIndex: Int32;
+
+    AllowDangerousWorlds: Boolean;
+  end;
+
+
+------------
+
+LOGIN_MESSAGES
+~~~~~~~~~~~~~~
+Global constants for most if not all login messages.
+
+Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
+
+.. code-block:: pascal
+
+
+  LOGIN_MESSAGE_NONE = '';
+  LOGIN_MESSAGE_CONNECTING = 'Connecting to server';
+  LOGIN_MESSAGE_INVALID_CREDENTIALS = 'Invalid credentials';
+  LOGIN_MESSAGE_NEED_SKILL_TOTAL = 'You need a skill total of';
+  LOGIN_MESSAGE_INVALID_USER_PASS = 'Please enter your username/email address.';
+  LOGIN_MESSAGE_ERROR_CONNECTING = 'Error connecting to server';
+  LOGIN_MESSAGE_ACCOUNT_NOT_LOGGED_OUT = 'Your account has not logged out';
+  LOGIN_MESSAGE_LOGIN_SERVER_OFFLINE = 'Login server offline';
+  LOGIN_MESSAGE_ERROR_LOADING_PROFILE = 'Error loading your profile';
+  LOGIN_MESSAGE_CONNECTION_TIMED_OUT = 'Connection timed out';
+  LOGIN_MESSAGE_LOGIN_LIMIT_EXCEEDED = 'Login limit exceeded';
+  LOGIN_MESSAGE_WORLD_FULL = 'This world is full';
+  LOGIN_MESSAGE_ACCOUNT_DISABLED = 'Your account has been disabled';
+  LOGIN_MESSAGE_ACCOUNT_RULE_BREAKER = 'Your account has been involved';
+  LOGIN_MESSAGE_MEMBERS = 'You need a members account';
+  LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
+  LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
+
+
+------------
+
+Login.FindText
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.FindText(Text: String; out B: TBox): Boolean;
+.. code-block:: pascal
+
+ function TRSLogin.FindText(Text: String): Boolean; overload;
+
+Internal TRSLogin method used to find a message on the TRSLogin interface.
+You probably will never to use this directly.
+
+
+------------
+
+Login.ClickText
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.ClickText(Text: String): Boolean;
+
+Internal TRSLogin method used to find the specified **Text** on the TRSLogin interface and click it.
+You probably will never to use this directly.
+
+
+------------
+
+Login.ClickWorld
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.ClickWorld(World: Int32): Boolean;
+
+Internal TRSLogin method used to click a world on the login interface.
+You probably will never to use this directly.
+
+
+------------
+
+Login.IsOpen
+~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.IsOpen(): Boolean;
+
+TRSLogin method used to check if we are on the login screen.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.IsOpen();
+
+
+------------
+
+Login.IsWorldSwitcherOpen
+~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.IsWorldSwitcherOpen(): Boolean;
+
+TRSLogin method used to check if the login world switcher is open.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.IsWorldSwitcherOpen();
+
+
+------------
+
+Login.OpenWorldSwitcher
+~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.OpenWorldSwitcher(): Boolean;
+
+TRSLogin method used to open the login screen world switcher.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if not Login.IsWorldSwitcherOpen() then
+    WriteLn Login.OpenWorldSwitcher();
+
+
+------------
+
+Login.CloseWorldSwitcher
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.CloseWorldSwitcher(): Boolean;
+
+TRSLogin method used to close the login screen world switcher.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if Login.IsWorldSwitcherOpen() then
+    WriteLn Login.CloseWorldSwitcher();
+
+
+------------
+
+Login.GetCurrentWorld
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.GetCurrentWorld(): Int32;
+
+Returns the currently selected world.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.GetCurrentWorld();
+
+
+------------
+
+Login.SwitchToWorld
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.SwitchToWorld(World: Int32): Boolean;
+
+Attempts to switch the current world to the **World** specified.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.SwitchToWorld(303);
+
+
+------------
+
+Login.HandleDialogs
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.HandleDialogs(): Boolean;
+
+Internal TRSLogin method used to handle the dialog messages.
+You probably will never need to call this directly.
+
+
+------------
+
+Login.EnterField
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.EnterField(Field, Details: String): Boolean;
+
+Used to enter player details in the login screen.
+This is not an internal method but you probably will never need to call this directly.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.EnterField('Login:', 'my user name') and
+          Login.EnterField('Password:', 'my password');
+
+
+------------
+
+Login.GetLoginMessage
+~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.GetLoginMessage(): String;
+
+Returns the login message that matches any of the messages stored in the constant **LOGIN_MESSAGES**.
+This is not an internal method but you probably will never need to call this directly.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.GetLoginMessage();
+
+
+------------
+
+Login.HandleMessage
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.HandleMessage(Message: String): Boolean;
+
+Attempts to handle the currently displayed login message.
+This is not an internal method but you probably will never need to call this directly.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.HandleMessage(Login.GetLoginMessage());
+
+
+------------
+
+Login.EnterGame
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.EnterGame(): Boolean;
+
+Attempts to login into the game.
+This is not an internal method but you probably will never need to call this directly.
+This assumes that the player username and password are already filled in.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if Login.EnterField('Login:', 'my user name') and
+     Login.EnterField('Password:', 'my password') then
+    WriteLn Login.EnterGame();
+
+
+------------
+
+Login.GetPlayer
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.GetPlayer(): TRSLoginPlayer;
+
+Returns the currently selected TRSLoginPlayer.
+The currently selected TRSLoginPlayer is decided by TRSLogin.PlayerIndex which
+is an index of the TRSLogin.Players array.
+
+Example
+-------
+.. code-block:: pascal  
+
+    WriteLn Login.GetPlayer().Username;
+
+
+------------
+
+Login.LoginPlayer
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.LoginPlayer(): Boolean;
+
+Attempts to login the current selected player into the game.
+The currently selected player is decided by TRSLogin.PlayerIndex which is an
+index of the TRSLogin.Players array.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.LoginPlayer();
+
+
+------------
+
+Login.AddPlayer
+~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSLogin.AddPlayer(User, Pass: String; Pin: String = ''; Worlds: TIntegerArray = []);
+
+Adds a TRSLoginPlayer to the TRSLogin.Players array.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Login.AddPlayer('my username', 'my password', '0000'); //Adds a player to TRSLogin.Players
+  Login.PlayerIndex := High(Login.Players);              //Our added TRSLoginPlayer will be the last in the array.
+  Login.LoginPlayer();                                   //Login Login.Players[Login.PlayerIndex]
+
+
+------------
+
+Login.NextPlayer
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSLogin.NextPlayer(DisableCurrentPlayer: Boolean);
+
+This basically increments TRSLogin.PlayerIndex to the next TRSLoginPlayer that has the **Active** variable set to true.
+If TRSLogin.PlayerIndex is already set to our last TRSLoginPlayer, then it's reset to 0 and set to the first **Active** player.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.PlayerIndex;
+  Login.NextPlayer(True);        //Make sure you have a couple of players to run this example properly.
+  WriteLn Login.PlayerIndex;
+
+
+------------
+
+Login.GetPlayerPin
+~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.GetPlayerPin(): String;
+
+Get the current player bank pin.
+
+Example
+-------
+.. code-block:: pascal  
+
+  if BankPin.IsOpen() then
+    BankPin.Enter(Login.GetPlayerPin());
+
+
+------------
+
+Login.GetPlayerBioHash
+~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSLogin.GetPlayerBioHash(): Double;
+
+Get the current player BioHash.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Login.GetPlayerBioHash();
+
+
+------------
+
+Login.Draw
+~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSLogin.Draw(Bitmap: TMufasaBitmap); override;
+
+Internal TRSLogin method used for debugging.
+You probably will never need to call this directly but can be useful for debugging.
+This is automatically called with **SRL.Debug()**.
+
+Example
+-------
+.. code-block:: pascal  
+
+  SRL.Debug();
+
+
+------------
+
+Login.Setup
+~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSLogin.Setup(); override;
+
+Internal TRSLogin setup method. This is automatically called by SRL and you
+probably will never need to call this directly.
+
+
+------------
+
+Login.SetupAlignment
+~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ procedure TRSLogin.SetupAlignment(Mode: ERSClientMode); override;
+
+Internal TRSLogin aligment method. This is automatically called by SRL and you
+probably will never need to call this directly.
+
+This is responsible for setting up the TRSLogin interface coordinates.
+
+
+------------
+
+var Login
+~~~~~~~~~
+Global TRSLogin variable.
 
 
 ------------

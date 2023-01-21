@@ -1,4 +1,11 @@
 
+DepositBox
+==========
+Methods to interact with the deposit box interface.
+
+
+------------
+
 GameTabs.GetCurrentTab
 ~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
