@@ -302,7 +302,7 @@ function TRSWalkerMap.GlobalToRegion(RegionIndex: Integer; P: TPoint): TPoint;
 begin
   Result := P;
   if (RegionIndex > -1) then
-    Result := Result - Self.RegionOffsets[RegionIndex];
+    Result := Result - Self.RegionOffsets[RegionIndex] + [Self.Regions[RegionIndex].X1, Self.Regions[RegionIndex].Y1];
 end;
 
 
