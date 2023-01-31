@@ -27,18 +27,17 @@ const
 
 type
   TRSInventory = record(TRSInterface)
-    LOW_SLOT: Int32;
-    HIGH_SLOT: Int32;
+    SlotBoxes: TBoxArray;
+  class const
+    LOW_SLOT: Int32 = 0;
+    HIGH_SLOT: Int32 = 27;
   end;
 
-procedure TRSInventory.Setup; override;
+procedure TRSInventory.Setup(); override;
 begin
   inherited;
 
   Self.Name := 'Inventory';
-
-  Self.LOW_SLOT := 0;
-  Self.HIGH_SLOT := 27;
 end;
 
 procedure TRSInventory.SetupAlignment(Mode: ERSClientMode); override;
@@ -49,6 +48,7 @@ begin
   Self.Alignment.Right := [@GameTab.X2];
   Self.Alignment.Top := [@GameTab.Y1];
   Self.Alignment.Bottom := [@GameTab.Y2];
+  Self.SlotBoxes := []; //make sure the slotboxes cache is reset if the aligment changed.
 end;
 
 (*
@@ -100,7 +100,10 @@ Example
 *)
 function TRSInventory.GetSlotBoxes(): TBoxArray;
 begin
-  Result := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
+  if Self.SlotBoxes = [] then
+    Self.SlotBoxes := Grid(4, 7, 31, 31, [11, 5], [Self.X1 + 13, Self.Y1 + 9]);
+
+  Result := Self.SlotBoxes;
 end;
 
 (*

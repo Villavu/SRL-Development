@@ -14,7 +14,8 @@ type
     STANDARD,
     ANCIENT,
     LUNAR,
-    ARCEUUS
+    ARCEUUS,
+    UNKNOWN
   );
 
   ERSSpell = (
@@ -310,7 +311,10 @@ const
     ERSSpell.SENNTISTEN_TELEPORT]);
   
 type
-  TRSMagic = type TRSInterface;
+  TRSMagic = record (TRSInterface)
+    SpellBook: ERSSpellBook;
+    SpellBoxes: TBoxArray;
+  end;
 
 (*
 Magic.Setup
@@ -326,6 +330,7 @@ begin
   inherited;
   
   Self.Name := 'Magic';
+  Self.SpellBook := ERSSpellBook.UNKNOWN;
 end;
 
 (*
@@ -345,6 +350,7 @@ begin
   Self.Alignment.Right := [@GameTab.X2];
   Self.Alignment.Top := [@GameTab.Y1];
   Self.Alignment.Bottom := [@GameTab.Y2];
+  Self.SpellBoxes := []; //reset cache on aligment change.
 end;
 
 (*
@@ -384,7 +390,7 @@ end;
 (*
 Magic.GetSpellBook
 ~~~~~~~~~~~~~~~~~~
-.. pascal:: function TRSMagic.GetSpellBook: ERSSpellBook;
+.. pascal:: function TRSMagic.GetSpellBook(forceCheck: Boolean = False): ERSSpellBook;
 
 Returns the current spell book.
 
@@ -393,17 +399,27 @@ Example
 
   WriteLn Magic.GetSpellBook;
 *)
-function TRSMagic.GetSpellBook: ERSSpellBook;
+function TRSMagic.GetSpellBook(forceCheck: Boolean = False): ERSSpellBook;
 const
   ARCEUUS_COLOR := CTS1(9801276, 78); // Colors of the book on the gametab
   ANCIENT_COLOR := CTS1(8077142, 28);
   LUNAR_COLOR   := CTS1(12761525, 27);
 var
-  Box: TBox := Gametabs.GetTabBox(ERSGameTab.MAGIC); 
+  Box: TBox;
 begin
-  if SRL.CountColor(ARCEUUS_COLOR, Box) >= 85 then Exit(ERSSpellBook.ARCEUUS);
-  if SRL.CountColor(ANCIENT_COLOR, Box) >= 85 then Exit(ERSSpellBook.ANCIENT);
-  if SRL.CountColor(LUNAR_COLOR,   Box) >= 85 then Exit(ERSSpellBook.LUNAR);
+  if forceCheck then
+    Self.SpellBook := ERSSpellBook.UNKNOWN;
+
+  if (Self.SpellBook = ERSSpellBook.UNKNOWN) then
+  begin
+    Box := Gametabs.GetTabBox(ERSGameTab.MAGIC);
+    if SRL.CountColor(ARCEUUS_COLOR, Box) >= 85 then Self.SpellBook := ERSSpellBook.ARCEUUS
+    else if SRL.CountColor(ANCIENT_COLOR, Box) >= 85 then Self.SpellBook := ERSSpellBook.ANCIENT
+    else if SRL.CountColor(LUNAR_COLOR,   Box) >= 85 then Self.SpellBook := ERSSpellBook.LUNAR
+    else Self.SpellBook := ERSSpellBook.STANDARD;
+  end;
+
+  Result := Self.SpellBook;
 end;
 
 (*
@@ -430,15 +446,19 @@ Magic.GetSpellBoxes
 
 Internal function to get the bounds of the spells of the current spell book.
 *)
-function TRSMagic.GetSpellBoxes(out Spellbook: ERSSpellBook): TBoxArray;
-begin 
-  Spellbook := Self.GetSpellBook;
-  case Spellbook of
-    ERSSpellBook.STANDARD: Result := Grid(7, 10, 23, 23, [3, 1],   [Self.X1 + 2, Self.Y1 + 1]);
-    ERSSpellBook.ARCEUUS:  Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1, Self.Y1 + 1]);
-    ERSSpellBook.LUNAR:    Result := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 2, Self.Y1 + 1]);
-    ERSSpellBook.ANCIENT:  Result := Grid(4, 7,  23, 23, [25, 13], [Self.X1 + 8, Self.Y1 + 1]);
-  end;
+function TRSMagic.GetSpellBoxes(out CurrentSpellbook: ERSSpellBook): TBoxArray;
+begin
+  CurrentSpellbook := Self.GetSpellBook();
+
+  if Self.SpellBoxes = [] then
+    case Spellbook of
+      ERSSpellBook.STANDARD: Self.SpellBoxes := Grid(7, 10, 23, 23, [3, 1],   [Self.X1 + 2, Self.Y1 + 1]);
+      ERSSpellBook.ARCEUUS:  Self.SpellBoxes := Grid(5, 9,  23, 23, [17, 4],  [Self.X1, Self.Y1 + 1]);
+      ERSSpellBook.LUNAR:    Self.SpellBoxes := Grid(5, 9,  23, 23, [17, 4],  [Self.X1 + 2, Self.Y1 + 1]);
+      ERSSpellBook.ANCIENT:  Self.SpellBoxes := Grid(4, 7,  23, 23, [25, 13], [Self.X1 + 8, Self.Y1 + 1]);
+    end;
+
+  Result := Self.SpellBoxes;
 end;
 
 (*

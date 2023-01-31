@@ -4,7 +4,9 @@
 {$ENDIF}
 
 type
-  TRSGameTabs = type TRSInterface;
+  TRSGameTabs = record(TRSInterface)
+    TabBoxes: TBoxArray;
+  end;
 
   ERSGameTab = (
     COMBAT,
@@ -56,14 +58,15 @@ begin
     Result += 36;
 end;
 
-function TRSGameTabs.GetTabBoxes: TBoxArray;
+function TRSGameTabs.GetTabBoxes(): TBoxArray;
 var
   I: Int32;
 begin
+  if Self.TabBoxes = [] then
   case Self.Mode of
     ERSClientMode.FIXED, ERSClientMode.RESIZABLE_CLASSIC:
       begin
-        Result := Grid(7, 2, 30, 33, [3, 265], [Self.X1 + 6, Self.Y1 + 1]);
+        Self.TabBoxes := Grid(7, 2, 30, 33, [3, 265], [Self.X1 + 6, Self.Y1 + 1]);
       end;
 
     ERSClientMode.RESIZABLE_MODERN:
@@ -71,18 +74,20 @@ begin
         // One row
         if (RootInterface.Width >= 948) then
         begin
-          Result := Grid(14, 1, 30, 33, [3, 0], [Self.X1 - 197, Self.Y2 - 70]);
+          Self.TabBoxes := Grid(14, 1, 30, 33, [3, 0], [Self.X1 - 197, Self.Y2 - 70]);
           for I := Ord(ERSGameTab.MUSIC) downto Ord(ERSGameTab.FRIENDS) - 1 do
-            Result[I] := Result[I-1];
+            Self.TabBoxes[I] := Self.TabBoxes[I-1];
         end else
         // Two rows
-          Result := Grid(7, 2, 30, 33, [3, 3], [Self.X1, Self.Y2 - 70]);
+          Self.TabBoxes := Grid(7, 2, 30, 33, [3, 3], [Self.X1, Self.Y2 - 70]);
 
         // Logout button is moved to top right corner
-        Result[7] := Result[10];
-        Result[10] := [RootInterface.X2 - 19, RootInterface.Y1 + 9, RootInterface.X2 - 10, RootInterface.Y1 + 18];
+        Self.TabBoxes[7] := Self.TabBoxes[10];
+        Self.TabBoxes[10] := [RootInterface.X2 - 19, RootInterface.Y1 + 9, RootInterface.X2 - 10, RootInterface.Y1 + 18];
       end;
   end;
+
+  Result := Self.TabBoxes;
 end;
 
 function TRSGameTabs.GetTabBox(Tab: ERSGameTab): TBox;
@@ -169,6 +174,8 @@ begin
         Self.Alignment.Bottom := [@RootInterface.Y2];
       end;
   end;
+
+  Self.TabBoxes := [];
 end;
 
 var
