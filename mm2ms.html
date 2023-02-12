@@ -1,92 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Minimap to Mainscreen &mdash; SRL  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="DepositBox" href="depositbox.html" />
     <link rel="prev" title="Antiban" href="antiban.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="index.html" class="icon icon-home"> SRL
           
-
-          
+          <a href="index.html" class="icon icon-home">
+            SRL
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="prayer.html">Prayer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prayer.html#minimap">Minimap</a></li>
@@ -158,80 +112,39 @@
 <li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">SRL</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
-      <li>Minimap to Mainscreen</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Minimap to Mainscreen</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/mm2ms.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <section id="minimap-to-mainscreen">
-<h1>Minimap to Mainscreen<a class="headerlink" href="#minimap-to-mainscreen" title="Permalink to this heading">¶</a></h1>
+<h1>Minimap to Mainscreen<a class="headerlink" href="#minimap-to-mainscreen" title="Permalink to this heading"></a></h1>
 <p>The core for our minimap to mainscreen projection.
 Supports rotation, and zoom, and resizable client.</p>
 <p>MM2MS extends the Minimap interface as well as the mainscreen interface with
 functionality to convert coordinates to &amp; from the minimap to the mainscreen.</p>
 <hr class="docutils" />
 <section id="type-tmm2ms">
-<h2>type TMM2MS<a class="headerlink" href="#type-tmm2ms" title="Permalink to this heading">¶</a></h2>
+<h2>type TMM2MS<a class="headerlink" href="#type-tmm2ms" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><dl>
 <dt>type</dt><dd><dl class="simple">
@@ -251,20 +164,20 @@ YSHIFT: Double;               // zooming may cause mid-Y to shift</p>
 </section>
 <hr class="docutils" />
 <section id="var-mm2ms">
-<h2>var MM2MS<a class="headerlink" href="#var-mm2ms" title="Permalink to this heading">¶</a></h2>
+<h2>var MM2MS<a class="headerlink" href="#var-mm2ms" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>var MM2MS: TMM2MS;</p>
 </div></blockquote>
 <p>The global variable which you would refer to.</p>
 <hr class="docutils" />
 <section id="minimap">
-<h3>Minimap<a class="headerlink" href="#minimap" title="Permalink to this heading">¶</a></h3>
+<h3>Minimap<a class="headerlink" href="#minimap" title="Permalink to this heading"></a></h3>
 <p>Extend the minimap-functionality with MM2MS functions</p>
 </section>
 </section>
 <hr class="docutils" />
 <section id="minimap-arrtoms">
-<h2>Minimap.ArrToMs<a class="headerlink" href="#minimap-arrtoms" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.ArrToMs<a class="headerlink" href="#minimap-arrtoms" title="Permalink to this heading"></a></h2>
 <blockquote>
 <div><p>function TRSMinimap.ArrToMs(Arr: Vector3Array; Roll:Single=$FFFF): TPointArray; overload;
 function TRSMinimap.ArrToMs(Arr: TPointArray; Roll:Single=$FFFF): TPointArray; overload;</p>
@@ -274,21 +187,21 @@ The first method takes a vector3 array as input, so we can pass height as well, 
 </section>
 <hr class="docutils" />
 <section id="minimap-vectoms">
-<h2>Minimap.VecToMs<a class="headerlink" href="#minimap-vectoms" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.VecToMs<a class="headerlink" href="#minimap-vectoms" title="Permalink to this heading"></a></h2>
 <p>function TRSMinimap.VecToMs(Vec: Vector3; Roll:Single=$FFFF): TPoint;</p>
 <p>Takes a single coordinate as a Vector3 on the minimap, and converts it to a point on the mainscreen.</p>
 <p><em>ROLL is the compass angle, by leaving it default it will gather the compass angle itself.</em></p>
 </section>
 <hr class="docutils" />
 <section id="minimap-pointtoms">
-<h2>Minimap.PointToMs<a class="headerlink" href="#minimap-pointtoms" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.PointToMs<a class="headerlink" href="#minimap-pointtoms" title="Permalink to this heading"></a></h2>
 <p>function TRSMinimap.PointToMs(PT: TPoint; Roll:Single=$FFFF): TPoint;</p>
 <p>Takes a single coordinate as a TPoint on the minimap, and converts it to a point on the mainscreen.</p>
 <p><em>ROLL is the compass angle, by leaving it default it will gather the compass angle itself.</em></p>
 </section>
 <hr class="docutils" />
 <section id="minimap-vectomsrect">
-<h2>Minimap.VecToMsRect<a class="headerlink" href="#minimap-vectomsrect" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.VecToMsRect<a class="headerlink" href="#minimap-vectomsrect" title="Permalink to this heading"></a></h2>
 <p>function TRSMinimap.VecToMsRect(Vec: Vector3; WESize, NSSize: Double = 1; Roll:Single=$FFFF): TRectangle;</p>
 <p>Takes a single coordinate as a Vector3 on the minimap, and converts it to a rectangle / tile on the mainscreen.</p>
 <p><em>WESize</em> is the size of the rectangle we want to get from west-to-east measured in RS tiles.
@@ -299,7 +212,7 @@ If you wanted to get the tiles of a runecrafting altar for example which is 3 by
 </section>
 <hr class="docutils" />
 <section id="minimap-pointtomsrect">
-<h2>Minimap.PointToMsRect<a class="headerlink" href="#minimap-pointtomsrect" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.PointToMsRect<a class="headerlink" href="#minimap-pointtomsrect" title="Permalink to this heading"></a></h2>
 <p>function TRSMinimap.PointToMsRect(PT: TPoint; Roll:Single=$FFFF): TRectangle;</p>
 <p>Takes a single coordinate as a TPoint on the minimap, and converts it to a rectangle / tile on the mainscreen.</p>
 <p><em>WESize</em> is the size of the rectangle we want to get from west-to-east measured in RS tiles.
@@ -310,7 +223,7 @@ If you wanted to get the tiles of a runecrafting altar for example which is 3 by
 </section>
 <hr class="docutils" />
 <section id="minimap-gettilems">
-<h2>Minimap.GetTileMS<a class="headerlink" href="#minimap-gettilems" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.GetTileMS<a class="headerlink" href="#minimap-gettilems" title="Permalink to this heading"></a></h2>
 <p>function TRSMinimap.GetTileMS(Loc: TPoint; TileVector: Vector3; Offset: Vector2 = [0, 0]; Roll: Single = $FFFF): TRectangle;</p>
 <p>This is a more general usage version of the previous 2 functions. This one can take height into account throught the <strong>TileVector</strong>.</p>
 <p>TileVector is used to specify the size and height of the tile:
@@ -321,7 +234,7 @@ If you wanted to get the tiles of a runecrafting altar for example which is 3 by
 </section>
 <hr class="docutils" />
 <section id="minimap-statictomsrect">
-<h2>Minimap.StaticToMsRect<a class="headerlink" href="#minimap-statictomsrect" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.StaticToMsRect<a class="headerlink" href="#minimap-statictomsrect" title="Permalink to this heading"></a></h2>
 <p>function TRSMinimap.StaticToMsRect(StaticMMPoint: TPoint; Height:Int32=0): TRectangle;</p>
 <p>Takes static minimap coordinate, rotates it to compass angle, and returns a rectangle on the mainscreen
 The static point is therefor gathered at north, and it will rotate it as expected.</p>
@@ -330,13 +243,13 @@ The static point is therefor gathered at north, and it will rotate it as expecte
 </section>
 <hr class="docutils" />
 <section id="minimap-statictoms">
-<h2>Minimap.StaticToMs<a class="headerlink" href="#minimap-statictoms" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.StaticToMs<a class="headerlink" href="#minimap-statictoms" title="Permalink to this heading"></a></h2>
 <p>function TRSMinimap.StaticToMs(StaticMMPoint: TPoint; Height:Int32=0): TPoint;</p>
 <p>This is the same as the above, only that it returns a single point on the mainscreen.</p>
 </section>
 <hr class="docutils" />
 <section id="minimap-getzoomrectangle">
-<h2>Minimap.GetZoomRectangle<a class="headerlink" href="#minimap-getzoomrectangle" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.GetZoomRectangle<a class="headerlink" href="#minimap-getzoomrectangle" title="Permalink to this heading"></a></h2>
 <p>function TRSMinimap.GetZoomRectangle(): TRectangle;</p>
 <p>This function returns an accurate rectangle of what’s visible on the MainScreen on the Minimap.
 This can be used to know if it’s possible to make something visible by adjusting the zoom level or rotating the camera.</p>
@@ -347,7 +260,7 @@ This can be used to know if it’s possible to make something visible by adjusti
 </section>
 <hr class="docutils" />
 <section id="minimap-pointinzoomrectangle">
-<h2>Minimap.PointInZoomRectangle()<a class="headerlink" href="#minimap-pointinzoomrectangle" title="Permalink to this heading">¶</a></h2>
+<h2>Minimap.PointInZoomRectangle()<a class="headerlink" href="#minimap-pointinzoomrectangle" title="Permalink to this heading"></a></h2>
 <p>function Minimap.PointInZoomRectangle(P: TPoint): Boolean;</p>
 <p>Check if a given point is within our zoom rectangle, in other words, in visible in the Mainscreen.</p>
 <p>Example:</p>
@@ -357,13 +270,13 @@ This can be used to know if it’s possible to make something visible by adjusti
 </div>
 <hr class="docutils" />
 <section id="mainscreen">
-<h3>Mainscreen<a class="headerlink" href="#mainscreen" title="Permalink to this heading">¶</a></h3>
+<h3>Mainscreen<a class="headerlink" href="#mainscreen" title="Permalink to this heading"></a></h3>
 <p>Extend the mainscreen-functionality with MS2MM function</p>
 </section>
 </section>
 <hr class="docutils" />
 <section id="mainscreen-pointtomm">
-<h2>Mainscreen.PointToMM<a class="headerlink" href="#mainscreen-pointtomm" title="Permalink to this heading">¶</a></h2>
+<h2>Mainscreen.PointToMM<a class="headerlink" href="#mainscreen-pointtomm" title="Permalink to this heading"></a></h2>
 <p>function TRSMainScreen.PointToMM(MS: TPoint; Height: Int32=0; Accuracy:Double=0.2): Vector3;</p>
 <p>Takes a mainscreen point and converts it to a point on the minimap.</p>
 <p>Returns a Vector3 which includes input height. Conversion to a TPoint if that’s what you need is simply
@@ -376,14 +289,14 @@ done by calling <cite>.ToPoint</cite> on the result.</p>
 </section>
 <hr class="docutils" />
 <section id="mainscreen-normalizedistance">
-<h2>MainScreen.NormalizeDistance<a class="headerlink" href="#mainscreen-normalizedistance" title="Permalink to this heading">¶</a></h2>
+<h2>MainScreen.NormalizeDistance<a class="headerlink" href="#mainscreen-normalizedistance" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSMainScreen</span><span class="o">.</span><span class="nf">NormalizeDistance</span><span class="p">(</span><span class="n">Dist</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">Accuracy</span><span class="o">:</span><span class="w"> </span><span class="kt">Single</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.05</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Converts a distance acquired from the <strong>fixed client* and **default zoom</strong> to the
 current mainscreen.</p>
 <section id="example">
-<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// 20 pixels on the fixed client and default zoom(50) is currently x pixels at the current zoom &amp; client size.</span>
 <span class="nb">WriteLn</span><span class="p">(</span><span class="n">MainScreen</span><span class="o">.</span><span class="n">TranslateDistance</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span><span class="o">;</span>
 </pre></div>
@@ -392,19 +305,19 @@ current mainscreen.</p>
 </section>
 <hr class="docutils" />
 <section id="mainscreen-getplayerbox">
-<h2>MainScreen.GetPlayerBox<a class="headerlink" href="#mainscreen-getplayerbox" title="Permalink to this heading">¶</a></h2>
+<h2>MainScreen.GetPlayerBox<a class="headerlink" href="#mainscreen-getplayerbox" title="Permalink to this heading"></a></h2>
 <p>function TRSMainScreen.GetPlayerBox: TBox;</p>
 <p>Returns a box surrounding our player. Works at any zoom level.</p>
 </section>
 <hr class="docutils" />
 <section id="mainscreen-facepoint">
-<h2>MainScreen.FacePoint<a class="headerlink" href="#mainscreen-facepoint" title="Permalink to this heading">¶</a></h2>
+<h2>MainScreen.FacePoint<a class="headerlink" href="#mainscreen-facepoint" title="Permalink to this heading"></a></h2>
 <p>function TRSMainScreen.FacePoint(P: TPoint; Randomness: Int32 = 0): Boolean;</p>
 <p>Rotates the camera to face point <cite>P</cite>.</p>
 </section>
 <hr class="docutils" />
 <section id="options-setzoomlevel">
-<h2>Options.SetZoomLevel<a class="headerlink" href="#options-setzoomlevel" title="Permalink to this heading">¶</a></h2>
+<h2>Options.SetZoomLevel<a class="headerlink" href="#options-setzoomlevel" title="Permalink to this heading"></a></h2>
 <p>function TRSOptions.SetZoomLevel(Level: Int32): Boolean; override;</p>
 <p>Override to automatically update MM2MS.ZoomLevel.</p>
 <hr class="docutils" />
@@ -413,50 +326,33 @@ current mainscreen.</p>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="depositbox.html" class="btn btn-neutral float-right" title="DepositBox" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="antiban.html" class="btn btn-neutral float-left" title="Antiban" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="depositbox.html" class="btn btn-neutral float-right" title="DepositBox" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2020, SRL Group.
-
-    </p>
+    <p>&#169; Copyright 2020, SRL Group.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-    
+  </script>  
 
   <style>
          .wy-nav-content { max-width: none; }

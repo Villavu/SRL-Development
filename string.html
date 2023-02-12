@@ -1,92 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>String &mdash; SRL  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="TPointArray" href="tpointarrays.html" />
     <link rel="prev" title="TRectangle" href="trectangle.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="index.html" class="icon icon-home"> SRL
           
-
-          
+          <a href="index.html" class="icon icon-home">
+            SRL
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="prayer.html">Prayer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prayer.html#minimap">Minimap</a></li>
@@ -165,77 +119,36 @@
 <li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">SRL</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
-      <li>String</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">String</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/string.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <section id="string">
-<h1>String<a class="headerlink" href="#string" title="Permalink to this heading">¶</a></h1>
+<h1>String<a class="headerlink" href="#string" title="Permalink to this heading"></a></h1>
 <p>String related methods</p>
 <hr class="docutils" />
 <section id="string-len">
-<h2>String.Len<a class="headerlink" href="#string-len" title="Permalink to this heading">¶</a></h2>
+<h2>String.Len<a class="headerlink" href="#string-len" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Len</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -243,7 +156,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-pos">
-<h2>String.Pos<a class="headerlink" href="#string-pos" title="Permalink to this heading">¶</a></h2>
+<h2>String.Pos<a class="headerlink" href="#string-pos" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Pos</span><span class="p">(</span><span class="n">SubStr</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -251,7 +164,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-posr">
-<h2>String.PosR<a class="headerlink" href="#string-posr" title="Permalink to this heading">¶</a></h2>
+<h2>String.PosR<a class="headerlink" href="#string-posr" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">PosR</span><span class="p">(</span><span class="n">SubStr</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -259,7 +172,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-posex">
-<h2>String.PosEx<a class="headerlink" href="#string-posex" title="Permalink to this heading">¶</a></h2>
+<h2>String.PosEx<a class="headerlink" href="#string-posex" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">PosEx</span><span class="p">(</span><span class="n">SubStr</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TIntegerArray</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -267,7 +180,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-startswith">
-<h2>String.Startswith<a class="headerlink" href="#string-startswith" title="Permalink to this heading">¶</a></h2>
+<h2>String.Startswith<a class="headerlink" href="#string-startswith" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Startswith</span><span class="p">(</span><span class="n">Prefix</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -275,7 +188,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-endswith">
-<h2>String.Endswith<a class="headerlink" href="#string-endswith" title="Permalink to this heading">¶</a></h2>
+<h2>String.Endswith<a class="headerlink" href="#string-endswith" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Endswith</span><span class="p">(</span><span class="n">Suffix</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -283,7 +196,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-capitalize">
-<h2>String.Capitalize<a class="headerlink" href="#string-capitalize" title="Permalink to this heading">¶</a></h2>
+<h2>String.Capitalize<a class="headerlink" href="#string-capitalize" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Capitalize</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -291,7 +204,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-upper">
-<h2>String.Upper<a class="headerlink" href="#string-upper" title="Permalink to this heading">¶</a></h2>
+<h2>String.Upper<a class="headerlink" href="#string-upper" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Upper</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -299,7 +212,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-lower">
-<h2>String.Lower<a class="headerlink" href="#string-lower" title="Permalink to this heading">¶</a></h2>
+<h2>String.Lower<a class="headerlink" href="#string-lower" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Lower</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -307,7 +220,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-after">
-<h2>String.After<a class="headerlink" href="#string-after" title="Permalink to this heading">¶</a></h2>
+<h2>String.After<a class="headerlink" href="#string-after" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">After</span><span class="p">(</span><span class="n">SubStr</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -315,7 +228,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-before">
-<h2>String.Before<a class="headerlink" href="#string-before" title="Permalink to this heading">¶</a></h2>
+<h2>String.Before<a class="headerlink" href="#string-before" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Before</span><span class="p">(</span><span class="n">SubStr</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -323,7 +236,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-count">
-<h2>String.Count<a class="headerlink" href="#string-count" title="Permalink to this heading">¶</a></h2>
+<h2>String.Count<a class="headerlink" href="#string-count" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Count</span><span class="p">(</span><span class="nb">Str</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -331,7 +244,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-replace">
-<h2>String.Replace<a class="headerlink" href="#string-replace" title="Permalink to this heading">¶</a></h2>
+<h2>String.Replace<a class="headerlink" href="#string-replace" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Replace</span><span class="p">(</span><span class="n">SubStr</span><span class="o">,</span><span class="w"> </span><span class="n">ReplaceStr</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">Flags</span><span class="o">:</span><span class="w"> </span><span class="n">TReplaceFlags</span><span class="o">=</span><span class="p">[</span><span class="n">rfReplaceAll</span><span class="p">])</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -339,7 +252,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-explode">
-<h2>String.Explode<a class="headerlink" href="#string-explode" title="Permalink to this heading">¶</a></h2>
+<h2>String.Explode<a class="headerlink" href="#string-explode" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">Explode</span><span class="p">(</span><span class="n">Delimiter</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TStringArray</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -347,7 +260,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-isalphanum">
-<h2>String.IsAlphaNum<a class="headerlink" href="#string-isalphanum" title="Permalink to this heading">¶</a></h2>
+<h2>String.IsAlphaNum<a class="headerlink" href="#string-isalphanum" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">IsAlphaNum</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -355,7 +268,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-isdigit">
-<h2>String.IsDigit<a class="headerlink" href="#string-isdigit" title="Permalink to this heading">¶</a></h2>
+<h2>String.IsDigit<a class="headerlink" href="#string-isdigit" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">IsDigit</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -363,7 +276,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-isfloat">
-<h2>String.IsFloat<a class="headerlink" href="#string-isfloat" title="Permalink to this heading">¶</a></h2>
+<h2>String.IsFloat<a class="headerlink" href="#string-isfloat" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">IsFloat</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -371,7 +284,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-isalpha">
-<h2>String.IsAlpha<a class="headerlink" href="#string-isalpha" title="Permalink to this heading">¶</a></h2>
+<h2>String.IsAlpha<a class="headerlink" href="#string-isalpha" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">IsAlpha</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -379,7 +292,7 @@
 </section>
 <hr class="docutils" />
 <section id="string-extractnumbers">
-<h2>String.ExtractNumbers<a class="headerlink" href="#string-extractnumbers" title="Permalink to this heading">¶</a></h2>
+<h2>String.ExtractNumbers<a class="headerlink" href="#string-extractnumbers" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">ExtractNumbers</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TExtendedArray</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -388,7 +301,7 @@ as well it reutnrs a TExtendedArray.</p>
 </section>
 <hr class="docutils" />
 <section id="string-extractnumbersex">
-<h2>String.ExtractNumbersEx<a class="headerlink" href="#string-extractnumbersex" title="Permalink to this heading">¶</a></h2>
+<h2>String.ExtractNumbersEx<a class="headerlink" href="#string-extractnumbersex" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">ExtractNumbersEx</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TExtendedArray</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -397,7 +310,7 @@ ends up in each their index. For example <code class="docutils literal notransla
 </section>
 <hr class="docutils" />
 <section id="string-fileext">
-<h2>String.FileExt<a class="headerlink" href="#string-fileext" title="Permalink to this heading">¶</a></h2>
+<h2>String.FileExt<a class="headerlink" href="#string-fileext" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">FileExt</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -405,7 +318,7 @@ ends up in each their index. For example <code class="docutils literal notransla
 </section>
 <hr class="docutils" />
 <section id="string-filename">
-<h2>String.FileName<a class="headerlink" href="#string-filename" title="Permalink to this heading">¶</a></h2>
+<h2>String.FileName<a class="headerlink" href="#string-filename" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="k">String</span><span class="o">.</span><span class="nf">FileName</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">constref</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -413,7 +326,7 @@ ends up in each their index. For example <code class="docutils literal notransla
 </section>
 <hr class="docutils" />
 <section id="string-int32">
-<h2>string * int32<a class="headerlink" href="#string-int32" title="Permalink to this heading">¶</a></h2>
+<h2>string * int32<a class="headerlink" href="#string-int32" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">operator</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="o">:</span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">Right</span><span class="o">:</span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -421,7 +334,7 @@ ends up in each their index. For example <code class="docutils literal notransla
 </section>
 <hr class="docutils" />
 <section id="string-in-string">
-<h2>string in string<a class="headerlink" href="#string-in-string" title="Permalink to this heading">¶</a></h2>
+<h2>string in string<a class="headerlink" href="#string-in-string" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">operator</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="o">:</span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">Right</span><span class="o">:</span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -432,50 +345,33 @@ ends up in each their index. For example <code class="docutils literal notransla
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="tpointarrays.html" class="btn btn-neutral float-right" title="TPointArray" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="trectangle.html" class="btn btn-neutral float-left" title="TRectangle" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tpointarrays.html" class="btn btn-neutral float-right" title="TPointArray" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2020, SRL Group.
-
-    </p>
+    <p>&#169; Copyright 2020, SRL Group.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-    
+  </script>  
 
   <style>
          .wy-nav-content { max-width: none; }

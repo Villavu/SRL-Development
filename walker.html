@@ -1,92 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Walker &mdash; SRL  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Webber" href="webber.html" />
     <link rel="prev" title="WalkerMap" href="walker_map.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="index.html" class="icon icon-home"> SRL
           
-
-          
+          <a href="index.html" class="icon icon-home">
+            SRL
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="prayer.html">Prayer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prayer.html#minimap">Minimap</a></li>
@@ -170,76 +124,35 @@
 <li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">SRL</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
-      <li>Walker</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Walker</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/walker.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <section id="walker">
-<h1>Walker<a class="headerlink" href="#walker" title="Permalink to this heading">¶</a></h1>
+<h1>Walker<a class="headerlink" href="#walker" title="Permalink to this heading"></a></h1>
 <p>Walker, also commonly refered to as RSWalker and RSW is the go to tool for walking and accurate positioning.</p>
 <section id="how-does-it-work">
-<h2>How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this heading">¶</a></h2>
+<h2>How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this heading"></a></h2>
 <p>The details are quite complex but to put it simply, the way it works is:
 - A large image of the game map is loaded. This image has to include the region you are on or things won’t work as expected.
 - A screenshot of your minimap is taken and, rotated north and cleaned (player, npc and item dots are removed).
@@ -278,15 +191,15 @@ You can also play with RSW_ADAPTIVE_SCREEN_TOGGLE_DISTANCES values to customize 
 </section>
 <hr class="docutils" />
 <section id="type-prswalker">
-<h2>type PRSWalker<a class="headerlink" href="#type-prswalker" title="Permalink to this heading">¶</a></h2>
+<h2>type PRSWalker<a class="headerlink" href="#type-prswalker" title="Permalink to this heading"></a></h2>
 <p>TRSWalker pointer.</p>
 </section>
 <hr class="docutils" />
 <section id="type-trswalker-onwalkevent">
-<h2>type TRSWalker_OnWalkEvent<a class="headerlink" href="#type-trswalker-onwalkevent" title="Permalink to this heading">¶</a></h2>
+<h2>type TRSWalker_OnWalkEvent<a class="headerlink" href="#type-trswalker-onwalkevent" title="Permalink to this heading"></a></h2>
 <p>Callback method to use while walking. This can be used to perform custom tasks while walking.</p>
 <section id="example">
-<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nf">WalkerTasks</span><span class="p">(</span><span class="n">Walker</span><span class="o">:</span><span class="w"> </span><span class="n">PRSWalker</span><span class="o">;</span><span class="w"> </span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Destination</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
 <span class="k">begin</span>
 <span class="w">  </span><span class="n">Antiban</span><span class="o">.</span><span class="n">RandomTab</span><span class="p">()</span><span class="o">;</span>
@@ -305,10 +218,10 @@ You can also play with RSW_ADAPTIVE_SCREEN_TOGGLE_DISTANCES values to customize 
 </section>
 <hr class="docutils" />
 <section id="type-trswalker-onwalkeventex">
-<h2>type TRSWalker_OnWalkEventEx<a class="headerlink" href="#type-trswalker-onwalkeventex" title="Permalink to this heading">¶</a></h2>
+<h2>type TRSWalker_OnWalkEventEx<a class="headerlink" href="#type-trswalker-onwalkeventex" title="Permalink to this heading"></a></h2>
 <p>Callback object method to use while walking. This can be used to perform custom tasks while walking.</p>
 <section id="id1">
-<h3>Example<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkerTasks</span><span class="p">(</span><span class="n">Walker</span><span class="o">:</span><span class="w"> </span><span class="n">PRSWalker</span><span class="o">;</span><span class="w"> </span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Destination</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
 <span class="k">begin</span>
 <span class="w">  </span><span class="n">Antiban</span><span class="o">.</span><span class="n">RandomTab</span><span class="p">()</span><span class="o">;</span>
@@ -327,12 +240,12 @@ You can also play with RSW_ADAPTIVE_SCREEN_TOGGLE_DISTANCES values to customize 
 </section>
 <hr class="docutils" />
 <section id="type-trswalker">
-<h2>type TRSWalker<a class="headerlink" href="#type-trswalker" title="Permalink to this heading">¶</a></h2>
+<h2>type TRSWalker<a class="headerlink" href="#type-trswalker" title="Permalink to this heading"></a></h2>
 <p>TRSWalker is the record responsbile for walking and position.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-internalsetup">
-<h2>Walker.InternalSetup<a class="headerlink" href="#walker-internalsetup" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.InternalSetup<a class="headerlink" href="#walker-internalsetup" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">InternalSetup</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -341,7 +254,7 @@ You probably will never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-free">
-<h2>Walker.Free<a class="headerlink" href="#walker-free" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.Free<a class="headerlink" href="#walker-free" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Free</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -350,7 +263,7 @@ You probably will never need to call this directly. If you do, you won’t be ab
 </section>
 <hr class="docutils" />
 <section id="walker-setup">
-<h2>Walker.Setup<a class="headerlink" href="#walker-setup" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.Setup<a class="headerlink" href="#walker-setup" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Setup</span><span class="p">(</span><span class="n">Map</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">Scaling</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -371,7 +284,7 @@ You can optionally load only certain regions of the map. This is useful if there
 The regions are specified as a TBoxArray and they are cropped from the map you specify on setup and joined into a single map image. This type of setup retains the coordinates of the original map image.
 You can also optionally omit the Map name to make walker use the default SRL map which you can find in: Simba/Includes/SRL/osr/walker/map.png</p>
 <section id="id2">
-<h3>Example<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">//The following are several setup examples. Keep in mind that if the file doesn&#39;t exist in the maps folder, Walker will throw an error.</span>
 <span class="k">var</span>
 <span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
@@ -389,7 +302,7 @@ You can also optionally omit the Map name to make walker use the default SRL map
 </section>
 <hr class="docutils" />
 <section id="walker-cleanminimap">
-<h2>Walker.CleanMinimap<a class="headerlink" href="#walker-cleanminimap" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.CleanMinimap<a class="headerlink" href="#walker-cleanminimap" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">CleanMinimap</span><span class="p">(</span><span class="n">Bitmap</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -398,14 +311,14 @@ You probably don’t need to use this.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-getcleanminimap">
-<h2>Walker.GetCleanMinimap<a class="headerlink" href="#walker-getcleanminimap" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.GetCleanMinimap<a class="headerlink" href="#walker-getcleanminimap" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">GetCleanMinimap</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Internal walker method used to “screenshot” the minimap and clean it with Walker.CleanMinimap().
 You probably don’t need to use this directly but you can see what it does in the following example.</p>
 <section id="id3">
-<h3>Example<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span>
 <span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
 
@@ -418,14 +331,14 @@ You probably don’t need to use this directly but you can see what it does in t
 </section>
 <hr class="docutils" />
 <section id="walker-scaleminimap">
-<h2>Walker.ScaleMinimap<a class="headerlink" href="#walker-scaleminimap" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.ScaleMinimap<a class="headerlink" href="#walker-scaleminimap" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">ScaleMinimap</span><span class="p">(</span><span class="n">Bitmap</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span><span class="w"> </span><span class="n">Scaling</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Internal walker method used to scale down the minimap to whatever TRSWalker.Scaling is.
 You probably don’t need to use this directly but you can see what it does in the following example.</p>
 <section id="id4">
-<h3>Example<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span>
 <span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
 
@@ -438,7 +351,7 @@ You probably don’t need to use this directly but you can see what it does in t
 </section>
 <hr class="docutils" />
 <section id="walker-scaledsearch">
-<h2>Walker.ScaledSearch<a class="headerlink" href="#walker-scaledsearch" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.ScaledSearch<a class="headerlink" href="#walker-scaledsearch" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">ScaledSearch</span><span class="p">(</span><span class="n">Bitmap</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span><span class="w"> </span><span class="n">Samples</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -449,7 +362,7 @@ You probably won’t ever need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-fullsearch">
-<h2>Walker.FullSearch<a class="headerlink" href="#walker-fullsearch" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.FullSearch<a class="headerlink" href="#walker-fullsearch" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">FullSearch</span><span class="p">(</span><span class="n">Templ</span><span class="o">,</span><span class="w"> </span><span class="n">World</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="o">;</span><span class="w"> </span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">Match</span><span class="o">:</span><span class="w"> </span><span class="kt">Single</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -460,7 +373,7 @@ You probably won’t ever need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-getmypos">
-<h2>Walker.GetMyPos<a class="headerlink" href="#walker-getmypos" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.GetMyPos<a class="headerlink" href="#walker-getmypos" title="Permalink to this heading"></a></h2>
 <p>function TRSWalker.GetMyPos: TPoint;</p>
 <p>Returns the players current position on the loaded map.</p>
 <p>Example:</p>
@@ -473,7 +386,7 @@ You probably won’t ever need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-worldtomm">
-<h2>Walker.WorldToMM<a class="headerlink" href="#walker-worldtomm" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.WorldToMM<a class="headerlink" href="#walker-worldtomm" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WorldToMM</span><span class="p">(</span><span class="n">PlayerPoint</span><span class="o">,</span><span class="w"> </span><span class="n">WorldPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Radians</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -500,7 +413,7 @@ end;
 </section>
 <hr class="docutils" />
 <section id="walker-checkrunenergy">
-<h2>Walker.CheckRunEnergy<a class="headerlink" href="#walker-checkrunenergy" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.CheckRunEnergy<a class="headerlink" href="#walker-checkrunenergy" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">CheckRunEnergy</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -509,7 +422,7 @@ You will probably never need to call this directly.</p>
 <p>The values used are hardcoded and if you don’t like them, it’s recommended you override the method.
 The following example shows how one could override the function to enable run at 50% energy everytime, keep in mind though, you shouldn’t do this, you should add randomness to it!</p>
 <section id="id5">
-<h3>Example<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">CheckRunEnergy</span><span class="p">()</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
 <span class="k">begin</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="n">Minimap</span><span class="o">.</span><span class="n">IsRunEnabled</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="p">(</span><span class="n">Minimap</span><span class="o">.</span><span class="n">GetRunEnergy</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
@@ -522,7 +435,7 @@ The following example shows how one could override the function to enable run at
 </section>
 <hr class="docutils" />
 <section id="walker-adaptivewalkcheck">
-<h2>Walker.AdaptiveWalkCheck<a class="headerlink" href="#walker-adaptivewalkcheck" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.AdaptiveWalkCheck<a class="headerlink" href="#walker-adaptivewalkcheck" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">AdaptiveWalkCheck</span><span class="p">(</span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -531,7 +444,7 @@ You will probably never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-domouseahead">
-<h2>Walker.DoMouseAhead<a class="headerlink" href="#walker-domouseahead" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.DoMouseAhead<a class="headerlink" href="#walker-domouseahead" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">DoMouseAhead</span><span class="p">(</span><span class="n">Position</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Forced</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -540,7 +453,7 @@ You will probably never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-waitmoving">
-<h2>Walker.WaitMoving<a class="headerlink" href="#walker-waitmoving" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.WaitMoving<a class="headerlink" href="#walker-waitmoving" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WaitMoving</span><span class="p">(</span><span class="n">Destination</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">WaitUntilDistance</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -550,7 +463,7 @@ You will probably never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-click">
-<h2>Walker.Click<a class="headerlink" href="#walker-click" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.Click<a class="headerlink" href="#walker-click" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Click</span><span class="p">(</span><span class="n">MinimapPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Randomness</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -559,7 +472,7 @@ You will probably never need to call this directly.</p>
 <p>If you wish to modify certain walker behaviors, it’s a good approach to override this function.
 For example, if you are screenwalking and you don’t like it right clicking &gt; walk here when it hovers a tree you could use the following example.</p>
 <section id="id6">
-<h3>Example<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">Click</span><span class="p">(</span><span class="n">MinimapPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Randomness</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
 <span class="k">var</span>
 <span class="w">  </span><span class="n">P</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
@@ -598,7 +511,7 @@ For example, if you are screenwalking and you don’t like it right clicking &gt
 </section>
 <hr class="docutils" />
 <section id="walker-walkfinalstep">
-<h2>Walker.WalkFinalStep<a class="headerlink" href="#walker-walkfinalstep" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.WalkFinalStep<a class="headerlink" href="#walker-walkfinalstep" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkFinalStep</span><span class="p">(</span><span class="n">PlayerPoint</span><span class="o">,</span><span class="w"> </span><span class="n">WorldPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">WaitUntilDistance</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -607,7 +520,7 @@ You will probably never need to call this directly but it can be used to take a 
 </section>
 <hr class="docutils" />
 <section id="walker-walkstep">
-<h2>Walker.WalkStep<a class="headerlink" href="#walker-walkstep" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.WalkStep<a class="headerlink" href="#walker-walkstep" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkStep</span><span class="p">(</span><span class="n">PlayerPoint</span><span class="o">,</span><span class="w"> </span><span class="n">WorldPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -616,7 +529,7 @@ You will probably never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="walker-iswalkable">
-<h2>Walker.IsWalkable<a class="headerlink" href="#walker-iswalkable" title="Permalink to this heading">¶</a></h2>
+<h2>Walker.IsWalkable<a class="headerlink" href="#walker-iswalkable" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">IsWalkable</span><span class="p">(</span><span class="n">WorldPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">PlayerPoint</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Angle</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -625,13 +538,13 @@ You will probably never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="trswalker-walkpath">
-<h2>TRSWalker.WalkPath<a class="headerlink" href="#trswalker-walkpath" title="Permalink to this heading">¶</a></h2>
+<h2>TRSWalker.WalkPath<a class="headerlink" href="#trswalker-walkpath" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkPath</span><span class="p">(</span><span class="n">Path</span><span class="o">:</span><span class="w"> </span><span class="n">TPointArray</span><span class="o">;</span><span class="w"> </span><span class="n">WaitUntilDistance</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Walks a path of points taken from the loaded map. We advice that WaitUntilDistance is not 0.</p>
 <section id="parameters">
-<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading">¶</a></h3>
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
 <dl>
 <dt>Path</dt><dd><p>Array of points taken from the loaded map to walk. Must be ordered from start to finish.</p>
 </dd>
@@ -644,7 +557,7 @@ You will probably never need to call this directly.</p>
 </dl>
 </section>
 <section id="id7">
-<h3>Example<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Walker</span><span class="o">.</span><span class="n">WalkPath</span><span class="p">([[</span><span class="mi">100</span><span class="o">,</span><span class="mi">100</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">120</span><span class="o">,</span><span class="mi">120</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">140</span><span class="o">,</span><span class="mi">140</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">160</span><span class="o">,</span><span class="mi">160</span><span class="p">]</span><span class="o">,</span><span class="p">[</span><span class="mi">180</span><span class="o">,</span><span class="mi">180</span><span class="p">]])</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -652,14 +565,14 @@ You will probably never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="trswalker-walkblind">
-<h2>TRSWalker.WalkBlind<a class="headerlink" href="#trswalker-walkblind" title="Permalink to this heading">¶</a></h2>
+<h2>TRSWalker.WalkBlind<a class="headerlink" href="#trswalker-walkblind" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WalkBlind</span><span class="p">(</span><span class="n">Destination</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">WaitUntilDistance</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>“Blindly” walks to a point taken from the loaded map.
 A straight line is generated between the player’s position and destination which is then walked.</p>
 <section id="id8">
-<h3>Parameters<a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h3>
+<h3>Parameters<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
 <dl>
 <dt>Destination</dt><dd><p>Destination point taken from the loaded map.</p>
 </dd>
@@ -672,7 +585,7 @@ A straight line is generated between the player’s position and destination whi
 </dl>
 </section>
 <section id="id9">
-<h3>Example<a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Walker</span><span class="o">.</span><span class="n">WalkBlind</span><span class="p">([</span><span class="mi">300</span><span class="o">,</span><span class="w"> </span><span class="mi">300</span><span class="p">])</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -680,7 +593,7 @@ A straight line is generated between the player’s position and destination whi
 </section>
 <hr class="docutils" />
 <section id="trswalker-webwalk">
-<h2>TRSWalker.WebWalk<a class="headerlink" href="#trswalker-webwalk" title="Permalink to this heading">¶</a></h2>
+<h2>TRSWalker.WebWalk<a class="headerlink" href="#trswalker-webwalk" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">WebWalk</span><span class="p">(</span><span class="n">Destination</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">WaitUntilDistance</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="o">;</span><span class="w"> </span><span class="n">PathRandomness</span><span class="o">:</span><span class="w"> </span><span class="kt">Extended</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -688,7 +601,7 @@ A straight line is generated between the player’s position and destination whi
 Please run <code class="docutils literal notranslate"><span class="pre">webber.simba</span></code> to see how webgraphs are built.</p>
 <p>Pre built webgraphs are available for “World” and “Zeah” when used.</p>
 <section id="id10">
-<h3>Parameters<a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h3>
+<h3>Parameters<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
 <dl>
 <dt>Destination</dt><dd><p>Destination point taken from the loaded map.</p>
 </dd>
@@ -703,7 +616,7 @@ Please run <code class="docutils literal notranslate"><span class="pre">webber.s
 </dl>
 </section>
 <section id="id11">
-<h3>Example<a class="headerlink" href="#id11" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span><span class="w"> </span><span class="n">Walker</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
 
 <span class="n">Walker</span><span class="o">.</span><span class="n">Setup</span><span class="p">(</span><span class="s">&#39;world&#39;</span><span class="p">)</span><span class="o">;</span>
@@ -717,13 +630,13 @@ Please run <code class="docutils literal notranslate"><span class="pre">webber.s
 </section>
 <hr class="docutils" />
 <section id="trswalker-debugposition">
-<h2>TRSWalker.DebugPosition<a class="headerlink" href="#trswalker-debugposition" title="Permalink to this heading">¶</a></h2>
+<h2>TRSWalker.DebugPosition<a class="headerlink" href="#trswalker-debugposition" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">DebugPosition</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Debugs the player position in the currently loaded map.</p>
 <section id="id12">
-<h3>Example<a class="headerlink" href="#id12" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span>
 <span class="w">  </span><span class="n">rsw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSWalker</span><span class="o">;</span>
 <span class="k">begin</span>
@@ -737,7 +650,7 @@ Please run <code class="docutils literal notranslate"><span class="pre">webber.s
 </section>
 <hr class="docutils" />
 <section id="trswalker-gettilems">
-<h2>TRSWalker.GetTileMS<a class="headerlink" href="#trswalker-gettilems" title="Permalink to this heading">¶</a></h2>
+<h2>TRSWalker.GetTileMS<a class="headerlink" href="#trswalker-gettilems" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">GetTileMSEx</span><span class="p">(</span><span class="n">Me</span><span class="o">,</span><span class="w"> </span><span class="n">Loc</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Height</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="w"> </span><span class="n">Offx</span><span class="o">,</span><span class="n">Offy</span><span class="o">:</span><span class="kt">Double</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TRectangle</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -746,7 +659,7 @@ Please run <code class="docutils literal notranslate"><span class="pre">webber.s
 </div>
 <p>Returns a tile on the mainscreen with the help of walker and mm2ms.</p>
 <section id="id13">
-<h3>Example<a class="headerlink" href="#id13" title="Permalink to this heading">¶</a></h3>
+<h3>Example<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Debug</span><span class="p">(</span><span class="n">rsw</span><span class="o">.</span><span class="n">GetTileMS</span><span class="p">(</span><span class="n">rsw</span><span class="o">.</span><span class="n">GetMypos</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="o">,</span><span class="w"> </span><span class="mi">10</span><span class="p">]))</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -754,7 +667,7 @@ Please run <code class="docutils literal notranslate"><span class="pre">webber.s
 </section>
 <hr class="docutils" />
 <section id="trswalker-mstoworld">
-<h2>TRSWalker.MSToWorld<a class="headerlink" href="#trswalker-mstoworld" title="Permalink to this heading">¶</a></h2>
+<h2>TRSWalker.MSToWorld<a class="headerlink" href="#trswalker-mstoworld" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSWalker</span><span class="o">.</span><span class="nf">MSToWorldEx</span><span class="p">(</span><span class="n">Me</span><span class="o">,</span><span class="w"> </span><span class="n">Loc</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span><span class="w"> </span><span class="n">Height</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="o">;</span><span class="w"> </span><span class="n">Accuracy</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.2</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">TPoint</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -768,50 +681,33 @@ Please run <code class="docutils literal notranslate"><span class="pre">webber.s
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="webber.html" class="btn btn-neutral float-right" title="Webber" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="walker_map.html" class="btn btn-neutral float-left" title="WalkerMap" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="webber.html" class="btn btn-neutral float-right" title="Webber" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2020, SRL Group.
-
-    </p>
+    <p>&#169; Copyright 2020, SRL Group.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-    
+  </script>  
 
   <style>
          .wy-nav-content { max-width: none; }

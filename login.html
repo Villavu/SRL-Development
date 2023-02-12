@@ -1,92 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Login &mdash; SRL  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Misc" href="misc.html" />
     <link rel="prev" title="DepositBox" href="depositbox.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="index.html" class="icon icon-home"> SRL
           
-
-          
+          <a href="index.html" class="icon icon-home">
+            SRL
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="prayer.html">Prayer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="prayer.html#minimap">Minimap</a></li>
@@ -159,73 +113,32 @@
 <li class="toctree-l1"><a class="reference internal" href="integerarrays.html">TIntegerArray</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">SRL</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
-      <li>Login</li>
-    
-    
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Login</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/login.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <section id="login">
-<h1>Login<a class="headerlink" href="#login" title="Permalink to this heading">¶</a></h1>
+<h1>Login<a class="headerlink" href="#login" title="Permalink to this heading"></a></h1>
 <p>Handles logging in players.</p>
 <p>Summary:</p>
 <ul class="simple">
@@ -234,7 +147,7 @@
 <li><p>Switch to the next player with <cite>Login.NextPlayer</cite></p></li>
 </ul>
 <section id="example">
-<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Login</span><span class="o">.</span><span class="n">AddPlayer</span><span class="p">(</span><span class="s">&#39;myusername&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;mypassword&#39;</span><span class="p">)</span><span class="o">;</span>
 <span class="k">if</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">LoginPlayer</span><span class="p">()</span><span class="w"> </span><span class="k">then</span>
 <span class="w">  </span><span class="n">TerminateScript</span><span class="p">(</span><span class="s">&#39;Failed to login!&#39;</span><span class="p">)</span><span class="o">;</span>
@@ -242,7 +155,7 @@
 </div>
 <hr class="docutils" />
 <section id="type-trsloginplayer">
-<h3>type TRSLoginPlayer<a class="headerlink" href="#type-trsloginplayer" title="Permalink to this heading">¶</a></h3>
+<h3>type TRSLoginPlayer<a class="headerlink" href="#type-trsloginplayer" title="Permalink to this heading"></a></h3>
 <p>Type responsible for managing player data.
 You usually don’t use this directly but instead use TRSLogin methods to interact with TRSLoginPlayers stored in TRSLogin.Players array.
 The <strong>Active</strong> variable decides wether the player is inteded to be skipped or not by TRSLogin.</p>
@@ -263,7 +176,7 @@ BioHash: Double;</p>
 </section>
 <hr class="docutils" />
 <section id="type-trslogin">
-<h3>type TRSLogin<a class="headerlink" href="#type-trslogin" title="Permalink to this heading">¶</a></h3>
+<h3>type TRSLogin<a class="headerlink" href="#type-trslogin" title="Permalink to this heading"></a></h3>
 <p>Type responsible for handling login and managing cached TRSLoginPlayers.</p>
 <p>This is the structure of TRSLogin:
 .. code-block:: pascal</p>
@@ -279,7 +192,7 @@ PlayerIndex: Int32;</p>
 </section>
 <hr class="docutils" />
 <section id="login-messages">
-<h3>LOGIN_MESSAGES<a class="headerlink" href="#login-messages" title="Permalink to this heading">¶</a></h3>
+<h3>LOGIN_MESSAGES<a class="headerlink" href="#login-messages" title="Permalink to this heading"></a></h3>
 <p>Global constants for most if not all login messages.</p>
 <p>Each of this messages is stored in <strong>LOGIN_MESSAGES</strong> in the same order.</p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">LOGIN_MESSAGE_NONE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="o">;</span>
@@ -304,7 +217,7 @@ PlayerIndex: Int32;</p>
 </section>
 <hr class="docutils" />
 <section id="login-findtext">
-<h3>Login.FindText<a class="headerlink" href="#login-findtext" title="Permalink to this heading">¶</a></h3>
+<h3>Login.FindText<a class="headerlink" href="#login-findtext" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">FindText</span><span class="p">(</span><span class="n">Text</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">B</span><span class="o">:</span><span class="w"> </span><span class="n">TBox</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -316,7 +229,7 @@ You probably will never to use this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="login-clicktext">
-<h3>Login.ClickText<a class="headerlink" href="#login-clicktext" title="Permalink to this heading">¶</a></h3>
+<h3>Login.ClickText<a class="headerlink" href="#login-clicktext" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">ClickText</span><span class="p">(</span><span class="n">Text</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -325,7 +238,7 @@ You probably will never to use this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="login-clickworld">
-<h3>Login.ClickWorld<a class="headerlink" href="#login-clickworld" title="Permalink to this heading">¶</a></h3>
+<h3>Login.ClickWorld<a class="headerlink" href="#login-clickworld" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">ClickWorld</span><span class="p">(</span><span class="n">World</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -334,7 +247,7 @@ You probably will never to use this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="login-isopen">
-<h3>Login.IsOpen<a class="headerlink" href="#login-isopen" title="Permalink to this heading">¶</a></h3>
+<h3>Login.IsOpen<a class="headerlink" href="#login-isopen" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">IsOpen</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -342,13 +255,13 @@ You probably will never to use this directly.</p>
 </section>
 </section>
 <section id="id1">
-<h2>Example<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">IsOpen</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-isworldswitcheropen">
-<h3>Login.IsWorldSwitcherOpen<a class="headerlink" href="#login-isworldswitcheropen" title="Permalink to this heading">¶</a></h3>
+<h3>Login.IsWorldSwitcherOpen<a class="headerlink" href="#login-isworldswitcheropen" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">IsWorldSwitcherOpen</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -356,13 +269,13 @@ You probably will never to use this directly.</p>
 </section>
 </section>
 <section id="id2">
-<h2>Example<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">IsWorldSwitcherOpen</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-openworldswitcher">
-<h3>Login.OpenWorldSwitcher<a class="headerlink" href="#login-openworldswitcher" title="Permalink to this heading">¶</a></h3>
+<h3>Login.OpenWorldSwitcher<a class="headerlink" href="#login-openworldswitcher" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">OpenWorldSwitcher</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -370,14 +283,14 @@ You probably will never to use this directly.</p>
 </section>
 </section>
 <section id="id3">
-<h2>Example<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">IsWorldSwitcherOpen</span><span class="p">()</span><span class="w"> </span><span class="k">then</span>
 <span class="w">  </span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">OpenWorldSwitcher</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-closeworldswitcher">
-<h3>Login.CloseWorldSwitcher<a class="headerlink" href="#login-closeworldswitcher" title="Permalink to this heading">¶</a></h3>
+<h3>Login.CloseWorldSwitcher<a class="headerlink" href="#login-closeworldswitcher" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">CloseWorldSwitcher</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -385,14 +298,14 @@ You probably will never to use this directly.</p>
 </section>
 </section>
 <section id="id4">
-<h2>Example<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">IsWorldSwitcherOpen</span><span class="p">()</span><span class="w"> </span><span class="k">then</span>
 <span class="w">  </span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">CloseWorldSwitcher</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-getcurrentworld">
-<h3>Login.GetCurrentWorld<a class="headerlink" href="#login-getcurrentworld" title="Permalink to this heading">¶</a></h3>
+<h3>Login.GetCurrentWorld<a class="headerlink" href="#login-getcurrentworld" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">GetCurrentWorld</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -400,13 +313,13 @@ You probably will never to use this directly.</p>
 </section>
 </section>
 <section id="id5">
-<h2>Example<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">GetCurrentWorld</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-switchtoworld">
-<h3>Login.SwitchToWorld<a class="headerlink" href="#login-switchtoworld" title="Permalink to this heading">¶</a></h3>
+<h3>Login.SwitchToWorld<a class="headerlink" href="#login-switchtoworld" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">SwitchToWorld</span><span class="p">(</span><span class="n">World</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -414,13 +327,13 @@ You probably will never to use this directly.</p>
 </section>
 </section>
 <section id="id6">
-<h2>Example<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">SwitchToWorld</span><span class="p">(</span><span class="mi">303</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-handledialogs">
-<h3>Login.HandleDialogs<a class="headerlink" href="#login-handledialogs" title="Permalink to this heading">¶</a></h3>
+<h3>Login.HandleDialogs<a class="headerlink" href="#login-handledialogs" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">HandleDialogs</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -429,7 +342,7 @@ You probably will never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="login-enterfield">
-<h3>Login.EnterField<a class="headerlink" href="#login-enterfield" title="Permalink to this heading">¶</a></h3>
+<h3>Login.EnterField<a class="headerlink" href="#login-enterfield" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">EnterField</span><span class="p">(</span><span class="n">Field</span><span class="o">,</span><span class="w"> </span><span class="n">Details</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -438,14 +351,14 @@ This is not an internal method but you probably will never need to call this dir
 </section>
 </section>
 <section id="id7">
-<h2>Example<a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">EnterField</span><span class="p">(</span><span class="s">&#39;Login:&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;my user name&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">and</span>
 <span class="w">        </span><span class="n">Login</span><span class="o">.</span><span class="n">EnterField</span><span class="p">(</span><span class="s">&#39;Password:&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;my password&#39;</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-getloginmessage">
-<h3>Login.GetLoginMessage<a class="headerlink" href="#login-getloginmessage" title="Permalink to this heading">¶</a></h3>
+<h3>Login.GetLoginMessage<a class="headerlink" href="#login-getloginmessage" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">GetLoginMessage</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -454,13 +367,13 @@ This is not an internal method but you probably will never need to call this dir
 </section>
 </section>
 <section id="id8">
-<h2>Example<a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">GetLoginMessage</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-handlemessage">
-<h3>Login.HandleMessage<a class="headerlink" href="#login-handlemessage" title="Permalink to this heading">¶</a></h3>
+<h3>Login.HandleMessage<a class="headerlink" href="#login-handlemessage" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">HandleMessage</span><span class="p">(</span><span class="n">Message</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -469,13 +382,13 @@ This is not an internal method but you probably will never need to call this dir
 </section>
 </section>
 <section id="id9">
-<h2>Example<a class="headerlink" href="#id9" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">HandleMessage</span><span class="p">(</span><span class="n">Login</span><span class="o">.</span><span class="n">GetLoginMessage</span><span class="p">())</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-entergame">
-<h3>Login.EnterGame<a class="headerlink" href="#login-entergame" title="Permalink to this heading">¶</a></h3>
+<h3>Login.EnterGame<a class="headerlink" href="#login-entergame" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">EnterGame</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -485,7 +398,7 @@ This assumes that the player username and password are already filled in.</p>
 </section>
 </section>
 <section id="id10">
-<h2>Example<a class="headerlink" href="#id10" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">EnterField</span><span class="p">(</span><span class="s">&#39;Login:&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;my user name&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">and</span>
 <span class="w">   </span><span class="n">Login</span><span class="o">.</span><span class="n">EnterField</span><span class="p">(</span><span class="s">&#39;Password:&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;my password&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="w">  </span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">EnterGame</span><span class="p">()</span><span class="o">;</span>
@@ -493,7 +406,7 @@ This assumes that the player username and password are already filled in.</p>
 </div>
 <hr class="docutils" />
 <section id="login-getplayer">
-<h3>Login.GetPlayer<a class="headerlink" href="#login-getplayer" title="Permalink to this heading">¶</a></h3>
+<h3>Login.GetPlayer<a class="headerlink" href="#login-getplayer" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">GetPlayer</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TRSLoginPlayer</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -503,13 +416,13 @@ is an index of the TRSLogin.Players array.</p>
 </section>
 </section>
 <section id="id11">
-<h2>Example<a class="headerlink" href="#id11" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">GetPlayer</span><span class="p">()</span><span class="o">.</span><span class="n">Username</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-loginplayer">
-<h3>Login.LoginPlayer<a class="headerlink" href="#login-loginplayer" title="Permalink to this heading">¶</a></h3>
+<h3>Login.LoginPlayer<a class="headerlink" href="#login-loginplayer" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">LoginPlayer</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -519,13 +432,13 @@ index of the TRSLogin.Players array.</p>
 </section>
 </section>
 <section id="id12">
-<h2>Example<a class="headerlink" href="#id12" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">LoginPlayer</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-addplayer">
-<h3>Login.AddPlayer<a class="headerlink" href="#login-addplayer" title="Permalink to this heading">¶</a></h3>
+<h3>Login.AddPlayer<a class="headerlink" href="#login-addplayer" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">AddPlayer</span><span class="p">(</span><span class="n">User</span><span class="o">,</span><span class="w"> </span><span class="n">Pass</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">Pin</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="o">;</span><span class="w"> </span><span class="n">Worlds</span><span class="o">:</span><span class="w"> </span><span class="n">TIntegerArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[])</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -533,7 +446,7 @@ index of the TRSLogin.Players array.</p>
 </section>
 </section>
 <section id="id13">
-<h2>Example<a class="headerlink" href="#id13" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Login</span><span class="o">.</span><span class="n">AddPlayer</span><span class="p">(</span><span class="s">&#39;my username&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;my password&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;0000&#39;</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="c1">//Adds a player to TRSLogin.Players</span>
 <span class="n">Login</span><span class="o">.</span><span class="n">PlayerIndex</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">High</span><span class="p">(</span><span class="n">Login</span><span class="o">.</span><span class="n">Players</span><span class="p">)</span><span class="o">;</span><span class="w">              </span><span class="c1">//Our added TRSLoginPlayer will be the last in the array.</span>
 <span class="n">Login</span><span class="o">.</span><span class="n">LoginPlayer</span><span class="p">()</span><span class="o">;</span><span class="w">                                   </span><span class="c1">//Login Login.Players[Login.PlayerIndex]</span>
@@ -541,7 +454,7 @@ index of the TRSLogin.Players array.</p>
 </div>
 <hr class="docutils" />
 <section id="login-nextplayer">
-<h3>Login.NextPlayer<a class="headerlink" href="#login-nextplayer" title="Permalink to this heading">¶</a></h3>
+<h3>Login.NextPlayer<a class="headerlink" href="#login-nextplayer" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">NextPlayer</span><span class="p">(</span><span class="n">DisableCurrentPlayer</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -550,7 +463,7 @@ If TRSLogin.PlayerIndex is already set to our last TRSLoginPlayer, then it’s r
 </section>
 </section>
 <section id="id14">
-<h2>Example<a class="headerlink" href="#id14" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">PlayerIndex</span><span class="o">;</span>
 <span class="n">Login</span><span class="o">.</span><span class="n">NextPlayer</span><span class="p">(</span><span class="k">True</span><span class="p">)</span><span class="o">;</span><span class="w">        </span><span class="c1">//Make sure you have a couple of players to run this example properly.</span>
 <span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">PlayerIndex</span><span class="o">;</span>
@@ -558,7 +471,7 @@ If TRSLogin.PlayerIndex is already set to our last TRSLoginPlayer, then it’s r
 </div>
 <hr class="docutils" />
 <section id="login-getplayerpin">
-<h3>Login.GetPlayerPin<a class="headerlink" href="#login-getplayerpin" title="Permalink to this heading">¶</a></h3>
+<h3>Login.GetPlayerPin<a class="headerlink" href="#login-getplayerpin" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">GetPlayerPin</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -566,14 +479,14 @@ If TRSLogin.PlayerIndex is already set to our last TRSLoginPlayer, then it’s r
 </section>
 </section>
 <section id="id15">
-<h2>Example<a class="headerlink" href="#id15" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="n">BankPin</span><span class="o">.</span><span class="n">IsOpen</span><span class="p">()</span><span class="w"> </span><span class="k">then</span>
 <span class="w">  </span><span class="n">BankPin</span><span class="o">.</span><span class="n">Enter</span><span class="p">(</span><span class="n">Login</span><span class="o">.</span><span class="n">GetPlayerPin</span><span class="p">())</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-getplayerbiohash">
-<h3>Login.GetPlayerBioHash<a class="headerlink" href="#login-getplayerbiohash" title="Permalink to this heading">¶</a></h3>
+<h3>Login.GetPlayerBioHash<a class="headerlink" href="#login-getplayerbiohash" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">GetPlayerBioHash</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -581,13 +494,13 @@ If TRSLogin.PlayerIndex is already set to our last TRSLoginPlayer, then it’s r
 </section>
 </section>
 <section id="id16">
-<h2>Example<a class="headerlink" href="#id16" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Login</span><span class="o">.</span><span class="n">GetPlayerBioHash</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-draw">
-<h3>Login.Draw<a class="headerlink" href="#login-draw" title="Permalink to this heading">¶</a></h3>
+<h3>Login.Draw<a class="headerlink" href="#login-draw" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">Draw</span><span class="p">(</span><span class="n">Bitmap</span><span class="o">:</span><span class="w"> </span><span class="n">TMufasaBitmap</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -597,13 +510,13 @@ This is automatically called with <strong>SRL.Debug()</strong>.</p>
 </section>
 </section>
 <section id="id17">
-<h2>Example<a class="headerlink" href="#id17" title="Permalink to this heading">¶</a></h2>
+<h2>Example<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">SRL</span><span class="o">.</span><span class="n">Debug</span><span class="p">()</span><span class="o">;</span>
 </pre></div>
 </div>
 <hr class="docutils" />
 <section id="login-setup">
-<h3>Login.Setup<a class="headerlink" href="#login-setup" title="Permalink to this heading">¶</a></h3>
+<h3>Login.Setup<a class="headerlink" href="#login-setup" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">Setup</span><span class="p">()</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -612,7 +525,7 @@ probably will never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="login-setupalignment">
-<h3>Login.SetupAlignment<a class="headerlink" href="#login-setupalignment" title="Permalink to this heading">¶</a></h3>
+<h3>Login.SetupAlignment<a class="headerlink" href="#login-setupalignment" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">procedure</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">SetupAlignment</span><span class="p">(</span><span class="n">Mode</span><span class="o">:</span><span class="w"> </span><span class="n">ERSClientMode</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="kp">override</span><span class="o">;</span>
 </pre></div>
 </div>
@@ -622,7 +535,7 @@ probably will never need to call this directly.</p>
 </section>
 <hr class="docutils" />
 <section id="var-login">
-<h3>var Login<a class="headerlink" href="#var-login" title="Permalink to this heading">¶</a></h3>
+<h3>var Login<a class="headerlink" href="#var-login" title="Permalink to this heading"></a></h3>
 <p>Global TRSLogin variable.</p>
 <hr class="docutils" />
 </section>
@@ -631,50 +544,33 @@ probably will never need to call this directly.</p>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="misc.html" class="btn btn-neutral float-right" title="Misc" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="depositbox.html" class="btn btn-neutral float-left" title="DepositBox" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="misc.html" class="btn btn-neutral float-right" title="Misc" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2020, SRL Group.
-
-    </p>
+    <p>&#169; Copyright 2020, SRL Group.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-    
+  </script>  
 
   <style>
          .wy-nav-content { max-width: none; }
