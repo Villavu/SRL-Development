@@ -4,7 +4,7 @@ Login
 
 Handles logging in players.
 
-Summary:
+Summary: 
 
 - Add players with `Login.AddPlayer`
 - Login the current player with `Login.LoginPlayer`
@@ -27,11 +27,6 @@ type
 (*
 type TRSLoginPlayer
 ~~~~~~~~~~~~~~~~~~~
-Type responsible for managing player data.
-You usually don't use this directly but instead use TRSLogin methods to interact with TRSLoginPlayers stored in TRSLogin.Players array.
-The **Active** variable decides wether the player is inteded to be skipped or not by TRSLogin.
-
-This is the structure of TRSLoginPlayer:
 .. pascal::
   TRSLoginPlayer = record
     User: String;
@@ -41,11 +36,15 @@ This is the structure of TRSLoginPlayer:
     Active: Boolean;
     BioHash: Double;
   end;
+
+Type responsible for managing player data.
+You usually don't use this directly but instead use TRSLogin methods to interact with TRSLoginPlayers stored in TRSLogin.Players array.
+The **Active** variable decides wether the player is inteded to be skipped or not by TRSLogin.
 *)
   TRSLoginPlayer = record
     User: String;
     Password: String;
-    Pin: String;
+    Pin: String; 
     Worlds: TIntegerArray;
     Active: Boolean;
     BioHash: Double;
@@ -54,21 +53,19 @@ This is the structure of TRSLoginPlayer:
 (*
 type TRSLogin
 ~~~~~~~~~~~~~
-Type responsible for handling login and managing cached TRSLoginPlayers.
-
-This is the structure of TRSLogin:
 .. pascal::
   TRSLogin = record(TRSInterface)
     Players: array of TRSLoginPlayer;
     PlayerIndex: Int32;
-
     AllowDangerousWorlds: Boolean;
   end;
+
+Type responsible for handling login and managing cached TRSLoginPlayers.
 *)
   TRSLogin = record(TRSInterface)
     Players: array of TRSLoginPlayer;
     PlayerIndex: Int32;
-
+    
     AllowDangerousWorlds: Boolean;
   end;
 
@@ -76,10 +73,6 @@ const
 (*
 LOGIN_MESSAGES
 ~~~~~~~~~~~~~~
-Global constants for most if not all login messages.
-
-Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
-
 .. pascal::
   LOGIN_MESSAGE_NONE = '';
   LOGIN_MESSAGE_CONNECTING = 'Connecting to server';
@@ -98,6 +91,10 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
   LOGIN_MESSAGE_MEMBERS = 'You need a members account';
   LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
   LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
+
+Global constants for most if not all login messages.
+
+Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
 *)
   LOGIN_MESSAGE_NONE = '';
   LOGIN_MESSAGE_CONNECTING = 'Connecting to server';
@@ -134,18 +131,18 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
     LOGIN_MESSAGE_MEMBERS,
     LOGIN_MESSAGE_IN_MEMBERS_AREA
   ];
-
+  
   LOGIN_DIALOG_OK = 'Ok';
   LOGIN_DIALOG_TRY_AGAIN = 'Try again';
   LOGIN_DIALOG_EXISTING_USER = 'Existing User';
   LOGIN_DIALOG_CONTINUE = 'Continue';
-
+  
   LOGIN_DIALOGS = [
     LOGIN_DIALOG_OK,
     LOGIN_DIALOG_TRY_AGAIN,
     LOGIN_DIALOG_EXISTING_USER
   ];
-
+  
   LOGIN_DIALOGS_DANGEROUS = [
     LOGIN_DIALOG_CONTINUE
   ];
@@ -154,8 +151,9 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
 (*
 Login.FindText
 ~~~~~~~~~~~~~~
-.. pascal:: function TRSLogin.FindText(Text: String; out B: TBox): Boolean;
-.. pascal:: function TRSLogin.FindText(Text: String): Boolean; overload;
+.. pascal::
+  function TRSLogin.FindText(Text: String; out B: TBox): Boolean;
+  function TRSLogin.FindText(Text: String): Boolean; overload;
 
 Internal TRSLogin method used to find a message on the TRSLogin interface.
 You probably will never to use this directly.
@@ -173,7 +171,7 @@ var
   _: TBox;
 begin
   Result := FindText(Text, _);
-end;
+end;  
 
 
 (*
@@ -189,7 +187,7 @@ var
   B: TBox;
 begin
   Result := FindText(Text, B);
-  if Result then
+  if Result then 
     Mouse.Click(B, MOUSE_LEFT);
 end;
 
@@ -206,8 +204,8 @@ var
   B: TBox;
 begin
   Result := OCR.LocateText(Self.Bounds, ToString(World), RS_FONT_BOLD_12, TOCRColorRule.Create([$000000]), B) = 1;
-
-  if Result then
+  
+  if Result then 
   begin
     if (not Self.AllowDangerousWorlds) then
     begin
@@ -216,7 +214,7 @@ begin
          (SRL.CountColor(CTS1(8421504, 25), B) = 0) then
         Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(World) + ')');
     end;
-
+    
     Mouse.Click(B, MOUSE_LEFT);
   end;
 end;
@@ -270,7 +268,7 @@ Example
 *)
 function TRSLogin.OpenWorldSwitcher(): Boolean;
 begin
-  Result := ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000);
+  Result := ClickText('Click to switch') and WaitUntil(Self.IsWorldSwitcherOpen(), 500, 5000); 
 end;
 
 (*
@@ -310,7 +308,7 @@ begin
   if Self.CloseWorldSwitcher() and Self.FindText('Click to switch', B) then
   begin
     B.Y1 -= 25;
-
+    
     Result := OCR.RecognizeNumber(B, TOCRColorRule.Create([$FFFFFF]), RS_FONT_BOLD_12);
   end;
 end;
@@ -328,22 +326,24 @@ Example
   WriteLn Login.SwitchToWorld(303);
 *)
 function TRSLogin.SwitchToWorld(World: Int32): Boolean;
+var
+  i: Int32;
 begin
   if Self.GetCurrentWorld() = World then
     Exit(True);
 
   if Self.OpenWorldSwitcher() then
   begin
-    for 1 to 3 do // Three pages of worlds
+    for i := 1 to 3 do // Three pages of worlds
     begin
       if Self.ClickWorld(World) then
       begin
         Result := Self.GetCurrentWorld() = World;
         Exit;
       end;
-
+      
       Keyboard.PressKey(VK_RIGHT);
-
+      
       Wait(500, 5000, wdLeft);
     end;
   end;
@@ -364,16 +364,16 @@ begin
   for Dialog in LOGIN_DIALOGS do
     if Self.ClickText(' ' + Dialog + ' ') then
       Exit(True);
-
+    
   for Dialog in LOGIN_DIALOGS_DANGEROUS do
     case Self.AllowDangerousWorlds of
       True:
         if Self.ClickText(' ' + Dialog + ' ') then
           Exit(True);
-
-      False:
+          
+      False: 
         if Self.FindText(' ' + Dialog + ' ') then
-          Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(Self.GetCurrentWorld()) + ')');
+          Self.Fatal('Not allowed to login to dangerous worlds (' + ToString(Self.GetCurrentWorld()) + ')');  
     end;
 end;
 
@@ -397,7 +397,7 @@ var
 begin
   if Self.FindText(Details + ' ') then
     Exit(True);
-
+  
   if Self.FindText(Field, B) then
   begin
     B.X1 := B.X2;
@@ -406,19 +406,19 @@ begin
     // Move caret
     while not WaitUntil(SRL.CountColor($00FFFF, B) > 15, 100, SRL.TruncatedGauss(800, 1600)) do
     begin
-      if not Self.IsOpen() then
+      if not Self.IsOpen() then 
         Exit(False);
-
+      
       Keyboard.PressKey(VK_TAB);
     end;
-
+  
     // Erase field
     while SRL.CountColor($FFFFFF, B) > 0 do
       Keyboard.PressKey(VK_BACK);
     Keyboard.Send(Details);
-
+    
     Wait(0, 1000, wdLeft);
-
+    
     Result := True;
   end;
 end;
@@ -446,7 +446,7 @@ begin
     if Self.FindText(LOGIN_MESSAGES[I]) then
     begin
       Result := LOGIN_MESSAGES[I];
-
+      
       Exit;
     end;
 end;
@@ -528,10 +528,10 @@ begin
   begin
     if Self.ClickText('CLICK HERE TO PLAY') then
       Break;
-
+      
     Wait(100);
   end;
-
+  
   Result := RSClient.IsLoggedIn(5000);
 end;
 
@@ -588,14 +588,14 @@ begin
   while Self.IsOpen() and (attempts < 10) do
   begin
     Self.DebugLn('Attempt ' + ToString(attempts + 1));
-
+    
     if (player.Worlds <> []) and (not (Self.GetCurrentWorld() in player.Worlds)) then
     begin
       World := Player.Worlds[Random(Length(Player.Worlds))];
       if (not Self.SwitchToWorld(World)) then
         Exit;
     end;
-
+    
     if Self.HandleDialogs() then
       Wait(500);
 
@@ -603,7 +603,7 @@ begin
        Self.EnterField('Password:', player.Password) then
     begin
       Keyboard.PressKey(VK_ENTER);
-
+  
       while Self.IsOpen() do
       begin
         message := Self.GetLoginMessage();
@@ -620,7 +620,7 @@ begin
           Exit(False);
       end;
     end;
-
+    
     Inc(attempts);
   end;
 
@@ -662,24 +662,24 @@ Example
   WriteLn Login.PlayerIndex;
 *)
 procedure TRSLogin.NextPlayer(DisableCurrentPlayer: Boolean);
-
+  
   function Next: Int32;
   var
     I: Int32;
   begin
     Result := -1;
-
+    
     for I := Self.PlayerIndex + 1 to High(Self.Players) do
       if Self.Players[I].Active then
         Exit(I);
     for I := 0 to Self.PlayerIndex - 1 do // wrap around
       if Self.Players[I].Active then
-        Exit(I);
+        Exit(I);    
   end;
-
+  
 begin
   Self.Players[Self.PlayerIndex].Active := not DisableCurrentPlayer;
-
+  
   Self.PlayerIndex := Next();
   if (Self.PlayerIndex = -1) then
     Self.Fatal('No other active players to switch to');
@@ -703,7 +703,7 @@ function TRSLogin.GetPlayerPin(): String;
 begin
   Result := Self.GetPlayer.Pin;
   if (Length(Result) <> 4) or (not Result.IsDigit()) then
-    Self.Fatal('Invalid bank pin');
+    Self.Fatal('Invalid bank pin'); 
 end;
 
 (*
