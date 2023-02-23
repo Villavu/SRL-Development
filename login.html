@@ -156,45 +156,35 @@
 <hr class="docutils" />
 <section id="type-trsloginplayer">
 <h3>type TRSLoginPlayer<a class="headerlink" href="#type-trsloginplayer" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">TRSLoginPlayer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">record</span>
+<span class="w">  </span><span class="n">User</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span>
+<span class="w">  </span><span class="n">Password</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span>
+<span class="w">  </span><span class="n">Pin</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span>
+<span class="w">  </span><span class="n">Worlds</span><span class="o">:</span><span class="w"> </span><span class="n">TIntegerArray</span><span class="o">;</span>
+<span class="w">  </span><span class="n">Active</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<span class="w">  </span><span class="n">BioHash</span><span class="o">:</span><span class="w"> </span><span class="kt">Double</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
 <p>Type responsible for managing player data.
 You usually don’t use this directly but instead use TRSLogin methods to interact with TRSLoginPlayers stored in TRSLogin.Players array.
 The <strong>Active</strong> variable decides wether the player is inteded to be skipped or not by TRSLogin.</p>
-<p>This is the structure of TRSLoginPlayer:
-.. code-block:: pascal</p>
-<blockquote>
-<div><dl class="simple">
-<dt>TRSLoginPlayer = record</dt><dd><p>User: String;
-Password: String;
-Pin: String;
-Worlds: TIntegerArray;
-Active: Boolean;
-BioHash: Double;</p>
-</dd>
-</dl>
-<p>end;</p>
-</div></blockquote>
 </section>
 <hr class="docutils" />
 <section id="type-trslogin">
 <h3>type TRSLogin<a class="headerlink" href="#type-trslogin" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">TRSLogin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">record</span><span class="p">(</span><span class="n">TRSInterface</span><span class="p">)</span>
+<span class="w">  </span><span class="n">Players</span><span class="o">:</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">TRSLoginPlayer</span><span class="o">;</span>
+<span class="w">  </span><span class="n">PlayerIndex</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+<span class="w">  </span><span class="n">AllowDangerousWorlds</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<span class="k">end</span><span class="o">;</span>
+</pre></div>
+</div>
 <p>Type responsible for handling login and managing cached TRSLoginPlayers.</p>
-<p>This is the structure of TRSLogin:
-.. code-block:: pascal</p>
-<blockquote>
-<div><dl>
-<dt>TRSLogin = record(TRSInterface)</dt><dd><p>Players: array of TRSLoginPlayer;
-PlayerIndex: Int32;</p>
-<p>AllowDangerousWorlds: Boolean;</p>
-</dd>
-</dl>
-<p>end;</p>
-</div></blockquote>
 </section>
 <hr class="docutils" />
 <section id="login-messages">
 <h3>LOGIN_MESSAGES<a class="headerlink" href="#login-messages" title="Permalink to this heading"></a></h3>
-<p>Global constants for most if not all login messages.</p>
-<p>Each of this messages is stored in <strong>LOGIN_MESSAGES</strong> in the same order.</p>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">LOGIN_MESSAGE_NONE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="o">;</span>
 <span class="n">LOGIN_MESSAGE_CONNECTING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;Connecting to server&#39;</span><span class="o">;</span>
 <span class="n">LOGIN_MESSAGE_INVALID_CREDENTIALS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;Invalid credentials&#39;</span><span class="o">;</span>
@@ -214,14 +204,14 @@ PlayerIndex: Int32;</p>
 <span class="n">LOGIN_MESSAGE_AUTHENTICATOR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;Authenticator&#39;</span><span class="o">;</span>
 </pre></div>
 </div>
+<p>Global constants for most if not all login messages.</p>
+<p>Each of this messages is stored in <strong>LOGIN_MESSAGES</strong> in the same order.</p>
 </section>
 <hr class="docutils" />
 <section id="login-findtext">
 <h3>Login.FindText<a class="headerlink" href="#login-findtext" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">FindText</span><span class="p">(</span><span class="n">Text</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="o">;</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">B</span><span class="o">:</span><span class="w"> </span><span class="n">TBox</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
-</pre></div>
-</div>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">FindText</span><span class="p">(</span><span class="n">Text</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+<span class="k">function</span><span class="w"> </span><span class="nc">TRSLogin</span><span class="o">.</span><span class="nf">FindText</span><span class="p">(</span><span class="n">Text</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Internal TRSLogin method used to find a message on the TRSLogin interface.

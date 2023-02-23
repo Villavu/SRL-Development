@@ -4,7 +4,7 @@ Login
 
 Handles logging in players.
 
-Summary:
+Summary: 
 
 - Add players with `Login.AddPlayer`
 - Login the current player with `Login.LoginPlayer`
@@ -23,11 +23,6 @@ Example
 
 type TRSLoginPlayer
 ~~~~~~~~~~~~~~~~~~~
-Type responsible for managing player data.
-You usually don't use this directly but instead use TRSLogin methods to interact with TRSLoginPlayers stored in TRSLogin.Players array.
-The **Active** variable decides wether the player is inteded to be skipped or not by TRSLogin.
-
-This is the structure of TRSLoginPlayer:
 .. code-block:: pascal
 
 
@@ -40,33 +35,31 @@ This is the structure of TRSLoginPlayer:
     BioHash: Double;
   end;
 
+Type responsible for managing player data.
+You usually don't use this directly but instead use TRSLogin methods to interact with TRSLoginPlayers stored in TRSLogin.Players array.
+The **Active** variable decides wether the player is inteded to be skipped or not by TRSLogin.
+
 
 ------------
 
 type TRSLogin
 ~~~~~~~~~~~~~
-Type responsible for handling login and managing cached TRSLoginPlayers.
-
-This is the structure of TRSLogin:
 .. code-block:: pascal
 
 
   TRSLogin = record(TRSInterface)
     Players: array of TRSLoginPlayer;
     PlayerIndex: Int32;
-
     AllowDangerousWorlds: Boolean;
   end;
+
+Type responsible for handling login and managing cached TRSLoginPlayers.
 
 
 ------------
 
 LOGIN_MESSAGES
 ~~~~~~~~~~~~~~
-Global constants for most if not all login messages.
-
-Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
-
 .. code-block:: pascal
 
 
@@ -88,6 +81,10 @@ Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
   LOGIN_MESSAGE_IN_MEMBERS_AREA = 'You are standing in a members-only area';
   LOGIN_MESSAGE_AUTHENTICATOR = 'Authenticator';
 
+Global constants for most if not all login messages.
+
+Each of this messages is stored in **LOGIN_MESSAGES** in the same order.
+
 
 ------------
 
@@ -95,10 +92,9 @@ Login.FindText
 ~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSLogin.FindText(Text: String; out B: TBox): Boolean;
-.. code-block:: pascal
 
- function TRSLogin.FindText(Text: String): Boolean; overload;
+  function TRSLogin.FindText(Text: String; out B: TBox): Boolean;
+  function TRSLogin.FindText(Text: String): Boolean; overload;
 
 Internal TRSLogin method used to find a message on the TRSLogin interface.
 You probably will never to use this directly.
