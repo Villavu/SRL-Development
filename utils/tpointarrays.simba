@@ -157,9 +157,42 @@ begin
   if (Length(Self) = 0) then Exit(True);
   Result := CompareMem(Self[0], Other[0], length(self)*SizeOf(self[0]));     
 end;
+
+
+
+function TPointArray.First(): TPoint; constref;
+begin
+  if Length(Self) > 0 then
+    Result := Self[0];
+end;
+
+function TPointArray.Last(): TPoint; constref;
+begin
+  if Length(Self) > 0 then
+    Result := Self[High(Self)];
+end;
+
+
+function TPointArray.Intersection(other: TPointArray): TPointArray; constref;
+begin
+  try
+    GetSamePointsATPA([Self, Other], Result);
+  except
+    Result := []; //this sometimes threw me a range error? not sure why... simba bug?
+  end;
+end;
+
+function TPointArray.Difference(other: TPointArray): TPointArray; constref;
+begin
+  Result := ClearTPAFromTPA(Self, other);
+end;
+
+function TPointArray.SymmetricDifference(other: TPointArray): TPointArray; constref;
+begin
+  Result := ClearTPAFromTPA(Self, other) + ClearTPAFromTPA(other, Self);
+end;
+
  
-
-
 
 //--| Type helpers (extended) |------------------------------------------------>
 //----------------------------------------------------------------------------->
