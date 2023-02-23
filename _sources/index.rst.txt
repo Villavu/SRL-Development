@@ -4,43 +4,6 @@ Welcome to SRL documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR
-
-   prayer
-   chat
-   magic
-   mainscreen
-   bank
-   keybindings
-   make
-   inventory
-   rsclient
-   antiban
-   mm2ms
-   depositbox
-   login
-   misc
-   combat
-   grandexchange
-   xpbar
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
-	:caption: OSR -> WALKER
-
-   webgraph
-   walker_map
-   walker
-   webber
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
 	:caption: OSR -> ITEMFINDER
 
    itemfinder
@@ -50,27 +13,64 @@ Welcome to SRL documentation!
 .. toctree::
    :maxdepth: 2
 
+	:caption: OSR
+
+   prayer
+   rsclient
+   depositbox
+   inventory
+   keybindings
+   mm2ms
+   grandexchange
+   antiban
+   make
+   chat
+   login
+   xpbar
+   magic
+   bank
+   misc
+   combat
+   mainscreen
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> WALKER
+
+   webber
+   walker_map
+   walker
+   webgraph
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
 	:caption: UTILS
 
-   pixelshift
-   matrix
-   time
-   keyboard
-   tcircle
-   tbox
-   random
+   drawing
    wrappers
+   math
+   mouse
+   pixelshift
+   extendedarrays
+   random
+   tcircle
+   string
+   color
+   matrix
    tpoint
    tboxarrays
-   drawing
+   tbox
+   time
    trectangle
-   string
    tpointarrays
-   extendedarrays
-   color
-   mouse
-   math
    integerarrays
+   keyboard
 
 -----------
 
