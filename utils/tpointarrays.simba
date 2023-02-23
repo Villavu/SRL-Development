@@ -159,20 +159,6 @@ begin
 end;
 
 
-
-function TPointArray.First(): TPoint; constref;
-begin
-  if Length(Self) > 0 then
-    Result := Self[0];
-end;
-
-function TPointArray.Last(): TPoint; constref;
-begin
-  if Length(Self) > 0 then
-    Result := Self[High(Self)];
-end;
-
-
 function TPointArray.Intersection(other: TPointArray): TPointArray; constref;
 begin
   try
