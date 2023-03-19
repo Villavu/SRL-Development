@@ -69,13 +69,13 @@ type
     FINDER_OPTION: TStringArray;
   end;
 
-function TRSBank.GetSlotBoxes: TBoxArray; 
+function TRSBank.GetSlotBoxes(): TBoxArray; 
 begin
   Result := Grid(8, (Self.Height() - 135) div 35, 31, 31, [17, 5], [Self.X1 + 57, Self.Y1 + 77]);
 end;
 
 
-function TRSBank.GetTabBoxes: TBoxArray;
+function TRSBank.GetTabBoxes(): TBoxArray;
 begin
   Result := Grid(10, 1, 36, 30, [4, 0], [Self.X1 + 46, Self.Y1 + 42]);
 end;
@@ -89,52 +89,105 @@ begin
 end;
 
 
-function TRSBank.GetButtons: TRSButtonArray;
+function TRSBank.GetIncinerator(): TBox;
 begin
-  Result := FindButtons([[48,20], [23,20], [34,34], [23,23]]);
+  Result := Self.Bounds();
+  Result.X1 += 5;
+  Result.Y1 := Result.Y2 - 113;
+  Result.X2 := Result.X1 + 51;
+  Result.Y2 -= 44;
 end;
 
-function TRSBank.GetButton(Button: ERSBankButton): TRSButton;
+function TRSBank.HasIncinerator(): Boolean;
 var
-  Buttons: TRSButtonArray := Self.GetButtons();
-begin 
-  if Length(Buttons) = Length(ERSBankButton) then
-    Result := Buttons[Button];
+  b: TBox;
+begin
+  b := Self.GetIncinerator();
+  b.Y1 += 55;
+  Result := SRL.CountColor(CTS2(6842995, 32, 0.10, 0.11), b) > 0;
+end;
+
+function TRSBank.InceneratorTooltipVisible(): Boolean;
+var
+  b: TBox;
+begin
+  b := Self.Bounds();
+  b.X1 += 5;
+  b.Y1 := b.Y2 - 113;
+  b.X2 := b.X1 + 51;
+  b.Y2 -= 44;
+
+  Result := SRL.CountColor(10551295, b) > 0;
+end;
+
+function TRSBank.UnHoverIncinerator(): Boolean;
+var
+  b: TBox;
+  p: TPoint;
+begin
+  b := Self.GetIncinerator();
+  if not b.Contains(Mouse.Position) then
+    Exit(True);
+
+  repeat
+    p := SRL.RandomPoint(Self.Bounds());
+  until not b.Contains(p);
+
+  Mouse.Move(p);
+  Result := WaitUntil(not Self.InceneratorTooltipVisible(), 100, 1000);
+end;
+
+
+function TRSBank.GetButtons(): TRSButtonArray;
+begin
+  if Self.UnHoverIncinerator() then
+    Result := FindButtons([[48,20], [23,20], [34,34], [23,23]]);
+end;
+
+function TRSBank.GetButton(button: ERSBankButton): TRSButton;
+begin
+  Result := Self.GetButtons()[button];
 end;
 
 (*
 Bank.IsOpen
 ~~~~~~~~~~~
-.. pascal:: function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean;
+.. pascal:: function TRSBank.IsOpen(waitForItems: Boolean = True): Boolean;
 
 Returns true if the Bank is visible.
 
-**WaitForItems** determines if the method waits up to one second for item to appears.
+**waitForItems** determines if the method waits up to one second for item to appears.
 There can be a small delay before items are visible.
 *)
-function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean; overload;
+function TRSBank.IsOpen(waitForItems: Boolean = True): Boolean; overload;
 var
-  B: TBox;
+  b: TBox;
+  count1, count2: Int32;
 begin
-  if Self.GetButton(ERSBankButton.WORN).Visible() then
+  b := Self.Bounds();
+  b.Y1 := b.Y2 - 39;
+  b.X1 += 240;
+  b.X2 -= 155;
+  b.Y2 -= 25;
+
+  count1 := SRL.CountColor(0, b);
+  count2 := SRL.CountColor(2070783, b);
+
+  Result := ((count1 = 94) and (count2 = 116)) or Self.IsTitle('Bank') or Self.IsTitle('Equip');
+
+  if Result and waitForItems then
   begin
-    Result := True;
-    
-    if WaitForItems then
-    begin
-      B := Self.GetSlotBoxes().Merge();
-      
-      WaitUntil(SRL.CountColor(RS_ITEM_BORDER, B) > 0, 50, 1000);
-    end;
+    b := Self.GetSlotBoxes().Merge();
+    WaitUntil(SRL.CountColor(RS_ITEM_BORDER, b) > 0, 50, 1000);
   end;
 end;
 
-function TRSBank.IsOpen(WaitTime: Int32; Interval: Int32 = -1): Boolean; overload;
+function TRSBank.IsOpen(waitTime: Int32; interval: Int32 = -1): Boolean; overload;
 begin
-  if (Interval = -1) then
-    Interval := SRL.TruncatedGauss(50, 1500);
+  if (interval = -1) then
+    interval := SRL.TruncatedGauss(50, 1500);
 
-  Result := WaitUntil(Self.IsOpen(), Interval, WaitTime);
+  Result := WaitUntil(Self.IsOpen(), interval, waitTime);
 end;
 
 (*
@@ -838,8 +891,7 @@ begin
   Result := Self.FindItem(Item, B);
 end;
 
-//DEPRECATED AVOID USING THIS!
-function TRSBank.FindItem(Item: TRSItem): Boolean; overload;
+function TRSBank.FindItem(Item: TRSItem): Boolean; overload; deprecated 'Use TRSBank.ContainsItem() instead.';
 var
   B: TBox;
 begin
@@ -1008,4 +1060,3 @@ begin
 
   Bank.Draw(Bitmap);
 end;
-
