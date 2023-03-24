@@ -10,11 +10,11 @@ Bank.IsOpen
 ~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.IsOpen(WaitForItems: Boolean = True): Boolean;
+ function TRSBank.IsOpen(waitForItems: Boolean = True): Boolean;
 
 Returns true if the Bank is visible.
 
-**WaitForItems** determines if the method waits up to one second for item to appears.
+**waitForItems** determines if the method waits up to one second for item to appears.
 There can be a small delay before items are visible.
 
 
