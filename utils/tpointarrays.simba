@@ -55,7 +55,7 @@ begin
     Arr[0] := Self.Find(Value);
   end;
 
-  for i := 0 to High(Arr) do
+  for i:=High(Arr) downto 0 do
     Self.Del(Arr[i]);
 end;
 
