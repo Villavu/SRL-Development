@@ -82,15 +82,15 @@ Example
 *)
 function TRSMake.GetItemButtons(): TRSButtonArray;
 var
-  Button: TRSButton;
+  button: TRSButton;
   i: Int32;
 begin
-  for Button in Self.FindButtons([[0,0]]) do
-    if (Button.Bounds.Height > 60) and (Button.Bounds.Width > 20) then
-      Result += Button;
-
-  for i := 0 to High(Result) do  //Fixes buttons indexes!
-    Result[i].Index := i;
+  for button in Self.FindButtons([[0,0]]) do
+    if InRange(button.Bounds.Height(), 60, 85) and InRange(button.Bounds.Width(), 20, 120) then
+    begin
+      button.Index := Length(Result);
+      Result += button;
+    end;
 end;
 
 (*
