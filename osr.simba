@@ -74,6 +74,7 @@ end;
 {$IFNDEF SRL_BANKPIN_INCLUDED}         {$I osr/bankpin.simba}
 {$IFNDEF SRL_GRANDEXCHANGE_INCLUDED}   {$I osr/grandexchange.simba}
 {$IFNDEF SRL_DEPOSITBOX_INCLUDED}      {$I osr/depositbox.simba}
+{$IFNDEF SRL_CRAFTSCREEN_INCLUDED}     {$I osr/craftscreen.simba}
 {$IFNDEF SRL_WALKER_MAP_INCLUDED}      {$I osr/walker/walker_map.simba}
 {$IFNDEF SRL_WALKER_INCLUDED}          {$I osr/walker/walker.simba}
 {$IFNDEF SRL_STATS_INCLUDED}           {$I osr/stats.simba}
@@ -86,6 +87,7 @@ end;
 
 {$SCOPEDENUMS OFF}
 
+{$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
 {$ELSE}{$ENDIF}
