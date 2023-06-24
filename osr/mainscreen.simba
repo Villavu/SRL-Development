@@ -143,6 +143,7 @@ type
   end;
 
   TRSMainScreen = record(TRSInterface)
+    UpTextBitmapBuffer: TMufasaBitmap;
     UpTextArea: TBox;
     UpTextFilter: TOCRFilter;
 
@@ -154,6 +155,7 @@ procedure TRSMainScreen.Free;
 var
   Bitmap: Int32;
 begin
+  Self.UpTextBitmapBuffer.Free();
   for Bitmap in Self.YellowClicks + Self.RedClicks do
     FreeBitmap(Bitmap);
 end;
@@ -175,7 +177,8 @@ begin
 
   Self.Name := 'MainScreen';
 
-  Self.UpTextFilter := TOCRAnyColorFilter.Create(85, 60);
+  Self.UpTextBitmapBuffer.Init(Client.GetMBitmaps());
+  Self.UpTextFilter := TOCRAnyColorFilter.Create(85, 65);
   Self.UpTextFilter.MinCharacterMatch := '-';
 
   Self.YellowClicks := [
@@ -237,8 +240,16 @@ Example
   WriteLn(MainScreen.GetUpText());
 *)
 function TRSMainScreen.GetUpText(): String;
+var
+  Bitmap: TMufasaBitmap;
 begin
-  Result := OCR.RecognizeStatic(Self.UpTextArea, Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
+  with Self.UpTextArea do
+    Self.UpTextBitmapBuffer.CopyClientToBitmap(Client.GetIOManager(), True, X1,Y1,X2,Y2);
+
+  // improve when bankscreen (and other interfaces) are open
+  // replace orange title text with interface background color
+  Self.UpTextBitmapBuffer.ReplaceColor(2070783, 3424329);
+  Result := OCR._RecognizeStatic(Self.UpTextBitmapBuffer.ToMatrix(), Self.UpTextFilter, RS_FONT_BOLD_12_SHADOW);
 
   {$IFDEF SRL_DEBUG_UPTEXT}
   Self.DebugLn('UpText: ' + Result);
