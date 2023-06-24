@@ -353,7 +353,7 @@ begin
     if not WaitUntil((TPA := Self.FindHint()) <> [], SRL.TruncatedGauss(50, 1500), 4000) then
       Continue;
 
-    if SameText(OCR.Recognize(TPA.Bounds(), TOCRColorRule.Create([0]), RS_FONT_PLAIN_12), Item) then
+    if SameText(OCR.Recognize(TPA.Bounds(), TOCRColorFilter.Create([0]), RS_FONT_PLAIN_12), Item) then
     begin
       Self.Items += [Item, Buttons[I].Index , 0];
 

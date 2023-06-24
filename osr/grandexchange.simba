@@ -198,8 +198,8 @@ begin
   B.Y2 := Self.Y1 + 65;
 
   case Self.GetCurrentInterface() of
-    ERSGEInterface.OFFER_SETUP:  Result := OCR.Recognize(B, TOCRColorRule.Create([2070783]), RS_FONT_BOLD_12);
-    ERSGEInterface.OFFER_STATUS: Result := OCR.Recognize(B, TOCRColorRule.Create([2070783]), RS_FONT_BOLD_12);
+    ERSGEInterface.OFFER_SETUP:  Result := OCR.Recognize(B, TOCRColorFilter.Create([2070783]), RS_FONT_BOLD_12);
+    ERSGEInterface.OFFER_STATUS: Result := OCR.Recognize(B, TOCRColorFilter.Create([2070783]), RS_FONT_BOLD_12);
   end;
 end;
 
@@ -213,7 +213,7 @@ begin
   end;
 
   if Button.Visible() then
-    Result := OCR.RecognizeNumber(Button.Bounds, TOCRColorRule.Create([4176127]), RS_FONT_PLAIN_11);
+    Result := OCR.RecognizeNumber(Button.Bounds, TOCRColorFilter.Create([4176127]), RS_FONT_PLAIN_11);
 end;
 
 function TRSGrandExchange.GetItemPrice: Int32;
@@ -226,7 +226,7 @@ begin
   end;
 
   if Button.Visible() then
-    Result := OCR.RecognizeNumber(Button.Bounds,  TOCRColorRule.Create([4176127]), RS_FONT_PLAIN_11);
+    Result := OCR.RecognizeNumber(Button.Bounds,  TOCRColorFilter.Create([4176127]), RS_FONT_PLAIN_11);
 end;
 
 function TRSGrandExchange.GetItemTotalPrice: Int32;
@@ -239,7 +239,7 @@ begin
   end;
 
   if Button.Visible() then
-    Result := OCR.RecognizeNumber(Button.Bounds,  TOCRColorRule.Create([$FFFFFF]), RS_FONT_PLAIN_11);
+    Result := OCR.RecognizeNumber(Button.Bounds,  TOCRColorFilter.Create([$FFFFFF]), RS_FONT_PLAIN_11);
 end;
 
 function TRSGrandExchange.GetItemGuidePrice: Int32;
@@ -259,13 +259,13 @@ begin
     B.Y2 += 20;
     B.X2 += 40;
 
-    Result := OCR.RecognizeNumber(B,  TOCRColorRule.Create([4176127]), RS_FONT_PLAIN_11);
+    Result := OCR.RecognizeNumber(B,  TOCRColorFilter.Create([4176127]), RS_FONT_PLAIN_11);
   end;
 end;
 
 function TRSGrandExchange.IsSearchOpen: Boolean;
 begin
-  Result := OCR.LocateText(Chat.Bounds, 'What would you like to buy', RS_FONT_BOLD_12, TOCRColorRule.Create([$000000]), 1);
+  Result := OCR.LocateText(Chat.Bounds, 'What would you like to buy', RS_FONT_BOLD_12, TOCRColorFilter.Create([$000000]), 1);
 end;
 
 function TRSGrandExchange.OpenSearch: Boolean;
@@ -279,7 +279,7 @@ end;
 
 function TRSGrandExchange.GetCurrentSearch: String;
 begin
-  Result := OCR.Recognize(Chat.Bounds,  TOCRColorRule.Create([8388608]), RS_FONT_BOLD_12).StripR('*');
+  Result := OCR.Recognize(Chat.Bounds,  TOCRColorFilter.Create([8388608]), RS_FONT_BOLD_12).StripR('*');
 end;
 
 function TRSGrandExchange.ClearSearch: Boolean;
@@ -295,14 +295,14 @@ begin
   if (Item <> '') then
     Item[1] := UpCase(Item[1]);
 
-  Result := OCR.LocateText(Chat.Bounds, Item, RS_FONT_PLAIN_12,  TOCRColorRule.Create([$000000]), B) = 1;
+  Result := OCR.LocateText(Chat.Bounds, Item, RS_FONT_PLAIN_12,  TOCRColorFilter.Create([$000000]), B) = 1;
 end;
 
 function TRSGrandExchange.ClickSearch(Item: String): Boolean;
 var
   B: TBox;
 begin
-  Result := Self.IsSearchOpen() and (OCR.LocateText(Chat.Bounds, Item, RS_FONT_PLAIN_12,  TOCRColorRule.Create([$000000]), B) = 1);
+  Result := Self.IsSearchOpen() and (OCR.LocateText(Chat.Bounds, Item, RS_FONT_PLAIN_12,  TOCRColorFilter.Create([$000000]), B) = 1);
   if Result then
     Mouse.Click(B, MOUSE_LEFT);
 end;
@@ -311,7 +311,7 @@ function TRSGrandExchange.Search(Item: String; Click: Boolean): Boolean;
 var
   B: TBox;
 begin
-  if OCR.LocateText(Chat.Bounds, Item, RS_FONT_BOLD_12, TOCRColorRule.Create([8388608]), 1) then
+  if OCR.LocateText(Chat.Bounds, Item, RS_FONT_BOLD_12, TOCRColorFilter.Create([8388608]), 1) then
     Exit(True);
 
   if Self.OpenSearch() and Self.ClearSearch() then
@@ -358,7 +358,7 @@ var
 begin
   Slots := Self.GetOfferSlots();
 
-  case OCR.Recognize(Slots[Slot], TOCRColorRule.Create([2070783]), RS_FONT_BOLD_12) of
+  case OCR.Recognize(Slots[Slot], TOCRColorFilter.Create([2070783]), RS_FONT_BOLD_12) of
     'Empty': Result.OfferType := ERSGEOfferType.EMPTY;
     'Buy':   Result.OfferType := ERSGEOfferType.BUY;
     'Sell':  Result.OfferType := ERSGEOfferType.SELL;
@@ -366,8 +366,8 @@ begin
 
   if (Result.OfferType <> ERSGEOfferType.EMPTY) then
   begin
-    Result.Item := OCR.RecognizeMulti(Slots[Slot], TOCRColorRule.Create([4176127]), RS_FONT_PLAIN_11).Merge(' ');
-    Result.PricePerItem := OCR.RecognizeNumber(Slots[Slot], TOCRColorRule.Create([2070783]), RS_FONT_PLAIN_11);
+    Result.Item := OCR.RecognizeLines(Slots[Slot], TOCRColorFilter.Create([4176127]), RS_FONT_PLAIN_11).Merge(' ');
+    Result.PricePerItem := OCR.RecognizeNumber(Slots[Slot], TOCRColorFilter.Create([2070783]), RS_FONT_PLAIN_11);
     Result.Quantity := SRL.GetItemAmount(Slots[Slot]);
     Result.TotalPrice := Result.Quantity * Result.PricePerItem;
     Result.Progress := Self.GetProgress(Slots[Slot], 105);
@@ -409,7 +409,7 @@ begin
 
     Item := [];
     Item.Bounds := Row;
-    Item.Item := OCR.Recognize(Columns[1].Expand(25, 0), TOCRColorRule.Create([4176127, $FFFFFF]), RS_FONT_PLAIN_12);
+    Item.Item := OCR.Recognize(Columns[1].Expand(25, 0), TOCRColorFilter.Create([4176127, $FFFFFF]), RS_FONT_PLAIN_12);
     if (Item.Item = '') then
       Continue;
 
@@ -417,7 +417,7 @@ begin
     if (Item.Quantity = 0) Then
       Item.Quantity := 1;
 
-    Item.TotalPrice := OCR.RecognizeNumber(Columns[3], TOCRColorRule.Create([2070783]), RS_FONT_PLAIN_11);
+    Item.TotalPrice := OCR.RecognizeNumber(Columns[3], TOCRColorFilter.Create([2070783]), RS_FONT_PLAIN_11);
     Item.PricePerItem := Item.TotalPrice div Item.Quantity;
 
     Result := Result + Item;
