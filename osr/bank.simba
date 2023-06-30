@@ -175,8 +175,12 @@ begin
 end;
 
 function TRSBank.GetButton(button: ERSBankButton): TRSButton;
+var
+  buttons: TRSButtonArray;
 begin
-  Result := Self.GetButtons()[button];
+  buttons := Self.GetButtons();
+  if buttons <> [] then
+    Result := Self.GetButtons()[button];
 end;
 
 (*
@@ -663,6 +667,7 @@ begin
     scroll := Self.GetScrollPosition();
     if Self.ContainsItem(item) then
       Exit(scroll);
+
     if not Self.IsOpen() then
       Exit(-1);
   until (scroll = 0) or (scroll = 100);
@@ -680,6 +685,7 @@ begin
     scroll := Self.GetScrollPosition();
     if Self.ContainsItem(item) then
       Exit(scroll);
+
     if not Self.IsOpen() then
       Exit(-1);
   until (scroll = 0) or (scroll = 100);
@@ -758,7 +764,7 @@ end;
 
 function TRSBank.IsCustomQuantity(Quantity: Int32): Boolean;
 begin
-  Result := not (Quantity in [1,5,10,BANK_DEPOSIT_ALL]);
+  Result := not (Quantity in [1,5,10, TRSBank.QUANTITY_ALL]);
 end;
 
 function TRSBank.DepositHelper(b: TBox; Amount: Int32; UseQuantityButtons: Boolean): Boolean;
@@ -804,7 +810,7 @@ begin
   begin
     Mouse.Move(B);
 
-    if (Amount = BANK_DEPOSIT_ALL) then
+    if (Amount = TRSBank.QUANTITY_ALL) then
       Result := ChooseOption.Select('Deposit-All')
     else
       Result := ChooseOption.Select('Deposit-' + ToString(Amount) + ' ', MOUSE_LEFT, True, False) or
@@ -829,8 +835,8 @@ begin
     Mouse.Move(B);
 
     case amount of
-      BANK_WITHDRAW_ALL:         Exit(ChooseOption.Select('Withdraw-All'));
-      BANK_WITHDRAW_ALL_BUT_ONE: Exit(ChooseOption.Select('Withdraw-All-but-1'));
+      TRSBank.QUANTITY_ALL:         Exit(ChooseOption.Select('Withdraw-All'));
+      TRSBank.QUANTITY_ALL_BUT_ONE: Exit(ChooseOption.Select('Withdraw-All-but-1'));
     end;
 
     Exit(ChooseOption.Select('Withdraw-' + ToString(amount) + ' ', MOUSE_LEFT, True, False) or
@@ -1206,7 +1212,7 @@ Deposits the specified **item** into the bank.
 Example
 -------
 
-  WriteLn BankDepositItem(['Coins', Bank.QUANTITY_ALL]);
+  WriteLn BankDepositItem(['Coins', TRSBank.QUANTITY_ALL]);
 *)
 function TRSBank.DepositItem(Item: TRSBankDepositItem; UseQuantityButtons: Boolean): Boolean; deprecated 'Use the TRSBankItem version instead';
 var
