@@ -825,9 +825,35 @@ Example
 function TRSInventory.CountItemStack(Item: TRSItem): Int32;
 var
   Slot: Int32;
+  textarea: TBox;
 begin
   if Self.FindItem(Item, Slot) then
-    Result := SRL.GetItemAmount(Self.GetSlotBox(Slot));
+  begin
+    textArea := Self.GetSlotBox(slot);
+    textArea.x2 += 5; //text can go up to 5px outside the clickbox
+    Result := SRL.GetItemAmount(textArea);
+  end;
+end;
+
+(*
+Inventory.CountStack
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSInventory.CountStack(Slot: Int32): Int32;
+
+Returns the stack amount found in the given inventory slot.
+
+Example
+-------
+
+  WriteLn Inventory.CountStack(0); //will print the stack amount of inventory slot 0
+*)
+function TRSInventory.CountStack(Slot: Int32): Int32;
+var
+  textarea: TBox;
+begin
+  textArea := Self.GetSlotBox(slot);
+  textArea.x2 += 5; //text can go up to 5px outside the clickbox
+  Result := SRL.GetItemAmount(textArea);
 end;
 
 
