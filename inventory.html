@@ -100,10 +100,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#inventory-containsall">Inventory.ContainsAll</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-countitem">Inventory.CountItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-countitemstack">Inventory.CountItemStack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory-countstack">Inventory.CountStack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-hoveritem">Inventory.HoverItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inventory-clickitem">Inventory.ClickItem</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id27">Inventory.Use</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id29">Inventory.ShiftDrop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id28">Inventory.Use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id30">Inventory.ShiftDrop</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bank.html">Bank</a></li>
@@ -530,14 +531,28 @@ Keep in mind this does not count a stack number, but every single item that occu
 </section>
 </section>
 <hr class="docutils" />
+<section id="inventory-countstack">
+<h2>Inventory.CountStack<a class="headerlink" href="#inventory-countstack" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSInventory</span><span class="o">.</span><span class="nf">CountStack</span><span class="p">(</span><span class="n">Slot</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns the stack amount found in the given inventory slot.</p>
+<section id="id25">
+<h3>Example<a class="headerlink" href="#id25" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Inventory</span><span class="o">.</span><span class="n">CountStack</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">;</span><span class="w"> </span><span class="c1">//will print the stack amount of inventory slot 0</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
 <section id="inventory-hoveritem">
 <h2>Inventory.HoverItem<a class="headerlink" href="#inventory-hoveritem" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSInventory</span><span class="o">.</span><span class="nf">HoverItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSItem</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Hover <strong>Item</strong> in the inventory.</p>
-<section id="id25">
-<h3>Example<a class="headerlink" href="#id25" title="Permalink to this heading"></a></h3>
+<section id="id26">
+<h3>Example<a class="headerlink" href="#id26" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="n">Inventory</span><span class="o">.</span><span class="n">HoverItem</span><span class="p">(</span><span class="s">&#39;Bronze arrows&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="w">  </span><span class="n">ChooseOption</span><span class="o">.</span><span class="n">Select</span><span class="p">(</span><span class="s">&#39;Drop&#39;</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
@@ -552,8 +567,8 @@ Keep in mind this does not count a stack number, but every single item that occu
 </div>
 <p>Clicks <strong>Item</strong> in the inventory. If <strong>Option</strong> is specified that option will be
 selected with right click if it exists.</p>
-<section id="id26">
-<h3>Example<a class="headerlink" href="#id26" title="Permalink to this heading"></a></h3>
+<section id="id27">
+<h3>Example<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Inventory</span><span class="o">.</span><span class="n">ClickItem</span><span class="p">(</span><span class="s">&#39;Attack potion(3)&#39;</span><span class="p">)</span><span class="o">;</span>
 <span class="nb">WriteLn</span><span class="w"> </span><span class="n">Inventory</span><span class="o">.</span><span class="n">ClickItem</span><span class="p">(</span><span class="s">&#39;Ashes&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;Drop&#39;</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
@@ -561,28 +576,28 @@ selected with right click if it exists.</p>
 </section>
 </section>
 <hr class="docutils" />
-<section id="id27">
-<h2>Inventory.Use<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h2>
+<section id="id28">
+<h2>Inventory.Use<a class="headerlink" href="#id28" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSInventory</span><span class="o">.</span><span class="nf">Use</span><span class="p">(</span><span class="n">Item</span><span class="o">,</span><span class="w"> </span><span class="n">OtherItem</span><span class="o">:</span><span class="w"> </span><span class="n">TRSItem</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Use one item on another</p>
-<section id="id28">
-<h3>Example<a class="headerlink" href="#id28" title="Permalink to this heading"></a></h3>
+<section id="id29">
+<h3>Example<a class="headerlink" href="#id29" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Inventory</span><span class="o">.</span><span class="n">Use</span><span class="p">(</span><span class="s">&#39;Knife&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;Oak logs&#39;</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>
 </section>
 <hr class="docutils" />
-<section id="id29">
-<h2>Inventory.ShiftDrop<a class="headerlink" href="#id29" title="Permalink to this heading"></a></h2>
+<section id="id30">
+<h2>Inventory.ShiftDrop<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSInventory</span><span class="o">.</span><span class="nf">ShiftDrop</span><span class="p">(</span><span class="n">Items</span><span class="o">:</span><span class="w"> </span><span class="n">TStringArray</span><span class="o">;</span><span class="w"> </span><span class="n">Pattern</span><span class="o">:</span><span class="w"> </span><span class="n">TIntegerArray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Shift drops items following the desired pattern.</p>
-<section id="id30">
-<h3>Example<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h3>
+<section id="id31">
+<h3>Example<a class="headerlink" href="#id31" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="c1">// Shift drop maple &amp; willow logs in the snake pattern</span>
 <span class="n">Inventory</span><span class="o">.</span><span class="n">ShiftDrop</span><span class="p">([</span><span class="s">&#39;Maple logs&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;Willow logs&#39;</span><span class="p">]</span><span class="o">,</span><span class="w"> </span><span class="n">DROP_PATTERN_SNAKE</span><span class="p">)</span><span class="o">;</span>
 </pre></div>

@@ -476,6 +476,23 @@ Example
 
 ------------
 
+Inventory.CountStack
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSInventory.CountStack(Slot: Int32): Int32;
+
+Returns the stack amount found in the given inventory slot.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Inventory.CountStack(0); //will print the stack amount of inventory slot 0
+
+
+------------
+
 Inventory.HoverItem
 ~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
