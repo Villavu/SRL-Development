@@ -100,7 +100,7 @@ begin
       if (B.Y2 > Bounds.Y2) then
         Exit;
 
-      Result[I].Text := OCR.RecognizeStatic(B, TOCRThresholdRule.Create(-1), RS_FONT_BOLD_12_SHADOW);
+      Result[I].Text := OCR.RecognizeStatic(B, TOCRThresholdFilter.Create(-1), RS_FONT_BOLD_12_SHADOW);
       Result[I].Bounds := B;
     end;
   end;
