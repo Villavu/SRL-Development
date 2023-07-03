@@ -617,15 +617,14 @@ begin
 
   atpa.SortByY(False); //Sort the tabs text from bottom to top. This is because we are only interested in the very first above the item.
 
-
-  atpa := atpa[0].Cluster(1); //Now we make clusters of that single tab text. This will separate the text from the number.
-  atpa.SortByX(False);        //Sort the tab text from right to left because now we are only interested in the number which is to the right.
-  tpa := atpa[0];
-
-  //Now we run OCR on the number tpa to find out what number is it and set our result
-  Result := OCR.RecognizeNumber(tpa.Bounds(), TOCRColorRule.Create([10672356]), RS_FONT_PLAIN_11);
+  ATPA := ATPA[0].Cluster(1); //Now we make clusters of that single tab text. This will separate the text from the number.
+  ATPA.SortByX(False);        //Sort the tab text from right to left because now we are only interested in the number which is to the right.
+  TPA := ATPA[0];
+  
+  //Now we run OCR on the number TPA to find out what number is it and set our result
+  Result := OCR.RecognizeNumber(TPA.Bounds, TOCRColorFilter.Create([10672356]), RS_FONT_PLAIN_11);
   if Result = 0 then
-    Result := OCR.RecognizeNumber(tpa.Bounds(), TOCRColorRule.Create([16777215]), RS_FONT_PLAIN_11);
+    Result := OCR.RecognizeNumber(TPA.Bounds, TOCRColorFilter.Create([16777215]), RS_FONT_PLAIN_11);
 
   if (Result > 0) and openTab then
     Self.OpenTab(Result);
