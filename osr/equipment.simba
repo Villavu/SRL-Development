@@ -144,7 +144,10 @@ var
   B: TBox;
 begin
   if Self.FindItem(Item, B) then
+  begin
+    B.x2 += 5;
     Result := SRL.GetItemAmount(B);
+  end;
 end;
 
 
