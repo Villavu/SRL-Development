@@ -88,7 +88,14 @@
 <li class="toctree-l2"><a class="reference internal" href="#bank-counttabs">Bank.CountTabs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bank-getcurrenttab">Bank.GetCurrentTab</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bank-opentab">Bank.OpenTab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bank-finditem">Bank.FindItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bank-containsitem">Bank.ContainsItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bank-countitem">Bank.CountItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bank-countitemstack">Bank.CountItemStack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bank-mouseitem">Bank.MouseItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bank-clickitem">Bank.ClickItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bank-withdrawitem">Bank.WithdrawItem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bank-deposititem">Bank.DepositItem</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bank-depositall">Bank.DepositAll</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#var-bank">var Bank</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#gametabs-open">GameTabs.Open</a></li>
@@ -180,7 +187,7 @@ or press backspace.</p>
 <hr class="docutils" />
 <section id="bank-search">
 <h2>Bank.Search<a class="headerlink" href="#bank-search" title="Permalink to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">Search</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">Search</span><span class="p">(</span><span class="n">item</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Searches for an item.</p>
@@ -194,7 +201,7 @@ or press backspace.</p>
 <hr class="docutils" />
 <section id="bank-closesearch">
 <h2>Bank.CloseSearch<a class="headerlink" href="#bank-closesearch" title="Permalink to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">CloseSearch</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">CloseSearch</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Closes the bank search if it’s open.</p>
@@ -210,7 +217,7 @@ or press backspace.</p>
 <hr class="docutils" />
 <section id="bank-finditemboundaries">
 <h2>Bank.FindItemBoundaries<a class="headerlink" href="#bank-finditemboundaries" title="Permalink to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">FindItemBoundaries</span><span class="o">:</span><span class="w"> </span><span class="n">TBoxArray</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">FindItemBoundaries</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">TBoxArray</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Finds item boundaries. This is an internal function used to retrieve the boxes we
@@ -298,7 +305,7 @@ The result will be the BankTab of the item. <strong>-1</strong> means we didn’
 <hr class="docutils" />
 <section id="bank-getcurrenttab">
 <h2>Bank.GetCurrentTab<a class="headerlink" href="#bank-getcurrenttab" title="Permalink to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">GetCurrentTab</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">GetCurrentTab</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Get the current active bank tab.</p>
@@ -324,23 +331,113 @@ The result will be the BankTab of the item. <strong>-1</strong> means we didn’
 </section>
 </section>
 <hr class="docutils" />
+<section id="bank-finditem">
+<h2>Bank.FindItem<a class="headerlink" href="#bank-finditem" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">FindItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSItem</span><span class="o">;</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">Bounds</span><span class="o">:</span><span class="w"> </span><span class="n">TBox</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Finds and returns the bounds of an item in the bank</p>
+<section id="id10">
+<h3>Example<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Bank</span><span class="o">.</span><span class="n">FindItem</span><span class="p">(</span><span class="s">&#39;Coins&#39;</span><span class="o">,</span><span class="w"> </span><span class="n">Box</span><span class="p">)</span><span class="o">;</span>
+<span class="n">Debug</span><span class="p">(</span><span class="n">Box</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="bank-containsitem">
+<h2>Bank.ContainsItem<a class="headerlink" href="#bank-containsitem" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">ContainsItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSItem</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Returns true/false wether a item is found in the bank or not.</p>
+<section id="id11">
+<h3>Example<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Bank</span><span class="o">.</span><span class="n">ContainsItem</span><span class="p">(</span><span class="s">&#39;Coins&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="bank-countitem">
+<h2>Bank.CountItem<a class="headerlink" href="#bank-countitem" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">CountItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSItem</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Counts the amount of items that share the same sprite in the bank.
+This are extremely rare but do exist, e.g.: Edible seaweed, seaweed, giant seaweed.</p>
+<section id="id12">
+<h3>Example<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Bank</span><span class="o">.</span><span class="n">CountItem</span><span class="p">(</span><span class="s">&#39;Seaweed&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="bank-countitemstack">
+<h2>Bank.CountItemStack<a class="headerlink" href="#bank-countitemstack" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">CountItemStack</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSItem</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Int32</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Counts the stack amount of a item in the bank.</p>
+<section id="id13">
+<h3>Example<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">Bank</span><span class="o">.</span><span class="n">CountItemStack</span><span class="p">(</span><span class="s">&#39;Coins&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="bank-mouseitem">
+<h2>Bank.MouseItem<a class="headerlink" href="#bank-mouseitem" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">MouseItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSItem</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Moves the mouse to an item.</p>
+<section id="id14">
+<h3>Example<a class="headerlink" href="#id14" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Bank</span><span class="o">.</span><span class="n">MouseItem</span><span class="p">(</span><span class="s">&#39;Coins&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="bank-clickitem">
+<h2>Bank.ClickItem<a class="headerlink" href="#bank-clickitem" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">ClickItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSItem</span><span class="o">;</span><span class="w"> </span><span class="n">Option</span><span class="o">:</span><span class="w"> </span><span class="k">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+</pre></div>
+</div>
+<p>Clicks an item in the bank. If an <strong>Option</strong> is specified and it’s not in the uptext it will right click the item and look for the <strong>Option</strong>.</p>
+<section id="id15">
+<h3>Example<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="n">Bank</span><span class="o">.</span><span class="n">ClickItem</span><span class="p">(</span><span class="s">&#39;Coins&#39;</span><span class="o">,</span><span class="w"> </span><span class="s">&#39;All&#39;</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
 <section id="bank-withdrawitem">
 <h2>Bank.WithdrawItem<a class="headerlink" href="#bank-withdrawitem" title="Permalink to this heading"></a></h2>
-<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">WithdrawItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSBankWithdrawItem</span><span class="o">;</span><span class="w"> </span><span class="n">UseQuantityButtons</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">WithdrawItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSBankWithdrawItem</span><span class="o">;</span><span class="w"> </span><span class="n">UseQuantityButtons</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">deprecated</span><span class="w"> </span><span class="s">&#39;User the TRSBankItem version instead&#39;</span><span class="o">;</span>
+<span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">WithdrawItem</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="n">item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSBankItem</span><span class="o">;</span><span class="w"> </span><span class="n">useQuantityButtons</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Finds and withdraws an item.</p>
 <section id="parameters">
 <h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
-<dl class="simple">
-<dt>Item</dt><dd><p>TRSBankWithdrawItem variable to withdraw.</p>
+<dl>
+<dt>Item</dt><dd><blockquote>
+<div><p>TRSBankWithdrawItem or TRSBankItem variable to withdraw.</p>
+</div></blockquote>
+<p>TRSBankItem caches the bank tab and scroll position the item is at for next uses.</p>
 </dd>
 <dt>UseQuantityButtons</dt><dd><p>Determines if to use the 1,5,10,X,ALL <cite>Quantity</cite> buttons.</p>
 </dd>
 </dl>
 </section>
-<section id="id10">
-<h3>Example<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<section id="id16">
+<h3>Example<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">var</span>
 <span class="w">  </span><span class="n">ItemToWithdraw</span><span class="o">:</span><span class="w"> </span><span class="n">TRSBankWithdrawItem</span><span class="o">;</span>
 
@@ -353,6 +450,21 @@ The result will be the BankTab of the item. <strong>-1</strong> means we didn’
 <span class="c1">// OR you can shorthand by passing an open array.</span>
 
 <span class="n">Bank</span><span class="o">.</span><span class="n">WithdrawItem</span><span class="p">([</span><span class="s">&#39;Iron full helm&#39;</span><span class="o">,</span><span class="w"> </span><span class="mi">5</span><span class="o">,</span><span class="w"> </span><span class="k">False</span><span class="p">]</span><span class="o">,</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="bank-deposititem">
+<h2>Bank.DepositItem<a class="headerlink" href="#bank-deposititem" title="Permalink to this heading"></a></h2>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">DepositItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSBankDepositItem</span><span class="o">;</span><span class="w"> </span><span class="n">UseQuantityButtons</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">deprecated</span><span class="w"> </span><span class="s">&#39;Use the TRSBankItem version instead&#39;</span><span class="o">;</span>
+<span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">DepositItem</span><span class="p">(</span><span class="n">item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSBankItem</span><span class="o">;</span><span class="w"> </span><span class="n">useQuantityButtons</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span>
+</pre></div>
+</div>
+<p>Deposits the specified <strong>item</strong> into the bank.</p>
+<section id="id17">
+<h3>Example<a class="headerlink" href="#id17" title="Permalink to this heading"></a></h3>
+<div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="nb">WriteLn</span><span class="w"> </span><span class="n">BankDepositItem</span><span class="p">([</span><span class="s">&#39;Coins&#39;</span><span class="o">,</span><span class="w"> </span><span class="n">TRSBank</span><span class="o">.</span><span class="n">QUANTITY_ALL</span><span class="p">])</span><span class="o">;</span>
 </pre></div>
 </div>
 </section>

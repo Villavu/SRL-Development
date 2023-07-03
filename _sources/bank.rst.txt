@@ -55,7 +55,7 @@ Bank.Search
 ~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.Search(Item: String): Boolean;
+ function TRSBank.Search(item: String): Boolean;
 
 Searches for an item.
 
@@ -72,7 +72,7 @@ Bank.CloseSearch
 ~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.CloseSearch: Boolean;
+ function TRSBank.CloseSearch(): Boolean;
 
 Closes the bank search if it's open.
 
@@ -91,7 +91,7 @@ Bank.FindItemBoundaries
 ~~~~~~~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.FindItemBoundaries: TBoxArray;
+ function TRSBank.FindItemBoundaries(): TBoxArray;
 
 Finds item boundaries. This is an internal function used to retrieve the boxes we
 search for items in.
@@ -190,7 +190,7 @@ Bank.GetCurrentTab
 ~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.GetCurrentTab: Int32;
+ function TRSBank.GetCurrentTab(): Int32;
 
 Get the current active bank tab.
 
@@ -204,7 +204,7 @@ Example
 ------------
 
 Bank.OpenTab
-~~~~~~~~~~~
+~~~~~~~~~~~~
 .. code-block:: pascal
 
  function TRSBank.OpenTab(Tab: Int32): Boolean;
@@ -220,11 +220,117 @@ Example
 
 ------------
 
+Bank.FindItem
+~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.FindItem(Item: TRSItem; out Bounds: TBox): Boolean;
+
+Finds and returns the bounds of an item in the bank
+
+Example
+-------
+.. code-block:: pascal  
+
+  Bank.FindItem('Coins', Box);
+  Debug(Box);
+
+
+------------
+
+Bank.ContainsItem
+~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.ContainsItem(Item: TRSItem): Boolean;
+
+Returns true/false wether a item is found in the bank or not.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Bank.ContainsItem('Coins');
+
+
+------------
+
+Bank.CountItem
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.CountItem(Item: TRSItem): Int32;
+
+Counts the amount of items that share the same sprite in the bank.
+This are extremely rare but do exist, e.g.: Edible seaweed, seaweed, giant seaweed.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Bank.CountItem('Seaweed');
+
+
+------------
+
+Bank.CountItemStack
+~~~~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.CountItemStack(Item: TRSItem): Int32;
+
+Counts the stack amount of a item in the bank.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn Bank.CountItemStack('Coins');
+
+
+------------
+
+Bank.MouseItem
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.MouseItem(Item: TRSItem): Boolean;
+
+Moves the mouse to an item.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Bank.MouseItem('Coins');
+
+
+------------
+
+Bank.ClickItem
+~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+ function TRSBank.ClickItem(Item: TRSItem; Option: String = ''): Boolean;
+
+Clicks an item in the bank. If an **Option** is specified and it's not in the uptext it will right click the item and look for the **Option**.
+
+Example
+-------
+.. code-block:: pascal  
+
+  Bank.ClickItem('Coins', 'All');
+
+
+------------
+
 Bank.WithdrawItem
 ~~~~~~~~~~~~~~~~~
 .. code-block:: pascal
 
- function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean;
+
+  function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean; deprecated 'User the TRSBankItem version instead';
+  function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload;
 
 Finds and withdraws an item.
 
@@ -232,7 +338,8 @@ Parameters
 ----------
 
 Item
-	TRSBankWithdrawItem variable to withdraw.
+	TRSBankWithdrawItem or TRSBankItem variable to withdraw.
+  TRSBankItem caches the bank tab and scroll position the item is at for next uses.
 
 UseQuantityButtons  
   Determines if to use the 1,5,10,X,ALL `Quantity` buttons.
@@ -253,6 +360,25 @@ Example
   // OR you can shorthand by passing an open array.
   
   Bank.WithdrawItem(['Iron full helm', 5, False], True);  
+
+
+------------
+
+Bank.DepositItem
+~~~~~~~~~~~~~~~~
+.. code-block:: pascal
+
+
+  function TRSBank.DepositItem(Item: TRSBankDepositItem; UseQuantityButtons: Boolean): Boolean; deprecated 'Use the TRSBankItem version instead';
+  function TRSBank.DepositItem(item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload
+
+Deposits the specified **item** into the bank.
+
+Example
+-------
+.. code-block:: pascal  
+
+  WriteLn BankDepositItem(['Coins', TRSBank.QUANTITY_ALL]);
 
 
 ------------
