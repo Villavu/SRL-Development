@@ -36,7 +36,9 @@ type
     DEPOSIT_WORN   
   );
 
-type TRSBank = record(TRSTitledInteface) class const
+type 
+  TRSBank = record(TRSTitledInteface) 
+  class const
     FINDER_UPTEXT: TStringArray = ['Use Bank', 'Bank chest', 'Bank Bank', 'Bank booth', 'Banker'];
     FINDER_OPTION: TStringArray = ['Use Bank', 'Bank Bank'];
     QUANTITY_ALL = -1;
