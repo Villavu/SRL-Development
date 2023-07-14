@@ -1115,7 +1115,7 @@ Bank.WithdrawItem
 ~~~~~~~~~~~~~~~~~
 .. pascal::
   function TRSBank.WithdrawItem(Item: TRSBankWithdrawItem; UseQuantityButtons: Boolean): Boolean; deprecated 'User the TRSBankItem version instead';
-  function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload;
+  function TRSBank.WithdrawItem(var item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload;
 
 Finds and withdraws an item.
 
@@ -1123,7 +1123,7 @@ Parameters
 ----------
 
 Item
-	TRSBankWithdrawItem or TRSBankItem variable to withdraw.
+  TRSBankWithdrawItem or TRSBankItem-variable to withdraw.
   TRSBankItem caches the bank tab and scroll position the item is at for next uses.
 
 UseQuantityButtons  
@@ -1141,7 +1141,7 @@ Example
   
   Bank.WithdrawItem(ItemToWithdraw, True);  
   
-  // OR you can shorthand by passing an open array.
+  // OR you can shorthand by passing a TRSBankWithdrawItem record.
   
   Bank.WithdrawItem(['Iron full helm', 5, False], True);  
 *)
@@ -1153,7 +1153,7 @@ begin
     Result := Self.WithdrawHelper(B, Item.Quantity, Item.Noted, UseQuantityButtons);
 end;
 
-function TRSBank.WithdrawItem(out item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload;
+function TRSBank.WithdrawItem(var item: TRSBankItem; useQuantityButtons: Boolean): Boolean; overload;
 var
   b: TBox;
   count: Int32;
