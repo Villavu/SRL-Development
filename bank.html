@@ -420,17 +420,15 @@ This are extremely rare but do exist, e.g.: Edible seaweed, seaweed, giant seawe
 <section id="bank-withdrawitem">
 <h2>Bank.WithdrawItem<a class="headerlink" href="#bank-withdrawitem" title="Permalink to this heading"></a></h2>
 <div class="highlight-pascal notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">WithdrawItem</span><span class="p">(</span><span class="n">Item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSBankWithdrawItem</span><span class="o">;</span><span class="w"> </span><span class="n">UseQuantityButtons</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">deprecated</span><span class="w"> </span><span class="s">&#39;User the TRSBankItem version instead&#39;</span><span class="o">;</span>
-<span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">WithdrawItem</span><span class="p">(</span><span class="n">out</span><span class="w"> </span><span class="n">item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSBankItem</span><span class="o">;</span><span class="w"> </span><span class="n">useQuantityButtons</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
+<span class="k">function</span><span class="w"> </span><span class="nc">TRSBank</span><span class="o">.</span><span class="nf">WithdrawItem</span><span class="p">(</span><span class="k">var</span><span class="w"> </span><span class="n">item</span><span class="o">:</span><span class="w"> </span><span class="n">TRSBankItem</span><span class="o">;</span><span class="w"> </span><span class="n">useQuantityButtons</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="o">;</span><span class="w"> </span><span class="n">overload</span><span class="o">;</span>
 </pre></div>
 </div>
 <p>Finds and withdraws an item.</p>
 <section id="parameters">
 <h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
-<dl>
-<dt>Item</dt><dd><blockquote>
-<div><p>TRSBankWithdrawItem or TRSBankItem variable to withdraw.</p>
-</div></blockquote>
-<p>TRSBankItem caches the bank tab and scroll position the item is at for next uses.</p>
+<dl class="simple">
+<dt>Item</dt><dd><p>TRSBankWithdrawItem or TRSBankItem-variable to withdraw.
+TRSBankItem caches the bank tab and scroll position the item is at for next uses.</p>
 </dd>
 <dt>UseQuantityButtons</dt><dd><p>Determines if to use the 1,5,10,X,ALL <cite>Quantity</cite> buttons.</p>
 </dd>
@@ -447,7 +445,7 @@ This are extremely rare but do exist, e.g.: Edible seaweed, seaweed, giant seawe
 
 <span class="n">Bank</span><span class="o">.</span><span class="n">WithdrawItem</span><span class="p">(</span><span class="n">ItemToWithdraw</span><span class="o">,</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">;</span>
 
-<span class="c1">// OR you can shorthand by passing an open array.</span>
+<span class="c1">// OR you can shorthand by passing a TRSBankWithdrawItem record.</span>
 
 <span class="n">Bank</span><span class="o">.</span><span class="n">WithdrawItem</span><span class="p">([</span><span class="s">&#39;Iron full helm&#39;</span><span class="o">,</span><span class="w"> </span><span class="mi">5</span><span class="o">,</span><span class="w"> </span><span class="k">False</span><span class="p">]</span><span class="o">,</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="o">;</span>
 </pre></div>
