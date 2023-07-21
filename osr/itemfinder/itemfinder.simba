@@ -9,7 +9,7 @@ Item Finder
 {$ENDIF}
 
 const
-  ITEM_FINDER_IMAGES_VERSION = '5'; // Inc if images have changed
+  ITEM_FINDER_IMAGES_VERSION = '6'; // Inc if images have changed
   ITEM_FINDER_IMAGES_ZIP     = {$macro CURRENT_DIRECTORY} + '/item-images.zip';
   ITEM_FINDER_IMAGES_PATH    = {$macro CURRENT_DIRECTORY} + '/images/' + ITEM_FINDER_IMAGES_VERSION + '/';
 
