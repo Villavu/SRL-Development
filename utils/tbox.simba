@@ -287,12 +287,12 @@ begin
   Boxes := [
     [Area.X1, Area.Y1, B.X1, B.Y1],
     [Area.X1, B.Y1, B.X1, B.Y2],
-    [Area.X1, B.Y1, B.X1, Area.Y2],
+    [Area.X1, B.Y2, B.X1, Area.Y2],
     [B.X1, Area.Y1, B.X2, B.Y1],
     [B.X1, B.Y2, B.X2, Area.Y2],
     [B.X2, Area.Y1, Area.X2, B.Y1],
     [B.X2, B.Y1, Area.X2, B.Y2],
-    [B.X2, B.Y1, Area.X2, Area.Y2]
+    [B.X2, B.Y2, Area.X2, Area.Y2]
   ];
 
   for B in Boxes do
