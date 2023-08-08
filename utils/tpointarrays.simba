@@ -45,18 +45,19 @@ end;
 
 procedure TPointArray.Remove(const Value: TPoint; const All: Boolean = False);
 var
-  Arr: TIntegerArray;
-  i: Integer;
+  i: Int32;
+  lst: TIntegerArray;
 begin
-  if (All) then
-    Arr := Self.FindAll(Value)
-  else begin
-    SetLength(Arr, 1);
-    Arr[0] := Self.Find(Value);
+  if (not All) then
+  begin
+    i := Self.Find(Value);
+    if i >= 0 then Self.Del(i);
+    Exit;
   end;
 
-  for i:=High(Arr) downto 0 do
-    Self.Del(Arr[i]);
+  lst := Self.FindAll(Value);
+  for i:=High(lst) downto 0 do
+    Self.Del(lst[i]);
 end;
 
 function TPointArray.Pop(): TPoint;
