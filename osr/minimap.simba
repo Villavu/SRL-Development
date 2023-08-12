@@ -371,7 +371,7 @@ begin
   end;
 end;
 
-function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray; override;
+function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
 var
   Blacks: TPointArray;
 
