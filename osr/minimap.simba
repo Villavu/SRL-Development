@@ -371,16 +371,17 @@ begin
   end;
 end;
 
-function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
+function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray; override;
 var
   Blacks: TPointArray;
 
   function FindDots(Blacks: TPointArray; Color, T: Int32): TPointArray;
   var
     i: Int32;
-    p: TPoint;
+    c,p: TPoint;
     left, right: Boolean;
   begin
+    c := BMP.GetCenter();
     for i:=0 to High(Blacks)-1 do
     begin
       left := ((BMP.GetPixel(Blacks[i].x+3,Blacks[i].y+0) = 65536) and (BMP.GetPixel(Blacks[i].x+1,Blacks[i].y-1) <> 65536)) or
@@ -398,6 +399,20 @@ var
 
         if Result.Find(p) > -1 then
           Continue;
+
+        if (p+Point(2,2)).DistanceTo(c) <= 2 then
+        begin
+          // match corner pixel colors instead to see what's under our character
+          if  SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+0), t) and
+              SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+0), t) and
+              SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+1), t) and
+              SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+2), t) then
+          begin
+            Result += p;
+          end;
+          //skip further center checks as they will lead to false positives.
+          continue;
+        end;
 
         if Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+0), t)) +
            Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+0), t)) +
@@ -447,7 +462,7 @@ begin
     SetColorToleranceSpeed(1);
     SetToleranceSpeed2Modifiers(0.2, 0.2);
   end;
-end;
+end; 
 
 function TRSMinimap.GetDots(Dots: ERSMinimapDots): TPointArray; overload;
 var
