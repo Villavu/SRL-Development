@@ -6,24 +6,33 @@ Welcome to SRL documentation!
 
 	:caption: OSR
 
-   magic
-   bank
+   keybindings
+   inventory
    antiban
    combat
-   make
-   craftscreen
-   mm2ms
-   rsclient
-   login
-   chat
-   keybindings
-   misc
-   inventory
-   xpbar
-   depositbox
    prayer
-   mainscreen
    grandexchange
+   depositbox
+   chat
+   mm2ms
+   magic
+   make
+   misc
+   mainscreen
+   rsclient
+   xpbar
+   bank
+   craftscreen
+   login
+
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+	:caption: OSR -> ITEMFINDER
+
+   itemfinder
 
 -----------
 
@@ -42,36 +51,27 @@ Welcome to SRL documentation!
 .. toctree::
    :maxdepth: 2
 
-	:caption: OSR -> ITEMFINDER
-
-   itemfinder
-
------------
-
-.. toctree::
-   :maxdepth: 2
-
 	:caption: UTILS
 
-   keyboard
-   drawing
-   random
-   integerarrays
-   string
-   tpointarrays
-   tboxarrays
    tpoint
-   trectangle
-   mouse
-   pixelshift
-   tbox
-   wrappers
-   matrix
-   math
-   color
-   time
-   tcircle
+   random
+   tpointarrays
+   integerarrays
+   tboxarrays
    extendedarrays
+   string
+   wrappers
+   drawing
+   tcircle
+   time
+   tbox
+   keyboard
+   math
+   trectangle
+   matrix
+   color
+   pixelshift
+   mouse
 
 -----------
 
