@@ -73,7 +73,6 @@ var
   dotpts: TPointArray;
   g: T2DPointArray;
 begin
-  RSClient.Image.Clear();
   with Self.GetCompassCircle do
   begin
     if SRL.FindColors(dotpts, CTS1(2565532, 50), Bounds()) then // red
