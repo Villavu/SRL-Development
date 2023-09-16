@@ -70,27 +70,28 @@ end;
 
 function TRSMinimap.GetCompassAngle(AsDegrees: Boolean = True): Double;
 var
-  TPA: TPointArray;
-  ATPA: T2DPointArray;
-  South: Vector2;
+  dotpts: TPointArray;
+  g: T2DPointArray;
 begin
-  with GetCompassCircle() do
-    if SRL.FindColors(TPA, CTS1(2565532, 50), Bounds()) then // red
+  RSClient.Image.Clear();
+  with Self.GetCompassCircle do
+  begin
+    if SRL.FindColors(dotpts, CTS1(2565532, 50), Bounds()) then // red
     begin
-      FilterPointsDist(TPA, 0, Radius, X,Y);
-      ATPA := TPA.Split(5);
-      ATPA.SortByMiddle(ATPA.Biggest().Mean());
-    
-      South := ATPA[High(ATPA)].MeanEx;
-    
-      Result := FixRad(ArcTan2(South.Y - Y, South.X - X) - (PI / 2));
-      if (Result <> 0) then
-      begin
-	      Result += 0.0333; // compass dial is floored.. this makes us more accurate.
-        if AsDegrees then
-          Result := Degrees(Result);
-      end;
+      FilterPointsDist(dotpts, 12, Radius, X,Y);
+      g := dotpts.Cluster(4);
+
+      if (g[0].Mean().DistanceTo(g[1].Mean()) > 25) then Swap(g[0], g[2]);
+      if (g[0].Mean().DistanceTo(g[2].Mean()) > 25) then Swap(g[0], g[1]);
+
+      if Abs(srl.DeltaAngle(ArcTan2(g[1][0].Y - Y, g[1][0].X - X)+PI/2, ArcTan2(g[0][0].Y - Y, g[0][0].X - X), 2*PI)) > PI/2 then
+        Swap(g[1], g[2]);
+
+      Result := FixRad(ArcTan2(g[1].MeanEx().Y - g[2].MeanEx().Y, g[1].MeanEx().X - g[2].MeanEx().X));
+
+      if AsDegrees then Result := Degrees(Result);
     end;
+  end;
 end;
 
 
