@@ -259,6 +259,15 @@ begin
   Bitmap.DrawBoxes(Self.GetSlotBoxes(), $00FFFF);
 end;
 
+function TRSBank.ScrollAreaFunction(): TBox;
+begin
+  Result := Self.Bounds();
+  Result.X1 += 5;
+  Result.Y1 += 77;
+  Result.X2 -= 24;
+  Result.Y2 -= 44;
+end;
+
 (*
 Bank.Setup
 ~~~~~~~~~~
@@ -273,6 +282,7 @@ begin
   inherited;
     
   Self.Name := 'Bank';
+  Self.GetScrollAreaFunction := @Self.ScrollAreaFunction;
 end;
 
 procedure TRSBank.SetupAlignment(Mode: ERSClientMode); override;

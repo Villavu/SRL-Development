@@ -55,6 +55,7 @@ begin
   inherited;
 
   Self.Name := 'Chatbox';
+  Self.GetScrollAreaFunction := @Self.Bounds;
 end;
 
 (*
