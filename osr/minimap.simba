@@ -371,115 +371,687 @@ begin
   end;
 end;
 
-function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
-var
-  Blacks: TPointArray;
 
-  function FindDots(Blacks: TPointArray; Color, T: Int32): TPointArray;
+(*
+Minimap.FindDotShadows
+~~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.FindDotShadows(bmp: TMufasaBitmap): T2DPointArray;
+
+Returns an ATPA of the found dot shadows in a bitmap of the minimap.
+
+Example
+-------
+
+  bmp.FromClient(Minimap.Bounds());
+  atpa := Minimap.FindDotShadows(bmp);
+  bmp.DrawATPA(atpa);
+  bmp.Debug();
+  bmp.Free();
+*)
+function TRSMinimap.FindDotShadows(bmp: TMufasaBitmap): T2DPointArray;
+const
+  BLACK = 65536;
+  SHADOW = 1;
+  DOT_CENTER = 2;
+  ICON = 3;
+var
+  matrix: T2DIntArray;
+  bounds, center: TBox;
+
+  function _GetColor(p: TPoint): Int32;
+  begin
+    if not bounds.Contains(p) then
+      Exit(-2);
+
+    //Set our matrix row if it's not set yet
+    if matrix[p.Y] = [] then
+    begin
+      SetLength(matrix[p.Y], bmp.GetWidth());
+      matrix[p.Y, p.X] := bmp.GetPixel(p.X, p.Y);
+    end;
+
+    //Since ints default to 0, we should actually read the pixel from the bitmap
+    if matrix[p.Y, p.X] = 0 then
+    begin
+      matrix[p.Y, p.X] := bmp.GetPixel(p.X, p.Y);
+      //Set it to -1 so we don't need to do this again.
+      if matrix[p.Y, p.X] = 0 then
+        matrix[p.Y, p.X] := -1;
+    end;
+
+    Result := matrix[p.Y, p.X];
+  end;
+
+  procedure _SetColor(p: TPoint; color: Int32);
+  begin
+    if matrix[p.Y] = [] then //if matrix row doesn't exist yet, create it.
+      SetLength(matrix[p.Y], bmp.GetWidth());
+    matrix[p.Y, p.X] := color; //set the color on our matrix
+  end;
+
+  procedure _SetColor(tpa: TPointArray; color: Int32); overload;
+  var
+    p: TPoint;
+  begin
+    for p in tpa do _SetColor(p, color);
+  end;
+
+  function _GetCandidates(p: TPoint): TPointArray; //Get dot shadow candidates for any given pixel
+  const
+    OFFSETS: TPointArray = [[1, 1], [2, 1], [-1, 1], [-2, 1], [-1, -1], [1,-1], [1, 0], [-1, 0], [-2, -1], [2, -1], [-3, 0], [3, 0]];
   var
     i: Int32;
-    c,p: TPoint;
-    left, right: Boolean;
+    q: TPoint;
   begin
-    c := BMP.GetCenter();
-    for i:=0 to High(Blacks)-1 do
+    for i := 0 to High(OFFSETS) do
     begin
-      left := ((BMP.GetPixel(Blacks[i].x+3,Blacks[i].y+0) = 65536) and (BMP.GetPixel(Blacks[i].x+1,Blacks[i].y-1) <> 65536)) or
-              ((BMP.GetPixel(Blacks[i].x+2,Blacks[i].y+1) = 65536) and (BMP.GetPixel(Blacks[i].x+1,Blacks[i].y+0) <> 65536));
+      q := p.Offset(OFFSETS[i]);
 
-      right := False;
-      if not left then
-        right := ((BMP.GetPixel(Blacks[i].x-2,Blacks[i].y+1) = 65536) and (BMP.GetPixel(Blacks[i].x-1,Blacks[i].y+0) <> 65536));
+      //Lower part of a dot shadow can only have a black pixel right below if it's an ICON
+      //since it's hard to know if something was marked as ICON properly we better skip it too.
+      if (i<4) then
+        case _GetColor(q.Offset(0,1)) of
+          BLACK, SHADOW, ICON: Continue;
+        end;
 
-      if left or right then
+      //DOT_CENTER is the center part of the minimap dots that will never ever have a black pixel.
+      if _GetColor(q) <> DOT_CENTER then
+        Result += q;
+    end;
+  end;
+
+  function _GetDotCenter(p: TPoint): TPointArray; //Get the 4 central points of a dot shadow P coordinate
+  begin
+    p :=  p.Offset(1,-2);
+    Result := [p, p.Offset(1,0), p.Offset(0,1), p.Offset(1,1)];
+  end;
+
+  function _CanBeShadow(p, q: TPoint): Boolean;
+  begin
+    case _GetColor(q) of
+      BLACK, ICON: ;
+      else if not center.Contains(q) then Exit;
+    end;
+
+    if p.DistanceTo(q) > 2 then
+      Exit((_GetColor(p.Offset(1, 0)) <> BLACK) and (_GetColor(q.Offset(-1, 0)) <> BLACK));
+    Result := _GetColor(q.Offset(0, -1)) <> BLACK;
+  end;
+
+  function _GetShadow(p: TPoint; out a, b, q: TPoint): Boolean;
+  const
+    OFFSETS: TPointArray = [[1, 0], [0, 2]];
+  var
+    i: Int32;
+  begin
+    q := p.Offset(3, 0);
+
+    if not center.Contains(q) and (_GetColor(q) <> BLACK) then
+      Exit;
+
+    for i := 0 to High(OFFSETS) do
+    begin
+      a := p.Offset(OFFSETS[i]);
+      if center.Contains(a) or (_GetColor(a) = BLACK) then
+        Exit;
+    end;
+
+    a := p.Offset(1, 1);
+    b := p.Offset(2, 1);
+    _SetColor([p, a, b, q], 0);
+    Result := True;
+  end;
+
+  function _DotOverlap(p: TPoint): Boolean;
+  const
+    OFFSETS: TPointArray = [[-3, 0], [-4, 0], [3, 0], [4, 0], [0, -3], [0, -4], [0, 3], [0, 4]];
+  var
+    i: Int32;
+  begin
+    for i := 0 to High(OFFSETS) do
+      case _GetColor(p.Offset(OFFSETS[i])) of
+        BLACK, SHADOW: Exit(True);
+      end;
+  end;
+
+  procedure _CandidatesBounds(candidates: TPointArray; out lo, hi: TPoint);
+  var
+    i: Int32;
+  begin
+    lo := [$FFFFFF, $FFFFFF];
+    hi := [0, 0];
+    for i := 0 to High(candidates) do
+    begin
+      if candidates[i].X > hi.X then hi.X := candidates[i].X;
+      if candidates[i].X < lo.X then lo.X := candidates[i].X;
+
+      if candidates[i].Y > hi.Y then hi.Y := candidates[i].Y;
+      if candidates[i].Y < lo.Y then lo.Y := candidates[i].Y;
+    end;
+  end;
+
+  function _IsValidShadow(p, a, b, q: TPoint): Boolean;
+  begin
+    Result := (p.Y < a.Y) and (q.Y < b.Y) and (p.Y = q.Y) and (a.Y = b.Y) and
+              (p.DistanceTo(a) = q.DistanceTo(b)) and (p.DistanceTo(b) = q.DistanceTo(a));
+  end;
+
+  function _GetPABQ(out p, a, b, q : TPoint; candidates: TPointArray; lo, hi: TPoint): Boolean;
+  var
+    i: Int32;
+  begin
+    a := [0,0];
+    for i := 0 to 3 do
+    begin
+      if candidates[i].X = lo.X then
       begin
-        p := Blacks[i];
-        if right then p.x -= 3;
-        p.y -= 3;
+        p := candidates[i];
+        Continue;
+      end;
 
-        if Result.Find(p) > -1 then
-          Continue;
+      if candidates[i].X = hi.X then
+      begin
+        q := candidates[i];
+        Continue;
+      end;
 
-        if (p+Point(2,2)).DistanceTo(c) <= 2 then
-        begin
-          // match corner pixel colors instead to see what's under our character
-          if  SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+0), t) and
-              SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+0), t) and
-              SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+1), t) and
-              SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+2), t) then
-          begin
-            Result += p;
+      if a = [0,0] then
+        a := candidates[i]
+      else
+        b := candidates[i];
+    end;
+
+    if a.X > b.X then
+      Swap(a, b);
+
+    Result := _IsValidShadow(p, a, b, q);
+  end;
+
+  function _IsShadowUnder(out p, a, b, q : TPoint; candidates: TPointArray): Boolean;
+  const
+    OFFSETS: TPointArray = [[0, 2], [0, 3], [0, 4]];
+  var
+    i, j, iterations: Int32;
+    lo, hi: TPoint;
+    left, right: TPointArray;
+  begin
+    if Length(candidates) < 3 then
+      Exit;
+
+    candidates += p;
+    iterations := High(candidates);
+
+    if Length(candidates) = 13 then
+    begin
+      for i := 0 to iterations do
+      begin
+        for j := 0 to High(OFFSETS) do
+          case _GetColor(candidates[i].Offset(OFFSETS[j])) of
+            BLACK, ICON, SHADOW: Continue(2);
           end;
-          //skip further center checks as they will lead to false positives.
-          continue;
+
+        Delete(candidates, i, 1);
+        iterations := High(candidates);
+        i -= 1;
+      end;
+    end;
+
+    case Length(candidates) of
+      0, 13: Exit;
+    end;
+
+    _CandidatesBounds(candidates, lo, hi);
+
+    if Length(candidates) = 4 then
+      Exit(_GetPABQ(p, a, b, q, candidates, lo, hi));
+
+    for i := 0 to iterations do
+    begin
+      q := candidates[i];
+      case q.Y of
+        lo.Y: for a in [q.Offset(-3,0), q.Offset(3,0)] do
+                if candidates.Find(a) > -1 then
+                  Continue(2);
+
+        hi.Y: if (q.X > lo.X) and (q.X < hi.X) then
+                for a in [q.Offset(-1,0), q.Offset(1,0)] do
+                  if not center.Contains(a) and (candidates.Find(a) > -1) then
+                    for a in [q.Offset(-1,-1), q.Offset(1,-1)] do
+                      if candidates.Find(a) > -1 then
+                        Continue(3);
+        else
+        begin
+          case q.X of
+            lo.X: if candidates.Find(q.Offset(1,1)) > -1 then
+                    Continue;
+            hi.X: if candidates.Find(q.Offset(-1,1)) > -1 then
+                    Continue;
+            else Continue;
+          end;
+        end;
+      end;
+
+      Delete(candidates, i, 1);
+      iterations := High(candidates);
+      i := -1;
+      _CandidatesBounds(candidates, lo, hi);
+    end;
+
+    if Length(candidates) = 4 then
+      Exit(_GetPABQ(p, a, b, q, candidates, lo, hi));
+
+    for i := 0 to iterations do
+    begin
+      q := candidates[i];
+
+      if q.X < p.X then left += q
+      else if q.X > p.X then right += q;
+    end;
+
+    //Decide on unreliable results.
+    if (Length(left) = Length(right)) or (Length(candidates) > 6) then
+    begin
+      for i := 0 to High(left) do
+        q := left[i];
+        case _GetColor(q) of
+          BLACK, SHADOW, ICON: Exit(_IsShadowUnder(p, a, b, q, left));
         end;
 
-        if Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+0), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+0), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+1), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+1), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+1), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+3,p.y+1), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+0,p.y+2), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+2), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+2), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+3,p.y+2), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+1,p.y+3), t)) +
-           Ord(SimilarColors(Color, BMP.GetPixel(p.x+2,p.y+3), t)) >= 8 then
-        begin
-          Result += p;
+      for i := 0 to High(right) do
+        q := right[i];
+        case _GetColor(q) of
+          BLACK, SHADOW, ICON: Exit(_IsShadowUnder(p, a, b, q, right));
         end;
+
+      Exit;
+    end;
+
+    if Length(left) < 3 then
+      Exit(_IsShadowUnder(p, a, b, q, right));
+    if Length(right) < 3 then
+      Exit(_IsShadowUnder(p, a, b, q, left));
+  end;
+
+  function _IsDotShadow(out p, a, b, q: TPoint): Boolean;
+  var
+    candidates, ab, pq: TPointArray;
+    i, hi: Int32;
+    pInAB, pInPQ: Boolean;
+  begin
+    candidates := _GetCandidates(p);
+    hi := High(candidates);
+
+    for i := 0 to hi do
+    begin
+      q := candidates[i];
+      if not _CanBeShadow(p, q) or (_GetColor(q.Offset(0,-1)) = BLACK) or
+         ((q.Y = p.Y) and (_GetColor(p.Offset(0,-1)) = BLACK)) then
+      begin
+        Delete(candidates, i, 1);
+        hi := High(candidates);
+        i -= 1;
+        Continue;
+      end;
+
+      if q.Y < p.Y then
+      begin
+        if not pInAB then
+        begin
+          ab += p;
+          pInAB := True;
+        end;
+        pq += q;
+        Continue;
+      end;
+
+      if q.Y > p.Y then
+      begin
+        if not pInPQ then
+        begin
+          pq += p;
+          pInPQ := True;
+        end;
+        ab += q;
+        Continue;
+      end;
+
+      case q.DistanceTo(p) of
+        1:  begin
+              if not pInAB then
+              begin
+                ab += p;
+                pInAB := True;
+              end;
+              ab += q;
+            end;
+        3:  begin
+              if not pInPQ then
+              begin
+                pq += p;
+                pInPQ := True;
+              end;
+              pq += q;
+            end;
+      end;
+    end;
+
+    if hi < 0 then
+      Exit(_IsShadowUnder(p, a, b, q, _GetCandidates(p)));
+
+    if Length(ab) = 1 then
+    begin
+      a := ab[0];
+      if a.X = p.X then
+        Exit;
+
+      if a.X > p.X then
+      begin
+        if a.DistanceTo(p) < 2 then
+          b := a.Offset(1,0)
+        else
+          b := a.Offset(-1,0);
+
+        q := p.Offset(3, 0);
+      end
+      else
+      begin
+        if a.DistanceTo(p) < 2 then
+          b := a.Offset(-1,0)
+        else
+          b := a.Offset(1,0);
+
+        q := p.Offset(-3, 0);
+      end;
+
+      if not _DotOverlap(q) and not _DotOverlap(b) then
+        Exit;
+
+      if p.X > q.X then
+        Swap(p, q);
+
+      if a.X > b.X then
+        Swap(a, b);
+
+      Exit(_IsValidShadow(p, a, b, q));
+    end;
+
+    if Length(ab) = 2 then
+    begin
+      a := ab[0];
+      b := ab[1];
+      if a.X > b.X then
+       Swap(a, b);
+
+      p := a.Offset(-1,-1);
+      q := p.Offset(3,0);
+
+      Exit(_IsValidShadow(p, a, b, q));
+    end;
+
+    if Length(pq) = 1 then
+    begin
+      q := pq[0];
+
+      if p.Y > q.Y then
+      begin
+        a := q;
+        if a.X > p.X then
+          q := p.Offset(3,0);
+      end;
+
+      if p.X > q.X then
+        Swap(p, q);
+
+      a := p.Offset(1,1);
+      b := p.Offset(2,1);
+      Exit(_IsValidShadow(p, a, b, q));
+    end;
+
+    Result := _IsShadowUnder(p, a, b, q, candidates);
+  end;
+
+  function _OnMinimap(p: TPoint): Boolean;
+  begin
+    if bounds.Contains(p) then
+      Result := ((p.X > 6) or (p.Y < 103)) and ((p.X > 30) or (p.Y < 124));
+  end;
+
+  procedure _Delete(out tpa: TPointarray; out i, hi: Int32);
+  begin
+    Delete(tpa, i, 1);
+    hi := High(tpa);
+    i -= 1;
+  end;
+
+const
+  ICON_OFFSETS: T2DPointArray = [[[0,-1],[0,1]], [[-1,0],[1,0]], [[-1,1],[1,-1]], [[0,-1],[-1,1]], [[0,1],[1,2]], [[-1,0],[-2,-1]]];
+  ICON_OFFSETS_RECHECK: TPointArray = [[1,0],[2,0]];
+var
+  blacks, tpa: TPointArray;
+  i, j, l, hi: Int32;
+  counts: TIntegerArray;
+  p, a, b, q: TPoint;
+begin
+  SetLength(matrix, bmp.getHeight());
+  bounds := Box(4, 4, bmp.GetWidth() - 5, bmp.GetHeight() - 5);
+  center := Box(bmp.getCenter(), 1, 1);
+  if not bmp.FindColors(blacks, BLACK) then Exit;
+
+  hi := High(blacks);
+
+  for i := 0 to hi do //First loop to extract 100% sure dot shadows nd mark things in our matrix with educated guesses (ICON, SHADOW, DOT_CENTER)
+  begin
+    if i = -1 then Break;
+    p := blacks[i];
+
+    //Delete and skip indices that are not on the minimap (spec attack/run energy orbs)
+    //Delete and skip indices that we marked on our matrix as ICON or SHADOW
+    if not _OnMinimap(p) or (_GetColor(p) <> BLACK) then
+    begin
+      _Delete(blacks, i, hi);
+      Continue;
+    end;
+
+    SetLength(counts, Length(ICON_OFFSETS));
+    //Mark minimap icons (bank, water source, mining spot, etc) as ICON in our matrix
+    for j := 0 to High(ICON_OFFSETS) do
+    begin
+      counts[j] := 0;
+      tpa := [];
+      for l := 0 to 1 do
+      begin
+        tpa += p.Offset(ICON_OFFSETS[j][l]); //done like this so we don't do offsets math needlessly
+        case _GetColor(tpa[l]) of
+          BLACK, ICON:
+            if Inc(counts[j]) = 2 then
+            begin
+              _Delete(blacks, i, hi);
+              matrix[p.Y, p.X] := ICON;
+              matrix[tpa[0].Y, tpa[0].X] := ICON;
+              matrix[tpa[1].Y, tpa[1].X] := ICON;
+              Continue(3);
+            end;
+        end;
+      end;
+    end;
+
+    //all pixels in a dot shadow never have this offset black
+    for q in [[1,-1], [-1,-1]] do
+      if _GetColor(p.Offset(q)) = BLACK then
+      begin
+        _Delete(blacks, i, hi);
+        _SetColor(p, 0);
+        Continue;
+      end;
+
+    if not _GetShadow(p, a, b, q) then
+      Continue;
+
+    //Mark known shadows as SHADOW in our matrix
+    Result += [p, a, b, q];
+    _SetColor([p, a, b, q], SHADOW);
+    _SetColor(_GetDotCenter(p), DOT_CENTER);
+  end;
+
+  for i := 0 to hi do //Second loop to go through the remaining black pixels and process them
+  begin
+    p := blacks[i];
+    l := 0;
+
+    case _GetColor(p) of
+      BLACK: ; //We continue through our code block...
+      ICON:  //if pixel is ICON, we need to do a final check to be sure
+        for j := 0 to 1 do
+          case _GetColor(p.Offset(ICON_OFFSETS_RECHECK[j])) of
+            BLACK, ICON:
+              if Inc(l) = 2 then
+              begin
+                _Delete(blacks, i, hi);
+                Continue(2);
+              end;
+          end;
+      else
+      begin
+        _Delete(blacks, i, hi);
+        Continue;
+      end;
+    end;
+
+    if not _IsDotShadow(p, a, b, q) then
+      Continue;
+
+    Result += [p, a, b, q];
+    _SetColor([p, a, b, q], SHADOW);
+    _SetColor(_GetDotCenter(p), DOT_CENTER);
+
+    Delete(blacks, i, 1);
+    hi := High(blacks);
+    i := -1;
+  end;
+end;
+
+(*
+Minimap.GetDotsBitmap
+~~~~~~~~~~~~~~~~~~~~~
+.. pascal:: function TRSMinimap.GetDotsBitmap(BMP: TMufasaBitmap; Dots: ERSMinimapDots): TPointArray;
+
+Returns the ERSMinimapDots found in a bitmap of the minimap.
+*)
+function TRSMinimap.GetDotsBitmap(bmp: TMufasaBitmap; dots: ERSMinimapDots): TPointArray;
+const
+  BLACK = 65536;
+var
+  blacks: T2DPointArray;
+
+  function _IsDotColor(p: TPoint; color, t, minCount: Int32; limit: Int32 = 0): Boolean;
+  const
+    OFFSETS: TPointArray = [[1,0],[2,0],[0,1],[0,2],[1,1],[2,1],[3,1],[1,2],[2,2],[3,2],[1,3],[2,3]];
+  var
+    i: Int32;
+    tmp: TPoint;
+  begin
+    if limit = 0 then
+      limit := High(OFFSETS);
+
+    for i := 0 to limit do
+    begin
+      tmp := p.Offset(OFFSETS[i]);
+      if SimilarColors(color, bmp.GetPixel(tmp.X, tmp.Y), t) then
+      begin
+        //tmpBMP.SetPixel(tmp.X, tmp.Y, BLACK+1);
+        if Dec(minCount) = 0 then
+          Exit(True);
       end;
     end;
   end;
 
+  function _FindDots(out blacks: T2DPointArray; color, t: Int32): TPointArray;
+  var
+    i, hi: Int32;
+    c, topLeft: TPoint;
+  begin
+    c := bmp.GetCenter();
+    hi := High(blacks);
+    for i := 0 to hi do
+    begin
+      topLeft := blacks[i][0].Offset(0, -3);
+
+      if topLeft.Offset(2, 2).DistanceTo(c) <= 2 then
+      begin
+        // match corner pixel colors instead to see what's under our character
+        if _IsDotColor(topLeft, color, t, 4, 3) then
+        begin
+          Result += topLeft;
+          Delete(blacks, i, 1);
+          hi -= 1;
+          i -= 1;
+        end;
+
+        //skip further center checks as they will lead to false positives.
+        Continue;
+      end;
+
+      if _IsDotColor(topLeft, color, t, 8) then
+      begin
+        Result += topLeft;
+        Delete(blacks, i, 1);
+        hi -= 1;
+        i -= 1;
+      end;
+    end;
+  end;
+
+const
+  DOT_COLORS: TIntegerArray = [$FFFFFF, $00FFFF, $0000FF];
+var
+  dot: ERSMinimapDot;
 begin
   try
-    BMP.FindColors(Blacks, 65536);
-    Blacks := Blacks.FilterBox(Box(2, 4, BMP.GetWidth - 4, BMP.GetHeight - 1));
+    blacks := Self.FindDotShadows(bmp);
+    SetColorToleranceSpeed(2);
 
-    if ERSMinimapDot.PLAYER in Dots then
+    for dot in dots do
     begin
-      SetColorToleranceSpeed(2);
-      SetToleranceSpeed2Modifiers(0.001, 0.001);
-      Result += FindDots(Blacks, $FFFFFF, 25);
-    end;
-
-    if ERSMinimapDot.NPC in Dots then
-    begin
-      SetColorToleranceSpeed(2);
-      SetToleranceSpeed2Modifiers(0.05, 1);
-      Result += FindDots(Blacks, $00FFFF, 30);
-    end;
-
-    if ERSMinimapDot.ITEM in Dots then
-    begin
-      SetColorToleranceSpeed(2);
-      SetToleranceSpeed2Modifiers(0.05, 1);
-      Result += FindDots(Blacks, $0000FF, 30);
+      case dot of
+        ERSMinimapDot.PLAYER: SetToleranceSpeed2Modifiers(0.001, 0.001);
+        ERSMinimapDot.NPC: SetToleranceSpeed2Modifiers(0.05, 1);
+        ERSMinimapDot.ITEM: SetToleranceSpeed2Modifiers(0.05, 1);
+      end;
+      Result += _FindDots(blacks, DOT_COLORS[Ord(dot)], 25);
     end;
   finally
     SetColorToleranceSpeed(1);
     SetToleranceSpeed2Modifiers(0.2, 0.2);
   end;
-end; 
+end;
 
-function TRSMinimap.GetDots(Dots: ERSMinimapDots): TPointArray; overload;
+(*
+Minimap.GetDots
+~~~~~~~~~~~~~~~
+.. pascal::
+  function TRSMinimap.GetDots(Dots: ERSMinimapDots): TPointArray;
+  function TRSMinimap.GetDots(Dot: ERSMinimapDot): TPointArray; overload;
+
+Returns a TPointArray with the coordinates of the ERSMinimapDots found on the minimap.
+*)
+function TRSMinimap.GetDots(dots: ERSMinimapDots): TPointArray;
 var
-  BMP: TMufasaBitmap;
+  bmp: TMufasaBitmap;
 begin
-  BMP.FromClient(Self.Bounds());
+  bmp.FromClient(Self.Bounds());
 
-  Result := GetDotsBitmap(BMP, Dots);
+  Result := Self.GetDotsBitmap(bmp, dots);
   Result := Result.Offset([Self.X1, Self.Y1]);
 
-  BMP.Free();
+  bmp.Free();
 end;
 
-function TRSMinimap.GetDots(Dot: ERSMinimapDot): TPointArray; overload;
+function TRSMinimap.GetDots(dot: ERSMinimapDot): TPointArray; overload;
 begin
-  Result := GetDots([Dot]);
+  Result := Self.GetDots([dot]);
 end;
+
+
 
 function TRSMinimap.IsPlayerMoving(MinShift: Integer = 500): Boolean;
 begin
